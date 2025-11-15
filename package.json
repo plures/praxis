@@ -1,0 +1,50 @@
+{
+  "name": "@plures/praxis",
+  "version": "0.1.0",
+  "description": "Practical, provable application logic built on strong types - a typed, functional application logic engine",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./svelte": {
+      "types": "./dist/integrations/svelte.d.ts",
+      "default": "./dist/integrations/svelte.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "praxis",
+    "logic",
+    "functional",
+    "typescript",
+    "state-management",
+    "facts",
+    "rules",
+    "constraints",
+    "plures"
+  ],
+  "author": "Plures",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@vitest/ui": "^4.0.9",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.9"
+  }
+}
