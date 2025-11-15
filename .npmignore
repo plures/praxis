@@ -1,0 +1,23 @@
+# Exclude test files
+src/__tests__
+*.test.ts
+*.test.js
+
+# Exclude examples (users can get them from GitHub)
+src/examples
+dist/examples
+
+# Exclude development files
+vitest.config.ts
+tsconfig.json
+.gitignore
+
+# Exclude build artifacts we don't need
+*.map
+
+# Node modules
+node_modules
+
+# Development directories
+coverage
+.vitest
