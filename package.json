@@ -15,7 +15,9 @@
     "build": "tsc",
     "test": "node --test",
     "lint": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "example:counter": "node examples/counter.js",
+    "example:order": "node examples/order-system.js"
   },
   "keywords": [
     "praxis",
