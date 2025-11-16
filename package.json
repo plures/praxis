@@ -1,0 +1,41 @@
+{
+  "name": "@plures/praxis",
+  "version": "0.1.0",
+  "description": "TypeScript library for typed, functional application logic. Logic-first: facts, events, rules, constraints, flows, actors.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "example:counter": "node examples/counter.js",
+    "example:order": "node examples/order-system.js"
+  },
+  "keywords": [
+    "praxis",
+    "functional",
+    "logic",
+    "rules",
+    "constraints",
+    "events",
+    "state-machine",
+    "typescript"
+  ],
+  "author": "plures",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
