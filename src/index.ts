@@ -57,6 +57,7 @@ export type {
   PraxisStepResult,
   PraxisStepFn,
 } from "./core/protocol.js";
+export { PRAXIS_PROTOCOL_VERSION } from "./core/protocol.js";
 
 // Rules and constraints
 export type {
@@ -77,6 +78,19 @@ export { LogicEngine, createPraxisEngine } from "./core/engine.js";
 // Actors
 export type { Actor } from "./core/actors.js";
 export { ActorManager, createTimerActor } from "./core/actors.js";
+
+// Introspection
+export type {
+  RuleNode,
+  ConstraintNode,
+  GraphEdge,
+  RegistryGraph,
+  RuleSchema,
+  ConstraintSchema,
+  RegistrySchema,
+  RegistryStats,
+} from "./core/introspection.js";
+export { RegistryIntrospector, createIntrospector } from "./core/introspection.js";
 
 // DSL helpers
 export {

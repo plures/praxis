@@ -57,6 +57,51 @@ Core is a pure, JSON-friendly step over `PraxisState`/`PraxisEvent`. Designed fo
 - 🌊 **Flows & Actors**: Orchestrate complex state transitions
 - 📦 **JSON-Friendly**: All types are serializable for cross-platform use
 - 🔒 **Type-Safe**: Full TypeScript support with strict typing
+- 🔍 **Introspection**: Generate schemas, graphs, and visualizations of your logic
+- 🌐 **Cross-Language**: PowerShell adapter with protocol versioning (C# coming soon)
+- 📊 **Comprehensive Testing**: 63+ tests covering edge cases, failures, and actors
+- 🎭 **Hero Example**: Full e-commerce demo with auth, cart, features, and actors
+
+## What's New in v0.1.0
+
+### 🧪 Hardened TypeScript Core
+- **63 comprehensive tests** (up from 18) covering:
+  - Edge cases and failure paths
+  - Actor lifecycle and state change notifications
+  - Constraint violations and rule errors
+  - Registry operations and module composition
+- Full test coverage ensures production-ready reliability
+
+### 📖 Protocol Versioning (v1.0.0)
+- **Explicit protocol version** (`protocolVersion` field in state)
+- **Stability guarantees** for cross-language compatibility
+- **Semantic versioning** with migration paths
+- See [PROTOCOL_VERSIONING.md](./PROTOCOL_VERSIONING.md) for details
+
+### 🔍 Visualization & Introspection
+- **Registry introspection API** for examining rules and constraints
+- **Graph export** in DOT (Graphviz) and Mermaid formats
+- **JSON schema generation** for documentation and tooling
+- **Search and query** capabilities for rules and constraints
+- **Dependency tracking** and relationship visualization
+
+### 💻 PowerShell Adapter
+- **Full PowerShell module** (`Praxis.psm1`) for cross-language usage
+- **CLI boundary** via JSON stdin/stdout
+- **Protocol version checking** ensures compatibility
+- **Complete example** with counter application
+- See [powershell/README.md](./powershell/README.md) for usage
+
+### 🎭 Hero Example: E-Commerce Platform
+A comprehensive example demonstrating all Praxis features:
+- **Authentication** with session management and timeouts
+- **Shopping cart** with item management and calculations
+- **Feature flags** for A/B testing (free shipping, loyalty program)
+- **Discount rules** with conditional logic
+- **Loyalty points** and order history
+- **Actors** for logging and analytics
+- **Constraints** enforcing business rules
+- See [src/examples/hero-ecommerce/](./src/examples/hero-ecommerce/) for code
 
 ## Installation
 
@@ -188,27 +233,45 @@ This protocol is:
 ```
 src/
 ├── core/
-│   ├── protocol.ts      # Language-neutral protocol
-│   ├── rules.ts         # Rules, constraints, and registry
-│   ├── engine.ts        # LogicEngine implementation
-│   └── actors.ts        # Actor system
+│   ├── protocol.ts        # Language-neutral protocol
+│   ├── rules.ts           # Rules, constraints, and registry
+│   ├── engine.ts          # LogicEngine implementation
+│   ├── actors.ts          # Actor system
+│   └── introspection.ts   # Registry introspection and visualization
 ├── dsl/
-│   └── index.ts         # DSL helpers (defineFact, defineRule, etc.)
+│   └── index.ts           # DSL helpers (defineFact, defineRule, etc.)
 ├── integrations/
-│   ├── svelte.ts        # Svelte v5 adapter
-│   └── pluresdb.ts      # PluresDB integration (placeholder)
+│   ├── svelte.ts          # Svelte v5 adapter
+│   └── pluresdb.ts        # PluresDB integration (placeholder)
+├── adapters/
+│   └── cli.ts             # CLI adapter for cross-language use
 ├── examples/
-│   ├── auth-basic/      # Login/logout example
-│   ├── cart/            # Shopping cart example
-│   └── svelte-counter/  # Svelte integration example
-└── index.ts             # Public exports
+│   ├── auth-basic/        # Login/logout example
+│   ├── cart/              # Shopping cart example
+│   ├── svelte-counter/    # Svelte integration example
+│   └── hero-ecommerce/    # Comprehensive e-commerce demo
+└── index.ts               # Public exports
 ```
 
 ## Examples
 
-The repository includes three complete examples:
+The repository includes four complete examples:
 
-### 1. Auth Basic (`src/examples/auth-basic`)
+### 1. Hero E-Commerce (`src/examples/hero-ecommerce`)
+**NEW!** Comprehensive example demonstrating all Praxis features in a single application:
+- Authentication with session management
+- Shopping cart with discount rules
+- Feature flags for A/B testing
+- Loyalty program with points
+- Actors for logging and analytics
+- Constraints enforcing business rules
+
+```bash
+npm run build
+node dist/examples/hero-ecommerce/index.js
+```
+
+### 2. Auth Basic (`src/examples/auth-basic`)
 Login/logout with facts, rules, and constraints.
 
 ```bash
@@ -216,7 +279,7 @@ npm run build
 node dist/examples/auth-basic/index.js
 ```
 
-### 2. Cart (`src/examples/cart`)
+### 3. Cart (`src/examples/cart`)
 Shopping cart with multiple rules, constraints, and complex state management.
 
 ```bash
@@ -224,7 +287,7 @@ npm run build
 node dist/examples/cart/index.js
 ```
 
-### 3. Svelte Counter (`src/examples/svelte-counter`)
+### 4. Svelte Counter (`src/examples/svelte-counter`)
 Counter example showing Svelte v5 integration with reactive stores.
 
 ```bash
@@ -257,6 +320,78 @@ node dist/examples/svelte-counter/index.js
 - `filterEvents(events, definition)` - Filter events by type
 - `filterFacts(facts, definition)` - Filter facts by type
 
+### Introspection & Visualization
+
+**NEW!** Tools for examining and visualizing your Praxis logic:
+
+```typescript
+import { createIntrospector, PRAXIS_PROTOCOL_VERSION } from "@plures/praxis";
+
+const introspector = createIntrospector(registry);
+
+// Get statistics
+const stats = introspector.getStats();
+console.log(`Rules: ${stats.ruleCount}, Constraints: ${stats.constraintCount}`);
+
+// Generate JSON schema
+const schema = introspector.generateSchema(PRAXIS_PROTOCOL_VERSION);
+
+// Generate graph visualization
+const graph = introspector.generateGraph();
+
+// Export to Graphviz DOT format
+const dot = introspector.exportDOT();
+fs.writeFileSync('registry.dot', dot);
+
+// Export to Mermaid format
+const mermaid = introspector.exportMermaid();
+
+// Search rules and constraints
+const authRules = introspector.searchRules('auth');
+const maxConstraints = introspector.searchConstraints('max');
+```
+
+**Available methods:**
+- `getStats()` - Get registry statistics
+- `generateSchema(protocolVersion)` - Generate JSON schema
+- `generateGraph()` - Generate graph representation
+- `exportDOT()` - Export to Graphviz DOT format
+- `exportMermaid()` - Export to Mermaid diagram format
+- `getRuleInfo(id)` - Get detailed rule information
+- `getConstraintInfo(id)` - Get detailed constraint information
+- `searchRules(query)` - Search rules by text
+- `searchConstraints(query)` - Search constraints by text
+
+## Cross-Language Usage
+
+### PowerShell
+
+**NEW!** Full PowerShell adapter for using Praxis from PowerShell scripts:
+
+```powershell
+# Import module
+Import-Module ./powershell/Praxis.psm1
+
+# Initialize adapter
+Initialize-PraxisAdapter -EnginePath "./dist/adapters/cli.js"
+
+# Create state and events
+$state = New-PraxisState -Context @{ count = 0 }
+$event = New-PraxisEvent -Tag "INCREMENT" -Payload @{}
+
+# Process step
+$result = Invoke-PraxisStep -State $state -Events @($event) -ConfigPath "./config.json"
+
+# Use result
+Write-Host "Count: $($result.state.context.count)"
+```
+
+See [powershell/README.md](./powershell/README.md) for complete documentation and examples.
+
+### C# (Coming Soon)
+
+Cross-language adapter for C# is planned with similar JSON-based protocol.
+
 ## Future Directions
 
 ### Ecosystem Integration
@@ -264,7 +399,7 @@ node dist/examples/svelte-counter/index.js
 - **Svelte v5**: Full reactive binding support (foundation in place)
 - **pluresdb**: Reactive datastore integration, event sourcing
 - **unum**: Identity/channels and messaging
-- **Visualization**: State graphs, rule graphs, constraint graphs
+- **Visualization**: VSCode extension, docs generator, canvas tools (introspection API ready)
 - **ADP**: Architectural guardrails and static checks
 
 ### Cross-Language Support

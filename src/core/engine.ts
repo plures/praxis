@@ -13,6 +13,7 @@ import type {
   PraxisStepResult,
   PraxisDiagnostics,
 } from "./protocol.js";
+import { PRAXIS_PROTOCOL_VERSION } from "./protocol.js";
 import { PraxisRegistry } from "./rules.js";
 
 /**
@@ -45,6 +46,7 @@ export class LogicEngine<TContext = unknown> {
       context: options.initialContext,
       facts: options.initialFacts ?? [],
       meta: options.initialMeta ?? {},
+      protocolVersion: PRAXIS_PROTOCOL_VERSION,
     };
   }
 
@@ -56,6 +58,7 @@ export class LogicEngine<TContext = unknown> {
       context: structuredClone(this.state.context),
       facts: [...this.state.facts],
       meta: this.state.meta ? { ...this.state.meta } : undefined,
+      protocolVersion: this.state.protocolVersion,
     };
   }
 
@@ -222,6 +225,7 @@ export class LogicEngine<TContext = unknown> {
       context: options.initialContext,
       facts: options.initialFacts ?? [],
       meta: options.initialMeta ?? {},
+      protocolVersion: PRAXIS_PROTOCOL_VERSION,
     };
   }
 }

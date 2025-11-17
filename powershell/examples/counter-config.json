@@ -1,0 +1,21 @@
+{
+  "rules": [
+    {
+      "id": "counter.increment",
+      "description": "Increment the counter",
+      "impl": "(state, events) => { if (events.some(e => e.tag === 'INCREMENT')) { state.context.count += 1; return [{ tag: 'Incremented', payload: {} }]; } return []; }"
+    },
+    {
+      "id": "counter.decrement",
+      "description": "Decrement the counter",
+      "impl": "(state, events) => { if (events.some(e => e.tag === 'DECREMENT')) { state.context.count -= 1; return [{ tag: 'Decremented', payload: {} }]; } return []; }"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "counter.nonNegative",
+      "description": "Counter must be non-negative",
+      "impl": "(state) => state.context.count >= 0 || 'Counter cannot be negative'"
+    }
+  ]
+}
