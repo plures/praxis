@@ -79,6 +79,19 @@ export { LogicEngine, createPraxisEngine } from "./core/engine.js";
 export type { Actor } from "./core/actors.js";
 export { ActorManager, createTimerActor } from "./core/actors.js";
 
+// Introspection
+export type {
+  RuleNode,
+  ConstraintNode,
+  GraphEdge,
+  RegistryGraph,
+  RuleSchema,
+  ConstraintSchema,
+  RegistrySchema,
+  RegistryStats,
+} from "./core/introspection.js";
+export { RegistryIntrospector, createIntrospector } from "./core/introspection.js";
+
 // DSL helpers
 export {
   defineFact,
