@@ -8,7 +8,42 @@
  * - Pure, deterministic, data in → data out
  * - No side effects, no global state
  * - All higher-level TypeScript APIs are built on top of this protocol
+ * 
+ * ## Protocol Versioning
+ * 
+ * The Praxis protocol follows semantic versioning (MAJOR.MINOR.PATCH):
+ * - MAJOR: Breaking changes to core protocol types or semantics
+ * - MINOR: Backward-compatible additions to protocol (new optional fields)
+ * - PATCH: Clarifications, documentation updates, no functional changes
+ * 
+ * Current version: 1.0.0
+ * 
+ * ### Stability Guarantees
+ * 
+ * 1. **Core Types Stability**: The following types are considered stable and will not
+ *    change in backward-incompatible ways within the same major version:
+ *    - PraxisFact (tag, payload structure)
+ *    - PraxisEvent (tag, payload structure)
+ *    - PraxisState (context, facts, meta structure)
+ *    - PraxisStepFn signature
+ * 
+ * 2. **JSON Compatibility**: All protocol types will remain JSON-serializable.
+ *    No non-JSON-safe types (functions, symbols, etc.) will be added to the protocol.
+ * 
+ * 3. **Cross-Language Compatibility**: Protocol changes will be coordinated across
+ *    all official language implementations (TypeScript, C#, PowerShell) to ensure
+ *    interoperability.
+ * 
+ * 4. **Migration Path**: Major version changes will be accompanied by:
+ *    - Migration guide
+ *    - Deprecation warnings in previous version
+ *    - Compatibility shims where possible
  */
+
+/**
+ * Protocol version following semantic versioning
+ */
+export const PRAXIS_PROTOCOL_VERSION = "1.0.0" as const;
 
 /**
  * A fact is a typed proposition about the domain.
@@ -42,6 +77,8 @@ export interface PraxisState {
   facts: PraxisFact[];
   /** Optional metadata (timestamps, version, etc.) */
   meta?: Record<string, unknown>;
+  /** Protocol version (for cross-language compatibility) */
+  protocolVersion?: string;
 }
 
 /**

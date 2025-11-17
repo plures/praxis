@@ -57,6 +57,7 @@ export type {
   PraxisStepResult,
   PraxisStepFn,
 } from "./core/protocol.js";
+export { PRAXIS_PROTOCOL_VERSION } from "./core/protocol.js";
 
 // Rules and constraints
 export type {
