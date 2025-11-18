@@ -1,0 +1,14 @@
+{
+  "name": "praxis-cloud-sync-example",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Example demonstrating Praxis Cloud synchronization",
+  "scripts": {
+    "start": "node index.js",
+    "build": "tsc index.ts --module esnext --target es2022 --moduleResolution bundler"
+  },
+  "dependencies": {
+    "@plures/praxis": "file:../.."
+  }
+}
