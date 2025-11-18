@@ -7,6 +7,7 @@
  */
 
 import { Command } from 'commander';
+import { generate } from './commands/generate.js';
 
 const program = new Command();
 
@@ -32,13 +33,11 @@ program
   .command('generate')
   .description('Generate code from schemas')
   .option('-s, --schema <file>', 'Schema file path')
-  .option('-t, --target <target>', 'Generation target', 'all')
+  .option('-t, --target <target>', 'Generation target (all, logic, components, pluresdb)', 'all')
   .option('-o, --output <dir>', 'Output directory', './generated')
   .option('-w, --watch', 'Watch for changes')
-  .action((options) => {
-    console.log('Generating code...');
-    console.log('Options:', options);
-    console.log('Note: Full implementation coming soon');
+  .action(async (options) => {
+    await generate(options);
   });
 
 program
