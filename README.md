@@ -1,16 +1,48 @@
 # Praxis
 
+[![CI](https://github.com/plures/praxis/workflows/CI/badge.svg)](https://github.com/plures/praxis/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/plures/praxis/workflows/CodeQL/badge.svg)](https://github.com/plures/praxis/actions/workflows/codeql.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![npm version](https://img.shields.io/npm/v/@plures/praxis.svg)](https://www.npmjs.com/package/@plures/praxis)
+[![JSR](https://jsr.io/badges/@plures/praxis)](https://jsr.io/@plures/praxis)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![Deno Compatible](https://img.shields.io/badge/deno-compatible-brightgreen)](https://deno.land/)
+
 **The Full Plures Application Framework**
 
-Praxis is the primary, standalone framework that unifies the entire [Plures ecosystem](https://github.com/plures) into a cohesive development platform:
+---
 
-- **Praxis** – The top-level application framework (you are here)
-- **PluresDB** – Local-first reactive datastore (integrated)
-- **Unum** – Identity and channels for distributed systems (integrated)
-- **ADP** – Architectural Decision Protocol for guardrails (integrated)
-- **State-Docs** – Living documentation generator (integrated)
-- **CodeCanvas** – Visual design and schema editor (integrated)
-- **Svelte-Tauri-template** – Cross-platform runtime environment (integrated)
+## 📊 Project Dashboard
+
+### Quick Links
+- 📖 [Documentation](./docs/) | [Getting Started](./GETTING_STARTED.md) | [Framework Guide](./FRAMEWORK.md)
+- 💬 [Discussions](https://github.com/plures/praxis/discussions) | [Issues](https://github.com/plures/praxis/issues)
+- 🚀 [Contributing](./CONTRIBUTING.md) | [Security Policy](./SECURITY.md)
+- 📋 [Changelog](./CHANGELOG.md) | [Roadmap](https://github.com/plures/praxis/issues?q=is%3Aissue+is%3Aopen+label%3Aroadmap)
+
+### Project Status
+
+| Category | Status |
+|----------|--------|
+| **CI/CD** | ✅ Automated testing & builds |
+| **Version** | 0.1.0 (Alpha) |
+| **Runtime Support** | Node.js 18+, Deno (experimental) |
+| **Package Registries** | npm ✅ / JSR 🚧 (coming soon) |
+| **Test Coverage** | 63 tests passing |
+| **Documentation** | 📚 In Progress |
+
+### Integration Status
+
+| Integration | Status | Notes |
+|------------|--------|-------|
+| **PluresDB** | 🚧 In Development | Local-first reactive datastore |
+| **Unum** | 🚧 Planned | Identity & channels |
+| **Svelte** | ✅ Supported | Component generation |
+| **Tauri** | 🚧 Planned | Cross-platform runtime |
+| **CodeCanvas** | 🚧 Planned | Visual schema editor |
+| **State-Docs** | 🚧 Planned | Documentation generation |
+
+---
 
 ## Overview
 
@@ -148,8 +180,45 @@ A comprehensive example demonstrating all Praxis features:
 
 ## Installation
 
+### npm (Node.js)
+
 ```bash
 npm install @plures/praxis
+```
+
+### JSR (Deno)
+
+```bash
+# Coming soon - JSR publishing in progress
+deno add @plures/praxis
+```
+
+For now, you can use Praxis with Deno via import maps:
+
+```typescript
+// import_map.json
+{
+  "imports": {
+    "@plures/praxis": "npm:@plures/praxis@^0.1.0"
+  }
+}
+```
+
+### From Source
+
+```bash
+# Clone the repository
+git clone https://github.com/plures/praxis.git
+cd praxis
+
+# Install dependencies
+npm install
+
+# Build
+npm run build
+
+# Run tests
+npm test
 ```
 
 ## Quick Start
@@ -1059,16 +1128,45 @@ npm test
 
 # Type check
 npm run typecheck
-npm run lint
 ```
+
+### Deno Development
+
+```bash
+# Run with Deno
+deno task dev
+
+# Run tests
+deno task test
+
+# Lint and format
+deno task lint
+deno task fmt
+```
+
+For more detailed development information, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
-MIT
+MIT License - see [LICENSE](./LICENSE) for details.
 
 ## Contributing
 
-Contributions welcome! Please see the [plures organization](https://github.com/plures) for contribution guidelines.
+Contributions are welcome! Please read our [Contributing Guide](./CONTRIBUTING.md) to get started.
+
+- 🐛 [Report a bug](https://github.com/plures/praxis/issues/new?template=bug_report.yml)
+- 💡 [Request a feature](https://github.com/plures/praxis/issues/new?template=enhancement.yml)
+- 📖 [Improve documentation](https://github.com/plures/praxis/issues/new?template=bug_report.yml)
+- 🔒 [Report a security issue](./SECURITY.md)
+
+Please review our [Code of Conduct](./CODE_OF_CONDUCT.md) before participating.
+
+## Support
+
+- 📚 [Documentation](./docs/)
+- 💬 [GitHub Discussions](https://github.com/plures/praxis/discussions)
+- 🐛 [Issue Tracker](https://github.com/plures/praxis/issues)
+- 🌐 [Plures Organization](https://github.com/plures)
 
 ---
 

@@ -1,0 +1,70 @@
+name: Integration Issue
+description: Report an issue with Praxis integrations (PluresDB, Unum, Svelte, etc.)
+title: "[Integration]: "
+labels: ["integration", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to report issues with Praxis integrations with other systems.
+  
+  - type: dropdown
+    id: integration
+    attributes:
+      label: Integration
+      description: Which integration is affected?
+      options:
+        - PluresDB
+        - Unum
+        - Svelte
+        - Tauri
+        - CodeCanvas
+        - State-Docs
+        - ADP
+        - DSC/MCP
+        - Other
+    validations:
+      required: true
+  
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue Description
+      description: Describe the integration issue
+    validations:
+      required: true
+  
+  - type: textarea
+    id: versions
+    attributes:
+      label: Version Information
+      description: Versions of all relevant packages
+      placeholder: |
+        - Praxis: 0.1.0
+        - PluresDB: x.x.x
+        - Integration library: x.x.x
+    validations:
+      required: true
+  
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Configuration
+      description: Your integration configuration
+      render: typescript
+  
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How to reproduce the integration issue
+    validations:
+      required: true
+  
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other relevant information
