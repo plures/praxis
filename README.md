@@ -1,54 +1,97 @@
 # Praxis
 
-**Practical, provable application logic built on strong types.**
+**The Full Plures Application Framework**
 
-Praxis is a typed, functional application logic engine in the [plures ecosystem](https://github.com/plures):
+Praxis is the primary, standalone framework that unifies the entire [Plures ecosystem](https://github.com/plures) into a cohesive development platform:
 
-- **unum** – identity and channels ("many as one")
-- **pluresdb** – decentralized reactive graph datastore
-- **Praxis** – typed, functional application logic engine sitting above data and below UI
+- **Praxis** – The top-level application framework (you are here)
+- **PluresDB** – Local-first reactive datastore (integrated)
+- **Unum** – Identity and channels for distributed systems (integrated)
+- **ADP** – Architectural Decision Protocol for guardrails (integrated)
+- **State-Docs** – Living documentation generator (integrated)
+- **CodeCanvas** – Visual design and schema editor (integrated)
+- **Svelte-Tauri-template** – Cross-platform runtime environment (integrated)
 
 ## Overview
 
-Praxis is not just a state machine library. It defines a **logic-first model** that can be reused across languages (TypeScript, C#, PowerShell) via a stable, data-oriented protocol and DSL.
+Praxis is not just a logic engine—it's a **complete framework** for building modern, local-first, distributed applications. It provides:
 
-### Core Concepts
+- **Declarative Schemas**: Define your data models, logic, and components in a unified schema format
+- **Logic/State Machines**: Pure, functional application logic with facts, events, rules, and constraints
+- **Component Generation**: Automatically generate Svelte components from schemas
+- **Local-First Data**: Integrated PluresDB for reactive, offline-capable data storage
+- **Documentation Generation**: Automatic State-Docs generation from your schemas
+- **Visual Design**: CodeCanvas integration for visual schema and logic editing
+- **Orchestration**: DSC/MCP support for distributed system coordination
+- **Cross-Platform Runtime**: Web, desktop, and mobile via Svelte + Tauri
 
-Praxis exposes these logical building blocks:
+### Framework Philosophy
 
-- **Facts** – typed propositions about the domain (e.g., `UserLoggedIn`, `CartItem`, `NetworkOnline`)
-- **Events** – temporally ordered facts meant to drive change (e.g., `LOGIN`, `LOGOUT`, `ADD_TO_CART`)
-- **Rules** – pure, typed functions that derive new facts or transitions from context + input facts/events
-- **Constraints** – invariants expressed as types + predicates that must always hold
-- **Flows / Scenarios** – orchestrated behaviors (internally may use FSMs, but exposed as logic/DSL)
-- **Actors** – effectful units that observe Praxis logic state, perform side effects, and feed new events back
+### Core Framework Components
+
+Praxis provides these integrated capabilities:
+
+- **Schema System** – Declarative definitions that generate models, components, and documentation
+- **Logic Engine** – Typed facts, events, rules, and constraints for application logic
+- **Component Factory** – Generate Svelte components from schemas with data bindings
+- **Data Layer** – PluresDB integration for reactive, local-first data storage
+- **State Machines** – Flows and scenarios for orchestrated behaviors
+- **Actors** – Effectful units for side effects and external system integration
+- **Documentation** – Automatic State-Docs generation from schemas and logic
+- **Visual IDE** – CodeCanvas integration for schema and logic editing
+- **Orchestration** – DSC/MCP support for distributed coordination
+- **CLI Tools** – Command-line interface for scaffolding and generation
 
 ### Design Philosophy
 
-1. **Strong typing and functional programming first**
+1. **Schema-Driven Development**
+   - Define once, generate everywhere (models, components, docs, orchestration)
+   - Single source of truth for your application structure
+   - Type-safe by default across all layers
+
+2. **Local-First Architecture**
+   - Offline-capable by default with PluresDB
+   - Sync when connected, work always
+   - Data ownership and privacy built-in
+
+3. **Strong typing and functional programming**
    - Core abstractions are strongly typed: `Fact<Tag, Payload>`, `Event<Tag, Payload>`, `Rule<Context, InFact, OutFact>`
-   - Rules and constraints must be pure (no side effects)
-   - Side effects go into actors or explicit effect layers
+   - Pure functions for testability and reasoning
+   - Immutable state updates
 
-2. **Logic-first, FSMs as an internal detail**
-   - User-facing API is expressed in terms of facts, events, rules, constraints, and actors
-   - Not raw FSM configuration
+4. **Visual and Code Workflows**
+   - CodeCanvas for visual schema and logic editing
+   - Full code-level control when needed
+   - Seamless transitions between visual and code
 
-3. **Language-agnostic core protocol**
-   - TypeScript-first implementation
-   - Designed around a small, language-neutral core protocol for future C#, PowerShell, and other language support
-   - JSON-friendly shapes for cross-language compatibility
+5. **Cross-Platform and Cross-Language**
+   - TypeScript-first with C# and PowerShell support
+   - Web, desktop, mobile via Svelte + Tauri
+   - Language-agnostic core protocol for maximum portability
 
-4. **Provable, analyzable, testable logic**
-   - Pure functions make testing straightforward
-   - Designed to support automatic documentation generation, visualization, and static/dynamic checks
-**TypeScript library for typed, functional application logic.**
+## Framework Features
 
-**Logic-first:** facts, events, rules, constraints, flows, actors. FSMs are internal tools, not the main API.
+### 🏗️ Full Application Framework
+- **Schema-Driven**: Define data models, logic, and UI in unified schemas
+- **Component Generation**: Auto-generate Svelte components from schemas
+- **CLI Tools**: `praxis create`, `praxis generate`, `praxis canvas` commands
+- **Templates**: Pre-built app templates (basic, fullstack, distributed)
+- **Integrated Stack**: PluresDB + Unum + ADP + State-Docs + Canvas
 
-Core is a pure, JSON-friendly step over `PraxisState`/`PraxisEvent`. Designed for future interoperability with C# and PowerShell.
+### 🎨 Visual Development
+- **CodeCanvas Integration**: Visual schema and logic editor
+- **Component Preview**: See generated components in real-time
+- **Flow Visualization**: Visualize state machines and orchestration
+- **Interactive Docs**: Navigate documentation with State-Docs
 
-## Features
+### 🔌 Ecosystem Integration
+- **PluresDB**: Local-first reactive data storage
+- **Unum**: Identity and channels for distributed systems
+- **ADP**: Architectural guardrails and decision tracking
+- **State-Docs**: Living documentation generation
+- **Svelte + Tauri**: Cross-platform runtime (web/desktop/mobile)
+
+## Logic Engine Features
 
 - 🎯 **Logic-First Design**: Build applications around facts, events, rules, and constraints
 - 🔄 **Pure Functional Core**: State transitions via pure `step` functions
@@ -111,7 +154,44 @@ npm install @plures/praxis
 
 ## Quick Start
 
-### Basic Example
+### Using the Praxis CLI
+
+The Praxis CLI provides commands for creating and managing applications.
+
+```bash
+# Install Praxis globally
+npm install -g @plures/praxis
+
+# Create a new application
+praxis create app my-app
+cd my-app
+npm install
+
+# Generate code from schemas
+praxis generate --schema src/schemas/app.schema.ts
+
+# Open CodeCanvas for visual editing
+praxis canvas src/schemas/app.schema.ts
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+Available CLI commands:
+- `praxis create app [name]` - Create new application
+- `praxis create component [name]` - Create new component
+- `praxis generate` - Generate code from schemas
+- `praxis canvas [schema]` - Open visual editor
+- `praxis orchestrate` - Manage distributed systems
+- `praxis dev` - Start development server
+- `praxis build` - Build for production
+
+See [docs/guides/getting-started.md](./docs/guides/getting-started.md) for detailed instructions.
+
+### Basic Example (Logic Engine)
 
 ```typescript
 import {
@@ -228,30 +308,54 @@ This protocol is:
 - JSON-friendly for cross-language compatibility
 - The foundation for all higher-level TypeScript APIs
 
-## Architecture
+## Framework Architecture
 
 ```
-src/
-├── core/
-│   ├── protocol.ts        # Language-neutral protocol
-│   ├── rules.ts           # Rules, constraints, and registry
-│   ├── engine.ts          # LogicEngine implementation
-│   ├── actors.ts          # Actor system
-│   └── introspection.ts   # Registry introspection and visualization
-├── dsl/
-│   └── index.ts           # DSL helpers (defineFact, defineRule, etc.)
-├── integrations/
-│   ├── svelte.ts          # Svelte v5 adapter
-│   └── pluresdb.ts        # PluresDB integration (placeholder)
-├── adapters/
-│   └── cli.ts             # CLI adapter for cross-language use
-├── examples/
-│   ├── auth-basic/        # Login/logout example
-│   ├── cart/              # Shopping cart example
-│   ├── svelte-counter/    # Svelte integration example
-│   └── hero-ecommerce/    # Comprehensive e-commerce demo
-└── index.ts               # Public exports
+/praxis
+├── core/                          # Core framework
+│   ├── schema/                    # Schema system
+│   │   └── types.ts              # Schema type definitions
+│   ├── logic/                     # Logic engine (existing src/core/)
+│   │   ├── protocol.ts           # Language-neutral protocol
+│   │   ├── rules.ts              # Rules, constraints, and registry
+│   │   ├── engine.ts             # LogicEngine implementation
+│   │   ├── actors.ts             # Actor system
+│   │   └── introspection.ts      # Introspection and visualization
+│   ├── component/                 # Component generation
+│   │   └── generator.ts          # Svelte component generator
+│   └── runtime/                   # Runtime abstractions
+├── integrations/                  # Ecosystem integrations
+│   ├── pluresdb/                 # PluresDB reactive datastore
+│   ├── unum/                     # Unum identity and channels
+│   ├── adp/                      # Architectural Decision Protocol
+│   ├── state-docs/               # State-Docs documentation
+│   └── canvas/                   # CodeCanvas visual editor
+├── cli/                          # Command-line interface
+│   ├── index.ts                  # CLI entry point
+│   └── commands/                 # Command implementations
+├── templates/                     # Project templates
+│   ├── basic-app/                # Basic application template
+│   ├── fullstack-app/            # Full-stack template
+│   ├── component/                # Component template
+│   └── orchestrator/             # Distributed orchestration template
+├── examples/                      # Example applications
+│   ├── offline-chat/             # Offline-first chat demo
+│   ├── knowledge-canvas/         # Knowledge management with Canvas
+│   ├── distributed-node/         # Self-orchestrating node demo
+│   ├── auth-basic/               # Login/logout example
+│   ├── cart/                     # Shopping cart example
+│   ├── svelte-counter/           # Svelte integration example
+│   └── hero-ecommerce/           # Comprehensive e-commerce demo
+└── docs/                         # Framework documentation
+    ├── guides/                   # User guides
+    │   ├── getting-started.md   # Getting started guide
+    │   ├── canvas.md            # CodeCanvas guide
+    │   └── orchestration.md     # Orchestration guide
+    ├── api/                      # API reference
+    └── architecture/             # Architecture documentation
 ```
+
+See [FRAMEWORK.md](./FRAMEWORK.md) for complete architecture documentation.
 
 ## Examples
 
@@ -271,7 +375,37 @@ npm run build
 node dist/examples/hero-ecommerce/index.js
 ```
 
-### 2. Auth Basic (`src/examples/auth-basic`)
+### 2. Offline-First Chat (`examples/offline-chat`)
+**NEW!** Demonstrates local-first architecture with PluresDB:
+- Offline message composition and storage
+- Automatic sync when connected
+- Message queue for offline messages
+- Conflict resolution for concurrent edits
+- Real-time features (typing indicators, read receipts)
+
+See [examples/offline-chat/README.md](./examples/offline-chat/README.md)
+
+### 3. Knowledge Canvas (`examples/knowledge-canvas`)
+**NEW!** Showcases CodeCanvas integration for visual knowledge management:
+- Visual knowledge graph editing
+- Schema-driven content types
+- Generated UI components
+- State-Docs integration
+- Collaborative editing
+
+See [examples/knowledge-canvas/README.md](./examples/knowledge-canvas/README.md)
+
+### 4. Self-Orchestrating Node (`examples/distributed-node`)
+**NEW!** Demonstrates distributed orchestration with DSC/MCP:
+- Automatic node discovery
+- Self-healing behavior
+- State synchronization across nodes
+- Health monitoring and auto-scaling
+- Failover and recovery
+
+See [examples/distributed-node/README.md](./examples/distributed-node/README.md)
+
+### 5. Auth Basic (`src/examples/auth-basic`)
 Login/logout with facts, rules, and constraints.
 
 ```bash
@@ -279,7 +413,7 @@ npm run build
 node dist/examples/auth-basic/index.js
 ```
 
-### 3. Cart (`src/examples/cart`)
+### 6. Cart (`src/examples/cart`)
 Shopping cart with multiple rules, constraints, and complex state management.
 
 ```bash
@@ -287,7 +421,7 @@ npm run build
 node dist/examples/cart/index.js
 ```
 
-### 4. Svelte Counter (`src/examples/svelte-counter`)
+### 7. Svelte Counter (`src/examples/svelte-counter`)
 Counter example showing Svelte v5 integration with reactive stores.
 
 ```bash
@@ -362,6 +496,169 @@ const maxConstraints = introspector.searchConstraints('max');
 - `searchRules(query)` - Search rules by text
 - `searchConstraints(query)` - Search constraints by text
 
+## Ecosystem Integration
+
+Praxis integrates with the full Plures ecosystem:
+
+### PluresDB Integration
+
+Local-first reactive datastore for offline-capable applications.
+
+```typescript
+import { createPluresDB } from '@plures/pluresdb';
+
+// Create database from schema
+const db = createPluresDB({
+  name: 'my-app',
+  version: 1,
+  stores: {
+    // Generated from Praxis schema
+    users: { keyPath: 'id', indexes: ['email'] },
+    tasks: { keyPath: 'id', indexes: ['status', 'createdAt'] },
+  },
+  sync: {
+    enabled: true,
+    endpoint: 'ws://localhost:8080/sync',
+    conflictResolution: 'last-write-wins',
+  },
+});
+
+// Use with Praxis logic engine
+engine.step([TaskCreated.create({ taskId, title })]);
+await db.tasks.add({ id: taskId, title, status: 'pending' });
+```
+
+**Status**: Foundation in place (`src/integrations/pluresdb.ts`)  
+**Documentation**: [docs/guides/pluresdb.md](./docs/guides/pluresdb.md)
+
+### Unum Integration
+
+Identity and channels for distributed systems.
+
+```typescript
+import { createUnumIdentity, createChannel } from '@plures/unum';
+
+// Create identity
+const identity = await createUnumIdentity({
+  name: 'my-app-node',
+  keys: await generateKeys(),
+});
+
+// Create channel for messaging
+const channel = await createChannel({
+  name: 'app-events',
+  participants: [identity.id],
+});
+
+// Integrate with Praxis actors
+const unumActor = createActor('unum-bridge', identity, async (event) => {
+  // Bridge Praxis events to Unum channels
+  await channel.publish(event);
+});
+```
+
+**Status**: Planned  
+**Use Cases**: Distributed messaging, identity management, authentication
+
+### ADP Integration
+
+Architectural Decision Protocol for guardrails and governance.
+
+```typescript
+import { createADP } from '@plures/adp';
+
+// Track architectural decisions from schemas
+const adp = createADP({
+  source: 'praxis-schema',
+  decisions: [
+    {
+      id: 'ADR-001',
+      title: 'Use PluresDB for local-first storage',
+      context: 'Need offline-capable data storage',
+      decision: 'Adopt PluresDB',
+      consequences: ['Offline support', 'Sync complexity'],
+    },
+  ],
+});
+
+// Enforce guardrails
+adp.enforce({
+  rule: 'no-direct-database-access',
+  check: (code) => !code.includes('direct-sql'),
+});
+```
+
+**Status**: Planned  
+**Use Cases**: Architecture documentation, compliance checking, guardrails
+
+### State-Docs Integration
+
+Living documentation generated from Praxis schemas.
+
+```typescript
+import { generateStateDocs } from '@plures/state-docs';
+
+// Generate documentation from schema
+const docs = await generateStateDocs({
+  schema: appSchema,
+  logic: logicDefinitions,
+  components: componentDefinitions,
+  output: './docs',
+  format: 'markdown', // or 'html', 'pdf'
+});
+
+// Documentation includes:
+// - Data model diagrams
+// - Logic flow diagrams
+// - Component catalog
+// - API reference
+// - Usage examples
+```
+
+**Status**: Planned  
+**Documentation**: See examples for State-Docs integration patterns
+
+### CodeCanvas Integration
+
+Visual IDE for schema and logic editing.
+
+```bash
+# Open Canvas for visual editing
+praxis canvas src/schemas/app.schema.ts
+
+# Features:
+# - Visual schema design
+# - Logic flow editor
+# - Component preview
+# - Real-time collaboration
+# - Export to code
+```
+
+**Status**: Planned  
+**Documentation**: [docs/guides/canvas.md](./docs/guides/canvas.md)
+
+### Svelte + Tauri Runtime
+
+Cross-platform runtime for web, desktop, and mobile.
+
+```typescript
+// Svelte v5 integration (available now)
+import { createPraxisStore } from '@plures/praxis/svelte';
+
+const stateStore = createPraxisStore(engine);
+const userStore = createDerivedStore(engine, (ctx) => ctx.currentUser);
+
+// In Svelte component:
+// $: currentUser = $userStore;
+
+// Desktop app with Tauri
+npm run tauri:dev    // Development
+npm run tauri:build  // Production
+```
+
+**Status**: Svelte integration available, Tauri templates planned  
+**Platform Support**: Web (now), Desktop (planned), Mobile (future)
+
 ## Cross-Language Usage
 
 ### PowerShell
@@ -391,6 +688,28 @@ See [powershell/README.md](./powershell/README.md) for complete documentation an
 ### C# (Coming Soon)
 
 Cross-language adapter for C# is planned with similar JSON-based protocol.
+
+## Future Roadmap
+
+### Short Term (v0.2.0)
+- Complete CLI implementation
+- Basic project templates
+- Component generation MVP
+- Enhanced PluresDB integration
+
+### Medium Term (v0.3.0 - v0.5.0)
+- Full CodeCanvas integration
+- Unum identity support
+- State-Docs generation
+- Multi-language schemas
+- C# adapter
+
+### Long Term (v1.0.0+)
+- Mobile templates (iOS, Android)
+- Enterprise features
+- Advanced orchestration
+- Performance optimizations
+- Plugin ecosystem
 
 ## Future Directions
 
