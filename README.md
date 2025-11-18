@@ -180,8 +180,45 @@ A comprehensive example demonstrating all Praxis features:
 
 ## Installation
 
+### npm (Node.js)
+
 ```bash
 npm install @plures/praxis
+```
+
+### JSR (Deno)
+
+```bash
+# Coming soon - JSR publishing in progress
+deno add @plures/praxis
+```
+
+For now, you can use Praxis with Deno via import maps:
+
+```typescript
+// import_map.json
+{
+  "imports": {
+    "@plures/praxis": "npm:@plures/praxis@^0.1.0"
+  }
+}
+```
+
+### From Source
+
+```bash
+# Clone the repository
+git clone https://github.com/plures/praxis.git
+cd praxis
+
+# Install dependencies
+npm install
+
+# Build
+npm run build
+
+# Run tests
+npm test
 ```
 
 ## Quick Start
@@ -1091,16 +1128,45 @@ npm test
 
 # Type check
 npm run typecheck
-npm run lint
 ```
+
+### Deno Development
+
+```bash
+# Run with Deno
+deno task dev
+
+# Run tests
+deno task test
+
+# Lint and format
+deno task lint
+deno task fmt
+```
+
+For more detailed development information, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
-MIT
+MIT License - see [LICENSE](./LICENSE) for details.
 
 ## Contributing
 
-Contributions welcome! Please see the [plures organization](https://github.com/plures) for contribution guidelines.
+Contributions are welcome! Please read our [Contributing Guide](./CONTRIBUTING.md) to get started.
+
+- 🐛 [Report a bug](https://github.com/plures/praxis/issues/new?template=bug_report.yml)
+- 💡 [Request a feature](https://github.com/plures/praxis/issues/new?template=enhancement.yml)
+- 📖 [Improve documentation](https://github.com/plures/praxis/issues/new?template=bug_report.yml)
+- 🔒 [Report a security issue](./SECURITY.md)
+
+Please review our [Code of Conduct](./CODE_OF_CONDUCT.md) before participating.
+
+## Support
+
+- 📚 [Documentation](./docs/)
+- 💬 [GitHub Discussions](https://github.com/plures/praxis/discussions)
+- 🐛 [Issue Tracker](https://github.com/plures/praxis/issues)
+- 🌐 [Plures Organization](https://github.com/plures)
 
 ---
 

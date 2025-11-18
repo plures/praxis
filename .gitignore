@@ -12,3 +12,7 @@ dist/
 coverage
 coverage/
 
+# Deno
+.deno/
+deno.lock
+
