@@ -409,10 +409,71 @@ export function validateSchema(schema: PraxisSchema): ValidationResult {
     });
   }
 
+  // Validate logic definitions
+  if (schema.logic) {
+    schema.logic.forEach((logic, logicIndex) => {
+      // Validate fact tags
+      if (logic.facts) {
+        logic.facts.forEach((fact, factIndex) => {
+          if (!fact.tag) {
+            errors.push({
+              path: `logic[${logicIndex}].facts[${factIndex}].tag`,
+              message: 'Fact tag is required',
+            });
+          } else if (!isValidIdentifier(fact.tag)) {
+            errors.push({
+              path: `logic[${logicIndex}].facts[${factIndex}].tag`,
+              message: `Fact tag "${fact.tag}" is not a valid JavaScript identifier. Use only letters, numbers, underscores, and dollar signs, and do not start with a number.`,
+            });
+          }
+        });
+      }
+
+      // Validate event tags
+      if (logic.events) {
+        logic.events.forEach((event, eventIndex) => {
+          if (!event.tag) {
+            errors.push({
+              path: `logic[${logicIndex}].events[${eventIndex}].tag`,
+              message: 'Event tag is required',
+            });
+          } else if (!isValidIdentifier(event.tag)) {
+            errors.push({
+              path: `logic[${logicIndex}].events[${eventIndex}].tag`,
+              message: `Event tag "${event.tag}" is not a valid JavaScript identifier. Use only letters, numbers, underscores, and dollar signs, and do not start with a number.`,
+            });
+          }
+        });
+      }
+    });
+  }
+
   return {
     valid: errors.length === 0,
     errors,
   };
+}
+
+/**
+ * Check if a string is a valid JavaScript identifier
+ */
+function isValidIdentifier(str: string): boolean {
+  // JavaScript identifier must start with letter, $, or _
+  // and can contain letters, digits, $, or _
+  const identifierRegex = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
+  
+  // Also check that it's not a reserved keyword
+  const reservedKeywords = [
+    'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger',
+    'default', 'delete', 'do', 'else', 'export', 'extends', 'finally',
+    'for', 'function', 'if', 'import', 'in', 'instanceof', 'new',
+    'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof',
+    'var', 'void', 'while', 'with', 'yield', 'let', 'static',
+    'enum', 'await', 'implements', 'interface', 'package', 'private',
+    'protected', 'public',
+  ];
+  
+  return identifierRegex.test(str) && !reservedKeywords.includes(str);
 }
 
 /**

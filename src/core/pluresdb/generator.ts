@@ -165,6 +165,9 @@ export class PluresDBGenerator {
     const keyPath = idField ? idField.name : 'id';
     
     // Generate indexes from field names (excluding the key path)
+    // Note: By default, all string, number, and date fields are indexed for query performance.
+    // This auto-indexing can be overridden by explicitly defining indexes in the schema.
+    // For large datasets, consider only indexing fields that will be frequently queried.
     const indexes: string[] = [];
     
     for (const field of model.fields) {

@@ -7,7 +7,7 @@
 import { mkdir, writeFile } from 'fs/promises';
 import { dirname, resolve } from 'path';
 import { loadSchemaFromFile, validateForGeneration } from '../../core/schema/loader.js';
-import { normalizeSchema } from '../../core/schema/normalize.js';
+import { normalizeSchema, type NormalizedSchema } from '../../core/schema/normalize.js';
 import { createLogicGenerator } from '../../core/logic/generator.js';
 import { createComponentGenerator } from '../../core/component/generator.js';
 import { createPluresDBGenerator } from '../../core/pluresdb/generator.js';
@@ -129,7 +129,7 @@ export async function generate(options: GenerateOptions): Promise<void> {
  * Generate logic module
  */
 async function generateLogic(
-  schema: any,
+  schema: NormalizedSchema,
   outputDir: string
 ): Promise<void> {
   const generator = createLogicGenerator(outputDir);
@@ -146,7 +146,7 @@ async function generateLogic(
  * Generate components
  */
 async function generateComponents(
-  schema: any,
+  schema: NormalizedSchema,
   outputDir: string
 ): Promise<number> {
   if (!schema.components || schema.components.length === 0) {
@@ -189,7 +189,7 @@ async function generateComponents(
  * Generate PluresDB configuration
  */
 async function generatePluresDB(
-  schema: any,
+  schema: NormalizedSchema,
   outputDir: string
 ): Promise<void> {
   const generator = createPluresDBGenerator(outputDir, {

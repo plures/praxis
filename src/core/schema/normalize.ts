@@ -293,6 +293,7 @@ export function sortModelsByDependencies(
     
     if (visiting.has(model.name)) {
       // Circular dependency detected, just add it
+      visiting.delete(model.name);
       sorted.push(model);
       visited.add(model.name);
       return;

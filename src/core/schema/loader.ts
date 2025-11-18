@@ -88,7 +88,10 @@ export async function loadSchema(
     if (options.validate !== false) {
       validation = validateSchema(schema);
       if (!validation.valid) {
-        errors.push('Schema validation failed');
+        errors.push('Schema validation failed:');
+        validation.errors.forEach((error) => {
+          errors.push(`  ${error.path}: ${error.message}`);
+        });
       }
     }
     
@@ -124,7 +127,10 @@ export function loadSchemaFromJson(
     if (options.validate !== false) {
       validation = validateSchema(schema);
       if (!validation.valid) {
-        errors.push('Schema validation failed');
+        errors.push('Schema validation failed:');
+        validation.errors.forEach((error) => {
+          errors.push(`  ${error.path}: ${error.message}`);
+        });
       }
     }
     

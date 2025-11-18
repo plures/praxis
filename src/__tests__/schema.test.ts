@@ -63,6 +63,87 @@ describe('Schema System', () => {
       expect(result.valid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
     });
+
+    it('fails validation when fact tag is not a valid identifier', () => {
+      const schema: PraxisSchema = {
+        version: '1.0.0',
+        name: 'TestSchema',
+        logic: [
+          {
+            id: 'test-logic',
+            description: 'Test logic',
+            facts: [
+              {
+                tag: 'Invalid-Tag',
+                payload: { value: 'string' },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = validateSchema(schema);
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0].message).toContain('not a valid JavaScript identifier');
+    });
+
+    it('fails validation when event tag is not a valid identifier', () => {
+      const schema: PraxisSchema = {
+        version: '1.0.0',
+        name: 'TestSchema',
+        logic: [
+          {
+            id: 'test-logic',
+            description: 'Test logic',
+            events: [
+              {
+                tag: 'My Event',
+                payload: { value: 'string' },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = validateSchema(schema);
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0].message).toContain('not a valid JavaScript identifier');
+    });
+
+    it('allows valid fact and event tags', () => {
+      const schema: PraxisSchema = {
+        version: '1.0.0',
+        name: 'TestSchema',
+        logic: [
+          {
+            id: 'test-logic',
+            description: 'Test logic',
+            facts: [
+              {
+                tag: 'ValidFactTag',
+                payload: { value: 'string' },
+              },
+              {
+                tag: 'ANOTHER_VALID_TAG',
+                payload: { value: 'string' },
+              },
+            ],
+            events: [
+              {
+                tag: 'ValidEvent',
+                payload: { value: 'string' },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = validateSchema(schema);
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
   });
 
   describe('createSchemaTemplate', () => {
