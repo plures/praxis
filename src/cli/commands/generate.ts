@@ -24,6 +24,8 @@ export interface GenerateOptions {
   output?: string;
   /** Watch mode */
   watch?: boolean;
+  /** Auto-indexing strategy for PluresDB: 'all' (default), 'explicit', or 'none' */
+  autoIndex?: 'all' | 'explicit' | 'none';
 }
 
 /**
@@ -100,7 +102,7 @@ export async function generate(options: GenerateOptions): Promise<void> {
     if (target === 'all' || target === 'pluresdb') {
       console.log('\nGenerating PluresDB configuration...');
       const dbOutputDir = resolvedOutputDir;
-      await generatePluresDB(normalizedSchema, dbOutputDir);
+      await generatePluresDB(normalizedSchema, dbOutputDir, options.autoIndex);
       generatedFiles += 1;
       console.log(`✓ PluresDB config generated in ${dbOutputDir}`);
     }
@@ -190,11 +192,13 @@ async function generateComponents(
  */
 async function generatePluresDB(
   schema: NormalizedSchema,
-  outputDir: string
+  outputDir: string,
+  autoIndex?: 'all' | 'explicit' | 'none'
 ): Promise<void> {
   const generator = createPluresDBGenerator(outputDir, {
     dbName: schema.name.toLowerCase(),
     enableSync: false,
+    autoIndex: autoIndex || 'all',
   });
   
   const files = generator.generateConfig(schema);

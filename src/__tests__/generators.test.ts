@@ -213,5 +213,58 @@ describe('Code Generators', () => {
       expect(configFile.content).toContain('enabled: true');
       expect(configFile.content).toContain('ws://example.com/sync');
     });
+
+    it('respects autoIndex "all" strategy', () => {
+      const normalized = normalizeSchema(testSchema);
+      const generator = createPluresDBGenerator('/tmp/test', {
+        autoIndex: 'all',
+      });
+      
+      const files = generator.generateConfig(normalized);
+      const configFile = files[0];
+      
+      // Should include all string/number/date fields
+      expect(configFile.content).toContain("indexes: ['name', 'email']");
+      expect(configFile.content).toContain('auto-indexed by default');
+    });
+
+    it('respects autoIndex "explicit" strategy', () => {
+      const schemaWithIndexes = {
+        ...testSchema,
+        models: [
+          {
+            ...testSchema.models![0],
+            indexes: [
+              { name: 'email_idx', fields: ['email'] },
+            ],
+          },
+        ],
+      };
+      const normalized = normalizeSchema(schemaWithIndexes);
+      const generator = createPluresDBGenerator('/tmp/test', {
+        autoIndex: 'explicit',
+      });
+      
+      const files = generator.generateConfig(normalized);
+      const configFile = files[0];
+      
+      // Should only include explicitly defined indexes
+      expect(configFile.content).toContain("indexes: ['email']");
+      expect(configFile.content).toContain('explicitly defined in schema');
+    });
+
+    it('respects autoIndex "none" strategy', () => {
+      const normalized = normalizeSchema(testSchema);
+      const generator = createPluresDBGenerator('/tmp/test', {
+        autoIndex: 'none',
+      });
+      
+      const files = generator.generateConfig(normalized);
+      const configFile = files[0];
+      
+      // Should have no auto-generated indexes
+      expect(configFile.content).not.toContain('indexes:');
+      expect(configFile.content).toContain('Auto-indexing disabled');
+    });
   });
 });

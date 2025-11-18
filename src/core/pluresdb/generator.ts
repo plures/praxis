@@ -20,6 +20,8 @@ export interface PluresDBGeneratorOptions {
   enableSync?: boolean;
   /** Sync endpoint */
   syncEndpoint?: string;
+  /** Auto-index strategy: 'all' indexes all string/number/date fields, 'explicit' only indexes fields defined in schema, 'none' disables auto-indexing */
+  autoIndex?: 'all' | 'explicit' | 'none';
 }
 
 /**
@@ -52,6 +54,7 @@ export class PluresDBGenerator {
     this.options = {
       dbVersion: 1,
       enableSync: false,
+      autoIndex: 'all', // Default to indexing all fields for backward compatibility
       ...options,
     };
   }
@@ -88,6 +91,19 @@ export class PluresDBGenerator {
     // Generate store definitions
     lines.push('/**');
     lines.push(' * Database store configuration');
+    lines.push(' * ');
+    
+    // Document indexing behavior based on configuration
+    const autoIndexStrategy = this.options.autoIndex || 'all';
+    if (autoIndexStrategy === 'all') {
+      lines.push(' * Indexing: All string, number, and date fields are auto-indexed by default.');
+      lines.push(' * For large datasets, consider using autoIndex: "explicit" to only index');
+      lines.push(' * fields explicitly defined in the schema.');
+    } else if (autoIndexStrategy === 'explicit') {
+      lines.push(' * Indexing: Only fields explicitly defined in schema indexes are indexed.');
+    } else if (autoIndexStrategy === 'none') {
+      lines.push(' * Indexing: Auto-indexing disabled. Only explicit schema indexes are used.');
+    }
     lines.push(' */');
     lines.push('export const stores = {');
     
@@ -164,22 +180,24 @@ export class PluresDBGenerator {
     const idField = model.fields.find(f => f.name === 'id' || f.name === '_id');
     const keyPath = idField ? idField.name : 'id';
     
-    // Generate indexes from field names (excluding the key path)
-    // Note: By default, all string, number, and date fields are indexed for query performance.
-    // This auto-indexing can be overridden by explicitly defining indexes in the schema.
-    // For large datasets, consider only indexing fields that will be frequently queried.
     const indexes: string[] = [];
     
-    for (const field of model.fields) {
-      if (field.name !== keyPath) {
-        // Add indexed fields
-        if (field.type === 'string' || field.type === 'number' || field.type === 'date') {
-          indexes.push(field.name);
+    // Apply auto-indexing based on configuration
+    const autoIndexStrategy = this.options.autoIndex || 'all';
+    
+    if (autoIndexStrategy === 'all') {
+      // Auto-index all string, number, and date fields for query performance
+      for (const field of model.fields) {
+        if (field.name !== keyPath) {
+          if (field.type === 'string' || field.type === 'number' || field.type === 'date') {
+            indexes.push(field.name);
+          }
         }
       }
     }
+    // For 'explicit' and 'none', we only add indexes explicitly defined in the schema
     
-    // Add indexes from schema index definitions
+    // Always add indexes from schema index definitions (overrides auto-indexing)
     if (model.indexes) {
       for (const indexDef of model.indexes) {
         for (const fieldName of indexDef.fields) {

@@ -36,6 +36,7 @@ program
   .option('-t, --target <target>', 'Generation target (all, logic, components, pluresdb)', 'all')
   .option('-o, --output <dir>', 'Output directory', './generated')
   .option('-w, --watch', 'Watch for changes')
+  .option('--auto-index <strategy>', 'Auto-indexing strategy for PluresDB (all, explicit, none)', 'all')
   .action(async (options) => {
     await generate(options);
   });
