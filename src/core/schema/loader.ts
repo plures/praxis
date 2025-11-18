@@ -41,9 +41,9 @@ export async function loadSchema(
   const errors: string[] = [];
   
   try {
-    // For TypeScript files, we need to use tsx or compile them first
-    // For now, we'll use dynamic import which works with .js files
-    // In production, users should compile their schema files first
+    // Only .js files are supported. TypeScript schema files must be compiled to .js first.
+    // Use a compiled JavaScript file for your schema.
+    // Dynamic import is used, which works with .js files only.
     
     // Convert to absolute URL for ES module import
     let fileUrl = pathToFileURL(filePath).href;
