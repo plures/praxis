@@ -12,6 +12,8 @@ dist/
 coverage
 coverage/
 
+# Generated code from examples
+examples/*/generated/
 # Deno
 .deno/
 deno.lock
