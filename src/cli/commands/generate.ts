@@ -212,7 +212,10 @@ async function generatePluresDB(
 async function ensureDir(dir: string): Promise<void> {
   try {
     await mkdir(dir, { recursive: true });
-  } catch (error) {
-    // Ignore if already exists
+  } catch (error: any) {
+    // Only ignore if directory already exists
+    if (error.code !== 'EEXIST') {
+      throw error;
+    }
   }
 }
