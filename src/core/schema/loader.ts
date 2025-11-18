@@ -48,13 +48,7 @@ export async function loadSchema(
     // Convert to absolute URL for ES module import
     let fileUrl = pathToFileURL(filePath).href;
     
-    // If it's a .ts file, suggest using .js or compiling first
-    if (filePath.endsWith('.ts')) {
-      errors.push(
-        'TypeScript schema files must be compiled to .js first. Please run `tsc` on your schema file or use a .js file.'
-      );
-      return { errors };
-    }
+    // Attempt to import .ts or .js files directly. If import fails, error will be caught below.
     
     // Dynamic import of the schema file
     const module = await import(fileUrl);
