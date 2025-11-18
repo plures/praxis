@@ -1,0 +1,75 @@
+name: Proposal / RFC
+description: Propose a significant change or new direction for Praxis
+title: "[RFC]: "
+labels: ["rfc", "discussion"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This template is for significant proposals that require community discussion.
+        For smaller changes, consider using the Enhancement template instead.
+  
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      description: What's the scope of this proposal?
+      options:
+        - Architecture Change
+        - API Design
+        - Breaking Change
+        - New Major Feature
+        - Integration Strategy
+        - Documentation/Process
+    validations:
+      required: true
+  
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Brief summary of the proposal (2-3 sentences)
+    validations:
+      required: true
+  
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why should we do this? What use cases does it support?
+    validations:
+      required: true
+  
+  - type: textarea
+    id: design
+    attributes:
+      label: Detailed Design
+      description: Explain the design in enough detail for someone to implement it
+    validations:
+      required: true
+  
+  - type: textarea
+    id: drawbacks
+    attributes:
+      label: Drawbacks
+      description: What are the drawbacks or risks of this approach?
+  
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: What other designs have been considered?
+  
+  - type: textarea
+    id: adoption
+    attributes:
+      label: Adoption Strategy
+      description: How will existing users adopt this? Is this a breaking change?
+  
+  - type: textarea
+    id: unresolved
+    attributes:
+      label: Unresolved Questions
+      description: What questions remain to be resolved?
