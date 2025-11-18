@@ -35,6 +35,7 @@
 
 | Integration | Status | Notes |
 |------------|--------|-------|
+| **Praxis Cloud** | ✅ Available | Azure-hosted relay for sync & monetization |
 | **PluresDB** | 🚧 In Development | Local-first reactive datastore |
 | **Unum** | 🚧 Planned | Identity & channels |
 | **Svelte** | ✅ Supported | Component generation |
@@ -255,10 +256,43 @@ Available CLI commands:
 - `praxis generate` - Generate code from schemas
 - `praxis canvas [schema]` - Open visual editor
 - `praxis orchestrate` - Manage distributed systems
+- `praxis cloud init` - Connect to Praxis Cloud
+- `praxis cloud status` - Check cloud connection
+- `praxis cloud sync` - Manually sync to cloud
+- `praxis cloud usage` - View cloud usage metrics
 - `praxis dev` - Start development server
 - `praxis build` - Build for production
 
 See [docs/guides/getting-started.md](./docs/guides/getting-started.md) for detailed instructions.
+
+### Praxis Cloud (NEW!)
+
+Connect your application to Praxis Cloud for automatic synchronization and monetization support:
+
+```bash
+# Initialize cloud connection
+npx praxis cloud init
+
+# In your code
+import { connectRelay } from "@plures/praxis/cloud";
+
+const relay = await connectRelay("https://praxis-relay.azurewebsites.net", {
+  appId: "my-app",
+  authToken: process.env.GITHUB_TOKEN,
+  autoSync: true
+});
+
+// Sync automatically handles CRDT merge
+await relay.sync({
+  type: "delta",
+  appId: "my-app",
+  clock: {},
+  facts: [...],
+  timestamp: Date.now()
+});
+```
+
+See [src/cloud/README.md](./src/cloud/README.md) and [examples/cloud-sync](./examples/cloud-sync) for details.
 
 ### Basic Example (Logic Engine)
 

@@ -16,3 +16,5 @@ coverage/
 .deno/
 deno.lock
 
+# Praxis Cloud configuration (contains secrets)
+.praxis-cloud.json
