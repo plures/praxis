@@ -7,14 +7,13 @@
  */
 
 import { Command } from 'commander';
-import { version } from '../../package.json';
 
 const program = new Command();
 
 program
   .name('praxis')
   .description('Praxis Framework - Full-stack application development')
-  .version(version);
+  .version('0.1.0');
 
 // Create commands
 program

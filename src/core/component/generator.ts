@@ -121,7 +121,8 @@ export class ComponentGenerator {
     component: ComponentDefinition,
     model?: ModelDefinition
   ): GeneratedFile {
-    const ext = this.config.typescript ? 'ts' : 'js';
+    // Note: ext could be used for file naming in future versions
+    // const ext = this.config.typescript ? 'ts' : 'js';
     const content = this.generateSvelteComponent(component, model);
 
     return {
@@ -156,7 +157,7 @@ ${styles ? `<style>\n${styles}\n</style>` : ''}`;
    */
   private generateScript(
     component: ComponentDefinition,
-    model?: ModelDefinition
+    _model?: ModelDefinition  // Prefix with _ to indicate intentionally unused
   ): string {
     const lines: string[] = [];
 
@@ -244,7 +245,7 @@ ${styles ? `<style>\n${styles}\n</style>` : ''}`;
    */
   private generateListTemplate(
     component: ComponentDefinition,
-    model?: ModelDefinition
+    _model?: ModelDefinition  // Prefix with _ to indicate intentionally unused
   ): string {
     return `<div class="${component.name.toLowerCase()}">\n  {#each items as item}\n    <div class="item">{item.name}</div>\n  {/each}\n</div>`;
   }
