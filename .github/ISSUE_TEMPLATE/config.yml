@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Discussions
+    url: https://github.com/plures/praxis/discussions
+    about: Ask questions, share ideas, and discuss with the community
+  - name: 📚 Documentation
+    url: https://github.com/plures/praxis/blob/main/docs/
+    about: Read the official documentation
+  - name: 🚀 Getting Started
+    url: https://github.com/plures/praxis/blob/main/GETTING_STARTED.md
+    about: Learn how to get started with Praxis
+  - name: 🏗️ Framework Guide
+    url: https://github.com/plures/praxis/blob/main/FRAMEWORK.md
+    about: Deep dive into the Praxis framework architecture

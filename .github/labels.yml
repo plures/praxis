@@ -1,0 +1,141 @@
+# GitHub Labels Configuration for Praxis
+# To apply: Install github-label-sync and run: github-label-sync --access-token [token] plures/praxis
+
+# Type Labels
+- name: "bug"
+  color: "d73a4a"
+  description: "Something isn't working"
+
+- name: "enhancement"
+  color: "a2eeef"
+  description: "New feature or request"
+
+- name: "documentation"
+  color: "0075ca"
+  description: "Improvements or additions to documentation"
+
+- name: "rfc"
+  color: "fbca04"
+  description: "Request for Comments - significant proposals"
+
+# Priority Labels
+- name: "priority: critical"
+  color: "b60205"
+  description: "Critical priority - needs immediate attention"
+
+- name: "priority: high"
+  color: "d93f0b"
+  description: "High priority"
+
+- name: "priority: medium"
+  color: "fbca04"
+  description: "Medium priority"
+
+- name: "priority: low"
+  color: "0e8a16"
+  description: "Low priority"
+
+# Status Labels
+- name: "needs-triage"
+  color: "ededed"
+  description: "Needs initial review and categorization"
+
+- name: "work-in-progress"
+  color: "f9d0c4"
+  description: "Work in progress"
+
+- name: "blocked"
+  color: "b60205"
+  description: "Blocked by dependencies or decisions"
+
+- name: "stale"
+  color: "eeeeee"
+  description: "No recent activity"
+
+# Component Labels
+- name: "component: core"
+  color: "c5def5"
+  description: "Core framework"
+
+- name: "component: schema"
+  color: "c5def5"
+  description: "Schema system"
+
+- name: "component: logic"
+  color: "c5def5"
+  description: "Logic engine"
+
+- name: "component: generator"
+  color: "c5def5"
+  description: "Code generator"
+
+- name: "component: cli"
+  color: "c5def5"
+  description: "Command-line interface"
+
+- name: "component: docs"
+  color: "c5def5"
+  description: "Documentation"
+
+# Integration Labels
+- name: "integration"
+  color: "1d76db"
+  description: "Related to integrations"
+
+- name: "integration: pluresdb"
+  color: "1d76db"
+  description: "PluresDB integration"
+
+- name: "integration: svelte"
+  color: "1d76db"
+  description: "Svelte integration"
+
+- name: "integration: deno"
+  color: "1d76db"
+  description: "Deno compatibility"
+
+# Special Labels
+- name: "good first issue"
+  color: "7057ff"
+  description: "Good for newcomers"
+
+- name: "help wanted"
+  color: "008672"
+  description: "Extra attention is needed"
+
+- name: "question"
+  color: "d876e3"
+  description: "Further information is requested"
+
+- name: "discussion"
+  color: "cc317c"
+  description: "Discussion needed"
+
+- name: "breaking-change"
+  color: "d93f0b"
+  description: "Breaking change"
+
+- name: "security"
+  color: "b60205"
+  description: "Security-related issue"
+
+- name: "roadmap"
+  color: "0e8a16"
+  description: "On the project roadmap"
+
+- name: "pinned"
+  color: "0075ca"
+  description: "Pinned issue - do not auto-close"
+
+# Dependencies
+- name: "dependencies"
+  color: "0366d6"
+  description: "Dependency updates"
+
+- name: "npm"
+  color: "0366d6"
+  description: "npm dependencies"
+
+- name: "github-actions"
+  color: "0366d6"
+  description: "GitHub Actions updates"

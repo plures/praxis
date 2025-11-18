@@ -1,0 +1,63 @@
+name: Generator Issue
+description: Report an issue with code generation or templates
+title: "[Generator]: "
+labels: ["generator", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to report issues with the Praxis code generator or templates.
+  
+  - type: dropdown
+    id: generator-type
+    attributes:
+      label: Generator Type
+      description: Which generator is affected?
+      options:
+        - Component Generator
+        - Schema Generator
+        - State Machine Generator
+        - Documentation Generator
+        - CLI Scaffolding
+        - Template Engine
+        - Other
+    validations:
+      required: true
+  
+  - type: textarea
+    id: input
+    attributes:
+      label: Input Schema/Configuration
+      description: The schema or configuration you're using
+      render: typescript
+    validations:
+      required: true
+  
+  - type: textarea
+    id: expected-output
+    attributes:
+      label: Expected Output
+      description: What you expected the generator to produce
+      render: typescript
+  
+  - type: textarea
+    id: actual-output
+    attributes:
+      label: Actual Output
+      description: What the generator actually produced
+      render: typescript
+  
+  - type: textarea
+    id: error
+    attributes:
+      label: Error Message
+      description: Any error messages or warnings
+      render: shell
+  
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context about the generator issue
