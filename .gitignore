@@ -12,3 +12,5 @@ dist/
 coverage
 coverage/
 
+# Generated code from examples
+examples/*/generated/
