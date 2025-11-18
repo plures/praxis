@@ -12,6 +12,9 @@ jobs:
     name: Test on Node.js
     runs-on: ubuntu-latest
     
+    permissions:
+      contents: read
+    
     strategy:
       matrix:
         node-version: [18.x, 20.x]
@@ -41,6 +44,9 @@ jobs:
   deno:
     name: Deno Compatibility Check
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout code
