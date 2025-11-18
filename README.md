@@ -1,54 +1,97 @@
 # Praxis
 
-**Practical, provable application logic built on strong types.**
+**The Full Plures Application Framework**
 
-Praxis is a typed, functional application logic engine in the [plures ecosystem](https://github.com/plures):
+Praxis is the primary, standalone framework that unifies the entire [Plures ecosystem](https://github.com/plures) into a cohesive development platform:
 
-- **unum** – identity and channels ("many as one")
-- **pluresdb** – decentralized reactive graph datastore
-- **Praxis** – typed, functional application logic engine sitting above data and below UI
+- **Praxis** – The top-level application framework (you are here)
+- **PluresDB** – Local-first reactive datastore (integrated)
+- **Unum** – Identity and channels for distributed systems (integrated)
+- **ADP** – Architectural Decision Protocol for guardrails (integrated)
+- **State-Docs** – Living documentation generator (integrated)
+- **CodeCanvas** – Visual design and schema editor (integrated)
+- **Svelte-Tauri-template** – Cross-platform runtime environment (integrated)
 
 ## Overview
 
-Praxis is not just a state machine library. It defines a **logic-first model** that can be reused across languages (TypeScript, C#, PowerShell) via a stable, data-oriented protocol and DSL.
+Praxis is not just a logic engine—it's a **complete framework** for building modern, local-first, distributed applications. It provides:
 
-### Core Concepts
+- **Declarative Schemas**: Define your data models, logic, and components in a unified schema format
+- **Logic/State Machines**: Pure, functional application logic with facts, events, rules, and constraints
+- **Component Generation**: Automatically generate Svelte components from schemas
+- **Local-First Data**: Integrated PluresDB for reactive, offline-capable data storage
+- **Documentation Generation**: Automatic State-Docs generation from your schemas
+- **Visual Design**: CodeCanvas integration for visual schema and logic editing
+- **Orchestration**: DSC/MCP support for distributed system coordination
+- **Cross-Platform Runtime**: Web, desktop, and mobile via Svelte + Tauri
 
-Praxis exposes these logical building blocks:
+### Framework Philosophy
 
-- **Facts** – typed propositions about the domain (e.g., `UserLoggedIn`, `CartItem`, `NetworkOnline`)
-- **Events** – temporally ordered facts meant to drive change (e.g., `LOGIN`, `LOGOUT`, `ADD_TO_CART`)
-- **Rules** – pure, typed functions that derive new facts or transitions from context + input facts/events
-- **Constraints** – invariants expressed as types + predicates that must always hold
-- **Flows / Scenarios** – orchestrated behaviors (internally may use FSMs, but exposed as logic/DSL)
-- **Actors** – effectful units that observe Praxis logic state, perform side effects, and feed new events back
+### Core Framework Components
+
+Praxis provides these integrated capabilities:
+
+- **Schema System** – Declarative definitions that generate models, components, and documentation
+- **Logic Engine** – Typed facts, events, rules, and constraints for application logic
+- **Component Factory** – Generate Svelte components from schemas with data bindings
+- **Data Layer** – PluresDB integration for reactive, local-first data storage
+- **State Machines** – Flows and scenarios for orchestrated behaviors
+- **Actors** – Effectful units for side effects and external system integration
+- **Documentation** – Automatic State-Docs generation from schemas and logic
+- **Visual IDE** – CodeCanvas integration for schema and logic editing
+- **Orchestration** – DSC/MCP support for distributed coordination
+- **CLI Tools** – Command-line interface for scaffolding and generation
 
 ### Design Philosophy
 
-1. **Strong typing and functional programming first**
+1. **Schema-Driven Development**
+   - Define once, generate everywhere (models, components, docs, orchestration)
+   - Single source of truth for your application structure
+   - Type-safe by default across all layers
+
+2. **Local-First Architecture**
+   - Offline-capable by default with PluresDB
+   - Sync when connected, work always
+   - Data ownership and privacy built-in
+
+3. **Strong typing and functional programming**
    - Core abstractions are strongly typed: `Fact<Tag, Payload>`, `Event<Tag, Payload>`, `Rule<Context, InFact, OutFact>`
-   - Rules and constraints must be pure (no side effects)
-   - Side effects go into actors or explicit effect layers
+   - Pure functions for testability and reasoning
+   - Immutable state updates
 
-2. **Logic-first, FSMs as an internal detail**
-   - User-facing API is expressed in terms of facts, events, rules, constraints, and actors
-   - Not raw FSM configuration
+4. **Visual and Code Workflows**
+   - CodeCanvas for visual schema and logic editing
+   - Full code-level control when needed
+   - Seamless transitions between visual and code
 
-3. **Language-agnostic core protocol**
-   - TypeScript-first implementation
-   - Designed around a small, language-neutral core protocol for future C#, PowerShell, and other language support
-   - JSON-friendly shapes for cross-language compatibility
+5. **Cross-Platform and Cross-Language**
+   - TypeScript-first with C# and PowerShell support
+   - Web, desktop, mobile via Svelte + Tauri
+   - Language-agnostic core protocol for maximum portability
 
-4. **Provable, analyzable, testable logic**
-   - Pure functions make testing straightforward
-   - Designed to support automatic documentation generation, visualization, and static/dynamic checks
-**TypeScript library for typed, functional application logic.**
+## Framework Features
 
-**Logic-first:** facts, events, rules, constraints, flows, actors. FSMs are internal tools, not the main API.
+### 🏗️ Full Application Framework
+- **Schema-Driven**: Define data models, logic, and UI in unified schemas
+- **Component Generation**: Auto-generate Svelte components from schemas
+- **CLI Tools**: `praxis create`, `praxis generate`, `praxis canvas` commands
+- **Templates**: Pre-built app templates (basic, fullstack, distributed)
+- **Integrated Stack**: PluresDB + Unum + ADP + State-Docs + Canvas
 
-Core is a pure, JSON-friendly step over `PraxisState`/`PraxisEvent`. Designed for future interoperability with C# and PowerShell.
+### 🎨 Visual Development
+- **CodeCanvas Integration**: Visual schema and logic editor
+- **Component Preview**: See generated components in real-time
+- **Flow Visualization**: Visualize state machines and orchestration
+- **Interactive Docs**: Navigate documentation with State-Docs
 
-## Features
+### 🔌 Ecosystem Integration
+- **PluresDB**: Local-first reactive data storage
+- **Unum**: Identity and channels for distributed systems
+- **ADP**: Architectural guardrails and decision tracking
+- **State-Docs**: Living documentation generation
+- **Svelte + Tauri**: Cross-platform runtime (web/desktop/mobile)
+
+## Logic Engine Features
 
 - 🎯 **Logic-First Design**: Build applications around facts, events, rules, and constraints
 - 🔄 **Pure Functional Core**: State transitions via pure `step` functions
