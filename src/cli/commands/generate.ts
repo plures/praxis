@@ -32,7 +32,7 @@ export interface GenerateOptions {
 export async function generate(options: GenerateOptions): Promise<void> {
   try {
     // Determine schema file path
-    const schemaPath = options.schema || './praxis.schema.ts';
+    const schemaPath = options.schema || './praxis.schema.js';
     const resolvedSchemaPath = resolve(process.cwd(), schemaPath);
     
     console.log(`Loading schema from: ${resolvedSchemaPath}`);
