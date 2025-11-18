@@ -84,4 +84,66 @@ program
     console.log('Note: Full implementation coming soon');
   });
 
+// Cloud commands
+const cloudCmd = program
+  .command('cloud')
+  .description('Manage Praxis Cloud connection and synchronization');
+
+cloudCmd
+  .command('init')
+  .description('Connect to Praxis Cloud (setup wizard)')
+  .option('-e, --endpoint <url>', 'Azure Function App endpoint URL')
+  .option('-a, --app-id <id>', 'Application identifier')
+  .option('--auto-sync', 'Enable automatic synchronization', false)
+  .option('--interval <ms>', 'Sync interval in milliseconds', '5000')
+  .action(async (options) => {
+    try {
+      // Dynamic import to avoid loading cloud module unless needed
+      const { cloudInit } = await import('./commands/cloud.js');
+      await cloudInit(options);
+    } catch (error) {
+      console.error('Error initializing cloud connection:', error);
+      process.exit(1);
+    }
+  });
+
+cloudCmd
+  .command('status')
+  .description('Check Praxis Cloud connection status')
+  .action(async () => {
+    try {
+      const { cloudStatus } = await import('./commands/cloud.js');
+      await cloudStatus();
+    } catch (error) {
+      console.error('Error checking cloud status:', error);
+      process.exit(1);
+    }
+  });
+
+cloudCmd
+  .command('sync')
+  .description('Manually trigger cloud synchronization')
+  .action(async () => {
+    try {
+      const { cloudSync } = await import('./commands/cloud.js');
+      await cloudSync();
+    } catch (error) {
+      console.error('Error syncing to cloud:', error);
+      process.exit(1);
+    }
+  });
+
+cloudCmd
+  .command('usage')
+  .description('View cloud usage metrics')
+  .action(async () => {
+    try {
+      const { cloudUsage } = await import('./commands/cloud.js');
+      await cloudUsage();
+    } catch (error) {
+      console.error('Error retrieving usage metrics:', error);
+      process.exit(1);
+    }
+  });
+
 program.parse();

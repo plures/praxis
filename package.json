@@ -24,6 +24,10 @@
     "./component": {
       "types": "./dist/core/component/generator.d.ts",
       "default": "./dist/core/component/generator.js"
+    },
+    "./cloud": {
+      "types": "./dist/cloud/index.d.ts",
+      "default": "./dist/cloud/index.js"
     }
   },
   "files": [
