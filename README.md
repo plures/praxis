@@ -251,6 +251,9 @@ npm run build
 ```
 
 Available CLI commands:
+- `praxis login` - Authenticate with GitHub (device flow or token)
+- `praxis logout` - Log out from Praxis Cloud
+- `praxis whoami` - Show current authenticated user
 - `praxis create app [name]` - Create new application
 - `praxis create component [name]` - Create new component
 - `praxis generate` - Generate code from schemas
@@ -267,9 +270,12 @@ See [docs/guides/getting-started.md](./docs/guides/getting-started.md) for detai
 
 ### Praxis Cloud (NEW!)
 
-Connect your application to Praxis Cloud for automatic synchronization and monetization support:
+Connect your application to Praxis Cloud for automatic synchronization with GitHub-native authentication and billing:
 
 ```bash
+# Authenticate with GitHub
+npx praxis login
+
 # Initialize cloud connection
 npx praxis cloud init
 

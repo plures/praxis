@@ -1,0 +1,43 @@
+# GitHub App Manifest for Praxis Cloud
+# This manifest defines the permissions and configuration for the Praxis Cloud GitHub App
+# 
+# To create the app:
+# 1. Visit https://github.com/settings/apps/new
+# 2. Use this manifest to register the app
+# 3. Configure the webhook URL to your relay endpoint
+#
+# Documentation: https://docs.github.com/en/apps/creating-github-apps/setting-up-a-github-app/creating-a-github-app-from-a-manifest
+
+name: Praxis Cloud
+description: GitHub-native monetization and authentication for Praxis Cloud - local-first application framework with cloud sync
+
+# OAuth configuration
+default_permissions:
+  # User permissions
+  emails: read
+  
+default_events: []
+
+# OAuth scopes - used for user authentication
+oauth:
+  scopes:
+    - user:email
+    - read:user
+
+# Public app - can be installed by any user or organization
+public: true
+
+# Redirect URL after OAuth (for web flow)
+redirect_url: http://localhost:3000/auth/callback
+
+# Setup URL - where users go after installing the app
+setup_url: http://localhost:3000/setup
+
+# Webhook configuration
+webhook_active: true
+webhook_events:
+  - sponsorship
+  - marketplace_purchase
+
+# Request OAuth authorization during installation
+request_oauth_on_install: true

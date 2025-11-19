@@ -16,6 +16,47 @@ program
   .description('Praxis Framework - Full-stack application development')
   .version('0.1.0');
 
+// Authentication command
+program
+  .command('login')
+  .description('Authenticate with GitHub for Praxis Cloud access')
+  .option('--token <token>', 'Use a personal access token instead of device flow')
+  .action(async (options) => {
+    try {
+      const { loginCommand } = await import('./commands/auth.js');
+      await loginCommand(options);
+    } catch (error) {
+      console.error('Error during login:', error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('logout')
+  .description('Log out from Praxis Cloud')
+  .action(async () => {
+    try {
+      const { logoutCommand } = await import('./commands/auth.js');
+      await logoutCommand();
+    } catch (error) {
+      console.error('Error during logout:', error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('whoami')
+  .description('Show current authenticated user')
+  .action(async () => {
+    try {
+      const { whoamiCommand } = await import('./commands/auth.js');
+      await whoamiCommand();
+    } catch (error) {
+      console.error('Error checking authentication:', error);
+      process.exit(1);
+    }
+  });
+
 // Create commands
 program
   .command('create <type> [name]')
