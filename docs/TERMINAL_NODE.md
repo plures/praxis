@@ -169,6 +169,123 @@ const result = await runTerminalCommand('temp-terminal', 'ls -la');
 console.log(result.output);
 ```
 
+## Svelte Component
+
+### TerminalNode.svelte
+
+The `TerminalNode` Svelte component provides a visual terminal interface for canvas-based applications.
+
+**Import:**
+
+```typescript
+// Import the component directly from the .svelte file
+import TerminalNode from '@plures/praxis/components/TerminalNode.svelte';
+// Or use the package path if your bundler supports svelte exports
+// import { TerminalNode } from '@plures/praxis/components';
+```
+
+**Basic Usage:**
+
+```svelte
+<script>
+  import TerminalNode from '@plures/praxis/components/TerminalNode.svelte';
+  import { createTerminalAdapter } from '@plures/praxis';
+
+  const terminal = createTerminalAdapter({
+    nodeId: 'my-terminal',
+  });
+</script>
+
+<TerminalNode adapter={terminal} x={100} y={100} />
+```
+
+**Props:**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `adapter` | `TerminalAdapter` | required | Terminal adapter instance |
+| `x` | `number` | `0` | X position on canvas |
+| `y` | `number` | `0` | Y position on canvas |
+| `width` | `number` | `600` | Component width in pixels |
+| `height` | `number` | `400` | Component height in pixels |
+| `draggable` | `boolean` | `true` | Enable drag to move |
+| `resizable` | `boolean` | `true` | Enable resize handle |
+| `showContextMenu` | `boolean` | `false` | Show context menu |
+
+**Features:**
+
+- **Drag and Drop**: Click and drag the title bar to reposition
+- **Resize**: Drag the bottom-right corner to resize
+- **Context Menu**: Right-click for operations (clear, copy)
+- **Keyboard Shortcuts**: Press Enter to execute commands
+- **Command History**: Tracks all executed commands
+- **Dark Theme**: VS Code-inspired dark color scheme
+- **Input Modes**: Supports both text and widget input modes
+
+**Complete Example:**
+
+```svelte
+<script lang="ts">
+  import TerminalNode from '@plures/praxis/components/TerminalNode.svelte';
+  import { createTerminalAdapter } from '@plures/praxis';
+
+  // Create multiple terminals
+  const terminals = [
+    {
+      id: 'term-1',
+      adapter: createTerminalAdapter({
+        nodeId: 'terminal-1',
+        props: {
+          inputMode: 'text',
+          history: [],
+          lastOutput: null,
+        },
+      }),
+      x: 50,
+      y: 50,
+    },
+    {
+      id: 'term-2',
+      adapter: createTerminalAdapter({
+        nodeId: 'terminal-2',
+        props: {
+          inputMode: 'widget',
+          history: [],
+          lastOutput: null,
+        },
+      }),
+      x: 700,
+      y: 50,
+    },
+  ];
+</script>
+
+<div class="canvas">
+  {#each terminals as terminal (terminal.id)}
+    <TerminalNode
+      adapter={terminal.adapter}
+      x={terminal.x}
+      y={terminal.y}
+      width={600}
+      height={400}
+      draggable={true}
+      resizable={true}
+    />
+  {/each}
+</div>
+
+<style>
+  .canvas {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: #1a1a1a;
+  }
+</style>
+```
+
+See [examples/terminal-canvas/](../examples/terminal-canvas/) for a complete working example with toolbar and multiple terminals.
+
 ## API Reference
 
 ### TerminalNodeProps
@@ -373,19 +490,46 @@ const result = await terminal.executeCommand('npm test');
 // result.output: actual test output
 ```
 
-### Canvas Integration (Future)
+### Canvas Integration with Svelte Component
 
-Visual terminal component for Praxis Canvas:
+Visual terminal component for Praxis Canvas is now available! Use the `TerminalNode.svelte` component:
 
-```yaml
-nodes:
-  - id: visual-terminal
-    type: terminal
-    x: 100
-    y: 100
-    props:
-      inputMode: widget  # UI-based terminal
+```svelte
+<script>
+  import TerminalNode from '@plures/praxis/components/TerminalNode.svelte';
+  import { createTerminalAdapter } from '@plures/praxis';
+
+  const terminal = createTerminalAdapter({
+    nodeId: 'visual-terminal',
+    props: {
+      inputMode: 'widget',
+      history: [],
+      lastOutput: null,
+    },
+  });
+</script>
+
+<TerminalNode
+  adapter={terminal}
+  x={100}
+  y={100}
+  width={600}
+  height={400}
+  draggable={true}
+  resizable={true}
+/>
 ```
+
+**Component Features:**
+- Drag and drop positioning
+- Resizable dimensions
+- Context menu operations
+- Dark VS Code-inspired theme
+- Both text and widget input modes
+- Command history display
+- Real-time output rendering
+
+See [examples/terminal-canvas/](../examples/terminal-canvas/) for a complete working example.
 
 ## Testing
 
@@ -407,12 +551,12 @@ Tests cover:
 
 1. **RuneBook Integration**: Full command execution via RuneBook
 2. **PluresDB Sync**: Real-time reactive state synchronization
-3. **Svelte Component**: Visual terminal component for canvas
-4. **Security**: Command sandboxing and permission system
-5. **Streaming**: Real-time command output streaming
-6. **Environment**: Custom environment variables per terminal
-7. **Multiplexing**: Multiple terminal sessions in one node
-8. **Persistence**: Save/restore terminal sessions
+3. **Security**: Command sandboxing and permission system
+4. **Streaming**: Real-time command output streaming
+5. **Environment**: Custom environment variables per terminal
+6. **Multiplexing**: Multiple terminal sessions in one node
+7. **Persistence**: Save/restore terminal sessions
+8. **Node Wiring**: Connect terminals to InputNode, DisplayNode, and AgentNode
 
 ## Migration Guide
 
