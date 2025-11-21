@@ -70,6 +70,7 @@ Praxis provides these integrated capabilities:
 - **Data Layer** – PluresDB integration for reactive, local-first data storage
 - **State Machines** – Flows and scenarios for orchestrated behaviors
 - **Actors** – Effectful units for side effects and external system integration
+- **Terminal Nodes** – Execute commands and scripts within the Praxis framework (NEW!)
 - **Documentation** – Automatic State-Docs generation from schemas and logic
 - **Visual IDE** – CodeCanvas integration for schema and logic editing
 - **Orchestration** – DSC/MCP support for distributed coordination
@@ -514,7 +515,22 @@ See [examples/knowledge-canvas/README.md](./examples/knowledge-canvas/README.md)
 
 See [examples/distributed-node/README.md](./examples/distributed-node/README.md)
 
-### 5. Auth Basic (`src/examples/auth-basic`)
+### 5. Terminal Node (`examples/terminal-node`)
+**NEW!** Demonstrates the terminal node feature for command execution:
+- Terminal adapter creation and configuration
+- Command execution and history tracking
+- YAML schema loading with terminal nodes
+- PluresDB binding configuration (ready for integration)
+- Both text and widget input modes
+
+```bash
+npm run build
+node examples/terminal-node/index.js
+```
+
+See [examples/terminal-node/README.md](./examples/terminal-node/README.md) and [docs/TERMINAL_NODE.md](./docs/TERMINAL_NODE.md)
+
+### 6. Auth Basic (`src/examples/auth-basic`)
 Login/logout with facts, rules, and constraints.
 
 ```bash
@@ -522,7 +538,7 @@ npm run build
 node dist/examples/auth-basic/index.js
 ```
 
-### 6. Cart (`src/examples/cart`)
+### 7. Cart (`src/examples/cart`)
 Shopping cart with multiple rules, constraints, and complex state management.
 
 ```bash
@@ -530,7 +546,7 @@ npm run build
 node dist/examples/cart/index.js
 ```
 
-### 7. Svelte Counter (`src/examples/svelte-counter`)
+### 8. Svelte Counter (`src/examples/svelte-counter`)
 Counter example showing Svelte v5 integration with reactive stores.
 
 ```bash
