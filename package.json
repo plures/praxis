@@ -28,6 +28,10 @@
     "./cloud": {
       "types": "./dist/cloud/index.d.ts",
       "default": "./dist/cloud/index.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "svelte": "./src/components/TerminalNode.svelte"
     }
   },
   "files": [
@@ -38,7 +42,8 @@
     "templates",
     "docs",
     "README.md",
-    "FRAMEWORK.md"
+    "FRAMEWORK.md",
+    "src/components"
   ],
   "scripts": {
     "build": "tsc",
@@ -79,5 +84,13 @@
   "dependencies": {
     "commander": "^14.0.2",
     "js-yaml": "^4.1.1"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "svelte": {
+      "optional": true
+    }
   }
 }
