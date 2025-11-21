@@ -68,8 +68,8 @@ export class TerminalAdapter {
       history: options.props?.history || [],
       lastOutput: options.props?.lastOutput || null,
     };
-    // Store paths for future pluresDB integration
-    // this._inputPath = options.inputPath;
+    // TODO: Store inputPath when pluresDB integration is complete
+    // const inputPath = options.inputPath;
     this.outputPath = options.outputPath;
   }
 
@@ -137,12 +137,13 @@ export class TerminalAdapter {
   /**
    * Sync state to pluresDB (placeholder)
    * 
-   * @param path - PluresDB path
-   * @param data - Data to sync
+   * @param _path - PluresDB path (unused until integration is complete)
+   * @param _data - Data to sync (unused until integration is complete)
    */
-  private async syncToPluresDB(path: string, data: unknown): Promise<void> {
+  private async syncToPluresDB(_path: string, _data: unknown): Promise<void> {
     // TODO: Implement pluresDB sync when integration is available
-    console.debug(`[TerminalAdapter] Would sync to pluresDB path: ${path}`, data);
+    // When implemented, this will sync terminal output to the specified pluresDB path
+    // for reactive state management across the application
   }
 }
 
