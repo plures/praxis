@@ -5,6 +5,7 @@
    * Svelte component for terminal nodes in Praxis/RuneBook.
    * Provides a terminal interface with command execution, history, and canvas integration.
    */
+  import { onDestroy } from 'svelte';
   import type { TerminalAdapter } from '../runtime/terminal-adapter.js';
   import type { TerminalExecutionResult } from '../runtime/terminal-adapter.js';
 
@@ -31,6 +32,7 @@
   let terminalOutput: TerminalExecutionResult[] = [];
   let contextMenuX = 0;
   let contextMenuY = 0;
+  let outputContainer: HTMLDivElement;
 
   // Get state from adapter
   $: state = adapter.getState();
@@ -46,13 +48,12 @@
     terminalOutput = [...terminalOutput, result];
     currentCommand = '';
 
-    // Auto-scroll to bottom
-    setTimeout(() => {
-      const outputContainer = document.getElementById('terminal-output');
-      if (outputContainer) {
+    // Auto-scroll to bottom after DOM update
+    if (outputContainer) {
+      setTimeout(() => {
         outputContainer.scrollTop = outputContainer.scrollHeight;
-      }
-    }, 0);
+      }, 0);
+    }
   }
 
   // Handle keyboard shortcuts
@@ -129,18 +130,45 @@
     closeContextMenu();
   }
 
-  // Global mouse event listeners
-  $: if (typeof window !== 'undefined') {
-    if (isDragging || isResizing) {
-      window.addEventListener('mousemove', isDragging ? handleDrag : handleResize);
-      window.addEventListener('mouseup', isDragging ? stopDrag : stopResize);
+  // Global mouse event listeners with proper cleanup
+  let mouseMoveHandler: ((e: MouseEvent) => void) | null = null;
+  let mouseUpHandler: (() => void) | null = null;
+
+  $: {
+    // Remove old listeners if they exist
+    if (mouseMoveHandler) {
+      window.removeEventListener('mousemove', mouseMoveHandler);
+    }
+    if (mouseUpHandler) {
+      window.removeEventListener('mouseup', mouseUpHandler);
+    }
+
+    // Add new listeners if dragging or resizing
+    if (isDragging) {
+      mouseMoveHandler = handleDrag;
+      mouseUpHandler = stopDrag;
+      window.addEventListener('mousemove', mouseMoveHandler);
+      window.addEventListener('mouseup', mouseUpHandler);
+    } else if (isResizing) {
+      mouseMoveHandler = handleResize;
+      mouseUpHandler = stopResize;
+      window.addEventListener('mousemove', mouseMoveHandler);
+      window.addEventListener('mouseup', mouseUpHandler);
     } else {
-      window.removeEventListener('mousemove', handleDrag);
-      window.removeEventListener('mousemove', handleResize);
-      window.removeEventListener('mouseup', stopDrag);
-      window.removeEventListener('mouseup', stopResize);
+      mouseMoveHandler = null;
+      mouseUpHandler = null;
     }
   }
+
+  // Cleanup event listeners on component destroy
+  onDestroy(() => {
+    if (mouseMoveHandler) {
+      window.removeEventListener('mousemove', mouseMoveHandler);
+    }
+    if (mouseUpHandler) {
+      window.removeEventListener('mouseup', mouseUpHandler);
+    }
+  });
 
   // Click outside to close context menu
   function handleDocumentClick() {
@@ -170,7 +198,7 @@
   </div>
 
   <!-- Output area -->
-  <div class="terminal-output" id="terminal-output">
+  <div class="terminal-output" bind:this={outputContainer}>
     {#if terminalOutput.length === 0}
       <div class="terminal-empty">No output yet. Enter a command below.</div>
     {:else}
