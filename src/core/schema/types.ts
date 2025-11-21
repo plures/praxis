@@ -311,6 +311,37 @@ export interface NodeDefinition {
   type: string;
   /** Node configuration */
   config: Record<string, unknown>;
+  /** Node position (x, y coordinates for canvas) */
+  x?: number;
+  y?: number;
+  /** Node props (type-specific properties) */
+  props?: Record<string, unknown>;
+  /** Node bindings (connections to pluresdb paths) */
+  bindings?: NodeBindings;
+}
+
+/**
+ * Node bindings for pluresdb path connections
+ */
+export interface NodeBindings {
+  /** Output binding to pluresdb path */
+  output?: string;
+  /** Input binding to pluresdb path */
+  input?: string;
+  /** Additional custom bindings */
+  [key: string]: string | undefined;
+}
+
+/**
+ * Terminal node specific configuration
+ */
+export interface TerminalNodeProps {
+  /** Input mode: text input or widget-based */
+  inputMode: 'text' | 'widget';
+  /** Command history */
+  history: string[];
+  /** Last command output */
+  lastOutput: string | null;
 }
 
 /**
@@ -444,6 +475,41 @@ export function validateSchema(schema: PraxisSchema): ValidationResult {
             });
           }
         });
+      }
+    });
+  }
+
+  // Validate orchestration nodes
+  if (schema.orchestration?.nodes) {
+    schema.orchestration.nodes.forEach((node, index) => {
+      if (!node.id) {
+        errors.push({
+          path: `orchestration.nodes[${index}].id`,
+          message: 'Node id is required',
+        });
+      }
+      if (!node.type) {
+        errors.push({
+          path: `orchestration.nodes[${index}].type`,
+          message: 'Node type is required',
+        });
+      }
+      
+      // Validate terminal node specific props
+      if (node.type === 'terminal' && node.props) {
+        const props = node.props as Partial<TerminalNodeProps>;
+        if (props.inputMode && !['text', 'widget'].includes(props.inputMode)) {
+          errors.push({
+            path: `orchestration.nodes[${index}].props.inputMode`,
+            message: 'Terminal node inputMode must be "text" or "widget"',
+          });
+        }
+        if (props.history && !Array.isArray(props.history)) {
+          errors.push({
+            path: `orchestration.nodes[${index}].props.history`,
+            message: 'Terminal node history must be an array',
+          });
+        }
       }
     });
   }

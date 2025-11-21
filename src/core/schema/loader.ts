@@ -6,6 +6,7 @@
 
 import { readFile } from 'fs/promises';
 import { pathToFileURL } from 'url';
+import { load as yamlLoad } from 'js-yaml';
 import type { PraxisSchema, ValidationResult } from './types.js';
 import { validateSchema } from './types.js';
 
@@ -150,7 +151,46 @@ export function loadSchemaFromJson(
 }
 
 /**
- * Load schema from file (supports both .ts and .json)
+ * Load schema from YAML string
+ */
+export function loadSchemaFromYaml(
+  yaml: string,
+  options: LoaderOptions = {}
+): LoaderResult {
+  const errors: string[] = [];
+  
+  try {
+    const schema = yamlLoad(yaml) as PraxisSchema;
+    
+    // Validate if requested
+    let validation: ValidationResult | undefined;
+    if (options.validate !== false) {
+      validation = validateSchema(schema);
+      if (!validation.valid) {
+        errors.push('Schema validation failed:');
+        validation.errors.forEach((error) => {
+          errors.push(`  ${error.path}: ${error.message}`);
+        });
+      }
+    }
+    
+    return {
+      schema,
+      validation,
+      errors,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      errors.push(`Failed to parse YAML: ${error.message}`);
+    } else {
+      errors.push('Failed to parse YAML: Unknown error');
+    }
+    return { errors };
+  }
+}
+
+/**
+ * Load schema from file (supports .ts, .json, and .yaml/.yml)
  */
 export async function loadSchemaFromFile(
   filePath: string,
@@ -159,6 +199,9 @@ export async function loadSchemaFromFile(
   if (filePath.endsWith('.json')) {
     const content = await readFile(filePath, 'utf-8');
     return loadSchemaFromJson(content, options);
+  } else if (filePath.endsWith('.yaml') || filePath.endsWith('.yml')) {
+    const content = await readFile(filePath, 'utf-8');
+    return loadSchemaFromYaml(content, options);
   } else {
     return loadSchema(filePath, options);
   }
