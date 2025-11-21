@@ -69,6 +69,7 @@
   "author": "Plures",
   "license": "MIT",
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.10.1",
     "@vitest/ui": "^4.0.10",
     "tsx": "^4.20.6",
@@ -76,6 +77,7 @@
     "vitest": "^4.0.10"
   },
   "dependencies": {
-    "commander": "^14.0.2"
+    "commander": "^14.0.2",
+    "js-yaml": "^4.1.1"
   }
 }

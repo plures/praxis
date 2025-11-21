@@ -1,0 +1,32 @@
+version: "1.0.0"
+name: "TerminalExample"
+description: "Example showing terminal node integration in Praxis"
+
+orchestration:
+  type: custom
+  nodes:
+    - id: main-terminal
+      type: terminal
+      x: 100
+      y: 100
+      props:
+        inputMode: text
+        history: []
+        lastOutput: null
+      bindings:
+        input: /terminal/input
+        output: /terminal/output
+    
+    - id: widget-terminal
+      type: terminal
+      x: 400
+      y: 100
+      props:
+        inputMode: widget
+        history:
+          - echo "Hello from Praxis Terminal"
+          - ls -la
+        lastOutput: null
+      bindings:
+        input: /terminal/widget/input
+        output: /terminal/widget/output

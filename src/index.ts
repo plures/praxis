@@ -111,3 +111,44 @@ export type {
   DefineConstraintOptions,
   DefineModuleOptions,
 } from "./dsl/index.js";
+
+// Terminal Node Runtime
+export type {
+  TerminalExecutionResult,
+  TerminalNodeState,
+  TerminalAdapterOptions,
+} from "./runtime/terminal-adapter.js";
+export {
+  TerminalAdapter,
+  createTerminalAdapter,
+  runTerminalCommand,
+} from "./runtime/terminal-adapter.js";
+
+// Schema Types (including Terminal Node types)
+export type {
+  PraxisSchema,
+  NodeDefinition,
+  NodeBindings,
+  TerminalNodeProps,
+  OrchestrationDefinition,
+  ValidationResult,
+  ValidationError,
+  ModelDefinition,
+  ComponentDefinition,
+  LogicDefinition,
+} from "./core/schema/types.js";
+export { validateSchema, createSchemaTemplate } from "./core/schema/types.js";
+
+// Schema Loader (supports JSON, YAML, and TS)
+export type {
+  LoaderOptions,
+  LoaderResult,
+} from "./core/schema/loader.js";
+export {
+  loadSchema,
+  loadSchemaFromJson,
+  loadSchemaFromYaml,
+  loadSchemaFromFile,
+  validateForGeneration,
+} from "./core/schema/loader.js";
+
