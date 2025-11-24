@@ -5,7 +5,6 @@
     "lib": ["ES2022", "DOM"],
     "types": ["node"],
     "moduleResolution": "bundler",
-    "types": ["node"],
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
