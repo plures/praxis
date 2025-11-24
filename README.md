@@ -28,8 +28,8 @@
 | **Version** | 0.1.0 (Alpha) |
 | **Runtime Support** | Node.js 18+, Deno (experimental) |
 | **Package Registries** | npm ✅ / JSR 🚧 (coming soon) |
-| **Test Coverage** | 63 tests passing |
-| **Documentation** | 📚 In Progress |
+| **Test Coverage** | 165 tests passing |
+| **Documentation** | 📚 Comprehensive guides available |
 
 ### Integration Status
 
@@ -38,7 +38,7 @@
 | **Praxis Cloud** | ✅ Available | Azure-hosted relay for sync & monetization |
 | **PluresDB** | 🚧 In Development | Local-first reactive datastore |
 | **Unum** | 🚧 Planned | Identity & channels |
-| **Svelte** | ✅ Supported | Component generation |
+| **Svelte 5** | ✅ Full Support | Runes API, stores, history, time-travel |
 | **Tauri** | 🚧 Planned | Cross-platform runtime |
 | **CodeCanvas** | 🚧 Planned | Visual schema editor |
 | **State-Docs** | 🚧 Planned | Documentation generation |
@@ -123,7 +123,15 @@ Praxis provides these integrated capabilities:
 - **Unum**: Identity and channels for distributed systems
 - **ADP**: Architectural guardrails and decision tracking
 - **State-Docs**: Living documentation generation
-- **Svelte + Tauri**: Cross-platform runtime (web/desktop/mobile)
+- **Svelte 5**: Full runes support with history and time-travel
+- **Tauri**: Cross-platform runtime (web/desktop/mobile)
+
+### ⚡ Svelte 5 Integration (NEW!)
+- **Runes API**: Modern `$state`, `$derived`, `$effect` support
+- **History States**: Built-in undo/redo and time-travel debugging
+- **Store API**: Backward-compatible stores for Svelte 4/5
+- **Type Safety**: Full TypeScript support with composables
+- **Zero Config**: Works out of the box with Svelte 5
 
 ## Logic Engine Features
 
@@ -136,13 +144,31 @@ Praxis provides these integrated capabilities:
 - 🔒 **Type-Safe**: Full TypeScript support with strict typing
 - 🔍 **Introspection**: Generate schemas, graphs, and visualizations of your logic
 - 🌐 **Cross-Language**: PowerShell adapter with protocol versioning (C# coming soon)
-- 📊 **Comprehensive Testing**: 63+ tests covering edge cases, failures, and actors
+- 📊 **Comprehensive Testing**: 165+ tests covering all features
 - 🎭 **Hero Example**: Full e-commerce demo with auth, cart, features, and actors
 
 ## What's New in v0.1.0
 
+### 🎉 Major Features
+
+#### Svelte 5 Integration (@plures/praxis/svelte)
+- **Runes Composables**: `usePraxisEngine`, `usePraxisContext`, `usePraxisSubscription`
+- **History State Pattern**: `HistoryStateManager`, `createHistoryEngine`
+- **Time-Travel Debugging**: Navigate through state snapshots
+- **Undo/Redo**: Built-in with configurable history size
+- **Store API**: Compatible with Svelte 4 and 5
+- **16 new tests** ensuring rock-solid reliability
+
+#### Documentation & Guides
+- **[Svelte Integration Guide](docs/guides/svelte-integration.md)**: Complete guide to Svelte 5 integration
+- **[History State Pattern](docs/guides/history-state-pattern.md)**: Undo/redo and time-travel patterns
+- **[Parallel State Pattern](docs/guides/parallel-state-pattern.md)**: Multiple engine coordination
+- **[Advanced Todo Example](src/examples/advanced-todo/)**: Full-featured demo with history
+
 ### 🧪 Hardened TypeScript Core
-- **63 comprehensive tests** (up from 18) covering:
+- **165 comprehensive tests** (up from 63) covering:
+  - Svelte integration with runes and stores
+  - History state management and navigation
   - Edge cases and failure paths
   - Actor lifecycle and state change notifications
   - Constraint violations and rule errors
@@ -366,7 +392,9 @@ const maxSessionsConstraint = defineConstraint<AuthContext>({
 registry.registerConstraint(maxSessionsConstraint);
 ```
 
-### Svelte v5 Integration
+### Svelte 5 Integration (NEW!)
+
+#### Store API (Svelte 4/5 Compatible)
 
 ```typescript
 import { createPraxisStore, createDerivedStore } from "@plures/praxis/svelte";
@@ -380,6 +408,55 @@ const userStore = createDerivedStore(engine, (ctx) => ctx.currentUser);
 //   Login
 // </button>
 ```
+
+#### Runes API (Svelte 5 Only)
+
+```svelte
+<script lang="ts">
+  import { usePraxisEngine } from '@plures/praxis/svelte';
+  import { createMyEngine, Login } from './my-engine';
+
+  const engine = createMyEngine();
+  const { 
+    context,      // Reactive context
+    dispatch,     // Dispatch events
+    undo,         // Undo last action
+    redo,         // Redo action
+    canUndo,      // Boolean: can undo?
+    canRedo,      // Boolean: can redo?
+  } = usePraxisEngine(engine, {
+    enableHistory: true,    // Enable undo/redo
+    maxHistorySize: 50,     // Keep last 50 snapshots
+  });
+</script>
+
+<div>
+  <p>User: {context.currentUser || 'Guest'}</p>
+  
+  <button onclick={() => dispatch([Login.create({ username: 'alice' })])}>
+    Login
+  </button>
+  
+  <button onclick={undo} disabled={!canUndo}>
+    ⟲ Undo
+  </button>
+  
+  <button onclick={redo} disabled={!canRedo}>
+    ⟳ Redo
+  </button>
+</div>
+```
+
+See the [Advanced Todo Example](src/examples/advanced-todo/) for a complete demo with:
+- Undo/redo functionality
+- Time-travel debugging
+- Keyboard shortcuts
+- Beautiful UI
+
+For comprehensive guides:
+- [Svelte Integration Guide](docs/guides/svelte-integration.md)
+- [History State Pattern](docs/guides/history-state-pattern.md)
+- [Parallel State Pattern](docs/guides/parallel-state-pattern.md)
 
 ## Core Protocol
 
