@@ -5,6 +5,199 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-11-24
+
+### Added
+
+#### Framework Infrastructure
+- **Complete Schema System** (`src/core/schema/`)
+  - Comprehensive type definitions for models, components, logic, and orchestration
+  - Schema validation and normalization
+  - Schema loading from YAML/JSON files
+  - Multi-target code generation support (PluresDB, Svelte, State-Docs, Canvas, DSC)
+
+- **Component Generation System** (`src/core/component/generator.ts`)
+  - Automatic Svelte component generation from schemas
+  - Support for form, display, list, and navigation components
+  - TypeScript type generation
+  - Test scaffolding generation
+  - Documentation generation
+
+- **CLI Tools** (`src/cli/`)
+  - `praxis create app|component` - Project scaffolding
+  - `praxis generate` - Code generation from schemas
+  - `praxis canvas` - Visual schema editor integration
+  - `praxis orchestrate` - Distributed system orchestration
+  - `praxis login|logout|whoami` - GitHub authentication
+  - `praxis cloud` - Cloud service management
+  - Full Commander.js integration with help system
+
+#### Svelte 5 Integration
+- **Runes API Integration** (`src/integrations/svelte.ts`)
+  - `usePraxisState` - Reactive state management with Svelte 5 runes
+  - `usePraxisHistory` - Time-travel debugging with undo/redo
+  - `usePraxisComputed` - Derived state computations
+  - Full TypeScript support with generics
+  - Working Svelte 5 counter example
+
+- **Terminal Node Component** (`src/components/TerminalNode.svelte`)
+  - Visual command/script execution within Praxis
+  - Real-time output streaming
+  - Error handling and status indicators
+  - Integration with Praxis schemas
+
+#### Cloud & Monetization
+- **Praxis Cloud Integration** (`src/cloud/`)
+  - GitHub-based authentication (OAuth device flow + PAT)
+  - Tier-based billing (Free, Solo, Team, Enterprise)
+  - Usage tracking and limit validation
+  - Tenant provisioning with storage namespaces
+  - Azure Functions relay endpoints
+
+- **GitHub Marketplace Integration**
+  - GitHub App manifest configuration
+  - Sponsorship tracking
+  - Marketplace purchase webhooks
+  - Subscription status management
+
+#### Cross-Language Support
+- **PowerShell Adapter** (`powershell/Praxis.psm1`)
+  - Full cmdlet library for Praxis operations
+  - JSON bridge to TypeScript engine
+  - Protocol version compatibility checking
+  - Comprehensive PowerShell documentation
+  - Working counter example
+
+- **CLI Adapter** (`src/adapters/cli.ts`)
+  - JSON stdin/stdout interface
+  - Bridge for non-TypeScript languages
+  - Registry configuration from files
+
+#### Introspection & Visualization
+- **Registry Introspection** (`src/core/introspection.ts`)
+  - Statistics retrieval (counts, IDs)
+  - JSON schema generation
+  - Graph representation with nodes and edges
+  - Graphviz DOT export
+  - Mermaid diagram export
+  - Rule and constraint search
+  - Module dependency tracking
+
+- **Protocol Versioning** (`src/core/protocol.ts`)
+  - Explicit protocol version (v1.0.0)
+  - Semantic versioning with stability guarantees
+  - Cross-language compatibility checks
+  - Migration path documentation
+
+#### Examples & Templates
+- **Hero E-Commerce Example** (`src/examples/hero-ecommerce/`)
+  - Authentication with session management
+  - Shopping cart with dynamic pricing
+  - Discount code system
+  - Feature flags and A/B testing
+  - Loyalty points system
+  - Order history tracking
+
+- **Advanced Examples**
+  - Advanced TODO app with Svelte integration
+  - Basic auth example
+  - Svelte counter with runes
+
+- **Project Templates** (`templates/`)
+  - Basic app template with minimal setup
+  - Fullstack app template with all features
+
+#### Documentation
+- **Framework Documentation**
+  - `FRAMEWORK.md` - Complete architecture guide
+  - `GETTING_STARTED.md` - Comprehensive getting started guide
+  - `PROTOCOL_VERSIONING.md` - Protocol versioning specification
+  - `FEATURE_SUMMARY.md` - Major features overview
+  - `ELEVATION_SUMMARY.md` - Framework transformation summary
+  - `SVELTE_INTEGRATION_SUMMARY.md` - Svelte integration details
+
+- **Guide Documents** (`docs/guides/`)
+  - Getting started guide
+  - Canvas integration guide
+  - Orchestration guide (DSC/MCP)
+  - Svelte integration guide
+  - History state pattern guide
+  - Parallel state pattern guide
+
+- **Terminal Node Documentation** (`docs/TERMINAL_NODE.md`)
+  - Command execution patterns
+  - Schema integration
+  - Security considerations
+
+- **Cloud Documentation** (`src/cloud/README.md`)
+  - Architecture overview
+  - Authentication flow
+  - Billing tiers
+  - API reference
+
+#### Testing
+- **Expanded Test Suite** (9 → 165 tests, 1733% increase)
+  - `src/__tests__/actors.test.ts` - Actor lifecycle and behavior (12 tests)
+  - `src/__tests__/edge-cases.test.ts` - Edge cases and error handling (19 tests)
+  - `src/__tests__/introspection.test.ts` - Registry introspection (14 tests)
+  - `src/__tests__/billing.test.ts` - Billing system validation (16 tests)
+  - `src/__tests__/cloud.test.ts` - Cloud integration (10 tests)
+  - `src/__tests__/provisioning.test.ts` - Tenant provisioning (18 tests)
+  - `src/__tests__/generators.test.ts` - Code generation (15 tests)
+  - `src/__tests__/schema.test.ts` - Schema validation (11 tests)
+  - `src/__tests__/svelte-integration.test.ts` - Svelte integration (16 tests)
+  - `src/__tests__/terminal-node.test.ts` - Terminal node functionality (16 tests)
+  - `src/__tests__/protocol.test.ts` - Protocol versioning (3 tests)
+  - All existing tests maintained and passing
+
+#### Infrastructure
+- **CI/CD Workflows** (`.github/workflows/`)
+  - Node.js CI with multiple versions (18.x, 20.x)
+  - Deno compatibility checks
+  - CodeQL security scanning
+  - Release workflow with GitHub releases
+  - JSR publishing workflow (configured, ready to enable)
+  - Stale issue management
+
+- **GitHub Configuration**
+  - Issue templates (bug, enhancement, proposal, integration, generator)
+  - Pull request template with checklist
+  - Funding configuration
+  - Label system
+  - Dependabot configuration
+  - Pre-commit hooks template
+
+- **Build Configuration**
+  - TypeScript strict mode enabled
+  - Vitest test framework
+  - Deno tasks configuration
+  - NPM and JSR publishing setup
+
+### Changed
+- **README.md** - Updated to reflect full framework capabilities
+  - Framework positioning and philosophy
+  - Comprehensive feature list
+  - Integration status dashboard
+  - Updated examples and usage
+  - Cross-platform runtime information
+
+- **Package Configuration**
+  - Enhanced exports for submodules (svelte, schema, component, cloud, components)
+  - Updated keywords for better discoverability
+  - Peer dependencies for Svelte 5
+
+### Fixed
+- TypeScript compilation with strict mode
+- Test suite organization with proper vitest configuration
+- Export paths for library consumption
+
+### Security
+- CodeQL scanning enabled
+- Secure token storage for authentication
+- GitHub OAuth with proper scopes
+- Input validation in schema loader
+- Safe command execution in terminal adapter
+
 ## [0.1.0] - 2025-11-15
 
 ### Added
@@ -30,4 +223,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **JSON-Friendly**: All types are serializable for cross-platform use
 - **Type-Safe**: Full TypeScript support with strict typing
 
+[0.2.0]: https://github.com/plures/praxis/releases/tag/v0.2.0
 [0.1.0]: https://github.com/plures/praxis/releases/tag/v0.1.0

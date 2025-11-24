@@ -1,9 +1,8 @@
 {
   "name": "@plures/praxis",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "license": "MIT",
-  "private": true,
   "exports": {
     ".": "./src/index.ts",
     "./svelte": "./src/integrations/svelte.ts",

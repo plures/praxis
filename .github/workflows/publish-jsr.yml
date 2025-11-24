@@ -23,12 +23,5 @@ jobs:
         with:
           deno-version: v1.x
       
-      # TODO: Publish to JSR when package is ready
-      # - name: Publish to JSR
-      #   run: deno publish --allow-dirty
-      
-      - name: Placeholder - JSR Publishing Not Yet Configured
-        run: |
-          echo "JSR publishing workflow is ready but not yet enabled"
-          echo "To enable, uncomment the publish step and configure JSR metadata"
-          echo "See: https://jsr.io/docs/publishing-packages"
+      - name: Publish to JSR
+        run: deno publish --allow-dirty

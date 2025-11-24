@@ -1,6 +1,6 @@
 {
   "name": "@plures/praxis",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "exports": {
     ".": "./src/index.ts",
     "./svelte": "./src/integrations/svelte.ts",
@@ -41,7 +41,7 @@
     }
   },
   "lock": false,
-  "nodeModulesDir": false,
+  "nodeModulesDir": "none",
   "importMap": "./import_map.json",
   "license": "MIT",
   "publish": {
