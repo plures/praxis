@@ -4,8 +4,8 @@
  * Loads and validates Praxis schema files.
  */
 
-import { readFile } from 'fs/promises';
-import { pathToFileURL } from 'url';
+import { readFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 import { load as yamlLoad } from 'js-yaml';
 import type { PraxisSchema, ValidationResult } from './types.js';
 import { validateSchema } from './types.js';
