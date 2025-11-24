@@ -7,6 +7,7 @@
     "./schema": "./src/core/schema/types.ts",
     "./component": "./src/core/component/generator.ts"
   },
+  "unstable": ["sloppy-imports"],
   "tasks": {
     "dev": "deno run --watch src/index.ts",
     "build": "deno run --allow-read --allow-write scripts/build.ts",
@@ -37,11 +38,11 @@
     "include": ["src/"],
     "rules": {
       "tags": ["recommended"],
-      "exclude": ["no-unused-vars"]
+      "exclude": ["no-unused-vars", "no-sloppy-imports"]
     }
   },
   "lock": false,
-  "nodeModulesDir": false,
+  "nodeModulesDir": "none",
   "importMap": "./import_map.json",
   "license": "MIT",
   "publish": {

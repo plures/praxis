@@ -185,7 +185,7 @@ export function createTimerActor<TContext = unknown>(
   intervalMs: number,
   createEvent: () => PraxisEvent
 ): Actor<TContext> {
-  let timerId: NodeJS.Timeout | null = null;
+  let timerId: ReturnType<typeof setInterval> | null = null;
 
   return {
     id,
