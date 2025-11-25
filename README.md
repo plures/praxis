@@ -27,10 +27,10 @@
 | Category | Status |
 |----------|--------|
 | **CI/CD** | ✅ Automated testing & builds |
-| **Version** | 0.2.0 (Alpha) |
+| **Version** | 0.2.1 (Alpha) |
 | **Runtime Support** | Node.js 18+, Deno (experimental), .NET 8+ |
 | **Package Registries** | npm ✅ / NuGet ✅ / JSR 🚧 (coming soon) |
-| **Test Coverage** | 165 TypeScript + 68 C# tests passing |
+| **Test Coverage** | 197 TypeScript + 95 C# tests passing |
 | **Documentation** | 📚 Comprehensive guides available |
 
 ### Language Support
@@ -46,7 +46,7 @@
 | Integration | Status | Notes |
 |------------|--------|-------|
 | **Praxis Cloud** | ✅ Available | Azure-hosted relay for sync & monetization |
-| **PluresDB** | 🚧 In Development | Local-first reactive datastore |
+| **PluresDB** | ✅ Available | Local-first reactive datastore with 32 tests |
 | **Unum** | 🚧 Planned | Identity & channels |
 | **Svelte 5** | ✅ Full Support | Runes API, stores, history, time-travel |
 | **Tauri** | 🚧 Planned | Cross-platform runtime |
@@ -154,20 +154,26 @@ Praxis provides these integrated capabilities:
 - 🔒 **Type-Safe**: Full TypeScript support with strict typing
 - 🔍 **Introspection**: Generate schemas, graphs, and visualizations of your logic
 - 🌐 **Cross-Language**: PowerShell adapter with protocol versioning (C# coming soon)
-- 📊 **Comprehensive Testing**: 165+ tests covering all features
+- 📊 **Comprehensive Testing**: 197+ TypeScript and 95+ C# tests covering all features
 - 🎭 **Hero Example**: Full e-commerce demo with auth, cart, features, and actors
 
-## What's New in v0.1.0
+## What's New in v0.2.0
 
 ### 🎉 Major Features
 
+#### Full Application Framework
+Praxis 0.2.0 transforms from a logic engine into a **complete application framework**:
+- **Complete Schema System**: Comprehensive type definitions for models, components, logic, and orchestration
+- **Component Generation**: Automatic Svelte component generation from schemas
+- **CLI Tools**: `praxis create`, `praxis generate`, `praxis canvas` commands
+- **Cloud Integration**: GitHub-based authentication and tier-based billing
+- **PluresDB Integration**: Local-first reactive datastore with full implementation
+
 #### Svelte 5 Integration (@plures/praxis/svelte)
-- **Runes Composables**: `usePraxisEngine`, `usePraxisContext`, `usePraxisSubscription`
-- **History State Pattern**: `HistoryStateManager`, `createHistoryEngine`
-- **Time-Travel Debugging**: Navigate through state snapshots
-- **Undo/Redo**: Built-in with configurable history size
+- **Runes Composables**: `usePraxisState`, `usePraxisHistory`, `usePraxisComputed`
+- **History State Pattern**: Time-travel debugging with undo/redo
 - **Store API**: Compatible with Svelte 4 and 5
-- **16 new tests** ensuring rock-solid reliability
+- **Full TypeScript support** with generics
 
 #### Documentation & Guides
 - **[Svelte Integration Guide](docs/guides/svelte-integration.md)**: Complete guide to Svelte 5 integration
@@ -176,14 +182,22 @@ Praxis provides these integrated capabilities:
 - **[Advanced Todo Example](src/examples/advanced-todo/)**: Full-featured demo with history
 
 ### 🧪 Hardened TypeScript Core
-- **165 comprehensive tests** (up from 63) covering:
+- **197 comprehensive tests** (up from 9 in v0.1.0) covering:
   - Svelte integration with runes and stores
+  - PluresDB integration (32 tests)
   - History state management and navigation
   - Edge cases and failure paths
   - Actor lifecycle and state change notifications
   - Constraint violations and rule errors
   - Registry operations and module composition
+  - Cloud integration and billing
+  - Terminal node functionality
 - Full test coverage ensures production-ready reliability
+
+### 🔒 C# Implementation
+- **95 comprehensive C# tests** with full parity to TypeScript features
+- Functional, immutable design with records
+- NuGet package available
 
 ### 📖 Protocol Versioning (v1.0.0)
 - **Explicit protocol version** (`protocolVersion` field in state)
@@ -233,7 +247,7 @@ dotnet add package Plures.Praxis
 Or add to your `.csproj`:
 
 ```xml
-<PackageReference Include="Plures.Praxis" Version="0.2.0" />
+<PackageReference Include="Plures.Praxis" Version="0.2.1" />
 ```
 
 See [C# Documentation](./csharp/Praxis/README.md) for detailed usage.
@@ -251,7 +265,7 @@ For now, you can use Praxis with Deno via import maps:
 // import_map.json
 {
   "imports": {
-    "@plures/praxis": "npm:@plures/praxis@^0.2.0"
+    "@plures/praxis": "npm:@plures/praxis@^0.2.1"
   }
 }
 ```
@@ -535,25 +549,41 @@ This protocol is:
 │   │   └── introspection.ts      # Introspection and visualization
 │   ├── component/                 # Component generation
 │   │   └── generator.ts          # Svelte component generator
+│   ├── pluresdb/                  # PluresDB integration core
+│   │   ├── adapter.ts            # Database adapter interface
+│   │   ├── store.ts              # Reactive store implementation
+│   │   ├── schema-registry.ts    # Schema registry for PluresDB
+│   │   └── generator.ts          # PluresDB config generator
 │   └── runtime/                   # Runtime abstractions
+├── cloud/                         # Praxis Cloud integration
+│   ├── auth.ts                   # GitHub OAuth authentication
+│   ├── billing.ts                # Tier-based billing
+│   ├── provisioning.ts           # Tenant provisioning
+│   └── relay/                    # Azure relay service
 ├── integrations/                  # Ecosystem integrations
-│   ├── pluresdb/                 # PluresDB reactive datastore
+│   ├── pluresdb.ts               # PluresDB integration exports
+│   ├── svelte.ts                 # Svelte 5 integration
 │   ├── unum/                     # Unum identity and channels
 │   ├── adp/                      # Architectural Decision Protocol
 │   ├── state-docs/               # State-Docs documentation
 │   └── canvas/                   # CodeCanvas visual editor
+├── components/                    # Svelte components
+│   └── TerminalNode.svelte       # Terminal node component
 ├── cli/                          # Command-line interface
 │   ├── index.ts                  # CLI entry point
 │   └── commands/                 # Command implementations
 ├── templates/                     # Project templates
 │   ├── basic-app/                # Basic application template
-│   ├── fullstack-app/            # Full-stack template
-│   ├── component/                # Component template
-│   └── orchestrator/             # Distributed orchestration template
+│   └── fullstack-app/            # Full-stack template
 ├── examples/                      # Example applications
 │   ├── offline-chat/             # Offline-first chat demo
 │   ├── knowledge-canvas/         # Knowledge management with Canvas
 │   ├── distributed-node/         # Self-orchestrating node demo
+│   ├── terminal-node/            # Terminal node demo
+│   ├── terminal-canvas/          # Terminal + canvas demo
+│   ├── cloud-sync/               # Cloud sync demo
+│   ├── github-monetization/      # GitHub monetization demo
+│   ├── simple-app/               # Simple app demo
 │   ├── auth-basic/               # Login/logout example
 │   ├── cart/                     # Shopping cart example
 │   ├── svelte-counter/           # Svelte integration example
@@ -571,7 +601,7 @@ See [FRAMEWORK.md](./FRAMEWORK.md) for complete architecture documentation.
 
 ## Examples
 
-The repository includes four complete examples:
+The repository includes 12 complete examples:
 
 ### 1. Hero E-Commerce (`src/examples/hero-ecommerce`)
 **NEW!** Comprehensive example demonstrating all Praxis features in a single application:
@@ -656,6 +686,26 @@ npm run build
 node dist/examples/svelte-counter/index.js
 ```
 
+### 9. Terminal Canvas (`examples/terminal-canvas`)
+Combines terminal nodes with visual canvas features in a Svelte app.
+
+See [examples/terminal-canvas/README.md](./examples/terminal-canvas/README.md)
+
+### 10. GitHub Monetization (`examples/github-monetization`)
+Example of GitHub-based monetization integration with Praxis Cloud.
+
+See [examples/github-monetization/README.md](./examples/github-monetization/README.md)
+
+### 11. Simple App (`examples/simple-app`)
+A minimal example demonstrating basic Praxis schema usage.
+
+See [examples/simple-app/README.md](./examples/simple-app/README.md)
+
+### 12. Cloud Sync (`examples/cloud-sync`)
+Demonstrates real-time synchronization with Praxis Cloud relay service.
+
+See [examples/cloud-sync/README.md](./examples/cloud-sync/README.md)
+
 ## API Reference
 
 ### Core Types
@@ -729,34 +779,51 @@ Praxis integrates with the full Plures ecosystem:
 
 ### PluresDB Integration
 
-Local-first reactive datastore for offline-capable applications.
+Local-first reactive datastore for offline-capable applications. **Now fully implemented** with 32 tests covering all features.
 
 ```typescript
-import { createPluresDB } from '@plures/pluresdb';
+import { 
+  createInMemoryDB, 
+  createPraxisDBStore, 
+  createPluresDBAdapter,
+  attachToEngine 
+} from '@plures/praxis/pluresdb';
 
-// Create database from schema
-const db = createPluresDB({
-  name: 'my-app',
-  version: 1,
-  stores: {
-    // Generated from Praxis schema
-    users: { keyPath: 'id', indexes: ['email'] },
-    tasks: { keyPath: 'id', indexes: ['status', 'createdAt'] },
-  },
-  sync: {
-    enabled: true,
-    endpoint: 'ws://localhost:8080/sync',
-    conflictResolution: 'last-write-wins',
-  },
+// Create an in-memory database
+const db = createInMemoryDB();
+
+// Create a PraxisDB store for facts and events
+const store = createPraxisDBStore({ db });
+
+// Or create an adapter to attach to an engine
+const adapter = createPluresDBAdapter({ 
+  db, 
+  registry,
+  initialContext: {} 
 });
 
-// Use with Praxis logic engine
-engine.step([TaskCreated.create({ taskId, title })]);
-await db.tasks.add({ id: taskId, title, status: 'pending' });
+// Attach adapter to engine for automatic persistence
+adapter.attachEngine(engine);
+
+// Persist facts and events
+await adapter.persistFacts([{ tag: "UserLoggedIn", payload: { userId: "alice" } }]);
+await adapter.persistEvents([{ tag: "LOGIN", payload: { username: "alice" } }]);
+
+// Subscribe to changes
+adapter.subscribeToEvents((events) => {
+  console.log("New events:", events);
+});
 ```
 
-**Status**: Foundation in place (`src/integrations/pluresdb.ts`)  
-**Documentation**: [docs/guides/pluresdb.md](./docs/guides/pluresdb.md)
+**Features:**
+- **In-memory adapter**: Ready-to-use implementation for development and testing
+- **Reactive store**: Watch for changes with callbacks
+- **Schema registry**: Store and retrieve schemas in PluresDB
+- **Config generator**: Generate PluresDB configuration from Praxis schemas
+- **Engine integration**: Automatic fact/event persistence
+
+**Status**: ✅ Available (`src/core/pluresdb/`, `src/integrations/pluresdb.ts`)  
+**Tests**: 32 tests covering adapter, store, registry, and engine integration
 
 ### Unum Integration
 
@@ -961,18 +1028,20 @@ See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for complete documentat
 
 ## Future Roadmap
 
-### Short Term (v0.2.0) ✅
+### Short Term (v0.2.x) ✅
 - ✅ Complete CLI implementation
 - ✅ Basic project templates
 - ✅ Component generation MVP
-- ✅ C# implementation with NuGet publishing
+- ✅ C# implementation with NuGet publishing (95 tests)
+- ✅ PluresDB integration with full test coverage (32 tests)
+- ✅ Praxis Cloud with GitHub authentication and billing
 
 ### Medium Term (v0.3.0 - v0.5.0)
 - Full CodeCanvas integration
 - Unum identity support
 - State-Docs generation
 - Multi-language schemas
-- Enhanced PluresDB integration
+- Real PluresDB sync (CRDT/offline-first)
 
 ### Long Term (v1.0.0+)
 - Mobile templates (iOS, Android)
@@ -985,9 +1054,10 @@ See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for complete documentat
 
 ### Ecosystem Integration
 
-- **Svelte v5**: Full reactive binding support (foundation in place)
-- **pluresdb**: Reactive datastore integration, event sourcing
-- **unum**: Identity/channels and messaging
+- **Svelte v5**: ✅ Full reactive binding support with runes and history
+- **PluresDB**: ✅ Reactive datastore integration with 32 tests
+- **Cloud**: ✅ GitHub-based auth and tier billing
+- **unum**: 🚧 Identity/channels and messaging
 - **Visualization**: VSCode extension, docs generator, canvas tools (introspection API ready)
 - **ADP**: Architectural guardrails and static checks
 
@@ -1319,12 +1389,14 @@ if (result.effects) {
 
 ## Future Roadmap
 
-- 🌐 **Svelte v5 Integration**: First-class support for Svelte 5 runes
-- 🗄️ **pluresdb/unum Integration**: Persistent state management
-- 🔄 **C# Port**: Cross-platform compatibility
-- ⚡ **PowerShell Module**: Scripting and automation support
-- 🎭 **Advanced FSM Tools**: Internal state machine utilities
-- 📊 **Visualization**: Flow and state visualization tools
+- ✅ **Svelte v5 Integration**: First-class support for Svelte 5 runes (available)
+- ✅ **PluresDB Integration**: Reactive datastore with 32 tests (available)
+- ✅ **C# Port**: Cross-platform compatibility with 95 tests (available)
+- ✅ **PowerShell Module**: Scripting and automation support (available)
+- 🚧 **Unum Integration**: Identity and channels (in progress)
+- 🚧 **CodeCanvas**: Visual schema and logic editor (planned)
+- 🚧 **State-Docs**: Documentation generation (planned)
+- 📊 **Visualization**: Flow and state visualization tools (introspection ready)
 
 ## Development
 
