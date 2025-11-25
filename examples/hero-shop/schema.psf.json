@@ -1,0 +1,308 @@
+{
+  "$version": "1.0.0",
+  "id": "hero-shop",
+  "name": "Hero Shop",
+  "description": "A sample e-commerce application demonstrating Praxis 1.0 features",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "modifiedAt": "2024-01-01T00:00:00.000Z",
+  "facts": [
+    {
+      "id": "fact_cart_item_added",
+      "tag": "CartItemAdded",
+      "description": "Indicates an item was added to the cart",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "string" },
+          "quantity": { "type": "number" },
+          "price": { "type": "number" }
+        }
+      }
+    },
+    {
+      "id": "fact_cart_item_removed",
+      "tag": "CartItemRemoved",
+      "description": "Indicates an item was removed from the cart",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "fact_order_placed",
+      "tag": "OrderPlaced",
+      "description": "Indicates an order was successfully placed",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "orderId": { "type": "string" },
+          "total": { "type": "number" },
+          "itemCount": { "type": "number" }
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "event_add_to_cart",
+      "tag": "AddToCart",
+      "description": "Add a product to the shopping cart",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "string" },
+          "quantity": { "type": "number" }
+        }
+      }
+    },
+    {
+      "id": "event_remove_from_cart",
+      "tag": "RemoveFromCart",
+      "description": "Remove a product from the shopping cart",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "event_checkout",
+      "tag": "Checkout",
+      "description": "Initiate checkout process",
+      "payload": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "id": "event_update_quantity",
+      "tag": "UpdateQuantity",
+      "description": "Update quantity of a cart item",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "string" },
+          "quantity": { "type": "number" }
+        }
+      }
+    }
+  ],
+  "rules": [
+    {
+      "id": "cart.addItem",
+      "name": "Add Item to Cart",
+      "description": "When AddToCart event is received, add item to cart and emit CartItemAdded fact",
+      "triggers": ["AddToCart"],
+      "then": {
+        "inline": "const event = events.find(e => e.tag === 'AddToCart'); if (!event) return []; const product = state.context.products.find(p => p.id === event.payload.productId); if (!product) return []; return [{ tag: 'CartItemAdded', payload: { productId: event.payload.productId, quantity: event.payload.quantity, price: product.price } }];",
+        "language": "typescript"
+      },
+      "priority": 10
+    },
+    {
+      "id": "cart.removeItem",
+      "name": "Remove Item from Cart",
+      "description": "When RemoveFromCart event is received, remove item from cart",
+      "triggers": ["RemoveFromCart"],
+      "then": {
+        "inline": "const event = events.find(e => e.tag === 'RemoveFromCart'); if (!event) return []; return [{ tag: 'CartItemRemoved', payload: { productId: event.payload.productId } }];",
+        "language": "typescript"
+      }
+    },
+    {
+      "id": "cart.checkout",
+      "name": "Process Checkout",
+      "description": "When Checkout event is received, create order",
+      "triggers": ["Checkout"],
+      "then": {
+        "inline": "const cartItems = state.context.cart || []; if (cartItems.length === 0) return []; const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0); return [{ tag: 'OrderPlaced', payload: { orderId: Date.now().toString(36), total, itemCount: cartItems.length } }];",
+        "language": "typescript"
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "cart.maxItems",
+      "name": "Maximum Cart Items",
+      "description": "Cart cannot have more than 100 items",
+      "check": {
+        "inline": "(state.context.cart || []).length <= 100",
+        "language": "typescript"
+      },
+      "errorMessage": "Cart cannot contain more than 100 items",
+      "severity": "error"
+    },
+    {
+      "id": "cart.positiveQuantity",
+      "name": "Positive Quantity",
+      "description": "All cart item quantities must be positive",
+      "check": {
+        "inline": "(state.context.cart || []).every(item => item.quantity > 0)",
+        "language": "typescript"
+      },
+      "errorMessage": "All cart items must have a positive quantity",
+      "severity": "error"
+    }
+  ],
+  "models": [
+    {
+      "id": "model_product",
+      "name": "Product",
+      "description": "A product available for purchase",
+      "fields": [
+        { "name": "id", "type": "uuid", "description": "Unique product identifier" },
+        { "name": "name", "type": "string", "description": "Product name" },
+        { "name": "description", "type": "string", "optional": true, "description": "Product description" },
+        { "name": "price", "type": "number", "description": "Product price in cents" },
+        { "name": "imageUrl", "type": "string", "optional": true, "description": "Product image URL" },
+        { "name": "category", "type": "string", "description": "Product category" },
+        { "name": "inStock", "type": "boolean", "description": "Whether product is in stock" }
+      ],
+      "indexes": [
+        { "name": "idx_category", "fields": ["category"] },
+        { "name": "idx_price", "fields": ["price"] }
+      ]
+    },
+    {
+      "id": "model_cart_item",
+      "name": "CartItem",
+      "description": "An item in the shopping cart",
+      "fields": [
+        { "name": "productId", "type": "string", "description": "Reference to product" },
+        { "name": "quantity", "type": "number", "description": "Number of items" },
+        { "name": "price", "type": "number", "description": "Price at time of adding" }
+      ],
+      "relationships": [
+        {
+          "name": "product",
+          "type": "one-to-one",
+          "target": "Product",
+          "foreignKey": "productId"
+        }
+      ]
+    },
+    {
+      "id": "model_order",
+      "name": "Order",
+      "description": "A completed order",
+      "fields": [
+        { "name": "id", "type": "uuid", "description": "Order identifier" },
+        { "name": "items", "type": { "array": { "reference": "CartItem" } }, "description": "Order items" },
+        { "name": "total", "type": "number", "description": "Order total" },
+        { "name": "status", "type": { "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] }, "description": "Order status" },
+        { "name": "createdAt", "type": "datetime", "description": "Order creation time" }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "comp_product_card",
+      "name": "ProductCard",
+      "type": "display",
+      "description": "Displays a single product",
+      "model": "Product",
+      "props": [
+        { "name": "product", "type": "Product", "required": true, "description": "The product to display" },
+        { "name": "showAddToCart", "type": "boolean", "required": false, "default": true, "description": "Show add to cart button" }
+      ],
+      "events": [
+        { "name": "addToCart", "payload": "{ productId: string; quantity: number }", "description": "Fired when add to cart is clicked" }
+      ]
+    },
+    {
+      "id": "comp_product_list",
+      "name": "ProductList",
+      "type": "list",
+      "description": "Displays a list of products",
+      "model": "Product",
+      "props": [
+        { "name": "products", "type": "Product[]", "required": true, "description": "Products to display" },
+        { "name": "category", "type": "string", "required": false, "description": "Filter by category" }
+      ],
+      "events": [
+        { "name": "productSelected", "payload": "Product", "description": "Fired when a product is selected" }
+      ]
+    },
+    {
+      "id": "comp_shopping_cart",
+      "name": "ShoppingCart",
+      "type": "display",
+      "description": "Displays the shopping cart",
+      "props": [
+        { "name": "items", "type": "CartItem[]", "required": true, "description": "Cart items" },
+        { "name": "total", "type": "number", "required": true, "description": "Cart total" }
+      ],
+      "events": [
+        { "name": "checkout", "description": "Fired when checkout is initiated" },
+        { "name": "removeItem", "payload": "{ productId: string }", "description": "Fired when item is removed" },
+        { "name": "updateQuantity", "payload": "{ productId: string; quantity: number }", "description": "Fired when quantity is updated" }
+      ]
+    },
+    {
+      "id": "comp_checkout_form",
+      "name": "CheckoutForm",
+      "type": "form",
+      "description": "Form for entering checkout information",
+      "props": [
+        { "name": "total", "type": "number", "required": true, "description": "Order total" }
+      ],
+      "events": [
+        { "name": "submit", "payload": "CheckoutData", "description": "Fired when form is submitted" }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow_checkout",
+      "name": "Checkout Flow",
+      "description": "The complete checkout process",
+      "type": "sequence",
+      "initial": "cart_review",
+      "steps": [
+        {
+          "id": "cart_review",
+          "name": "Review Cart",
+          "type": "action",
+          "next": "shipping_info"
+        },
+        {
+          "id": "shipping_info",
+          "name": "Enter Shipping Information",
+          "type": "action",
+          "next": "payment"
+        },
+        {
+          "id": "payment",
+          "name": "Process Payment",
+          "type": "action",
+          "next": {
+            "success": "confirmation",
+            "failure": "payment_error"
+          }
+        },
+        {
+          "id": "payment_error",
+          "name": "Payment Error",
+          "type": "action",
+          "next": "payment"
+        },
+        {
+          "id": "confirmation",
+          "name": "Order Confirmation",
+          "type": "terminal"
+        }
+      ]
+    }
+  ],
+  "docs": {
+    "overview": "Hero Shop is a demonstration e-commerce application built with Praxis 1.0. It showcases the schema-driven approach to application development.",
+    "gettingStarted": "1. Run `npm install` to install dependencies\n2. Run `praxis generate` to generate code from schema\n3. Run `praxis dev` to start the development server"
+  },
+  "canvas": {
+    "viewport": { "x": 0, "y": 0, "zoom": 1 },
+    "grid": { "enabled": true, "size": 20, "snap": true }
+  }
+}

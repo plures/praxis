@@ -1,0 +1,180 @@
+{
+  "$version": "1.0.0",
+  "id": "todo-app",
+  "name": "Todo App",
+  "description": "A minimal todo application demonstrating basic Praxis concepts",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "modifiedAt": "2024-01-01T00:00:00.000Z",
+  "facts": [
+    {
+      "id": "fact_todo_created",
+      "tag": "TodoCreated",
+      "description": "A new todo item was created",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "fact_todo_completed",
+      "tag": "TodoCompleted",
+      "description": "A todo item was marked as complete",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "fact_todo_deleted",
+      "tag": "TodoDeleted",
+      "description": "A todo item was deleted",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" }
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "event_create_todo",
+      "tag": "CreateTodo",
+      "description": "Create a new todo item",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "event_complete_todo",
+      "tag": "CompleteTodo",
+      "description": "Mark a todo as complete",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "event_delete_todo",
+      "tag": "DeleteTodo",
+      "description": "Delete a todo item",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" }
+        }
+      }
+    }
+  ],
+  "rules": [
+    {
+      "id": "todo.create",
+      "name": "Create Todo",
+      "description": "Create a new todo when CreateTodo event is received",
+      "triggers": ["CreateTodo"],
+      "then": {
+        "inline": "const event = events.find(e => e.tag === 'CreateTodo'); if (!event) return []; return [{ tag: 'TodoCreated', payload: { id: Date.now().toString(36), title: event.payload.title } }];",
+        "language": "typescript"
+      }
+    },
+    {
+      "id": "todo.complete",
+      "name": "Complete Todo",
+      "description": "Mark todo as complete when CompleteTodo event is received",
+      "triggers": ["CompleteTodo"],
+      "then": {
+        "inline": "const event = events.find(e => e.tag === 'CompleteTodo'); if (!event) return []; return [{ tag: 'TodoCompleted', payload: { id: event.payload.id } }];",
+        "language": "typescript"
+      }
+    },
+    {
+      "id": "todo.delete",
+      "name": "Delete Todo",
+      "description": "Delete todo when DeleteTodo event is received",
+      "triggers": ["DeleteTodo"],
+      "then": {
+        "inline": "const event = events.find(e => e.tag === 'DeleteTodo'); if (!event) return []; return [{ tag: 'TodoDeleted', payload: { id: event.payload.id } }];",
+        "language": "typescript"
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "todo.titleRequired",
+      "name": "Title Required",
+      "description": "Todo items must have a non-empty title",
+      "check": {
+        "inline": "true",
+        "language": "typescript"
+      },
+      "errorMessage": "Todo title cannot be empty",
+      "severity": "error"
+    }
+  ],
+  "models": [
+    {
+      "id": "model_todo",
+      "name": "Todo",
+      "description": "A todo item",
+      "fields": [
+        { "name": "id", "type": "string", "description": "Unique identifier" },
+        { "name": "title", "type": "string", "description": "Todo title" },
+        { "name": "completed", "type": "boolean", "description": "Whether todo is completed" },
+        { "name": "createdAt", "type": "datetime", "description": "Creation timestamp" }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "comp_todo_input",
+      "name": "TodoInput",
+      "type": "form",
+      "description": "Input for creating new todos",
+      "props": [],
+      "events": [
+        { "name": "create", "payload": "{ title: string }", "description": "Fired when a new todo is created" }
+      ]
+    },
+    {
+      "id": "comp_todo_item",
+      "name": "TodoItem",
+      "type": "display",
+      "description": "Displays a single todo item",
+      "model": "Todo",
+      "props": [
+        { "name": "todo", "type": "Todo", "required": true, "description": "The todo to display" }
+      ],
+      "events": [
+        { "name": "complete", "payload": "{ id: string }", "description": "Mark todo as complete" },
+        { "name": "delete", "payload": "{ id: string }", "description": "Delete the todo" }
+      ]
+    },
+    {
+      "id": "comp_todo_list",
+      "name": "TodoList",
+      "type": "list",
+      "description": "Displays all todos",
+      "model": "Todo",
+      "props": [
+        { "name": "todos", "type": "Todo[]", "required": true, "description": "List of todos" },
+        { "name": "filter", "type": "string", "required": false, "description": "Filter: all, active, completed" }
+      ],
+      "events": []
+    }
+  ],
+  "flows": [],
+  "docs": {
+    "overview": "A simple todo application demonstrating the basic concepts of Praxis.",
+    "gettingStarted": "1. Run `praxis generate` to generate code\n2. Run `praxis dev` to start development"
+  }
+}
