@@ -552,13 +552,12 @@ function generateComponentSvelte(name: string): string {
   interface Props {
     title: string;
     content?: string;
-    onclick?: () => void;
   }
   
-  let { title, content = '', onclick }: Props = $props();
+  let { title, content = '' }: Props = $props();
 </script>
 
-<div class="${name.toLowerCase()}" onclick={onclick}>
+<div class="${name.toLowerCase()}" role="button" tabindex="0">
   <h3>{title}</h3>
   {#if content}
     <p>{content}</p>

@@ -42,7 +42,7 @@
     }
   },
   "lock": false,
-  "nodeModulesDir": false,
+  "nodeModulesDir": "none",
   "importMap": "./import_map.json",
   "license": "MIT",
   "publish": {

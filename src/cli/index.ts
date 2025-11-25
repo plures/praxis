@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name('praxis')
   .description('Praxis Framework - Full-stack application development')
-  .version('0.1.0');
+  .version('0.2.1');
 
 // Authentication command
 program

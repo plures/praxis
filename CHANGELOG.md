@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-11-25
+
+### Added
+- **CLI Create Command** (`src/cli/commands/create.ts`)
+  - `praxis create app <name>` - Create new Praxis applications with full scaffolding
+  - `praxis create component <name>` - Create new Svelte 5 components
+  - Generates complete project structure with Vite, TypeScript, and Svelte 5
+  - Schema templates for immediate code generation
+  - Proper directory structure and configuration files
+  - New CLI test suite (`src/__tests__/cli-create.test.ts`) with 5 tests
+
+### Changed
+- **CLI Commands** - Improved output for stub commands (canvas, orchestrate, dev, build)
+  - More informative messages about feature status
+  - Clear instructions for alternative approaches
+  - Consistent styling with other CLI output
+
+### Fixed
+- **deno.json** - Updated deprecated `nodeModulesDir: false` to `nodeModulesDir: "none"`
+
 ## [0.2.0] - 2025-11-24
 
 ### Added
@@ -223,5 +243,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **JSON-Friendly**: All types are serializable for cross-platform use
 - **Type-Safe**: Full TypeScript support with strict typing
 
+[0.2.1]: https://github.com/plures/praxis/releases/tag/v0.2.1
 [0.2.0]: https://github.com/plures/praxis/releases/tag/v0.2.0
 [0.1.0]: https://github.com/plures/praxis/releases/tag/v0.1.0
