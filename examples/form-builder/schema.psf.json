@@ -1,0 +1,433 @@
+{
+  "$version": "1.0.0",
+  "id": "form-builder",
+  "name": "Form Builder",
+  "description": "A dynamic form builder demonstrating Praxis schema composition and component generation",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "modifiedAt": "2024-01-01T00:00:00.000Z",
+  "facts": [
+    {
+      "id": "fact_form_created",
+      "tag": "FormCreated",
+      "description": "A new form was created",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "formId": { "type": "string" },
+          "name": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "fact_field_added",
+      "tag": "FieldAdded",
+      "description": "A field was added to a form",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "formId": { "type": "string" },
+          "fieldId": { "type": "string" },
+          "fieldType": { "type": "string" },
+          "label": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "fact_field_removed",
+      "tag": "FieldRemoved",
+      "description": "A field was removed from a form",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "formId": { "type": "string" },
+          "fieldId": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "fact_field_updated",
+      "tag": "FieldUpdated",
+      "description": "A field configuration was updated",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "fieldId": { "type": "string" },
+          "changes": { "type": "object" }
+        }
+      }
+    },
+    {
+      "id": "fact_form_submitted",
+      "tag": "FormSubmitted",
+      "description": "A form was submitted with data",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "formId": { "type": "string" },
+          "submissionId": { "type": "string" },
+          "data": { "type": "object" }
+        }
+      }
+    },
+    {
+      "id": "fact_validation_failed",
+      "tag": "ValidationFailed",
+      "description": "Form validation failed",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "formId": { "type": "string" },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fieldId": { "type": "string" },
+                "message": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "event_create_form",
+      "tag": "CreateForm",
+      "description": "Create a new form",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "event_add_field",
+      "tag": "AddField",
+      "description": "Add a field to the form",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "formId": { "type": "string" },
+          "fieldType": { "type": "string" },
+          "label": { "type": "string" },
+          "required": { "type": "boolean" },
+          "options": { "type": "object" }
+        }
+      }
+    },
+    {
+      "id": "event_remove_field",
+      "tag": "RemoveField",
+      "description": "Remove a field from the form",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "formId": { "type": "string" },
+          "fieldId": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "event_update_field",
+      "tag": "UpdateField",
+      "description": "Update field configuration",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "fieldId": { "type": "string" },
+          "label": { "type": "string" },
+          "required": { "type": "boolean" },
+          "placeholder": { "type": "string" },
+          "validation": { "type": "object" }
+        }
+      }
+    },
+    {
+      "id": "event_reorder_fields",
+      "tag": "ReorderFields",
+      "description": "Change the order of fields in the form",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "formId": { "type": "string" },
+          "fieldOrder": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    {
+      "id": "event_submit_form",
+      "tag": "SubmitForm",
+      "description": "Submit form data",
+      "payload": {
+        "type": "object",
+        "properties": {
+          "formId": { "type": "string" },
+          "data": { "type": "object" }
+        }
+      }
+    }
+  ],
+  "rules": [
+    {
+      "id": "form.create",
+      "name": "Create Form",
+      "description": "Create a new form when CreateForm event is received",
+      "triggers": ["CreateForm"],
+      "then": {
+        "inline": "const event = events.find(e => e.tag === 'CreateForm'); if (!event) return []; return [{ tag: 'FormCreated', payload: { formId: Date.now().toString(36), name: event.payload.name } }];",
+        "language": "typescript"
+      }
+    },
+    {
+      "id": "form.addField",
+      "name": "Add Field",
+      "description": "Add a field to the form when AddField event is received",
+      "triggers": ["AddField"],
+      "then": {
+        "inline": "const event = events.find(e => e.tag === 'AddField'); if (!event) return []; return [{ tag: 'FieldAdded', payload: { formId: event.payload.formId, fieldId: Date.now().toString(36), fieldType: event.payload.fieldType, label: event.payload.label } }];",
+        "language": "typescript"
+      }
+    },
+    {
+      "id": "form.removeField",
+      "name": "Remove Field",
+      "description": "Remove a field from the form when RemoveField event is received",
+      "triggers": ["RemoveField"],
+      "then": {
+        "inline": "const event = events.find(e => e.tag === 'RemoveField'); if (!event) return []; return [{ tag: 'FieldRemoved', payload: { formId: event.payload.formId, fieldId: event.payload.fieldId } }];",
+        "language": "typescript"
+      }
+    },
+    {
+      "id": "form.updateField",
+      "name": "Update Field",
+      "description": "Update field configuration when UpdateField event is received",
+      "triggers": ["UpdateField"],
+      "then": {
+        "inline": "const event = events.find(e => e.tag === 'UpdateField'); if (!event) return []; return [{ tag: 'FieldUpdated', payload: { fieldId: event.payload.fieldId, changes: event.payload } }];",
+        "language": "typescript"
+      }
+    },
+    {
+      "id": "form.submit",
+      "name": "Submit Form",
+      "description": "Handle form submission with validation",
+      "triggers": ["SubmitForm"],
+      "then": {
+        "inline": "const event = events.find(e => e.tag === 'SubmitForm'); if (!event) return []; const form = state.context.forms?.find(f => f.id === event.payload.formId); if (!form) return []; const errors = []; form.fields?.forEach(field => { if (field.required && !event.payload.data[field.id]) { errors.push({ fieldId: field.id, message: `${field.label} is required` }); } }); if (errors.length > 0) { return [{ tag: 'ValidationFailed', payload: { formId: event.payload.formId, errors } }]; } return [{ tag: 'FormSubmitted', payload: { formId: event.payload.formId, submissionId: Date.now().toString(36), data: event.payload.data } }];",
+        "language": "typescript"
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "form.uniqueFieldIds",
+      "name": "Unique Field IDs",
+      "description": "All field IDs within a form must be unique",
+      "check": {
+        "inline": "const forms = state.context.forms || []; return forms.every(form => { const ids = form.fields?.map(f => f.id) || []; return ids.length === new Set(ids).size; });",
+        "language": "typescript"
+      },
+      "errorMessage": "Duplicate field IDs detected",
+      "severity": "error"
+    },
+    {
+      "id": "form.maxFields",
+      "name": "Maximum Fields Per Form",
+      "description": "A form cannot have more than 50 fields",
+      "check": {
+        "inline": "const forms = state.context.forms || []; return forms.every(form => (form.fields?.length || 0) <= 50);",
+        "language": "typescript"
+      },
+      "errorMessage": "Form cannot have more than 50 fields",
+      "severity": "error"
+    }
+  ],
+  "models": [
+    {
+      "id": "model_form",
+      "name": "Form",
+      "description": "A form definition",
+      "fields": [
+        { "name": "id", "type": "uuid", "description": "Unique form identifier" },
+        { "name": "name", "type": "string", "description": "Form name" },
+        { "name": "description", "type": "string", "optional": true, "description": "Form description" },
+        { "name": "fields", "type": { "array": { "reference": "FormField" } }, "description": "Form fields" },
+        { "name": "createdAt", "type": "datetime", "description": "Creation timestamp" },
+        { "name": "updatedAt", "type": "datetime", "description": "Last update timestamp" }
+      ]
+    },
+    {
+      "id": "model_form_field",
+      "name": "FormField",
+      "description": "A form field definition",
+      "fields": [
+        { "name": "id", "type": "string", "description": "Unique field identifier" },
+        { "name": "type", "type": { "enum": ["text", "number", "email", "select", "checkbox", "radio", "textarea", "date", "file"] }, "description": "Field type" },
+        { "name": "label", "type": "string", "description": "Field label" },
+        { "name": "placeholder", "type": "string", "optional": true, "description": "Placeholder text" },
+        { "name": "required", "type": "boolean", "description": "Is field required" },
+        { "name": "options", "type": { "array": { "type": "string" } }, "optional": true, "description": "Options for select/radio fields" },
+        { "name": "validation", "type": "object", "optional": true, "description": "Validation rules" },
+        { "name": "order", "type": "number", "description": "Display order" }
+      ]
+    },
+    {
+      "id": "model_form_submission",
+      "name": "FormSubmission",
+      "description": "A form submission",
+      "fields": [
+        { "name": "id", "type": "uuid", "description": "Submission identifier" },
+        { "name": "formId", "type": "string", "description": "Reference to form" },
+        { "name": "data", "type": "object", "description": "Submitted data" },
+        { "name": "submittedAt", "type": "datetime", "description": "Submission timestamp" }
+      ],
+      "relationships": [
+        {
+          "name": "form",
+          "type": "many-to-one",
+          "target": "Form",
+          "foreignKey": "formId"
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "comp_form_builder",
+      "name": "FormBuilder",
+      "type": "editor",
+      "description": "Main form builder interface",
+      "props": [
+        { "name": "form", "type": "Form", "required": false, "description": "Existing form to edit" }
+      ],
+      "events": [
+        { "name": "save", "payload": "Form", "description": "Fired when form is saved" },
+        { "name": "cancel", "description": "Fired when editing is cancelled" }
+      ]
+    },
+    {
+      "id": "comp_field_palette",
+      "name": "FieldPalette",
+      "type": "display",
+      "description": "Palette of available field types",
+      "props": [],
+      "events": [
+        { "name": "fieldSelect", "payload": "{ fieldType: string }", "description": "Fired when a field type is selected" }
+      ]
+    },
+    {
+      "id": "comp_field_editor",
+      "name": "FieldEditor",
+      "type": "form",
+      "description": "Editor for field configuration",
+      "model": "FormField",
+      "props": [
+        { "name": "field", "type": "FormField", "required": true, "description": "Field to edit" }
+      ],
+      "events": [
+        { "name": "save", "payload": "FormField", "description": "Fired when field is saved" },
+        { "name": "delete", "payload": "{ fieldId: string }", "description": "Fired when field is deleted" }
+      ]
+    },
+    {
+      "id": "comp_form_preview",
+      "name": "FormPreview",
+      "type": "display",
+      "description": "Preview of the form as users would see it",
+      "props": [
+        { "name": "form", "type": "Form", "required": true, "description": "Form to preview" }
+      ],
+      "events": [
+        { "name": "submit", "payload": "object", "description": "Fired when preview form is submitted" }
+      ]
+    },
+    {
+      "id": "comp_form_renderer",
+      "name": "FormRenderer",
+      "type": "form",
+      "description": "Renders a form for end users",
+      "model": "Form",
+      "props": [
+        { "name": "form", "type": "Form", "required": true, "description": "Form definition" },
+        { "name": "initialData", "type": "object", "required": false, "description": "Initial form data" },
+        { "name": "readOnly", "type": "boolean", "required": false, "default": false, "description": "Read-only mode" }
+      ],
+      "events": [
+        { "name": "submit", "payload": "{ formId: string; data: object }", "description": "Fired when form is submitted" },
+        { "name": "change", "payload": "{ fieldId: string; value: any }", "description": "Fired when a field value changes" }
+      ]
+    },
+    {
+      "id": "comp_submissions_list",
+      "name": "SubmissionsList",
+      "type": "list",
+      "description": "List of form submissions",
+      "model": "FormSubmission",
+      "props": [
+        { "name": "formId", "type": "string", "required": true, "description": "Form ID to show submissions for" },
+        { "name": "submissions", "type": "FormSubmission[]", "required": true, "description": "Submissions to display" }
+      ],
+      "events": [
+        { "name": "view", "payload": "FormSubmission", "description": "Fired when a submission is viewed" },
+        { "name": "export", "description": "Fired when export is requested" }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow_form_creation",
+      "name": "Form Creation Flow",
+      "description": "The flow for creating and configuring a new form",
+      "type": "sequence",
+      "initial": "create_form",
+      "steps": [
+        {
+          "id": "create_form",
+          "name": "Create Form",
+          "type": "action",
+          "next": "add_fields"
+        },
+        {
+          "id": "add_fields",
+          "name": "Add Fields",
+          "type": "action",
+          "next": {
+            "add_more": "add_fields",
+            "preview": "preview_form",
+            "done": "save_form"
+          }
+        },
+        {
+          "id": "preview_form",
+          "name": "Preview Form",
+          "type": "action",
+          "next": {
+            "edit": "add_fields",
+            "save": "save_form"
+          }
+        },
+        {
+          "id": "save_form",
+          "name": "Save Form",
+          "type": "terminal"
+        }
+      ]
+    }
+  ],
+  "docs": {
+    "overview": "Form Builder is a dynamic form creation application built with Praxis 1.0. It demonstrates schema composition, component generation, and the logic engine for form validation and submission handling.",
+    "gettingStarted": "1. Run `npm install` to install dependencies\n2. Run `praxis generate` to generate code from schema\n3. Run `praxis dev` to start the development server"
+  },
+  "canvas": {
+    "viewport": { "x": 0, "y": 0, "zoom": 1 },
+    "grid": { "enabled": true, "size": 20, "snap": true }
+  }
+}
