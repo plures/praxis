@@ -262,9 +262,10 @@ describe('Code Generators', () => {
       const files = generator.generateConfig(normalized);
       const configFile = files[0];
       
-      // Should have no auto-generated indexes
-      expect(configFile.content).not.toContain('indexes:');
+      // Should indicate auto-indexing is disabled in comment
       expect(configFile.content).toContain('Auto-indexing disabled');
+      // Store config should not have indexes array (since none are auto-generated)
+      expect(configFile.content).not.toMatch(/users:\s*\{\s*keyPath:\s*'id',\s*indexes:/);
     });
   });
 });

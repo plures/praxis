@@ -6,6 +6,7 @@
  */
 
 import type { TerminalNodeProps } from '../core/schema/types.js';
+import type { PraxisDB } from '../core/pluresdb/adapter.js';
 
 /**
  * Terminal command execution result
@@ -47,19 +48,71 @@ export interface TerminalAdapterOptions {
   inputPath?: string;
   /** PluresDB path for output binding */
   outputPath?: string;
+  /** Current working directory */
+  cwd?: string;
+  /** Environment variables */
+  env?: Record<string, string>;
+  /** PluresDB instance for state persistence */
+  db?: PraxisDB;
+  /** Command executor function (for custom execution environments) */
+  executor?: CommandExecutor;
+}
+
+/**
+ * Command executor function type
+ */
+export type CommandExecutor = (
+  command: string,
+  options: { cwd?: string; env?: Record<string, string> }
+) => Promise<{ output: string; exitCode: number; error?: string }>;
+
+/**
+ * Default command executor using child_process
+ * Note: This only works in Node.js environments
+ */
+async function defaultExecutor(
+  command: string,
+  options: { cwd?: string; env?: Record<string, string> }
+): Promise<{ output: string; exitCode: number; error?: string }> {
+  try {
+    // Dynamic import to support environments without child_process
+    const { exec } = await import('child_process');
+    const { promisify } = await import('util');
+    const execAsync = promisify(exec);
+    
+    const result = await execAsync(command, {
+      cwd: options.cwd,
+      env: { ...process.env, ...options.env },
+      maxBuffer: 10 * 1024 * 1024, // 10MB buffer
+      timeout: 60000, // 60 second timeout
+    });
+    
+    return {
+      output: result.stdout + (result.stderr ? `\n${result.stderr}` : ''),
+      exitCode: 0,
+    };
+  } catch (error: unknown) {
+    const execError = error as { stdout?: string; stderr?: string; code?: number; message?: string };
+    return {
+      output: (execError.stdout || '') + (execError.stderr || ''),
+      exitCode: execError.code || 1,
+      error: execError.message || 'Command execution failed',
+    };
+  }
 }
 
 /**
  * Terminal Runtime Adapter
  * 
  * Manages terminal node execution and state.
- * 
- * Note: PluresDB input/output path bindings will be implemented
- * when pluresDB integration is complete.
+ * Supports command execution with history tracking and PluresDB integration.
  */
 export class TerminalAdapter {
   private state: TerminalNodeState;
+  private inputPath?: string;
   private outputPath?: string;
+  private db?: PraxisDB;
+  private executor: CommandExecutor;
 
   constructor(options: TerminalAdapterOptions) {
     this.state = {
@@ -67,10 +120,13 @@ export class TerminalAdapter {
       inputMode: options.props?.inputMode || 'text',
       history: options.props?.history || [],
       lastOutput: options.props?.lastOutput || null,
+      cwd: options.cwd,
+      env: options.env,
     };
-    // TODO: Store inputPath when pluresDB integration is complete
-    // const inputPath = options.inputPath;
+    this.inputPath = options.inputPath;
     this.outputPath = options.outputPath;
+    this.db = options.db;
+    this.executor = options.executor || defaultExecutor;
   }
 
   /**
@@ -82,21 +138,28 @@ export class TerminalAdapter {
   async executeCommand(command: string): Promise<TerminalExecutionResult> {
     // Add to history
     this.state.history.push(command);
-
-    // TODO: Integrate with RuneBook execution model
-    // For now, return a stubbed response
+    
+    const timestamp = Date.now();
+    
+    // Execute the command
+    const { output, exitCode, error } = await this.executor(command, {
+      cwd: this.state.cwd,
+      env: this.state.env,
+    });
+    
     const result: TerminalExecutionResult = {
       command,
-      output: `[Stub] Command received: ${command}\nIntegration with RuneBook pending.`,
-      exitCode: 0,
-      timestamp: Date.now(),
+      output,
+      exitCode,
+      timestamp,
+      error,
     };
 
     // Update last output
-    this.state.lastOutput = result.output;
+    this.state.lastOutput = output;
 
-    // TODO: Sync to pluresDB output path when integration is available
-    if (this.outputPath) {
+    // Sync to PluresDB if configured
+    if (this.db && this.outputPath) {
       await this.syncToPluresDB(this.outputPath, result);
     }
 
@@ -121,6 +184,20 @@ export class TerminalAdapter {
   }
 
   /**
+   * Set working directory
+   */
+  setCwd(cwd: string): void {
+    this.state.cwd = cwd;
+  }
+
+  /**
+   * Set environment variables
+   */
+  setEnv(env: Record<string, string>): void {
+    this.state.env = { ...this.state.env, ...env };
+  }
+
+  /**
    * Clear command history
    */
   clearHistory(): void {
@@ -135,15 +212,70 @@ export class TerminalAdapter {
   }
 
   /**
-   * Sync state to pluresDB (placeholder)
+   * Sync state to PluresDB
    * 
-   * @param _path - PluresDB path (unused until integration is complete)
-   * @param _data - Data to sync (unused until integration is complete)
+   * @param path - PluresDB path for storing results
+   * @param data - Data to sync
    */
-  private async syncToPluresDB(_path: string, _data: unknown): Promise<void> {
-    // TODO: Implement pluresDB sync when integration is available
-    // When implemented, this will sync terminal output to the specified pluresDB path
-    // for reactive state management across the application
+  private async syncToPluresDB(path: string, data: TerminalExecutionResult): Promise<void> {
+    if (!this.db) return;
+    
+    try {
+      // Store the execution result
+      await this.db.set(path, {
+        ...data,
+        nodeId: this.state.nodeId,
+        syncedAt: Date.now(),
+      });
+      
+      // Also append to history path
+      const historyPath = `${path}/history`;
+      const historyKey = `${historyPath}/${data.timestamp}`;
+      await this.db.set(historyKey, data);
+    } catch (error) {
+      console.warn('Failed to sync to PluresDB:', error);
+    }
+  }
+
+  /**
+   * Load state from PluresDB
+   */
+  async loadFromPluresDB(): Promise<void> {
+    if (!this.db || !this.inputPath) return;
+    
+    try {
+      const data = await this.db.get(this.inputPath);
+      if (data && typeof data === 'object') {
+        const savedState = data as Partial<TerminalNodeState>;
+        if (savedState.history) {
+          this.state.history = savedState.history;
+        }
+        if (savedState.lastOutput !== undefined) {
+          this.state.lastOutput = savedState.lastOutput;
+        }
+        if (savedState.cwd) {
+          this.state.cwd = savedState.cwd;
+        }
+        if (savedState.env) {
+          this.state.env = savedState.env;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load from PluresDB:', error);
+    }
+  }
+
+  /**
+   * Subscribe to input changes from PluresDB
+   */
+  watchInput(callback: (command: string) => void): (() => void) | null {
+    if (!this.db || !this.inputPath) return null;
+    
+    return this.db.watch(this.inputPath, (data) => {
+      if (data && typeof data === 'object' && 'command' in data) {
+        callback((data as { command: string }).command);
+      }
+    });
   }
 }
 
@@ -164,12 +296,35 @@ export function createTerminalAdapter(
  * 
  * @param nodeId - Terminal node identifier
  * @param command - Command to execute
+ * @param options - Additional options
  * @returns Execution result
  */
 export async function runTerminalCommand(
   nodeId: string,
-  command: string
+  command: string,
+  options?: { cwd?: string; env?: Record<string, string>; db?: PraxisDB }
 ): Promise<TerminalExecutionResult> {
-  const adapter = createTerminalAdapter({ nodeId });
+  const adapter = createTerminalAdapter({
+    nodeId,
+    cwd: options?.cwd,
+    env: options?.env,
+    db: options?.db,
+  });
   return adapter.executeCommand(command);
+}
+
+/**
+ * Create a mock executor for testing
+ * Returns a function that returns predefined outputs
+ */
+export function createMockExecutor(
+  responses: Record<string, { output: string; exitCode: number; error?: string }>
+): CommandExecutor {
+  return async (command: string) => {
+    const response = responses[command] || responses['*'] || {
+      output: `Mock output for: ${command}`,
+      exitCode: 0,
+    };
+    return response;
+  };
 }

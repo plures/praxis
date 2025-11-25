@@ -290,7 +290,7 @@ orchestration:
       
       expect(result).toBeDefined();
       expect(result.command).toBe('echo hello');
-      expect(result.output).toContain('echo hello');
+      expect(result.output).toContain('hello');
       expect(result.exitCode).toBe(0);
       expect(result.timestamp).toBeGreaterThan(0);
       

@@ -117,11 +117,13 @@ export type {
   TerminalExecutionResult,
   TerminalNodeState,
   TerminalAdapterOptions,
+  CommandExecutor,
 } from "./runtime/terminal-adapter.js";
 export {
   TerminalAdapter,
   createTerminalAdapter,
   runTerminalCommand,
+  createMockExecutor,
 } from "./runtime/terminal-adapter.js";
 
 // Schema Types (including Terminal Node types)

@@ -178,9 +178,51 @@ ${styles ? `<style>\n${styles}\n</style>` : ''}`;
       lines.push('');
     }
 
-    // Component logic placeholder
-    lines.push('  // Component logic will be generated based on schema');
-    lines.push('  // TODO: Implement component behavior');
+    // Component logic based on component type
+    switch (component.type) {
+      case 'form':
+        lines.push('  // Form handling logic');
+        lines.push('  import { createEventDispatcher } from "svelte";');
+        lines.push('  const dispatch = createEventDispatcher();');
+        lines.push('');
+        lines.push('  function handleSubmit() {');
+        lines.push('    dispatch("submit", data);');
+        lines.push('  }');
+        lines.push('');
+        lines.push('  function handleReset() {');
+        lines.push('    data = { ...initialData };');
+        lines.push('  }');
+        break;
+      case 'list':
+        lines.push('  // List handling logic');
+        lines.push('  import { createEventDispatcher } from "svelte";');
+        lines.push('  const dispatch = createEventDispatcher();');
+        lines.push('');
+        lines.push('  function handleSelect(item) {');
+        lines.push('    dispatch("select", item);');
+        lines.push('  }');
+        lines.push('');
+        lines.push('  function handleDelete(item) {');
+        lines.push('    dispatch("delete", item);');
+        lines.push('  }');
+        break;
+      case 'display':
+        lines.push('  // Display component - reactive to data changes');
+        lines.push('  $: formattedData = data ? JSON.stringify(data, null, 2) : "No data";');
+        break;
+      case 'navigation':
+        lines.push('  // Navigation handling');
+        lines.push('  import { createEventDispatcher } from "svelte";');
+        lines.push('  const dispatch = createEventDispatcher();');
+        lines.push('');
+        lines.push('  function navigate(path) {');
+        lines.push('    dispatch("navigate", { path });');
+        lines.push('  }');
+        break;
+      default:
+        lines.push('  // Component logic');
+        lines.push('  $: console.log("Component data updated:", data);');
+    }
 
     return lines.join('\n');
   }

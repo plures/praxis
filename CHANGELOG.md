@@ -45,11 +45,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Mock bridge for development/testing
   - Tauri configuration generation
 
+- **CLI Commands** (`src/cli/commands/`)
+  - `praxis dev` - Start development server (wraps Vite)
+  - `praxis build` - Build for production (web, desktop, mobile targets)
+  - `praxis canvas` - Visual schema editor with HTTP server
+  - `praxis orchestrate` - Distributed coordination management
+
 ### Changed
-- **CLI Commands** - Improved output for stub commands (canvas, orchestrate, dev, build)
-  - More informative messages about feature status
-  - Clear instructions for alternative approaches
-  - Consistent styling with other CLI output
+- **Terminal Adapter** (`src/runtime/terminal-adapter.ts`)
+  - Now executes actual shell commands using child_process
+  - PluresDB integration for state persistence
+  - Support for custom command executors
+  - Mock executor for testing
+  - Working directory and environment variable support
+
+- **PluresDB Generator** (`src/core/pluresdb/generator.ts`)
+  - Fully functional `initDB()` function
+  - `getStore()` helper for store access
+  - Proper store initialization with PluresDB
+
+- **Logic Generator** (`src/core/logic/generator.ts`)
+  - Smart rule implementation based on schema definition
+  - Event trigger filtering
+  - Condition parsing and action generation
+
+- **Component Generator** (`src/core/component/generator.ts`)
+  - Type-specific component logic (form, list, display, navigation)
+  - Event dispatchers for user interactions
+  - Reactive statements for data binding
 
 - **README.md** - Updated Integration Status
   - All integrations now marked as ✅ Available

@@ -91,18 +91,16 @@ program
   .description('Open CodeCanvas for visual editing')
   .option('-p, --port <port>', 'Port for Canvas server', '3000')
   .option('-m, --mode <mode>', 'Mode (edit, view, present)', 'edit')
-  .action((schema, options) => {
-    console.log('\n╔═══════════════════════════════════════════════════╗');
-    console.log('║   CodeCanvas Visual Editor                        ║');
-    console.log('╚═══════════════════════════════════════════════════╝\n');
-    console.log(`Schema: ${schema || '(new schema)'}`);
-    console.log(`Port: ${options.port}`);
-    console.log(`Mode: ${options.mode}\n`);
-    console.log('⚠  CodeCanvas integration is coming soon!\n');
-    console.log('For now, you can:');
-    console.log('  • Edit schemas directly in your IDE');
-    console.log('  • Use "praxis generate" to generate code from schemas');
-    console.log('  • Check https://github.com/plures/praxis for updates\n');
+  .option('-e, --export <format>', 'Export format (yaml, mermaid, json)')
+  .option('-o, --output <file>', 'Output file for export')
+  .action(async (schema, options) => {
+    try {
+      const { canvas } = await import('./commands/canvas.js');
+      await canvas(schema, options);
+    } catch (error) {
+      console.error('Error with canvas:', error);
+      process.exit(1);
+    }
   });
 
 program
@@ -110,31 +108,31 @@ program
   .description('Manage orchestration and distributed coordination')
   .option('-c, --config <file>', 'Orchestration configuration file')
   .option('-n, --nodes <count>', 'Number of nodes', '1')
-  .action((options) => {
-    console.log('\n╔═══════════════════════════════════════════════════╗');
-    console.log('║   Praxis Orchestration                            ║');
-    console.log('╚═══════════════════════════════════════════════════╝\n');
-    console.log(`Config: ${options.config || '(default)'}`);
-    console.log(`Nodes: ${options.nodes}\n`);
-    console.log('⚠  Orchestration features are coming soon!\n');
-    console.log('For distributed system coordination:');
-    console.log('  • Define orchestration in your schema');
-    console.log('  • Configure DSC nodes for state synchronization');
-    console.log('  • Check docs/guides/orchestration.md for patterns\n');
+  .option('-a, --action <action>', 'Action (init, start, stop, status)', 'status')
+  .action(async (options) => {
+    try {
+      const { orchestrate } = await import('./commands/orchestrate.js');
+      await orchestrate(options);
+    } catch (error) {
+      console.error('Error with orchestration:', error);
+      process.exit(1);
+    }
   });
 
 program
   .command('dev')
   .description('Start development server')
   .option('-p, --port <port>', 'Port number', '5173')
-  .action((options) => {
-    console.log('\n╔═══════════════════════════════════════════════════╗');
-    console.log('║   Praxis Development Server                       ║');
-    console.log('╚═══════════════════════════════════════════════════╝\n');
-    console.log(`Port: ${options.port}\n`);
-    console.log('To start the development server, run:\n');
-    console.log('  npm run dev\n');
-    console.log('This uses Vite under the hood for fast HMR.\n');
+  .option('-h, --host <host>', 'Host to bind to', 'localhost')
+  .option('-o, --open', 'Open browser')
+  .action(async (options) => {
+    try {
+      const { dev } = await import('./commands/dev.js');
+      await dev(options);
+    } catch (error) {
+      console.error('Error starting dev server:', error);
+      process.exit(1);
+    }
   });
 
 program
@@ -142,19 +140,16 @@ program
   .description('Build application for production')
   .option('-o, --output <dir>', 'Output directory', './dist')
   .option('--target <target>', 'Build target (web, desktop, mobile)', 'web')
-  .action((options) => {
-    console.log('\n╔═══════════════════════════════════════════════════╗');
-    console.log('║   Praxis Production Build                         ║');
-    console.log('╚═══════════════════════════════════════════════════╝\n');
-    console.log(`Output: ${options.output}`);
-    console.log(`Target: ${options.target}\n`);
-    console.log('To build for production, run:\n');
-    console.log('  npm run build\n');
-    console.log('This will:');
-    console.log('  • Compile TypeScript');
-    console.log('  • Bundle with Vite');
-    console.log('  • Optimize assets');
-    console.log(`  • Output to ${options.output}/\n`);
+  .option('--minify', 'Minify output', true)
+  .option('--sourcemap', 'Generate source maps', false)
+  .action(async (options) => {
+    try {
+      const { build } = await import('./commands/build.js');
+      await build(options);
+    } catch (error) {
+      console.error('Error building:', error);
+      process.exit(1);
+    }
   });
 
 // Cloud commands
