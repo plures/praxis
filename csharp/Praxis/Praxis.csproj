@@ -8,7 +8,7 @@
     
     <!-- NuGet Package Properties -->
     <PackageId>Plures.Praxis</PackageId>
-    <Version>0.2.0</Version>
+    <Version>1.0.0</Version>
     <Authors>Plures</Authors>
     <Company>Plures</Company>
     <Description>The Full Plures Application Framework for C# - declarative schemas, logic engine, component generation, and local-first data. A functional, immutable implementation of the Praxis protocol.</Description>

@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2025-11-25
+
+### Added
+- **Stable Release**: First stable release of Praxis framework for both TypeScript and C#
+- **C# Implementation** (`csharp/`)
+  - Full parity with TypeScript implementation
+  - Protocol version 1.0.0 compatibility
+  - PluresDB integration with in-memory store
+  - Schema registry for CRDT-backed document storage
+  - Complete DSL for defining facts, events, rules, and constraints
+  - Introspection and visualization (DOT, Mermaid exports)
+  - 95 comprehensive tests
+  - NuGet package: `Plures.Praxis`
+
+### Changed
+- **Version Bump**: Both TypeScript and C# packages are now at 1.0.0
+- **Cross-Language Sync**: Both implementations are fully synchronized at protocol version 1.0.0
+
 ## [0.2.1] - 2025-11-25
 
 ### Added
@@ -296,6 +314,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **JSON-Friendly**: All types are serializable for cross-platform use
 - **Type-Safe**: Full TypeScript support with strict typing
 
+[1.0.0]: https://github.com/plures/praxis/releases/tag/v1.0.0
 [0.2.1]: https://github.com/plures/praxis/releases/tag/v0.2.1
 [0.2.0]: https://github.com/plures/praxis/releases/tag/v0.2.0
 [0.1.0]: https://github.com/plures/praxis/releases/tag/v0.1.0
