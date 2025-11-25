@@ -5,7 +5,7 @@
    * Individual node component for the Praxis visual schema editor.
    * Represents facts, events, rules, constraints, models, components, and flows.
    */
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { createEventDispatcher, onDestroy } from 'svelte';
   import type { PSFPosition } from '../../../core/schema-engine/psf.js';
   import type { CanvasNodeState } from '../canvas-state.js';
 
@@ -58,9 +58,12 @@
   $: colors = typeColors[node.type];
   $: icon = typeIcons[node.type];
 
+  // Mouse button constants
+  const LEFT_MOUSE_BUTTON = 0;
+
   function handleMouseDown(event: MouseEvent) {
     if (readonly) return;
-    if (event.button !== 0) return; // Only left click
+    if (event.button !== LEFT_MOUSE_BUTTON) return;
 
     event.stopPropagation();
 
@@ -137,11 +140,9 @@
   }
 
   // Cleanup on component destroy
-  onMount(() => {
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
+  onDestroy(() => {
+    window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('mouseup', handleMouseUp);
   });
 </script>
 

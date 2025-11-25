@@ -98,4 +98,3 @@ export type { CanvasState, CanvasNodeState, CanvasEdgeState, CanvasMode } from '
 export type { LayoutOptions, LayoutResult } from '../canvas-projection.js';
 export { createCanvasStateManager, CanvasStateManager } from '../canvas-state.js';
 export { createCanvasProjection, CanvasProjection } from '../canvas-projection.js';
-

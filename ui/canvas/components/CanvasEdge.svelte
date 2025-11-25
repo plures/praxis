@@ -174,11 +174,12 @@
   }
 
   .edge-endpoint {
-    transition: r 0.15s ease;
+    transition: transform 0.15s ease;
   }
 
   .canvas-edge:hover .edge-endpoint {
-    r: 6;
+    transform: scale(1.5);
+    transform-origin: center;
   }
 
   .edge-label-group {

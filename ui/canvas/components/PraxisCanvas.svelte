@@ -98,19 +98,22 @@
     }
   }
 
+  // Track if space key is held for temporary pan mode
+  let isSpaceHeld = false;
+
   // Event handlers
   function handleCanvasMouseDown(event: MouseEvent) {
     if (event.button !== 0) return;
     if (event.target !== canvasElement && event.target !== svgElement) return;
 
-    if (canvasState.mode === 'pan' || event.spaceKey) {
+    if ((canvasState && canvasState.mode === 'pan') || isSpaceHeld) {
       isPanning = true;
       panStartX = event.clientX;
       panStartY = event.clientY;
-      viewportStartX = canvasState.viewport.x;
-      viewportStartY = canvasState.viewport.y;
+      viewportStartX = canvasState?.viewport?.x ?? 0;
+      viewportStartY = canvasState?.viewport?.y ?? 0;
       canvasElement.style.cursor = 'grabbing';
-    } else if (canvasState.mode === 'select') {
+    } else if (canvasState && canvasState.mode === 'select') {
       // Clicked on empty space - clear selection
       stateManager.clearSelection();
       closeContextMenu();
@@ -320,13 +323,16 @@
       stateManager.clearSelection();
       closeContextMenu();
     } else if (event.key === ' ') {
+      event.preventDefault();
       // Hold space to temporarily pan
+      isSpaceHeld = true;
       stateManager.setMode('pan');
     }
   }
 
   function handleKeyUp(event: KeyboardEvent) {
     if (event.key === ' ') {
+      isSpaceHeld = false;
       stateManager.setMode('select');
     }
   }
