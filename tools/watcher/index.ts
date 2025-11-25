@@ -106,6 +106,11 @@ export class FileWatcher {
   }
 
   /**
+   * Watched file extensions (O(1) lookup)
+   */
+  private static readonly WATCHED_EXTENSIONS = new Set(['.ts', '.js', '.json', '.yaml', '.yml', '.svelte']);
+
+  /**
    * Check if file should be processed
    */
   private shouldProcess(filename: string): boolean {
@@ -118,8 +123,7 @@ export class FileWatcher {
 
     // Check file extension
     const ext = extname(filename).toLowerCase();
-    const watchedExtensions = ['.ts', '.js', '.json', '.yaml', '.yml', '.svelte'];
-    return watchedExtensions.includes(ext);
+    return FileWatcher.WATCHED_EXTENSIONS.has(ext);
   }
 
   /**

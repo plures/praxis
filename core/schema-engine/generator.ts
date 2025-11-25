@@ -610,7 +610,12 @@ export class PSFGenerator {
    * Escape string for use in code
    */
   private escapeString(str: string): string {
-    return str.replace(/'/g, "\\'").replace(/\n/g, '\\n');
+    return str
+      .replace(/\\/g, '\\\\')  // Escape backslashes first
+      .replace(/'/g, "\\'")
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t');
   }
 }
 

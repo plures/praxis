@@ -100,9 +100,9 @@ export class CanvasProjection {
     const positions = new Map<string, PSFPosition>();
     const nodesWithoutPositions: string[] = [];
 
-    // Find nodes without positions
+    // Find nodes without explicit positions
     for (const [id, node] of existingNodes) {
-      if (node.position.x === 0 && node.position.y === 0) {
+      if (!node.hasExplicitPosition) {
         nodesWithoutPositions.push(id);
       } else {
         positions.set(id, node.position);

@@ -21,6 +21,19 @@ import type {
 import { PSF_VERSION, generatePSFId } from './psf.js';
 
 /**
+ * Reserved JavaScript keywords (O(1) lookup)
+ */
+const RESERVED_KEYWORDS = new Set([
+  'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger',
+  'default', 'delete', 'do', 'else', 'export', 'extends', 'finally',
+  'for', 'function', 'if', 'import', 'in', 'instanceof', 'new',
+  'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof',
+  'var', 'void', 'while', 'with', 'yield', 'let', 'static',
+  'enum', 'await', 'implements', 'interface', 'package', 'private',
+  'protected', 'public',
+]);
+
+/**
  * Source location information for error reporting
  */
 export interface SourceLocation {
@@ -384,16 +397,7 @@ export class PSFCompiler {
    */
   private isValidIdentifier(str: string): boolean {
     const identifierRegex = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
-    const reservedKeywords = [
-      'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger',
-      'default', 'delete', 'do', 'else', 'export', 'extends', 'finally',
-      'for', 'function', 'if', 'import', 'in', 'instanceof', 'new',
-      'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof',
-      'var', 'void', 'while', 'with', 'yield', 'let', 'static',
-      'enum', 'await', 'implements', 'interface', 'package', 'private',
-      'protected', 'public',
-    ];
-    return identifierRegex.test(str) && !reservedKeywords.includes(str);
+    return identifierRegex.test(str) && !RESERVED_KEYWORDS.has(str);
   }
 
   /**

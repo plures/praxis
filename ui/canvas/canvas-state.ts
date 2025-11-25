@@ -20,6 +20,8 @@ export interface CanvasNodeState {
   label: string;
   /** Position */
   position: PSFPosition;
+  /** Whether position was explicitly set */
+  hasExplicitPosition: boolean;
   /** Is selected */
   selected: boolean;
   /** Is being dragged */
@@ -169,6 +171,10 @@ export class CanvasStateManager {
     const nodes = new Map<string, CanvasNodeState>();
     const edges = new Map<string, CanvasEdgeState>();
 
+    // Helper to check if position was explicitly set
+    const hasPosition = (pos?: PSFPosition): boolean =>
+      pos !== undefined && (pos.x !== 0 || pos.y !== 0);
+
     // Load facts
     for (const fact of schema.facts) {
       nodes.set(fact.id, {
@@ -176,6 +182,7 @@ export class CanvasStateManager {
         type: 'fact',
         label: fact.tag,
         position: fact.position || { x: 0, y: 0 },
+        hasExplicitPosition: hasPosition(fact.position),
         selected: false,
         dragging: false,
         data: { description: fact.description },
@@ -189,6 +196,7 @@ export class CanvasStateManager {
         type: 'event',
         label: event.tag,
         position: event.position || { x: 0, y: 0 },
+        hasExplicitPosition: hasPosition(event.position),
         selected: false,
         dragging: false,
         data: { description: event.description },
@@ -202,6 +210,7 @@ export class CanvasStateManager {
         type: 'rule',
         label: rule.name || rule.id,
         position: rule.position || { x: 0, y: 0 },
+        hasExplicitPosition: hasPosition(rule.position),
         selected: false,
         dragging: false,
         data: { description: rule.description, triggers: rule.triggers },
@@ -233,6 +242,7 @@ export class CanvasStateManager {
         type: 'constraint',
         label: constraint.name || constraint.id,
         position: constraint.position || { x: 0, y: 0 },
+        hasExplicitPosition: hasPosition(constraint.position),
         selected: false,
         dragging: false,
         data: { description: constraint.description },
@@ -246,6 +256,7 @@ export class CanvasStateManager {
         type: 'model',
         label: model.name,
         position: model.position || { x: 0, y: 0 },
+        hasExplicitPosition: hasPosition(model.position),
         selected: false,
         dragging: false,
         data: { description: model.description, fields: model.fields },
@@ -277,6 +288,7 @@ export class CanvasStateManager {
         type: 'component',
         label: component.name,
         position: component.position || { x: 0, y: 0 },
+        hasExplicitPosition: hasPosition(component.position),
         selected: false,
         dragging: false,
         data: { description: component.description, model: component.model },

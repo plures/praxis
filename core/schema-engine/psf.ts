@@ -47,7 +47,7 @@ export interface PSFSchema {
   /** Flows/Orchestrations */
   flows: PSFFlow[];
   /** Documentation metadata */
-  docs: PSFDocs;
+  docs?: PSFDocs;
   /** Additional metadata */
   metadata?: Record<string, unknown>;
   /** Canvas layout information for visual editing */
