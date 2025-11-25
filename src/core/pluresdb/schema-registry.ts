@@ -93,11 +93,14 @@ export class PraxisSchemaRegistry {
   /**
    * List all registered schema names
    * 
-   * Note: This is a simplified implementation that works with InMemoryPraxisDB.
-   * A full PluresDB implementation would use native listing capabilities.
+   * Implementation note: This method uses an index stored at `/_praxis/schemas/_index`.
+   * When using InMemoryPraxisDB, schemas must be registered using `registerWithIndex()`
+   * for them to appear in this listing. When using a full PluresDB implementation,
+   * native listing capabilities should be used instead.
+   * 
+   * @returns Array of registered schema names
    */
   async list(): Promise<string[]> {
-    // For the in-memory implementation, we need to get the list from the index
     const indexPath = `${PRAXIS_PATHS.SCHEMAS}/_index`;
     const index = await this.db.get<string[]>(indexPath);
     return index ?? [];

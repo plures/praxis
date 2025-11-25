@@ -10,7 +10,7 @@ export type { PraxisDB, UnsubscribeFn } from "./adapter.js";
 export { InMemoryPraxisDB, createInMemoryDB } from "./adapter.js";
 
 // Store - Manages facts, events, and reactive updates
-export type { EventStreamEntry, PraxisDBStoreOptions } from "./store.js";
+export type { EventStreamEntry, PraxisDBStoreOptions, RuleErrorHandler } from "./store.js";
 export {
   PraxisDBStore,
   createPraxisDBStore,

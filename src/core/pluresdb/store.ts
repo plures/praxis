@@ -85,17 +85,34 @@ export interface PraxisDBStoreOptions<TContext = unknown> {
  * - Rules are triggered automatically when watched keys change
  * - Constraints are run before writing mutated state
  */
+/**
+ * Error handler callback for rule execution errors
+ */
+export type RuleErrorHandler = (ruleId: string, error: unknown) => void;
+
+/**
+ * Default error handler that logs to console
+ */
+const defaultErrorHandler: RuleErrorHandler = (ruleId, error) => {
+  // Default behavior: silent in production, can be overridden
+  if (typeof process !== "undefined" && process.env?.NODE_ENV === "development") {
+    console.error(`Error executing rule "${ruleId}":`, error);
+  }
+};
+
 export class PraxisDBStore<TContext = unknown> {
   private db: PraxisDB;
   private registry: PraxisRegistry<TContext>;
   private context: TContext;
   private subscriptions: UnsubscribeFn[] = [];
   private factWatchers = new Map<string, Set<(facts: PraxisFact[]) => void>>();
+  private onRuleError: RuleErrorHandler;
 
-  constructor(options: PraxisDBStoreOptions<TContext>) {
+  constructor(options: PraxisDBStoreOptions<TContext> & { onRuleError?: RuleErrorHandler }) {
     this.db = options.db;
     this.registry = options.registry;
     this.context = options.initialContext ?? ({} as TContext);
+    this.onRuleError = options.onRuleError ?? defaultErrorHandler;
   }
 
   /**
@@ -114,14 +131,9 @@ export class PraxisDBStore<TContext = unknown> {
       throw new Error(`Constraint violation: ${constraintResult.errors.join(", ")}`);
     }
 
-    // Extract or generate id from payload
-    const payload = fact.payload as Record<string, unknown> | undefined;
-    const id = (payload?.id as string) ?? generateId();
-    const path = getFactPath(fact.tag, id);
+    await this.persistFact(fact);
     
-    await this.db.set(path, fact);
-    
-    // Trigger rule evaluation
+    // Trigger rule evaluation - facts stored directly may trigger derived computations
     await this.triggerRules([fact]);
   }
 
@@ -138,14 +150,22 @@ export class PraxisDBStore<TContext = unknown> {
     }
 
     for (const fact of facts) {
-      const payload = fact.payload as Record<string, unknown> | undefined;
-      const id = (payload?.id as string) ?? generateId();
-      const path = getFactPath(fact.tag, id);
-      await this.db.set(path, fact);
+      await this.persistFact(fact);
     }
     
     // Trigger rule evaluation
     await this.triggerRules(facts);
+  }
+
+  /**
+   * Internal method to persist a fact without constraint checking
+   * Used by both storeFact and derived fact storage
+   */
+  private async persistFact(fact: PraxisFact): Promise<void> {
+    const payload = fact.payload as Record<string, unknown> | undefined;
+    const id = (payload?.id as string) ?? generateId();
+    const path = getFactPath(fact.tag, id);
+    await this.db.set(path, fact);
   }
 
   /**
@@ -319,10 +339,18 @@ export class PraxisDBStore<TContext = unknown> {
 
   /**
    * Trigger rules when new facts are added
+   * 
+   * This method is called after facts are stored. It can be extended
+   * for derived fact computation where rules generate new facts based
+   * on existing facts. Currently implemented as a hook point for future
+   * enhancements.
+   * 
+   * @param _newFacts The newly stored facts (unused in current implementation)
    */
   private async triggerRules(_newFacts: PraxisFact[]): Promise<void> {
     // Rules are typically triggered by events, not facts
-    // This method can be used for derived fact computation
+    // This method serves as a hook for derived fact computation
+    // which can be implemented by subclasses or future enhancements
   }
 
   /**
@@ -345,7 +373,7 @@ export class PraxisDBStore<TContext = unknown> {
         const facts = rule.impl(state, events);
         derivedFacts.push(...facts);
       } catch (error) {
-        console.error(`Error executing rule "${rule.id}":`, error);
+        this.onRuleError(rule.id, error);
       }
     }
     
@@ -354,10 +382,7 @@ export class PraxisDBStore<TContext = unknown> {
       const constraintResult = await this.checkConstraints(derivedFacts);
       if (constraintResult.valid) {
         for (const fact of derivedFacts) {
-          const payload = fact.payload as Record<string, unknown> | undefined;
-          const id = (payload?.id as string) ?? generateId();
-          const path = getFactPath(fact.tag, id);
-          await this.db.set(path, fact);
+          await this.persistFact(fact);
         }
       }
     }
@@ -395,6 +420,7 @@ export class PraxisDBStore<TContext = unknown> {
  * @param db The PraxisDB instance to use
  * @param registry The PraxisRegistry for rules and constraints
  * @param initialContext Optional initial context
+ * @param onRuleError Optional error handler for rule execution errors
  * @returns PraxisDBStore instance
  * 
  * @example
@@ -410,7 +436,8 @@ export class PraxisDBStore<TContext = unknown> {
 export function createPraxisDBStore<TContext = unknown>(
   db: PraxisDB,
   registry: PraxisRegistry<TContext>,
-  initialContext?: TContext
+  initialContext?: TContext,
+  onRuleError?: RuleErrorHandler
 ): PraxisDBStore<TContext> {
-  return new PraxisDBStore({ db, registry, initialContext });
+  return new PraxisDBStore({ db, registry, initialContext, onRuleError });
 }

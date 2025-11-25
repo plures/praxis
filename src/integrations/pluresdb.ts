@@ -15,8 +15,16 @@ import type { PraxisRegistry } from "../core/rules.js";
 import type { PraxisDB, UnsubscribeFn } from "../core/pluresdb/adapter.js";
 import { PraxisDBStore, createPraxisDBStore } from "../core/pluresdb/store.js";
 
-// Re-export core pluresdb module
-export * from "../core/pluresdb/index.js";
+// Re-export core pluresdb types and implementations
+// Note: Using explicit exports to avoid circular dependency issues
+export { InMemoryPraxisDB, createInMemoryDB } from "../core/pluresdb/adapter.js";
+export type { PraxisDB, UnsubscribeFn } from "../core/pluresdb/adapter.js";
+export { PraxisDBStore, createPraxisDBStore, PRAXIS_PATHS, getFactPath, getEventPath, generateId } from "../core/pluresdb/store.js";
+export type { EventStreamEntry, PraxisDBStoreOptions, RuleErrorHandler } from "../core/pluresdb/store.js";
+export { PraxisSchemaRegistry, createSchemaRegistry, registerSchema, getSchemaPath } from "../core/pluresdb/schema-registry.js";
+export type { StoredSchema } from "../core/pluresdb/schema-registry.js";
+export { PluresDBGenerator, createPluresDBGenerator } from "../core/pluresdb/generator.js";
+export type { PluresDBGeneratorOptions, GeneratedPluresDBFile } from "../core/pluresdb/generator.js";
 
 /**
  * PluresDB adapter interface for engine integration
