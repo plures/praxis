@@ -27,9 +27,9 @@
 | Category | Status |
 |----------|--------|
 | **CI/CD** | ✅ Automated testing & builds |
-| **Version** | 0.2.1 (Alpha) |
+| **Version** | 1.0.0 (Alpha) |
 | **Runtime Support** | Node.js 18+, Deno (experimental), .NET 8+ |
-| **Package Registries** | npm ✅ / NuGet ✅ / JSR 🚧 (coming soon) |
+| **Package Registries** | npm ✅ / NuGet 🚧 (coming soon) / JSR ✅  |
 | **Test Coverage** | 202 TypeScript + 68 C# tests passing |
 | **Documentation** | 📚 Comprehensive guides available |
 
