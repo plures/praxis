@@ -9,7 +9,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -19,8 +19,13 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@praxis/core/*": ["./core/*"],
+      "@praxis/ui/*": ["./ui/*"],
+      "@praxis/tools/*": ["./tools/*"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "core/**/*", "ui/**/*", "tools/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
