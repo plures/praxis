@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-11-25
+
+### Added
+- **CLI Create Command** (`src/cli/commands/create.ts`)
+  - `praxis create app <name>` - Create new Praxis applications with full scaffolding
+  - `praxis create component <name>` - Create new Svelte 5 components
+  - Generates complete project structure with Vite, TypeScript, and Svelte 5
+  - Schema templates for immediate code generation
+  - Proper directory structure and configuration files
+  - New CLI test suite (`src/__tests__/cli-create.test.ts`) with 5 tests
+
+- **Unum Integration** (`src/integrations/unum.ts`)
+  - Identity management with `UnumIdentity`
+  - Channel-based communication with `UnumChannel`
+  - Real-time message broadcasting
+  - Event and fact broadcasting to channels
+  - Integration with PluresDB for persistence
+
+- **CodeCanvas Integration** (`src/integrations/code-canvas.ts`)
+  - Visual schema editing with `CanvasDocument`
+  - Schema to canvas conversion with `schemaToCanvas()`
+  - Canvas to schema conversion with `canvasToSchema()`
+  - Mermaid diagram export with `canvasToMermaid()`
+  - YAML canvas export with `canvasToYaml()`
+  - FSM lifecycle validation with `validateWithGuardian()`
+
+- **State-Docs Integration** (`src/integrations/state-docs.ts`)
+  - Documentation generation from Praxis schemas
+  - Markdown output with Mermaid diagrams
+  - Model, component, and logic documentation
+  - Rules and constraints documentation
+  - State diagram generation
+
+- **Tauri Integration** (`src/integrations/tauri.ts`)
+  - Cross-platform desktop app support
+  - File system, notifications, and system tray APIs
+  - State persistence with `TauriPraxisAdapter`
+  - Mock bridge for development/testing
+  - Tauri configuration generation
+
+- **CLI Commands** (`src/cli/commands/`)
+  - `praxis dev` - Start development server (wraps Vite)
+  - `praxis build` - Build for production (web, desktop, mobile targets)
+  - `praxis canvas` - Visual schema editor with HTTP server
+  - `praxis orchestrate` - Distributed coordination management
+
+### Changed
+- **Terminal Adapter** (`src/runtime/terminal-adapter.ts`)
+  - Now executes actual shell commands using child_process
+  - PluresDB integration for state persistence
+  - Support for custom command executors
+  - Mock executor for testing
+  - Working directory and environment variable support
+
+- **PluresDB Generator** (`src/core/pluresdb/generator.ts`)
+  - Fully functional `initDB()` function
+  - `getStore()` helper for store access
+  - Proper store initialization with PluresDB
+
+- **Logic Generator** (`src/core/logic/generator.ts`)
+  - Smart rule implementation based on schema definition
+  - Event trigger filtering
+  - Condition parsing and action generation
+
+- **Component Generator** (`src/core/component/generator.ts`)
+  - Type-specific component logic (form, list, display, navigation)
+  - Event dispatchers for user interactions
+  - Reactive statements for data binding
+
+- **README.md** - Updated Integration Status
+  - All integrations now marked as ✅ Available
+  - Updated descriptions for each integration
+
 ## [0.2.0] - 2025-11-24
 
 ### Added
@@ -223,5 +296,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **JSON-Friendly**: All types are serializable for cross-platform use
 - **Type-Safe**: Full TypeScript support with strict typing
 
+[0.2.1]: https://github.com/plures/praxis/releases/tag/v0.2.1
 [0.2.0]: https://github.com/plures/praxis/releases/tag/v0.2.0
 [0.1.0]: https://github.com/plures/praxis/releases/tag/v0.1.0

@@ -216,11 +216,46 @@ export class LogicGenerator {
           lines.push(`  priority: ${rule.priority},`);
         }
         
+        // Generate implementation based on rule definition
+        const eventTriggers = rule.on || [];
+        const condition = rule.when || 'true';
+        const action = rule.then;
+        
         lines.push('  impl: (state, events) => {');
-        lines.push(`    // TODO: Implement rule logic for "${rule.id}"`);
-        lines.push('    // Condition: ' + (rule.when || 'always'));
-        lines.push('    // Action: ' + rule.then);
-        lines.push('    return [];');
+        
+        // Add event filtering if triggers are specified
+        if (eventTriggers.length > 0) {
+          lines.push(`    // Filter for triggering events: ${eventTriggers.join(', ')}`);
+          lines.push(`    const triggerEvents = events.filter(e => `);
+          lines.push(`      [${eventTriggers.map(e => `'${e}'`).join(', ')}].includes(e.tag)`);
+          lines.push('    );');
+          lines.push('    if (triggerEvents.length === 0) return [];');
+          lines.push('');
+        }
+        
+        // Add condition check
+        if (condition && condition !== 'true') {
+          lines.push(`    // Condition: ${condition}`);
+          lines.push(`    // Implement condition logic here`);
+          lines.push('');
+        }
+        
+        // Parse action to generate appropriate response
+        lines.push(`    // Action: ${action}`);
+        
+        // Try to generate a fact from the action
+        const factMatch = action.match(/emit\s*\(\s*['"](\w+)['"]/);
+        if (factMatch) {
+          const factName = factMatch[1];
+          lines.push(`    return [{ tag: '${factName}', payload: {} }];`);
+        } else if (action.includes('return')) {
+          // If action already has return, use it as-is
+          lines.push(`    ${action}`);
+        } else {
+          // Default: return empty array
+          lines.push('    return [];');
+        }
+        
         lines.push('  },');
         lines.push('});');
         lines.push('');

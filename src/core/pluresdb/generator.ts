@@ -157,12 +157,41 @@ export class PluresDBGenerator {
     // Generate initialization function
     lines.push('/**');
     lines.push(' * Initialize PluresDB');
+    lines.push(' * @returns Configured PluresDB instance');
     lines.push(' */');
     lines.push('export function initDB() {');
-    lines.push('  // TODO: Implement PluresDB initialization');
-    lines.push('  // return createPluresDB(dbConfig);');
-    lines.push('  console.log(\'PluresDB config ready:\', dbConfig);');
-    lines.push('  return null;');
+    lines.push('  // Create and configure PluresDB instance');
+    lines.push('  const db = createInMemoryDB();');
+    lines.push('  ');
+    lines.push('  // Initialize stores based on configuration');
+    lines.push('  for (const storeDef of dbConfig.stores) {');
+    lines.push('    // Pre-create store paths');
+    lines.push('    db.set(`stores/${storeDef.name}/_meta`, {');
+    lines.push('      keyPath: storeDef.keyPath,');
+    lines.push('      indexes: storeDef.indexes,');
+    lines.push('      createdAt: Date.now(),');
+    lines.push('    });');
+    lines.push('  }');
+    lines.push('  ');
+    lines.push('  console.log(`PluresDB initialized: ${dbConfig.name}`);');
+    lines.push('  return db;');
+    lines.push('}');
+    lines.push('');
+    lines.push('/**');
+    lines.push(' * Get store by name');
+    lines.push(' */');
+    lines.push('export function getStore(db: ReturnType<typeof createInMemoryDB>, storeName: string) {');
+    lines.push('  const storeDef = dbConfig.stores.find(s => s.name === storeName);');
+    lines.push('  if (!storeDef) {');
+    lines.push('    throw new Error(`Store "${storeName}" not found in configuration`);');
+    lines.push('  }');
+    lines.push('  return {');
+    lines.push('    get: (key: string) => db.get(`stores/${storeName}/${key}`),');
+    lines.push('    set: (key: string, value: unknown) => db.set(`stores/${storeName}/${key}`, value),');
+    lines.push('    delete: (key: string) => db.delete(`stores/${storeName}/${key}`),');
+    lines.push('    watch: (key: string, callback: (data: unknown) => void) => ');
+    lines.push('      db.watch(`stores/${storeName}/${key}`, callback),');
+    lines.push('  };');
     lines.push('}');
     
     return {

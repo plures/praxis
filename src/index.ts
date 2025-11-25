@@ -117,11 +117,13 @@ export type {
   TerminalExecutionResult,
   TerminalNodeState,
   TerminalAdapterOptions,
+  CommandExecutor,
 } from "./runtime/terminal-adapter.js";
 export {
   TerminalAdapter,
   createTerminalAdapter,
   runTerminalCommand,
+  createMockExecutor,
 } from "./runtime/terminal-adapter.js";
 
 // Schema Types (including Terminal Node types)
@@ -182,3 +184,80 @@ export {
   createPluresDBAdapter,
   attachToEngine,
 } from "./integrations/pluresdb.js";
+
+// Unum Integration (Identity & Channels)
+export type {
+  UnumStore,
+  UnumChannel,
+  UnumMessage,
+  UnumIdentity,
+  UnumAdapterConfig,
+  UnumAdapter,
+} from "./integrations/unum.js";
+export {
+  createUnumAdapter,
+  attachUnumToEngine,
+} from "./integrations/unum.js";
+
+// CodeCanvas Integration (Visual Schema Editor)
+export type {
+  CanvasNode,
+  CanvasEdge,
+  CanvasNodeStyle,
+  CanvasEdgeStyle,
+  CanvasDocument,
+  LifecycleState,
+  ActivityState,
+  CanvasEditorConfig,
+  GuardianResult,
+  GuardianError,
+  GuardianWarning,
+} from "./integrations/code-canvas.js";
+export {
+  schemaToCanvas,
+  canvasToSchema,
+  canvasToYaml,
+  canvasToMermaid,
+  validateWithGuardian,
+  createCanvasEditor,
+} from "./integrations/code-canvas.js";
+
+// State-Docs Integration (Documentation Generation)
+export type {
+  StateDocsConfig,
+  GeneratedDoc,
+  StateMachineDoc,
+  StateDoc,
+  TransitionDoc,
+} from "./integrations/state-docs.js";
+export {
+  StateDocsGenerator,
+  createStateDocsGenerator,
+  generateDocs,
+} from "./integrations/state-docs.js";
+
+// Tauri Integration (Desktop Apps)
+export type {
+  TauriAppConfig,
+  TauriWindowConfig,
+  TauriSecurityConfig,
+  TauriUpdateConfig,
+  TauriPlugin,
+  TauriCommand,
+  TauriEvent,
+  TauriFS,
+  TauriFileEntry,
+  TauriTray,
+  TauriMenuItem,
+  TauriNotification,
+  TauriNotificationOptions,
+  TauriBridge,
+  TauriUpdateInfo,
+  TauriPraxisAdapter,
+} from "./integrations/tauri.js";
+export {
+  createMockTauriBridge,
+  createTauriPraxisAdapter,
+  attachTauriToEngine,
+  generateTauriConfig,
+} from "./integrations/tauri.js";

@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name('praxis')
   .description('Praxis Framework - Full-stack application development')
-  .version('0.1.0');
+  .version('0.2.1');
 
 // Authentication command
 program
@@ -64,10 +64,14 @@ program
   .option('-t, --template <template>', 'Template to use', 'basic')
   .option('-d, --directory <dir>', 'Output directory')
   .option('--features <features...>', 'Features to include')
-  .action((type, name, options) => {
-    console.log(`Creating ${type}: ${name || 'unnamed'}`);
-    console.log('Options:', options);
-    console.log('Note: Full implementation coming soon');
+  .action(async (type, name, options) => {
+    try {
+      const { create } = await import('./commands/create.js');
+      await create(type, name, options);
+    } catch (error) {
+      console.error('Error creating:', error);
+      process.exit(1);
+    }
   });
 
 program
@@ -87,10 +91,16 @@ program
   .description('Open CodeCanvas for visual editing')
   .option('-p, --port <port>', 'Port for Canvas server', '3000')
   .option('-m, --mode <mode>', 'Mode (edit, view, present)', 'edit')
-  .action((schema, options) => {
-    console.log(`Opening Canvas for: ${schema || 'new schema'}`);
-    console.log('Options:', options);
-    console.log('Note: Full implementation coming soon');
+  .option('-e, --export <format>', 'Export format (yaml, mermaid, json)')
+  .option('-o, --output <file>', 'Output file for export')
+  .action(async (schema, options) => {
+    try {
+      const { canvas } = await import('./commands/canvas.js');
+      await canvas(schema, options);
+    } catch (error) {
+      console.error('Error with canvas:', error);
+      process.exit(1);
+    }
   });
 
 program
@@ -98,20 +108,31 @@ program
   .description('Manage orchestration and distributed coordination')
   .option('-c, --config <file>', 'Orchestration configuration file')
   .option('-n, --nodes <count>', 'Number of nodes', '1')
-  .action((options) => {
-    console.log('Starting orchestration...');
-    console.log('Options:', options);
-    console.log('Note: Full implementation coming soon');
+  .option('-a, --action <action>', 'Action (init, start, stop, status)', 'status')
+  .action(async (options) => {
+    try {
+      const { orchestrate } = await import('./commands/orchestrate.js');
+      await orchestrate(options);
+    } catch (error) {
+      console.error('Error with orchestration:', error);
+      process.exit(1);
+    }
   });
 
 program
   .command('dev')
   .description('Start development server')
   .option('-p, --port <port>', 'Port number', '5173')
-  .action((options) => {
-    console.log('Starting development server...');
-    console.log('Options:', options);
-    console.log('Note: Full implementation coming soon');
+  .option('-h, --host <host>', 'Host to bind to', 'localhost')
+  .option('-o, --open', 'Open browser')
+  .action(async (options) => {
+    try {
+      const { dev } = await import('./commands/dev.js');
+      await dev(options);
+    } catch (error) {
+      console.error('Error starting dev server:', error);
+      process.exit(1);
+    }
   });
 
 program
@@ -119,10 +140,16 @@ program
   .description('Build application for production')
   .option('-o, --output <dir>', 'Output directory', './dist')
   .option('--target <target>', 'Build target (web, desktop, mobile)', 'web')
-  .action((options) => {
-    console.log('Building application...');
-    console.log('Options:', options);
-    console.log('Note: Full implementation coming soon');
+  .option('--minify', 'Minify output', true)
+  .option('--sourcemap', 'Generate source maps', false)
+  .action(async (options) => {
+    try {
+      const { build } = await import('./commands/build.js');
+      await build(options);
+    } catch (error) {
+      console.error('Error building:', error);
+      process.exit(1);
+    }
   });
 
 // Cloud commands
