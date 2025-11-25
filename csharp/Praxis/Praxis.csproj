@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+    
+    <!-- NuGet Package Properties -->
+    <PackageId>Plures.Praxis</PackageId>
+    <Version>0.2.0</Version>
+    <Authors>Plures</Authors>
+    <Company>Plures</Company>
+    <Description>The Full Plures Application Framework for C# - declarative schemas, logic engine, component generation, and local-first data. A functional, immutable implementation of the Praxis protocol.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/plures/praxis</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/plures/praxis</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>praxis;framework;plures;logic;schema;functional;immutable;state-management;facts;rules;constraints</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    
+    <!-- Note: AOT is not fully compatible due to reflection-based JSON serialization -->
+    <!-- Future versions may add JsonSerializerContext for AOT support -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+</Project>
