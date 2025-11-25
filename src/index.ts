@@ -152,3 +152,33 @@ export {
   validateForGeneration,
 } from "./core/schema/loader.js";
 
+// PluresDB Integration
+export type {
+  PraxisDB,
+  UnsubscribeFn,
+  EventStreamEntry,
+  PraxisDBStoreOptions,
+  StoredSchema,
+  PluresDBGeneratorOptions,
+  GeneratedPluresDBFile,
+  PluresDBAdapter,
+  PluresDBAdapterOptions,
+} from "./integrations/pluresdb.js";
+export {
+  InMemoryPraxisDB,
+  createInMemoryDB,
+  PraxisDBStore,
+  createPraxisDBStore,
+  PRAXIS_PATHS,
+  getFactPath,
+  getEventPath,
+  generateId,
+  PraxisSchemaRegistry,
+  createSchemaRegistry,
+  registerSchema,
+  getSchemaPath,
+  PluresDBGenerator,
+  createPluresDBGenerator,
+  createPluresDBAdapter,
+  attachToEngine,
+} from "./integrations/pluresdb.js";
