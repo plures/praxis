@@ -47,11 +47,11 @@
 |------------|--------|-------|
 | **Praxis Cloud** | ✅ Available | Azure-hosted relay for sync & monetization |
 | **PluresDB** | ✅ Available | Local-first reactive datastore with 32 tests |
-| **Unum** | 🚧 Planned | Identity & channels |
+| **Unum** | ✅ Available | Identity & channels integration |
 | **Svelte 5** | ✅ Full Support | Runes API, stores, history, time-travel |
-| **Tauri** | 🚧 Planned | Cross-platform runtime |
-| **CodeCanvas** | 🚧 Planned | Visual schema editor |
-| **State-Docs** | 🚧 Planned | Documentation generation |
+| **Tauri** | ✅ Available | Cross-platform desktop runtime |
+| **CodeCanvas** | ✅ Available | Visual schema editor & FSM enforcement |
+| **State-Docs** | ✅ Available | Documentation generation from schemas |
 
 ---
 

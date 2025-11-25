@@ -16,11 +16,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Proper directory structure and configuration files
   - New CLI test suite (`src/__tests__/cli-create.test.ts`) with 5 tests
 
+- **Unum Integration** (`src/integrations/unum.ts`)
+  - Identity management with `UnumIdentity`
+  - Channel-based communication with `UnumChannel`
+  - Real-time message broadcasting
+  - Event and fact broadcasting to channels
+  - Integration with PluresDB for persistence
+
+- **CodeCanvas Integration** (`src/integrations/code-canvas.ts`)
+  - Visual schema editing with `CanvasDocument`
+  - Schema to canvas conversion with `schemaToCanvas()`
+  - Canvas to schema conversion with `canvasToSchema()`
+  - Mermaid diagram export with `canvasToMermaid()`
+  - YAML canvas export with `canvasToYaml()`
+  - FSM lifecycle validation with `validateWithGuardian()`
+
+- **State-Docs Integration** (`src/integrations/state-docs.ts`)
+  - Documentation generation from Praxis schemas
+  - Markdown output with Mermaid diagrams
+  - Model, component, and logic documentation
+  - Rules and constraints documentation
+  - State diagram generation
+
+- **Tauri Integration** (`src/integrations/tauri.ts`)
+  - Cross-platform desktop app support
+  - File system, notifications, and system tray APIs
+  - State persistence with `TauriPraxisAdapter`
+  - Mock bridge for development/testing
+  - Tauri configuration generation
+
 ### Changed
 - **CLI Commands** - Improved output for stub commands (canvas, orchestrate, dev, build)
   - More informative messages about feature status
   - Clear instructions for alternative approaches
   - Consistent styling with other CLI output
+
+- **README.md** - Updated Integration Status
+  - All integrations now marked as ✅ Available
+  - Updated descriptions for each integration
 
 ## [0.2.0] - 2025-11-24
 
