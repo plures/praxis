@@ -182,7 +182,7 @@ Praxis 0.2.0 transforms from a logic engine into a **complete application framew
 - **[Advanced Todo Example](src/examples/advanced-todo/)**: Full-featured demo with history
 
 ### 🧪 Hardened TypeScript Core
-- **197 comprehensive tests** (up from 9) covering:
+- **197 comprehensive tests** (up from 9 in v0.1.0) covering:
   - Svelte integration with runes and stores
   - PluresDB integration (32 tests)
   - History state management and navigation
@@ -601,7 +601,7 @@ See [FRAMEWORK.md](./FRAMEWORK.md) for complete architecture documentation.
 
 ## Examples
 
-The repository includes multiple complete examples:
+The repository includes 12 complete examples:
 
 ### 1. Hero E-Commerce (`src/examples/hero-ecommerce`)
 **NEW!** Comprehensive example demonstrating all Praxis features in a single application:
