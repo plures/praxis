@@ -59,14 +59,69 @@
 
 Praxis is not just a logic engine—it's a **complete framework** for building modern, local-first, distributed applications. It provides:
 
-- **Declarative Schemas**: Define your data models, logic, and components in a unified schema format
+- **Declarative Schemas**: Define your data models, logic, and components in a unified schema format (PSF)
 - **Logic/State Machines**: Pure, functional application logic with facts, events, rules, and constraints
 - **Component Generation**: Automatically generate Svelte components from schemas
 - **Local-First Data**: Integrated PluresDB for reactive, offline-capable data storage
-- **Documentation Generation**: Automatic State-Docs generation from your schemas
+- **Documentation Generation**: Automatic documentation generation from schemas with Mermaid diagrams
 - **Visual Design**: CodeCanvas integration for visual schema and logic editing
+- **Real-Time Code ↔ Canvas Sync**: Bidirectional synchronization between code and visual editor
 - **Orchestration**: DSC/MCP support for distributed system coordination
 - **Cross-Platform Runtime**: Web, desktop, and mobile via Svelte + Tauri
+
+## 🚀 Praxis 1.0 Architecture
+
+Praxis 1.0 introduces a **schema-driven, modular architecture** where the Praxis Schema Format (PSF) serves as the single source of truth.
+
+### Praxis Schema Format (PSF)
+
+PSF is the canonical JSON/AST format that defines your entire application:
+
+```json
+{
+  "$version": "1.0.0",
+  "id": "my-app",
+  "name": "My Application",
+  "facts": [...],
+  "events": [...],
+  "rules": [...],
+  "constraints": [...],
+  "models": [...],
+  "components": [...],
+  "flows": [...]
+}
+```
+
+From this schema, Praxis generates:
+- **TypeScript types** for facts, events, rules
+- **Svelte components** for UI
+- **Markdown documentation** with Mermaid diagrams
+- **Database schemas** for PluresDB
+- **Canvas visualization** for visual editing
+
+### Modular Folder Structure
+
+```
+/praxis
+├── core/                     # Core framework modules
+│   ├── schema-engine/        # PSF types, compiler, generator, validator
+│   ├── logic-engine/         # Rules, constraints, engine, PSF adapter
+│   ├── db-adapter/           # PluresDB sync engine
+│   └── codegen/              # Documentation and code generators
+├── ui/                       # UI modules
+│   ├── svelte-generator/     # PSF-aware Svelte component generation
+│   └── canvas/               # Visual canvas state and projection
+├── tools/                    # Developer tools
+│   ├── cli/                  # Command-line interface
+│   └── watcher/              # File watching and live sync
+├── extensions/               # Optional integrations
+│   ├── dsc/                  # DSC/MCP orchestration
+│   ├── azure/                # Azure integration
+│   └── devtools/             # Developer tools
+└── examples/                 # Example applications
+    ├── hero-shop/            # Full e-commerce example
+    └── todo/                 # Minimal todo example
+```
 
 ### Framework Philosophy
 
@@ -74,14 +129,14 @@ Praxis is not just a logic engine—it's a **complete framework** for building m
 
 Praxis provides these integrated capabilities:
 
-- **Schema System** – Declarative definitions that generate models, components, and documentation
+- **Schema Engine** – PSF parser, compiler, generator, and validator
 - **Logic Engine** – Typed facts, events, rules, and constraints for application logic
 - **Component Factory** – Generate Svelte components from schemas with data bindings
 - **Data Layer** – PluresDB integration for reactive, local-first data storage
 - **State Machines** – Flows and scenarios for orchestrated behaviors
 - **Actors** – Effectful units for side effects and external system integration
-- **Terminal Nodes** – Execute commands and scripts within the Praxis framework (NEW!)
-- **Documentation** – Automatic State-Docs generation from schemas and logic
+- **Terminal Nodes** – Execute commands and scripts within the Praxis framework
+- **Documentation** – Automatic documentation generation from schemas with Mermaid diagrams
 - **Visual IDE** – CodeCanvas integration for schema and logic editing
 - **Orchestration** – DSC/MCP support for distributed coordination
 - **CLI Tools** – Command-line interface for scaffolding and generation
