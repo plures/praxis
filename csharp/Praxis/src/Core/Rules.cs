@@ -11,6 +11,7 @@ namespace Praxis.Core;
 /// </summary>
 /// <typeparam name="TContext">The type of the application context.</typeparam>
 /// <param name="state">Current Praxis state with typed context.</param>
+/// <param name="context">The typed application context.</param>
 /// <param name="events">Events to process.</param>
 /// <returns>Array of new facts to add to the state.</returns>
 public delegate IEnumerable<PraxisFact> RuleFn<in TContext>(
@@ -24,6 +25,7 @@ public delegate IEnumerable<PraxisFact> RuleFn<in TContext>(
 /// </summary>
 /// <typeparam name="TContext">The type of the application context.</typeparam>
 /// <param name="state">Current Praxis state with typed context.</param>
+/// <param name="context">The typed application context.</param>
 /// <returns>ConstraintResult indicating success or failure with message.</returns>
 public delegate ConstraintResult ConstraintFn<in TContext>(
     PraxisState state,

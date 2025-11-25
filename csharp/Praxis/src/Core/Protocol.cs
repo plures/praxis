@@ -142,27 +142,54 @@ public sealed record PraxisState(
 /// <param name="Message">Human-readable message.</param>
 /// <param name="Data">Additional diagnostic data.</param>
 public sealed record PraxisDiagnostics(
-    [property: JsonPropertyName("kind")] DiagnosticKind Kind,
+    [property: JsonPropertyName("kind"), JsonConverter(typeof(DiagnosticKindConverter))] DiagnosticKind Kind,
     [property: JsonPropertyName("message")] string Message,
     [property: JsonPropertyName("data")] JsonElement? Data = null);
 
 /// <summary>
 /// The kind of diagnostic.
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum DiagnosticKind
 {
     /// <summary>
     /// A constraint was violated.
     /// </summary>
-    [JsonPropertyName("constraint-violation")]
     ConstraintViolation,
 
     /// <summary>
     /// A rule execution error occurred.
     /// </summary>
-    [JsonPropertyName("rule-error")]
     RuleError
+}
+
+/// <summary>
+/// JSON converter for DiagnosticKind to use kebab-case.
+/// </summary>
+public sealed class DiagnosticKindConverter : JsonConverter<DiagnosticKind>
+{
+    /// <inheritdoc />
+    public override DiagnosticKind Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var value = reader.GetString();
+        return value switch
+        {
+            "constraint-violation" => DiagnosticKind.ConstraintViolation,
+            "rule-error" => DiagnosticKind.RuleError,
+            _ => throw new JsonException($"Unknown DiagnosticKind: {value}")
+        };
+    }
+
+    /// <inheritdoc />
+    public override void Write(Utf8JsonWriter writer, DiagnosticKind value, JsonSerializerOptions options)
+    {
+        var stringValue = value switch
+        {
+            DiagnosticKind.ConstraintViolation => "constraint-violation",
+            DiagnosticKind.RuleError => "rule-error",
+            _ => throw new ArgumentOutOfRangeException(nameof(value))
+        };
+        writer.WriteStringValue(stringValue);
+    }
 }
 
 /// <summary>

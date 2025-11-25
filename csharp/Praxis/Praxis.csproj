@@ -21,9 +21,8 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     
-    <!-- Enable trimming and AOT compatibility -->
-    <IsTrimmable>true</IsTrimmable>
-    <IsAotCompatible>true</IsAotCompatible>
+    <!-- Note: AOT is not fully compatible due to reflection-based JSON serialization -->
+    <!-- Future versions may add JsonSerializerContext for AOT support -->
   </PropertyGroup>
 
   <ItemGroup>
