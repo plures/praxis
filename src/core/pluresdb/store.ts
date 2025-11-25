@@ -5,6 +5,9 @@
  * Provides CRDT-backed storage for facts and append-only event streams.
  */
 
+// Declare process for TypeScript in non-Node environments (e.g., Deno)
+declare const process: { env: { [key: string]: string | undefined } } | undefined;
+
 import type { PraxisDB, UnsubscribeFn } from "./adapter.js";
 import type { PraxisRegistry } from "../rules.js";
 import type { PraxisFact, PraxisEvent, PraxisState } from "../protocol.js";

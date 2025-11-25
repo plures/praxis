@@ -5,6 +5,9 @@
  * Integrates with pluresDB for state synchronization.
  */
 
+// Declare process for TypeScript in non-Node environments (e.g., Deno)
+declare const process: { env: { [key: string]: string | undefined } } | undefined;
+
 import type { TerminalNodeProps } from '../core/schema/types.js';
 import type { PraxisDB } from '../core/pluresdb/adapter.js';
 
@@ -80,9 +83,12 @@ async function defaultExecutor(
     const { promisify } = await import('util');
     const execAsync = promisify(exec);
     
+    // Get process.env safely (only available in Node.js environments)
+    const processEnv = typeof process !== "undefined" ? process.env : {};
+    
     const result = await execAsync(command, {
       cwd: options.cwd,
-      env: { ...process.env, ...options.env },
+      env: { ...processEnv, ...options.env },
       maxBuffer: 10 * 1024 * 1024, // 10MB buffer
       timeout: 60000, // 60 second timeout
     });
