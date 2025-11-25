@@ -26,7 +26,7 @@ dotnet add package Plures.Praxis
 ### PackageReference
 
 ```xml
-<PackageReference Include="Plures.Praxis" Version="0.2.0" />
+<PackageReference Include="Plures.Praxis" Version="1.0.0" />
 ```
 
 ## Quick Start
