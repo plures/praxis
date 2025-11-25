@@ -20,3 +20,11 @@ deno.lock
 
 # Praxis Cloud configuration (contains secrets)
 .praxis-cloud.json
+
+# C# / .NET
+csharp/*/bin/
+csharp/*/obj/
+csharp/.vs/
+csharp/*.user
+csharp/*.suo
+*.nupkg

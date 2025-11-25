@@ -4,6 +4,7 @@
 [![CodeQL](https://github.com/plures/praxis/workflows/CodeQL/badge.svg)](https://github.com/plures/praxis/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![npm version](https://img.shields.io/npm/v/@plures/praxis.svg)](https://www.npmjs.com/package/@plures/praxis)
+[![NuGet](https://img.shields.io/nuget/v/Plures.Praxis.svg)](https://www.nuget.org/packages/Plures.Praxis/)
 [![JSR](https://jsr.io/badges/@plures/praxis)](https://jsr.io/@plures/praxis)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 [![Deno Compatible](https://img.shields.io/badge/deno-compatible-brightgreen)](https://deno.land/)
@@ -19,17 +20,26 @@
 - 💬 [Discussions](https://github.com/plures/praxis/discussions) | [Issues](https://github.com/plures/praxis/issues)
 - 🚀 [Contributing](./CONTRIBUTING.md) | [Security Policy](./SECURITY.md)
 - 📋 [Changelog](./CHANGELOG.md) | [Roadmap](https://github.com/plures/praxis/issues?q=is%3Aissue+is%3Aopen+label%3Aroadmap)
+- 🔄 [Cross-Language Sync](./CROSS_LANGUAGE_SYNC.md) | [C# Documentation](./csharp/Praxis/README.md)
 
 ### Project Status
 
 | Category | Status |
 |----------|--------|
 | **CI/CD** | ✅ Automated testing & builds |
-| **Version** | 0.1.0 (Alpha) |
-| **Runtime Support** | Node.js 18+, Deno (experimental) |
-| **Package Registries** | npm ✅ / JSR 🚧 (coming soon) |
-| **Test Coverage** | 165 tests passing |
+| **Version** | 0.2.0 (Alpha) |
+| **Runtime Support** | Node.js 18+, Deno (experimental), .NET 8+ |
+| **Package Registries** | npm ✅ / NuGet ✅ / JSR 🚧 (coming soon) |
+| **Test Coverage** | 165 TypeScript + 68 C# tests passing |
 | **Documentation** | 📚 Comprehensive guides available |
+
+### Language Support
+
+| Language | Package | Registry | Status |
+|----------|---------|----------|--------|
+| **TypeScript** | @plures/praxis | npm | ✅ Available |
+| **C#** | Plures.Praxis | NuGet | ✅ Available |
+| **PowerShell** | Praxis.psm1 | GitHub | ✅ Available |
 
 ### Integration Status
 
@@ -214,6 +224,20 @@ A comprehensive example demonstrating all Praxis features:
 npm install @plures/praxis
 ```
 
+### NuGet (.NET / C#)
+
+```bash
+dotnet add package Plures.Praxis
+```
+
+Or add to your `.csproj`:
+
+```xml
+<PackageReference Include="Plures.Praxis" Version="0.2.0" />
+```
+
+See [C# Documentation](./csharp/Praxis/README.md) for detailed usage.
+
 ### JSR (Deno)
 
 ```bash
@@ -227,7 +251,7 @@ For now, you can use Praxis with Deno via import maps:
 // import_map.json
 {
   "imports": {
-    "@plures/praxis": "npm:@plures/praxis@^0.1.0"
+    "@plures/praxis": "npm:@plures/praxis@^0.2.0"
   }
 }
 ```
@@ -239,14 +263,15 @@ For now, you can use Praxis with Deno via import maps:
 git clone https://github.com/plures/praxis.git
 cd praxis
 
-# Install dependencies
+# TypeScript
 npm install
-
-# Build
 npm run build
-
-# Run tests
 npm test
+
+# C#
+cd csharp
+dotnet build
+dotnet test
 ```
 
 ## Quick Start
@@ -887,24 +912,67 @@ Write-Host "Count: $($result.state.context.count)"
 
 See [powershell/README.md](./powershell/README.md) for complete documentation and examples.
 
-### C# (Coming Soon)
+### C# (.NET 8+)
 
-Cross-language adapter for C# is planned with similar JSON-based protocol.
+**NEW!** Full C# implementation with functional, immutable design:
+
+```csharp
+using Praxis.Core;
+using Praxis.Dsl;
+
+// Define facts and events
+var UserLoggedIn = PraxisDsl.DefineFact<UserPayload>("UserLoggedIn");
+var Login = PraxisDsl.DefineEvent<LoginPayload>("LOGIN");
+
+record UserPayload(string UserId);
+record LoginPayload(string Username);
+
+// Define rules
+var loginRule = PraxisDsl.DefineRule<AuthContext>(
+    id: "auth.login",
+    description: "Process login event",
+    impl: (state, context, events) =>
+    {
+        var loginEvent = events.FindEvent(Login);
+        if (loginEvent != null)
+        {
+            var payload = Login.GetPayload(loginEvent);
+            return [UserLoggedIn.Create(new UserPayload(payload?.Username ?? "unknown"))];
+        }
+        return [];
+    });
+
+// Create engine
+var registry = new PraxisRegistry<AuthContext>();
+registry.RegisterRule(loginRule);
+
+var engine = PraxisEngine.Create(new PraxisEngineOptions<AuthContext>
+{
+    InitialContext = new AuthContext(null),
+    Registry = registry
+});
+
+// Dispatch events
+var result = engine.Step([Login.Create(new LoginPayload("alice"))]);
+Console.WriteLine($"Facts: {result.State.Facts.Count}"); // Facts: 1
+```
+
+See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for complete documentation.
 
 ## Future Roadmap
 
-### Short Term (v0.2.0)
-- Complete CLI implementation
-- Basic project templates
-- Component generation MVP
-- Enhanced PluresDB integration
+### Short Term (v0.2.0) ✅
+- ✅ Complete CLI implementation
+- ✅ Basic project templates
+- ✅ Component generation MVP
+- ✅ C# implementation with NuGet publishing
 
 ### Medium Term (v0.3.0 - v0.5.0)
 - Full CodeCanvas integration
 - Unum identity support
 - State-Docs generation
 - Multi-language schemas
-- C# adapter
+- Enhanced PluresDB integration
 
 ### Long Term (v1.0.0+)
 - Mobile templates (iOS, Android)
@@ -925,17 +993,28 @@ Cross-language adapter for C# is planned with similar JSON-based protocol.
 
 ### Cross-Language Support
 
-The core protocol is designed to be implemented in other languages:
+The core protocol is implemented across multiple languages:
 
-**C# (future)**:
+**C# (Available):**
 ```csharp
-PraxisState Step(PraxisState state, IEnumerable<PraxisEvent> events);
+// Full functional C# implementation with immutable records
+var engine = PraxisEngine.Create(new PraxisEngineOptions<TContext> { ... });
+var result = engine.Step(events);
 ```
 
-**PowerShell (future)**:
+See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for full documentation.
+
+**PowerShell (Available):**
 ```powershell
 $newState = Invoke-PraxisStep -State $state -Events $events
 ```
+
+See [powershell/README.md](./powershell/README.md) for full documentation.
+
+### Cross-Language Sync Strategy
+
+All implementations share the same protocol version and JSON format for interoperability.
+See [CROSS_LANGUAGE_SYNC.md](./CROSS_LANGUAGE_SYNC.md) for details on keeping implementations in sync.
 
 ### Advanced Features
 

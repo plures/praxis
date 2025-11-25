@@ -41,6 +41,35 @@ jobs:
       - name: Run tests
         run: npm test
   
+  test-csharp:
+    name: Test C# on .NET 8
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    defaults:
+      run:
+        working-directory: csharp
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+      
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+  
   deno:
     name: Deno Compatibility Check
     runs-on: ubuntu-latest
