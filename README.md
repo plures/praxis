@@ -27,10 +27,10 @@
 | Category | Status |
 |----------|--------|
 | **CI/CD** | ✅ Automated testing & builds |
-| **Version** | 0.2.0 (Alpha) |
+| **Version** | 0.2.1 (Alpha) |
 | **Runtime Support** | Node.js 18+, Deno (experimental), .NET 8+ |
 | **Package Registries** | npm ✅ / NuGet ✅ / JSR 🚧 (coming soon) |
-| **Test Coverage** | 165 TypeScript + 68 C# tests passing |
+| **Test Coverage** | 202 TypeScript + 68 C# tests passing |
 | **Documentation** | 📚 Comprehensive guides available |
 
 ### Language Support
@@ -46,7 +46,7 @@
 | Integration | Status | Notes |
 |------------|--------|-------|
 | **Praxis Cloud** | ✅ Available | Azure-hosted relay for sync & monetization |
-| **PluresDB** | 🚧 In Development | Local-first reactive datastore |
+| **PluresDB** | ✅ Available | Local-first reactive datastore with 32 tests |
 | **Unum** | 🚧 Planned | Identity & channels |
 | **Svelte 5** | ✅ Full Support | Runes API, stores, history, time-travel |
 | **Tauri** | 🚧 Planned | Cross-platform runtime |
