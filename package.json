@@ -3,34 +3,34 @@
   "version": "1.0.0",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "bin": {
-    "praxis": "./dist/cli/index.js"
+    "praxis": "./dist/src/cli/index.js"
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
     },
     "./svelte": {
-      "types": "./dist/integrations/svelte.d.ts",
-      "default": "./dist/integrations/svelte.js"
+      "types": "./dist/src/integrations/svelte.d.ts",
+      "default": "./dist/src/integrations/svelte.js"
     },
     "./schema": {
-      "types": "./dist/core/schema/types.d.ts",
-      "default": "./dist/core/schema/types.js"
+      "types": "./dist/core/schema-engine/types.d.ts",
+      "default": "./dist/core/schema-engine/types.js"
     },
     "./component": {
-      "types": "./dist/core/component/generator.d.ts",
-      "default": "./dist/core/component/generator.js"
+      "types": "./dist/ui/svelte-generator/index.d.ts",
+      "default": "./dist/ui/svelte-generator/index.js"
     },
     "./cloud": {
-      "types": "./dist/cloud/index.d.ts",
-      "default": "./dist/cloud/index.js"
+      "types": "./dist/src/cloud/index.d.ts",
+      "default": "./dist/src/cloud/index.js"
     },
     "./components": {
-      "types": "./dist/components/index.d.ts",
+      "types": "./dist/src/components/index.d.ts",
       "svelte": "./src/components/TerminalNode.svelte"
     }
   },
@@ -51,7 +51,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "typecheck": "tsc --noEmit",
-    "cli": "node ./dist/cli/index.js"
+    "cli": "node ./dist/src/cli/index.js"
   },
   "keywords": [
     "praxis",
