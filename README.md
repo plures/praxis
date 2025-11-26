@@ -27,7 +27,7 @@
 | Category | Status |
 |----------|--------|
 | **CI/CD** | ✅ Automated testing & builds |
-| **Version** | 1.0.0 (Alpha) |
+| **Version** | Latest (Alpha) |
 | **Runtime Support** | Node.js 18+, Deno (experimental), .NET 8+ |
 | **Package Registries** | npm ✅ / NuGet 🚧 (coming soon) / JSR ✅  |
 | **Test Coverage** | 202 TypeScript + 68 C# tests passing |
@@ -79,7 +79,7 @@ PSF is the canonical JSON/AST format that defines your entire application:
 
 ```json
 {
-  "$version": "1.0.0",
+  "$version": "latest",
   "id": "my-app",
   "name": "My Application",
   "facts": [...],
@@ -254,7 +254,7 @@ Praxis 0.2.0 transforms from a logic engine into a **complete application framew
 - Functional, immutable design with records
 - NuGet package available
 
-### 📖 Protocol Versioning (v1.0.0)
+### 📖 Protocol Versioning
 - **Explicit protocol version** (`protocolVersion` field in state)
 - **Stability guarantees** for cross-language compatibility
 - **Semantic versioning** with migration paths
@@ -1098,7 +1098,7 @@ See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for complete documentat
 - Multi-language schemas
 - Real PluresDB sync (CRDT/offline-first)
 
-### Long Term (v1.0.0+)
+### Long Term
 - Mobile templates (iOS, Android)
 - Enterprise features
 - Advanced orchestration
