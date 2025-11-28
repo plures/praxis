@@ -527,10 +527,20 @@
                 unhandled.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'gap-item';
-                    div.innerHTML = `
-                        <span>${item.type}</span>
-                        <button class="gap-action" onclick="alert('Use MCP to fix: ${item.type}')">Fix</button>
-                    `;
+
+                    // Create safe child elements
+                    const span = document.createElement('span');
+                    span.textContent = item.type;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'gap-action';
+                    btn.textContent = 'Fix';
+                    btn.addEventListener('click', () => {
+                        alert('Use MCP to fix: ' + item.type);
+                    });
+
+                    div.appendChild(span);
+                    div.appendChild(btn);
                     content.appendChild(div);
 
                     // Also highlight nodes if they exist
