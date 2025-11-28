@@ -1,0 +1,16 @@
+{
+  "name": "@plures/praxis-tooling",
+  "version": "0.1.0",
+  "description": "AST analysis and tooling for Praxis",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}
