@@ -1,7 +1,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { analyzeRuleFile } from '../../tools/ast-analyzer/src/ast-analyzer.js';
+import { analyzeRuleFile } from '../../../tools/ast-analyzer/src/ast-analyzer.js';
 
 export function verifyImplementation() {
   const projectRoot = process.cwd();
