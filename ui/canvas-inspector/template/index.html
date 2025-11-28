@@ -655,15 +655,27 @@
                 document.getElementById('log-content').innerHTML = '';
             });
 
+            // Escape HTML utility
+            function escapeHTML(str) {
+                return str
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
             function addLogEntry(type, msg, data) {
                 const div = document.createElement('div');
                 div.className = 'log-entry';
                 const time = new Date().toLocaleTimeString().split(' ')[0];
+                const safeMsg = escapeHTML(String(msg));
+                const safeData = data ? `<pre style="margin:2px 0; color:#888;">${escapeHTML(JSON.stringify(data))}</pre>` : '';
                 div.innerHTML = `
                     <span class="log-time">${time}</span>
                     <span class="log-type">[${type}]</span>
-                    <span class="log-msg">${msg}</span>
-                    ${data ? `<pre style="margin:2px 0; color:#888;">${JSON.stringify(data)}</pre>` : ''}
+                    <span class="log-msg">${safeMsg}</span>
+                    ${safeData}
                 `;
                 const container = document.getElementById('log-content');
                 container.appendChild(div);
