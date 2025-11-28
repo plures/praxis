@@ -67,7 +67,7 @@ export function analyzeRuleFile(filePath: string): RuleAnalysis[] {
     }
   }
 
-  function analyzeImpl(func: ts.ArrowFunction | ts.FunctionExpression, fullText: string) {
+  function analyzeImpl(func: ts.ArrowFunction | ts.FunctionExpression, _fullText: string) {
     const guards: string[] = [];
     const mutations: string[] = [];
     const events: string[] = [];
