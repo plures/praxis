@@ -1,0 +1,20 @@
+{
+  "name": "@plures/praxis-canvas",
+  "version": "0.1.0",
+  "description": "Visual canvas and logic inspector for Praxis",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --loader ts-node/esm src/server.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/ws": "^8.5.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

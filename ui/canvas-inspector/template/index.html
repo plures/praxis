@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis Canvas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            overflow: hidden;
+        }
+        #cy {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+        #toolbar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: #252526;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        #details {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background: #252526;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+        }
+        h2 { margin-top: 0; font-size: 16px; color: #4fc1ff; }
+        .prop { margin-bottom: 8px; font-size: 13px; }
+        .label { color: #888; display: block; margin-bottom: 2px; }
+        .value { color: #ccc; word-break: break-all; }
+        code { background: #1e1e1e; padding: 2px 4px; border-radius: 3px; font-family: Consolas, monospace; }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 200;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #252526;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #454545;
+            width: 400px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .modal h3 { margin-top: 0; color: #d4d4d4; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #ccc; font-size: 13px; }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            background: #3c3c3c;
+            border: 1px solid #3c3c3c;
+            color: #d4d4d4;
+            border-radius: 2px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: #007acc;
+            outline: none;
+        }
+        .modal-actions { text-align: right; margin-top: 20px; }
+        .modal-actions button { margin-left: 10px; }
+        .btn-cancel { background: #454545; }
+        .btn-cancel:hover { background: #555; }
+    </style>
+</head>
+<body>
+    <div id="toolbar">
+        <button id="layout-btn">Reset Layout</button>
+        <button id="fit-btn">Fit View</button>
+        <button id="save-btn" style="background-color: #388e3c;">Save Layout</button>
+        <div style="width: 1px; background: #454545; margin: 0 5px;"></div>
+        <button id="create-rule-btn" style="background-color: #4d2a5e;">+ New Rule</button>
+        <button id="connect-btn" style="background-color: #555;" disabled>Connect</button>
+        <div style="width: 1px; background: #454545; margin: 0 5px;"></div>
+        <button id="live-connect-btn" style="background-color: #c62828;">🔴 Offline</button>
+        <button id="trigger-event-btn" style="background-color: #00695c;">⚡ Trigger</button>
+    </div>
+    <div id="cy"></div>
+    
+    <!-- Event Log Panel -->
+    <div id="event-log">
+        <div class="log-header">
+            <span>Event Log</span>
+            <button id="clear-log" style="padding: 2px 6px; font-size: 10px; background: #454545;">Clear</button>
+        </div>
+        <div id="log-content">
+            <div class="log-entry" style="color: #888;">Waiting for connection...</div>
+        </div>
+    </div>
+
+    <div id="details">
+        <h2 id="details-title">Details</h2>
+        <div id="details-content"></div>
+    </div>
+
+    <!-- Logic Gaps Panel -->
+    <div id="logic-gaps" style="display:none;">
+        <div class="log-header" style="background: #5a1d1d; border-bottom: 1px solid #8a2c2c;">
+            <span>⚠️ Logic Gaps Detected</span>
+            <button id="close-gaps" style="padding: 2px 6px; font-size: 10px; background: #8a2c2c;">Hide</button>
+        </div>
+        <div id="gaps-content"></div>
+    </div>
+
+    <style>
+        #logic-gaps {
+            position: absolute;
+            bottom: 230px; /* Above event log */
+            left: 20px;
+            width: 300px;
+            max-height: 200px;
+            background: #252526;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            z-index: 90;
+            border: 1px solid #8a2c2c;
+        }
+        #gaps-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        .gap-item {
+            padding: 4px;
+            border-bottom: 1px solid #333;
+            font-size: 12px;
+            color: #ff9999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .gap-action {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+    </style>
+
+    <style>
+        #event-log {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 300px;
+            height: 200px;
+            background: #252526;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            z-index: 90;
+        }
+        .log-header {
+            padding: 8px 12px;
+            background: #333;
+            border-bottom: 1px solid #454545;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #ccc;
+        }
+        #log-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            font-family: Consolas, monospace;
+            font-size: 11px;
+        }
+        .log-entry { margin-bottom: 4px; border-bottom: 1px solid #333; padding-bottom: 2px; }
+        .log-time { color: #666; margin-right: 5px; }
+        .log-type { color: #4fc1ff; font-weight: bold; }
+    </style>
+
+    <!-- Create Rule Modal -->
+    <div id="rule-modal" class="modal">
+        <div class="modal-content">
+            <h3>Create New Rule</h3>
+            <div class="form-group">
+                <label for="rule-id">Rule ID (e.g. 'azure.workItem.created')</label>
+                <input type="text" id="rule-id" placeholder="domain.entity.action">
+            </div>
+            <div class="form-group">
+                <label for="rule-desc">Description</label>
+                <textarea id="rule-desc" rows="3" placeholder="What does this rule do?"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('rule-modal')">Cancel</button>
+                <button id="confirm-create-rule">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connect Modal -->
+    <div id="connect-modal" class="modal">
+        <div class="modal-content">
+            <h3>Create Connection</h3>
+            <div class="form-group">
+                <label>Source (Producer)</label>
+                <input type="text" id="conn-source" readonly style="opacity: 0.7;">
+            </div>
+            <div class="form-group">
+                <label>Target (Consumer)</label>
+                <input type="text" id="conn-target" readonly style="opacity: 0.7;">
+            </div>
+            <div class="form-group">
+                <label for="conn-state">State Name (Transition)</label>
+                <input type="text" id="conn-state" placeholder="e.g. 'pending', 'completed'">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('connect-modal')">Cancel</button>
+                <button id="confirm-connect">Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trigger Event Modal -->
+    <div id="trigger-modal" class="modal">
+        <div class="modal-content">
+            <h3>Trigger Event</h3>
+            <div class="form-group">
+                <label for="trigger-event-name">Event Name</label>
+                <input type="text" id="trigger-event-name" placeholder="e.g. timer.start">
+            </div>
+            <div class="form-group">
+                <label for="trigger-payload">Payload (JSON)</label>
+                <textarea id="trigger-payload" rows="5" placeholder='{ "id": 123 }'></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('trigger-modal')">Cancel</button>
+                <button id="confirm-trigger">Fire Event</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // Initialize Cytoscape
+        document.addEventListener('DOMContentLoaded', function() {
+            const data = window.CANVAS_DATA; // Injected by server
+
+            const cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: data,
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': '#3a3d41',
+                            'label': 'data(label)',
+                            'color': '#cccccc',
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'shape': 'round-rectangle',
+                            // 'width': 'label', // Deprecated
+                            // 'height': 'label', // Deprecated
+                            'padding': '12px',
+                            'border-width': 1,
+                            'border-color': '#555',
+                            'font-size': '12px'
+                        }
+                    },
+                    {
+                        selector: 'node[type="domain"]',
+                        style: {
+                            'background-color': 'rgba(255, 255, 255, 0.05)',
+                            'border-color': 'rgba(255, 255, 255, 0.1)',
+                            'border-width': 1,
+                            'shape': 'round-rectangle',
+                            'label': 'data(label)',
+                            'text-valign': 'top',
+                            'text-halign': 'center',
+                            'font-size': '14px',
+                            'font-weight': 'bold',
+                            'color': '#666',
+                            'padding': '10px'
+                        }
+                    },
+                    {
+                        selector: 'node[type="model"]',
+                        style: {
+                            'background-color': '#264f78',
+                            'border-color': '#007acc'
+                        }
+                    },
+                    {
+                        selector: 'node[type="rule"]',
+                        style: {
+                            'background-color': '#4d2a5e',
+                            'border-color': '#a167c9'
+                        }
+                    },
+                    {
+                        selector: 'node[type="event"]',
+                        style: {
+                            'background-color': '#593c18',
+                            'border-color': '#ce9178',
+                            'shape': 'ellipse'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 2,
+                            'line-color': '#555',
+                            'target-arrow-color': '#555',
+                            'target-arrow-shape': 'triangle',
+                            'curve-style': 'bezier',
+                            'label': 'data(label)',
+                            'font-size': '10px',
+                            'color': '#888',
+                            'text-background-color': '#1e1e1e',
+                            'text-background-opacity': 1,
+                            'text-background-padding': '2px'
+                        }
+                    },
+                    {
+                        selector: ':selected',
+                        style: {
+                            'border-width': 2,
+                            'border-color': '#007acc',
+                            'line-color': '#007acc',
+                            'target-arrow-color': '#007acc'
+                        }
+                    }
+                ],
+                layout: {
+                    name: 'dagre',
+                    rankDir: 'LR',
+                    spacingFactor: 1.2
+                }
+            });
+
+            // Restore positions if available
+            cy.nodes().forEach(node => {
+                if (node.data('position')) {
+                    node.position(node.data('position'));
+                }
+            });
+
+            // Event handlers
+            cy.on('tap', 'node', function(evt){
+                const node = evt.target;
+                showDetails(node.data());
+            });
+
+            cy.on('tap', function(evt){
+                if(evt.target === cy){
+                    document.getElementById('details').style.display = 'none';
+                }
+            });
+
+            // Selection handling for Connect button
+            cy.on('select unselect', function() {
+                const selected = cy.$(':selected');
+                const connectBtn = document.getElementById('connect-btn');
+                if (selected.length === 2 && selected.every(ele => ele.isNode())) {
+                    connectBtn.disabled = false;
+                    connectBtn.style.backgroundColor = '#0e639c';
+                } else {
+                    connectBtn.disabled = true;
+                    connectBtn.style.backgroundColor = '#555';
+                }
+            });
+
+            // Create Rule UI
+            document.getElementById('create-rule-btn').addEventListener('click', () => {
+                document.getElementById('rule-modal').style.display = 'block';
+                document.getElementById('rule-id').focus();
+            });
+
+            document.getElementById('confirm-create-rule').addEventListener('click', () => {
+                const id = document.getElementById('rule-id').value;
+                const description = document.getElementById('rule-desc').value;
+                
+                if (!id) return alert('Rule ID is required');
+
+                const btn = document.getElementById('confirm-create-rule');
+                const originalText = btn.textContent;
+                btn.textContent = 'Creating...';
+                btn.disabled = true;
+
+                fetch('/api/rules', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, description })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeModal('rule-modal');
+                        location.reload(); // Reload to see new node
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(err => alert('Error: ' + err))
+                .finally(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                });
+            });
+
+            // Connect UI
+            document.getElementById('connect-btn').addEventListener('click', () => {
+                const selected = cy.$(':selected');
+                if (selected.length !== 2) return;
+
+                const source = selected[0];
+                const target = selected[1];
+                
+                // Simple heuristic: Rule -> Rule usually implies flow.
+                // Let user confirm direction or swap.
+                // For now, just take selection order or ID order? 
+                // Cytoscape selection order isn't guaranteed.
+                // Let's just pick one and let user swap if needed (not implemented yet).
+                
+                document.getElementById('conn-source').value = source.id();
+                document.getElementById('conn-target').value = target.id();
+                document.getElementById('connect-modal').style.display = 'block';
+                document.getElementById('conn-state').focus();
+            });
+
+            document.getElementById('confirm-connect').addEventListener('click', () => {
+                const sourceId = document.getElementById('conn-source').value;
+                const targetId = document.getElementById('conn-target').value;
+                const state = document.getElementById('conn-state').value;
+
+                if (!state) return alert('State name is required');
+
+                const btn = document.getElementById('confirm-connect');
+                const originalText = btn.textContent;
+                btn.textContent = 'Connecting...';
+                btn.disabled = true;
+
+                fetch('/api/connections', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sourceId, targetId, state })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeModal('connect-modal');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(err => alert('Error: ' + err))
+                .finally(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                });
+            });
+
+            // Live Features
+            const liveBtn = document.getElementById('live-connect-btn');
+            let ws = null;
+
+            document.getElementById('close-gaps').addEventListener('click', () => {
+                document.getElementById('logic-gaps').style.display = 'none';
+            });
+
+            function handleLogicInspection(events) {
+                const unhandled = events.filter(e => e.status === 'unhandled');
+                if (unhandled.length === 0) return;
+
+                const container = document.getElementById('logic-gaps');
+                const content = document.getElementById('gaps-content');
+                container.style.display = 'flex';
+                content.innerHTML = '';
+
+                unhandled.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'gap-item';
+
+                    // Create safe child elements
+                    const span = document.createElement('span');
+                    span.textContent = item.type;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'gap-action';
+                    btn.textContent = 'Fix';
+                    btn.addEventListener('click', () => {
+                        alert('Use MCP to fix: ' + item.type);
+                    });
+
+                    div.appendChild(span);
+                    div.appendChild(btn);
+                    content.appendChild(div);
+
+                    // Also highlight nodes if they exist
+                    // Try to match event name to node ID or label
+                    const nodes = cy.nodes().filter(n => {
+                        const id = n.id().toLowerCase();
+                        const label = (n.data('label') || '').toLowerCase();
+                        const type = item.type.toLowerCase();
+                        return id.includes(type) || label.includes(type) || type.includes(id);
+                    });
+
+                    nodes.style({
+                        'border-color': '#ff4444',
+                        'border-width': 4
+                    });
+                });
+            }
+            
+            function connectWebSocket() {
+                ws = new WebSocket('ws://localhost:3001');
+
+                ws.onopen = () => {
+                    liveBtn.textContent = '🟢 Connected';
+                    liveBtn.style.backgroundColor = '#388e3c';
+                    addLogEntry('SYSTEM', 'Connected to Live Server');
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const msg = JSON.parse(event.data);
+                        
+                        if (msg.type === 'FSM_EVENT') {
+                            addLogEntry('IN', `Event: ${msg.event}`, msg.payload);
+                            flashNode(msg.event);
+                        } else if (msg.type === 'FSM_STATE_CHANGE') {
+                            addLogEntry('IN', `State: ${msg.from} -> ${msg.to}`, { machine: msg.machine });
+                        } else if (msg.type === 'LOG_ENTRY') {
+                            // Optional: filter logs
+                            // addLogEntry('LOG', msg.message);
+                        } else if (msg.type === 'LOGIC_INSPECTION') {
+                            handleLogicInspection(msg.events);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing WS message', e);
+                    }
+                };
+
+                ws.onclose = () => {
+                    liveBtn.textContent = '🔴 Offline';
+                    liveBtn.style.backgroundColor = '#c62828';
+                    addLogEntry('SYSTEM', 'Disconnected');
+                    ws = null;
+                };
+
+                ws.onerror = (err) => {
+                    console.error('WebSocket error', err);
+                    ws.close();
+                };
+            }
+
+            const NODE_TYPE_COLORS = {
+                domain: 'rgba(255, 255, 255, 0.05)',
+                model: '#264f78',
+                rule: '#4d2a5e',
+                event: '#593c18'
+            };
+            const DEFAULT_NODE_COLOR = '#3a3d41';
+
+            function getNodeColor(node) {
+                const type = (node.data('type') || '').toLowerCase();
+                return NODE_TYPE_COLORS[type] || DEFAULT_NODE_COLOR;
+            }
+
+            function flashNode(eventId) {
+                // Find nodes related to this event
+                // Heuristic: match domain prefix
+                const domain = eventId.split('.')[0];
+                const nodes = cy.nodes().filter(n => n.data('id').includes(domain));
+                
+                if (nodes.length === 0) {
+                    return;
+                }
+
+                nodes.animate({
+                    style: { 'background-color': '#ffeb3b', 'color': '#000' }
+                }, {
+                    duration: 200,
+                    complete: () => nodes.forEach(node => {
+                        node.animate({
+                            style: { 'background-color': getNodeColor(node), 'color': '#ccc' }
+                        }, { duration: 500 });
+                    })
+                });
+            }
+            
+            liveBtn.addEventListener('click', () => {
+                if (!ws) {
+                    connectWebSocket();
+                } else {
+                    ws.close();
+                }
+            });
+
+            // Auto-connect on load
+            connectWebSocket();
+
+            document.getElementById('trigger-event-btn').addEventListener('click', () => {
+                document.getElementById('trigger-modal').style.display = 'block';
+                document.getElementById('trigger-event-name').focus();
+            });
+
+            document.getElementById('confirm-trigger').addEventListener('click', () => {
+                const eventName = document.getElementById('trigger-event-name').value;
+                const payloadStr = document.getElementById('trigger-payload').value;
+                
+                if (!eventName) return alert('Event Name is required');
+                
+                let payload = {};
+                try {
+                    if (payloadStr) payload = JSON.parse(payloadStr);
+                } catch (e) {
+                    return alert('Invalid JSON payload');
+                }
+
+                // Send event via WebSocket
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'TRIGGER_EVENT',
+                        event: eventName,
+                        payload: payload
+                    }));
+                    addLogEntry('OUT', `Trigger: ${eventName}`, payload);
+                } else {
+                    alert('Not connected to Live Server');
+                }
+
+                closeModal('trigger-modal');
+            });
+
+            document.getElementById('clear-log').addEventListener('click', () => {
+                document.getElementById('log-content').innerHTML = '';
+            });
+
+            // Escape HTML utility
+            function escapeHTML(str) {
+                return str
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function addLogEntry(type, msg, data) {
+                const div = document.createElement('div');
+                div.className = 'log-entry';
+                const time = new Date().toLocaleTimeString().split(' ')[0];
+                const safeMsg = escapeHTML(String(msg));
+                const safeData = data ? `<pre style="margin:2px 0; color:#888;">${escapeHTML(JSON.stringify(data))}</pre>` : '';
+                div.innerHTML = `
+                    <span class="log-time">${time}</span>
+                    <span class="log-type">[${type}]</span>
+                    <span class="log-msg">${safeMsg}</span>
+                    ${safeData}
+                `;
+                const container = document.getElementById('log-content');
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+            }
+
+            document.getElementById('layout-btn').addEventListener('click', function() {
+                cy.layout({ name: 'dagre', rankDir: 'LR', animate: true }).run();
+            });
+
+            document.getElementById('fit-btn').addEventListener('click', function() {
+                cy.fit(undefined, 50);
+            });
+
+            document.getElementById('save-btn').addEventListener('click', function() {
+                const positions = {};
+                cy.nodes().forEach(node => {
+                    positions[node.id()] = node.position();
+                });
+
+                fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(positions)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const btn = document.getElementById('save-btn');
+                        const originalText = btn.textContent;
+                        btn.textContent = 'Saved!';
+                        setTimeout(() => btn.textContent = originalText, 2000);
+                    }
+                })
+                .catch(err => console.error('Error saving layout:', err));
+            });
+
+            function showDetails(data) {
+                const container = document.getElementById('details');
+                const content = document.getElementById('details-content');
+                const title = document.getElementById('details-title');
+                
+                title.textContent = data.label || data.id;
+                container.style.display = 'block';
+                
+                let html = '';
+                for (const [key, value] of Object.entries(data)) {
+                    if (key === 'id' || key === 'label' || key === 'style' || key === 'sourceLink') continue;
+                    
+                    let displayValue = value;
+
+                    // Special handling for logic
+                    if (key === 'logic' && typeof value === 'object') {
+                        let logicHtml = '';
+                        if (value.guards && value.guards.length > 0) {
+                            logicHtml += `<div style="margin-top:4px;"><span style="color:#ce9178">Guards:</span><ul style="margin:2px 0;padding-left:20px;color:#d4d4d4">`;
+                            value.guards.forEach(g => logicHtml += `<li>${g}</li>`);
+                            logicHtml += `</ul></div>`;
+                        }
+                        if (value.mutations && value.mutations.length > 0) {
+                            logicHtml += `<div style="margin-top:4px;"><span style="color:#b5cea8">Mutations:</span><ul style="margin:2px 0;padding-left:20px;color:#d4d4d4">`;
+                            value.mutations.forEach(m => logicHtml += `<li>${m}</li>`);
+                            logicHtml += `</ul></div>`;
+                        }
+                        if (value.events && value.events.length > 0) {
+                            logicHtml += `<div style="margin-top:4px;"><span style="color:#4fc1ff">Events:</span><ul style="margin:2px 0;padding-left:20px;color:#d4d4d4">`;
+                            value.events.forEach(e => logicHtml += `<li>${e}</li>`);
+                            logicHtml += `</ul></div>`;
+                        }
+                        displayValue = logicHtml || '<span style="color:#666">None</span>';
+                    }
+                    // Linkify the implementation path if sourceLink is available
+                    else if (key === 'then' && data.sourceLink && typeof value === 'string' && value.startsWith('Implementation: ')) {
+                        displayValue = value.replace(
+                            /(Implementation: )(.+)/, 
+                            '$1<a href="' + data.sourceLink + '" style="color: #4fc1ff; text-decoration: none; border-bottom: 1px dotted #4fc1ff;">$2</a>'
+                        );
+                    } else if (typeof value === 'object') {
+                        displayValue = `<pre>${JSON.stringify(value, null, 2)}</pre>`;
+                    }
+                    
+                    html += `
+                        <div class="prop">
+                            <span class="label">${key}</span>
+                            <span class="value">${displayValue}</span>
+                        </div>
+                    `;
+                }
+                content.innerHTML = html;
+            }
+        });
+    </script>
+</body>
+</html>
