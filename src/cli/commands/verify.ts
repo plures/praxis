@@ -4,13 +4,13 @@
  * Verifies the implementation of the project against the schema/rules.
  */
 
-import { verifyImplementation } from '../../ui/canvas-inspector/src/verify-fsm-implementation.js';
+import { verifyImplementation } from '../../../ui/canvas-inspector/src/verify-fsm-implementation.js';
 
 export interface VerifyOptions {
   detailed?: boolean;
 }
 
-export async function verify(type: string, options: VerifyOptions): Promise<void> {
+export async function verify(type: string, _options: VerifyOptions): Promise<void> {
   if (type !== 'implementation') {
     console.error(`Unknown verification type: ${type}`);
     console.log('Supported types: implementation');
@@ -32,12 +32,12 @@ export async function verify(type: string, options: VerifyOptions): Promise<void
       
       if (missingCount > 0) {
         console.log(`\n  Missing Handlers (${missingCount}):`);
-        result.missingHandlers.forEach(h => console.log(`    - ${h}`));
+        result.missingHandlers.forEach((h: string) => console.log(`    - ${h}`));
       }
       
       if (emptyCount > 0) {
         console.log(`\n  Empty Handlers (${emptyCount}):`);
-        result.emptyHandlers.forEach(h => console.log(`    - ${h}`));
+        result.emptyHandlers.forEach((h: string) => console.log(`    - ${h}`));
       }
       
       process.exit(1);
