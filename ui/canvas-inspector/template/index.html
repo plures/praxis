@@ -601,19 +601,38 @@
                 };
             }
 
+            const NODE_TYPE_COLORS = {
+                domain: 'rgba(255, 255, 255, 0.05)',
+                model: '#264f78',
+                rule: '#4d2a5e',
+                event: '#593c18'
+            };
+            const DEFAULT_NODE_COLOR = '#3a3d41';
+
+            function getNodeColor(node) {
+                const type = (node.data('type') || '').toLowerCase();
+                return NODE_TYPE_COLORS[type] || DEFAULT_NODE_COLOR;
+            }
+
             function flashNode(eventId) {
                 // Find nodes related to this event
                 // Heuristic: match domain prefix
                 const domain = eventId.split('.')[0];
                 const nodes = cy.nodes().filter(n => n.data('id').includes(domain));
                 
+                if (nodes.length === 0) {
+                    return;
+                }
+
                 nodes.animate({
                     style: { 'background-color': '#ffeb3b', 'color': '#000' }
                 }, {
                     duration: 200,
-                    complete: () => nodes.animate({
-                        style: { 'background-color': '#4d2a5e', 'color': '#ccc' }
-                    }, { duration: 500 })
+                    complete: () => nodes.forEach(node => {
+                        node.animate({
+                            style: { 'background-color': getNodeColor(node), 'color': '#ccc' }
+                        }, { duration: 500 });
+                    })
                 });
             }
             
