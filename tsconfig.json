@@ -27,5 +27,5 @@
     }
   },
   "include": ["src/**/*", "core/**/*", "ui/**/*", "tools/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "ui/canvas-inspector/**/*", "tools/ast-analyzer/**/*"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

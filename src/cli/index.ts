@@ -206,10 +206,25 @@ cloudCmd
   .description('View cloud usage metrics')
   .action(async () => {
     try {
-      const { cloudUsage } = await import('./commands/cloud.js');
-      await cloudUsage();
+    const { cloudUsage } = await import('./commands/cloud.js');
+    await cloudUsage();
+  } catch (error) {
+    console.error('Error retrieving usage metrics:', error);
+    process.exit(1);
+  }
+});
+
+// Verify command
+program
+  .command('verify <type>')
+  .description('Verify project implementation (e.g., implementation)')
+  .option('-d, --detailed', 'Show detailed analysis')
+  .action(async (type, options) => {
+    try {
+      const { verify } = await import('./commands/verify.js');
+      await verify(type, options);
     } catch (error) {
-      console.error('Error retrieving usage metrics:', error);
+      console.error('Error verifying:', error);
       process.exit(1);
     }
   });
