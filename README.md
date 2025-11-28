@@ -27,10 +27,10 @@
 | Category | Status |
 |----------|--------|
 | **CI/CD** | ✅ Automated testing & builds |
-| **Version** | Latest (Alpha) |
+| **Version** | 1.0.2 (Stable) |
 | **Runtime Support** | Node.js 18+, Deno (experimental), .NET 8+ |
-| **Package Registries** | npm ✅ / NuGet 🚧 (coming soon) / JSR ✅  |
-| **Test Coverage** | 202 TypeScript + 68 C# tests passing |
+| **Package Registries** | npm ✅ / NuGet ✅ / JSR ✅  |
+| **Test Coverage** | 327 TypeScript + 95 C# tests passing |
 | **Documentation** | 📚 Comprehensive guides available |
 
 ### Language Support
@@ -191,7 +191,7 @@ Praxis provides these integrated capabilities:
 - **Svelte 5**: Full runes support with history and time-travel
 - **Tauri**: Cross-platform runtime (web/desktop/mobile)
 
-### ⚡ Svelte 5 Integration (NEW!)
+### ⚡ Svelte 5 Integration
 - **Runes API**: Modern `$state`, `$derived`, `$effect` support
 - **History States**: Built-in undo/redo and time-travel debugging
 - **Store API**: Backward-compatible stores for Svelte 4/5
@@ -208,82 +208,9 @@ Praxis provides these integrated capabilities:
 - 📦 **JSON-Friendly**: All types are serializable for cross-platform use
 - 🔒 **Type-Safe**: Full TypeScript support with strict typing
 - 🔍 **Introspection**: Generate schemas, graphs, and visualizations of your logic
-- 🌐 **Cross-Language**: PowerShell adapter with protocol versioning (C# coming soon)
-- 📊 **Comprehensive Testing**: 197+ TypeScript and 95+ C# tests covering all features
+- 🌐 **Cross-Language**: C#, PowerShell, and TypeScript implementations with protocol versioning
+- 📊 **Comprehensive Testing**: 327 TypeScript and 95 C# tests covering all features
 - 🎭 **Hero Example**: Full e-commerce demo with auth, cart, features, and actors
-
-## What's New in v0.2.0
-
-### 🎉 Major Features
-
-#### Full Application Framework
-Praxis 0.2.0 transforms from a logic engine into a **complete application framework**:
-- **Complete Schema System**: Comprehensive type definitions for models, components, logic, and orchestration
-- **Component Generation**: Automatic Svelte component generation from schemas
-- **CLI Tools**: `praxis create`, `praxis generate`, `praxis canvas` commands
-- **Cloud Integration**: GitHub-based authentication and tier-based billing
-- **PluresDB Integration**: Local-first reactive datastore with full implementation
-
-#### Svelte 5 Integration (@plures/praxis/svelte)
-- **Runes Composables**: `usePraxisState`, `usePraxisHistory`, `usePraxisComputed`
-- **History State Pattern**: Time-travel debugging with undo/redo
-- **Store API**: Compatible with Svelte 4 and 5
-- **Full TypeScript support** with generics
-
-#### Documentation & Guides
-- **[Svelte Integration Guide](docs/guides/svelte-integration.md)**: Complete guide to Svelte 5 integration
-- **[History State Pattern](docs/guides/history-state-pattern.md)**: Undo/redo and time-travel patterns
-- **[Parallel State Pattern](docs/guides/parallel-state-pattern.md)**: Multiple engine coordination
-- **[Advanced Todo Example](src/examples/advanced-todo/)**: Full-featured demo with history
-
-### 🧪 Hardened TypeScript Core
-- **197 comprehensive tests** (up from 9 in v0.1.0) covering:
-  - Svelte integration with runes and stores
-  - PluresDB integration (32 tests)
-  - History state management and navigation
-  - Edge cases and failure paths
-  - Actor lifecycle and state change notifications
-  - Constraint violations and rule errors
-  - Registry operations and module composition
-  - Cloud integration and billing
-  - Terminal node functionality
-- Full test coverage ensures production-ready reliability
-
-### 🔒 C# Implementation
-- **95 comprehensive C# tests** with full parity to TypeScript features
-- Functional, immutable design with records
-- NuGet package available
-
-### 📖 Protocol Versioning
-- **Explicit protocol version** (`protocolVersion` field in state)
-- **Stability guarantees** for cross-language compatibility
-- **Semantic versioning** with migration paths
-- See [PROTOCOL_VERSIONING.md](./PROTOCOL_VERSIONING.md) for details
-
-### 🔍 Visualization & Introspection
-- **Registry introspection API** for examining rules and constraints
-- **Graph export** in DOT (Graphviz) and Mermaid formats
-- **JSON schema generation** for documentation and tooling
-- **Search and query** capabilities for rules and constraints
-- **Dependency tracking** and relationship visualization
-
-### 💻 PowerShell Adapter
-- **Full PowerShell module** (`Praxis.psm1`) for cross-language usage
-- **CLI boundary** via JSON stdin/stdout
-- **Protocol version checking** ensures compatibility
-- **Complete example** with counter application
-- See [powershell/README.md](./powershell/README.md) for usage
-
-### 🎭 Hero Example: E-Commerce Platform
-A comprehensive example demonstrating all Praxis features:
-- **Authentication** with session management and timeouts
-- **Shopping cart** with item management and calculations
-- **Feature flags** for A/B testing (free shipping, loyalty program)
-- **Discount rules** with conditional logic
-- **Loyalty points** and order history
-- **Actors** for logging and analytics
-- **Constraints** enforcing business rules
-- See [src/examples/hero-ecommerce/](./src/examples/hero-ecommerce/) for code
 
 ## Installation
 
@@ -389,7 +316,7 @@ Available CLI commands:
 
 See [docs/guides/getting-started.md](./docs/guides/getting-started.md) for detailed instructions.
 
-### Praxis Cloud (NEW!)
+### Praxis Cloud
 
 Connect your application to Praxis Cloud for automatic synchronization with GitHub-native authentication and billing:
 
@@ -486,7 +413,7 @@ const maxSessionsConstraint = defineConstraint<AuthContext>({
 registry.registerConstraint(maxSessionsConstraint);
 ```
 
-### Svelte 5 Integration (NEW!)
+### Svelte 5 Integration
 
 #### Store API (Svelte 4/5 Compatible)
 
@@ -656,10 +583,10 @@ See [FRAMEWORK.md](./FRAMEWORK.md) for complete architecture documentation.
 
 ## Examples
 
-The repository includes 12 complete examples:
+The repository includes multiple complete examples:
 
 ### 1. Hero E-Commerce (`src/examples/hero-ecommerce`)
-**NEW!** Comprehensive example demonstrating all Praxis features in a single application:
+Comprehensive example demonstrating all Praxis features in a single application:
 - Authentication with session management
 - Shopping cart with discount rules
 - Feature flags for A/B testing
@@ -673,7 +600,7 @@ node dist/examples/hero-ecommerce/index.js
 ```
 
 ### 2. Offline-First Chat (`examples/offline-chat`)
-**NEW!** Demonstrates local-first architecture with PluresDB:
+Demonstrates local-first architecture with PluresDB:
 - Offline message composition and storage
 - Automatic sync when connected
 - Message queue for offline messages
@@ -683,7 +610,7 @@ node dist/examples/hero-ecommerce/index.js
 See [examples/offline-chat/README.md](./examples/offline-chat/README.md)
 
 ### 3. Knowledge Canvas (`examples/knowledge-canvas`)
-**NEW!** Showcases CodeCanvas integration for visual knowledge management:
+Showcases CodeCanvas integration for visual knowledge management:
 - Visual knowledge graph editing
 - Schema-driven content types
 - Generated UI components
@@ -693,7 +620,7 @@ See [examples/offline-chat/README.md](./examples/offline-chat/README.md)
 See [examples/knowledge-canvas/README.md](./examples/knowledge-canvas/README.md)
 
 ### 4. Self-Orchestrating Node (`examples/distributed-node`)
-**NEW!** Demonstrates distributed orchestration with DSC/MCP:
+Demonstrates distributed orchestration with DSC/MCP:
 - Automatic node discovery
 - Self-healing behavior
 - State synchronization across nodes
@@ -703,7 +630,7 @@ See [examples/knowledge-canvas/README.md](./examples/knowledge-canvas/README.md)
 See [examples/distributed-node/README.md](./examples/distributed-node/README.md)
 
 ### 5. Terminal Node (`examples/terminal-node`)
-**NEW!** Demonstrates the terminal node feature for command execution:
+Demonstrates the terminal node feature for command execution:
 - Terminal adapter creation and configuration
 - Command execution and history tracking
 - YAML schema loading with terminal nodes
@@ -788,7 +715,7 @@ See [examples/cloud-sync/README.md](./examples/cloud-sync/README.md)
 
 ### Introspection & Visualization
 
-**NEW!** Tools for examining and visualizing your Praxis logic:
+Tools for examining and visualizing your Praxis logic:
 
 ```typescript
 import { createIntrospector, PRAXIS_PROTOCOL_VERSION } from "@plures/praxis";
@@ -1012,7 +939,7 @@ npm run tauri:build  // Production
 
 ### PowerShell
 
-**NEW!** Full PowerShell adapter for using Praxis from PowerShell scripts:
+Full PowerShell adapter for using Praxis from PowerShell scripts:
 
 ```powershell
 # Import module
@@ -1036,7 +963,7 @@ See [powershell/README.md](./powershell/README.md) for complete documentation an
 
 ### C# (.NET 8+)
 
-**NEW!** Full C# implementation with functional, immutable design:
+Full C# implementation with functional, immutable design:
 
 ```csharp
 using Praxis.Core;
@@ -1081,22 +1008,14 @@ Console.WriteLine($"Facts: {result.State.Facts.Count}"); // Facts: 1
 
 See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for complete documentation.
 
-## Future Roadmap
+## Roadmap
 
-### Short Term (v0.2.x) ✅
-- ✅ Complete CLI implementation
-- ✅ Basic project templates
-- ✅ Component generation MVP
-- ✅ C# implementation with NuGet publishing (95 tests)
-- ✅ PluresDB integration with full test coverage (32 tests)
-- ✅ Praxis Cloud with GitHub authentication and billing
-
-### Medium Term (v0.3.0 - v0.5.0)
+### Current Focus
 - Full CodeCanvas integration
-- Unum identity support
-- State-Docs generation
-- Multi-language schemas
-- Real PluresDB sync (CRDT/offline-first)
+- Enhanced Unum identity support
+- Advanced State-Docs generation
+- Multi-language schema support
+- Real PluresDB sync with CRDT/offline-first capabilities
 
 ### Long Term
 - Mobile templates (iOS, Android)
@@ -1105,353 +1024,38 @@ See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for complete documentat
 - Performance optimizations
 - Plugin ecosystem
 
-## Future Directions
-
-### Ecosystem Integration
-
-- **Svelte v5**: ✅ Full reactive binding support with runes and history
-- **PluresDB**: ✅ Reactive datastore integration with 32 tests
-- **Cloud**: ✅ GitHub-based auth and tier billing
-- **unum**: 🚧 Identity/channels and messaging
-- **Visualization**: VSCode extension, docs generator, canvas tools (introspection API ready)
-- **ADP**: Architectural guardrails and static checks
-
-### Cross-Language Support
+## Cross-Language Support
 
 The core protocol is implemented across multiple languages:
 
-**C# (Available):**
+**TypeScript** (Primary, npm: `@plures/praxis`)
+```typescript
+import { createPraxisEngine, PraxisRegistry } from "@plures/praxis";
+
+const engine = createPraxisEngine({
+  initialContext: {},
+  registry: new PraxisRegistry(),
+});
+const result = engine.step(events);
+```
+
+**C#** (.NET 8+, NuGet: `Plures.Praxis`)
 ```csharp
-// Full functional C# implementation with immutable records
 var engine = PraxisEngine.Create(new PraxisEngineOptions<TContext> { ... });
 var result = engine.Step(events);
 ```
 
 See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for full documentation.
 
-**PowerShell (Available):**
+**PowerShell** (GitHub: `Praxis.psm1`)
 ```powershell
 $newState = Invoke-PraxisStep -State $state -Events $events
 ```
 
 See [powershell/README.md](./powershell/README.md) for full documentation.
 
-### Cross-Language Sync Strategy
-
 All implementations share the same protocol version and JSON format for interoperability.
 See [CROSS_LANGUAGE_SYNC.md](./CROSS_LANGUAGE_SYNC.md) for details on keeping implementations in sync.
-
-### Advanced Features
-
-- Prolog/CLP-inspired features (facts, rules, declarative constraints, goal-style interactions)
-- Backtracking/search over state space
-- Property-based testing support
-- Automatic documentation generation
-- Static analysis tools
-```typescript
-import {
-  createRegistry,
-  createStepFunction,
-  rule,
-  constraint,
-  type PraxisState,
-  type PraxisEvent,
-} from '@plures/praxis';
-
-// Define your state
-interface AppState extends PraxisState {
-  facts: {
-    count: number;
-    lastAction?: string;
-  };
-}
-
-// Create a registry
-const registry = createRegistry<AppState, PraxisEvent>();
-
-// Define rules using the DSL
-const incrementRule = rule<AppState, PraxisEvent>()
-  .id('increment')
-  .describe('Increment counter when increment event occurs')
-  .on('INCREMENT')
-  .when((state, event) => true)
-  .then((state, event) => [{
-    type: 'LOG',
-    payload: { message: 'Counter incremented' }
-  }])
-  .build();
-
-// Define constraints
-const positiveCountConstraint = constraint<AppState>()
-  .id('positive-count')
-  .describe('Count must be non-negative')
-  .check((state) => state.facts.count >= 0)
-  .message('Count cannot be negative')
-  .build();
-
-// Register rules and constraints
-registry.registerRule(incrementRule);
-registry.registerConstraint(positiveCountConstraint);
-
-// Create a step function with custom reducer
-const step = createStepFunction<AppState, PraxisEvent>({
-  registry,
-  checkConstraints: true,
-  reducer: (state, event) => {
-    if (event.type === 'INCREMENT') {
-      return {
-        ...state,
-        facts: {
-          ...state.facts,
-          count: state.facts.count + 1,
-          lastAction: 'increment',
-        },
-      };
-    }
-    return state;
-  },
-});
-
-// Use the step function
-const initialState: AppState = {
-  facts: { count: 0 },
-};
-
-const event: PraxisEvent = {
-  type: 'INCREMENT',
-  timestamp: Date.now(),
-};
-
-const result = step(initialState, event);
-console.log(result.state.facts.count); // 1
-console.log(result.effects); // [{ type: 'LOG', payload: { message: 'Counter incremented' } }]
-```
-
-## Core Concepts
-
-### State and Events
-
-**PraxisState** represents the current facts and context:
-
-```typescript
-interface PraxisState {
-  facts: Record<string, unknown>;
-  metadata?: {
-    version?: number;
-    lastUpdated?: number;
-    [key: string]: unknown;
-  };
-}
-```
-
-**PraxisEvent** represents things that have happened:
-
-```typescript
-interface PraxisEvent {
-  type: string;
-  timestamp: number;
-  data?: Record<string, unknown>;
-  metadata?: {
-    correlationId?: string;
-    source?: string;
-    [key: string]: unknown;
-  };
-}
-```
-
-### Rules
-
-Rules are condition-action pairs that fire when conditions are met:
-
-```typescript
-const myRule = rule<MyState, MyEvent>()
-  .id('my-rule')
-  .describe('What this rule does')
-  .priority(10) // Higher priority rules execute first
-  .on('EVENT_TYPE') // Optional: only check for specific event types
-  .when((state, event) => {
-    // Condition: return true to fire the rule
-    return state.facts.someValue > 10;
-  })
-  .then((state, event) => {
-    // Action: return effects to execute
-    return [
-      { type: 'SEND_EMAIL', payload: { to: 'user@example.com' } },
-      { type: 'LOG', payload: { level: 'info', message: 'Rule fired' } },
-    ];
-  })
-  .build();
-```
-
-### Constraints
-
-Constraints are invariants that must hold true:
-
-```typescript
-const myConstraint = constraint<MyState>()
-  .id('my-constraint')
-  .describe('What this constraint ensures')
-  .check((state) => {
-    // Return true if constraint is satisfied
-    return state.facts.balance >= 0;
-  })
-  .message('Balance cannot be negative')
-  .build();
-```
-
-### Registry
-
-The registry manages rules and constraints:
-
-```typescript
-const registry = createRegistry<MyState, MyEvent>();
-
-// Register rules and constraints
-registry.registerRule(myRule);
-registry.registerConstraint(myConstraint);
-
-// Evaluate rules for a state transition
-const effects = registry.evaluateRules(state, event);
-
-// Check constraints
-const violations = registry.checkConstraints(state);
-
-// Get statistics
-const stats = registry.getStats();
-```
-
-### Step Functions
-
-Step functions are pure functions that transition state:
-
-```typescript
-// With registry integration
-const step = createStepFunction({
-  registry,
-  checkConstraints: true,
-  reducer: (state, event) => {
-    // Your state transition logic
-    return newState;
-  },
-});
-
-// Simple step without registry
-const simpleStep = step((state, event) => {
-  // Direct state transformation
-  return { ...state, facts: { ...state.facts, updated: true } };
-});
-
-// Compose multiple step functions
-const composedStep = compose(step1, step2, step3);
-```
-
-### Actors
-
-Actors maintain their own state and respond to events:
-
-```typescript
-import { createActor, createActorSystem } from '@plures/praxis';
-
-// Create an actor
-const myActor = createActor(
-  'actor-1',
-  initialState,
-  stepFunction,
-  'counter-actor'
-);
-
-// Create an actor system
-const system = createActorSystem();
-system.register(myActor);
-
-// Send events to actors
-const result = system.send('actor-1', event);
-
-// Broadcast to all actors
-const results = system.broadcast(event);
-```
-
-### Flows
-
-Flows represent sequences of events:
-
-```typescript
-import { createFlow, advanceFlow } from '@plures/praxis';
-
-// Define a flow
-const flow = createFlow('onboarding-flow', [
-  { id: 'step1', expectedEventType: 'USER_REGISTERED' },
-  { id: 'step2', expectedEventType: 'EMAIL_VERIFIED' },
-  { id: 'step3', expectedEventType: 'PROFILE_COMPLETED' },
-]);
-
-// Advance the flow with events
-const { flow: updatedFlow, accepted } = advanceFlow(flow, event);
-
-if (updatedFlow.complete) {
-  console.log('Flow completed!');
-}
-```
-
-## Architecture Principles
-
-1. **Pure Functions**: State transitions are pure, predictable, and testable
-2. **JSON-Friendly**: All data structures serialize to JSON for interoperability
-3. **Logic-First**: Focus on business logic, not implementation details
-4. **Composable**: Build complex behavior from simple, reusable pieces
-5. **Type-Safe**: Leverage TypeScript for compile-time guarantees
-
-## Advanced Usage
-
-### Custom Event Types
-
-```typescript
-interface UserEvent extends PraxisEvent {
-  type: 'USER_LOGIN' | 'USER_LOGOUT';
-  data: {
-    userId: string;
-    sessionId: string;
-  };
-}
-
-const registry = createRegistry<AppState, UserEvent>();
-```
-
-### Effect Handlers
-
-Effects are side-effect descriptions that can be executed outside the pure core:
-
-```typescript
-async function executeEffects(effects: Effect[]) {
-  for (const effect of effects) {
-    switch (effect.type) {
-      case 'SEND_EMAIL':
-        await emailService.send(effect.payload);
-        break;
-      case 'LOG':
-        console.log(effect.payload);
-        break;
-      // Add more effect handlers as needed
-    }
-  }
-}
-
-const result = step(state, event);
-if (result.effects) {
-  await executeEffects(result.effects);
-}
-```
-
-## Future Roadmap
-
-- ✅ **Svelte v5 Integration**: First-class support for Svelte 5 runes (available)
-- ✅ **PluresDB Integration**: Reactive datastore with 32 tests (available)
-- ✅ **C# Port**: Cross-platform compatibility with 95 tests (available)
-- ✅ **PowerShell Module**: Scripting and automation support (available)
-- 🚧 **Unum Integration**: Identity and channels (in progress)
-- 🚧 **CodeCanvas**: Visual schema and logic editor (planned)
-- 🚧 **State-Docs**: Documentation generation (planned)
-- 📊 **Visualization**: Flow and state visualization tools (introspection ready)
 
 ## Development
 
