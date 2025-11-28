@@ -40,7 +40,7 @@ function broadcastAnalysis() {
       events
     });
 
-    wss.clients.forEach((client) => {
+    wss.clients.forEach((client: WebSocket) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(msg);
       }
@@ -50,17 +50,17 @@ function broadcastAnalysis() {
   }
 }
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws: WebSocket) => {
   console.log('Client connected');
   
   // Send initial analysis
   setTimeout(broadcastAnalysis, 1000);
 
-  ws.on('message', (message) => {
+  ws.on('message', (message: Buffer) => {
     try {
       const data = JSON.parse(message.toString());
       // Broadcast to all other clients (e.g. Extension -> Canvas, or Canvas -> Extension)
-      wss.clients.forEach((client) => {
+      wss.clients.forEach((client: WebSocket) => {
         if (client !== ws && client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify(data));
         }
@@ -228,7 +228,7 @@ export const ${safeName} = defineRule<ApplicationEngineContext>({
           // Regenerate schema
           // This assumes a script exists in the user's package.json
           const { exec } = await import('child_process');
-          exec('npm run generate:schema', (error, stdout, stderr) => {
+          exec('npm run generate:schema', (error, _stdout, _stderr) => {
             if (error) {
               console.error(`exec error: ${error}`);
               // Don't fail the request if schema gen fails, just warn
