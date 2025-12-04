@@ -1,6 +1,6 @@
 /**
  * Schema Engine Types
- * 
+ *
  * Re-exports types from the schema engine for external use.
  */
 
@@ -49,15 +49,7 @@ export type {
 } from './compiler.js';
 
 // Generator Types
-export type {
-  GeneratorOptions,
-  GeneratedFile,
-  GenerationResult,
-} from './generator.js';
+export type { GeneratorOptions, GeneratedFile, GenerationResult } from './generator.js';
 
 // Validator Types
-export type {
-  ValidationResult,
-  ValidationError,
-  ValidationOptions,
-} from './validator.js';
+export type { ValidationResult, ValidationError, ValidationOptions } from './validator.js';

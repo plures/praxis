@@ -40,6 +40,7 @@ Praxis Cloud uses GitHub as the exclusive authentication and billing provider, a
 ## Subscription Tiers
 
 ### Free Tier
+
 - **Cost**: Free
 - **Limits**:
   - 1,000 syncs/month
@@ -48,6 +49,7 @@ Praxis Cloud uses GitHub as the exclusive authentication and billing provider, a
   - Community support
 
 ### Solo Tier ($5/month via GitHub Sponsors)
+
 - **Limits**:
   - 50,000 syncs/month
   - 1 GB storage
@@ -55,6 +57,7 @@ Praxis Cloud uses GitHub as the exclusive authentication and billing provider, a
   - Standard support
 
 ### Team Tier ($20/month via GitHub Sponsors)
+
 - **Limits**:
   - 500,000 syncs/month
   - 10 GB storage
@@ -63,6 +66,7 @@ Praxis Cloud uses GitHub as the exclusive authentication and billing provider, a
   - Standard support
 
 ### Enterprise Tier ($50/month via GitHub Sponsors/Marketplace)
+
 - **Limits**:
   - 5,000,000 syncs/month
   - 100 GB storage
@@ -102,9 +106,9 @@ praxis logout
 ### 3. Programmatic Authentication
 
 ```typescript
-import { authenticateWithDeviceFlow } from "@plures/praxis/cloud";
+import { authenticateWithDeviceFlow } from '@plures/praxis/cloud';
 
-const result = await authenticateWithDeviceFlow("YOUR_CLIENT_ID");
+const result = await authenticateWithDeviceFlow('YOUR_CLIENT_ID');
 if (result.success) {
   console.log(`Authenticated as ${result.user?.login}`);
   console.log(`Token: ${result.token}`);
@@ -153,10 +157,10 @@ PRAXIS_APP_ID=your_app_id
 ### Checking Subscription Status
 
 ```typescript
-import { createSponsorsClient } from "@plures/praxis/cloud";
+import { createSponsorsClient } from '@plures/praxis/cloud';
 
 const client = createSponsorsClient(githubToken);
-const subscription = await client.getSubscription("username");
+const subscription = await client.getSubscription('username');
 
 console.log(`Tier: ${subscription.tier}`);
 console.log(`Status: ${subscription.status}`);
@@ -199,21 +203,21 @@ See `github/marketplace/` for listing templates and screenshots.
 ### Webhook Handler
 
 ```typescript
-import { createMarketplaceClient } from "@plures/praxis/cloud";
+import { createMarketplaceClient } from '@plures/praxis/cloud';
 
 const client = createMarketplaceClient(githubToken);
 
 // Handle webhook event
-app.post("/webhook/marketplace", (req, res) => {
+app.post('/webhook/marketplace', (req, res) => {
   const event = req.body;
   const result = client.handleWebhookEvent(event);
-  
+
   if (result) {
     // Provision or update tenant
     console.log(`User ${result.userLogin} subscribed to ${result.subscription.tier}`);
   }
-  
-  res.status(200).send("OK");
+
+  res.status(200).send('OK');
 });
 ```
 
@@ -224,7 +228,7 @@ app.post("/webhook/marketplace", (req, res) => {
 When a user authenticates, a tenant is automatically provisioned:
 
 ```typescript
-import { provisionTenant, createTenant } from "@plures/praxis/cloud";
+import { provisionTenant, createTenant } from '@plures/praxis/cloud';
 
 const result = await provisionTenant(githubUser, subscription);
 
@@ -248,7 +252,7 @@ Storage namespaces follow Azure Blob Storage naming rules:
 Access to cloud features is controlled by subscription tier:
 
 ```typescript
-import { hasAccessToTier, SubscriptionTier } from "@plures/praxis/cloud";
+import { hasAccessToTier, SubscriptionTier } from '@plures/praxis/cloud';
 
 if (hasAccessToTier(subscription, SubscriptionTier.TEAM)) {
   // Allow team features
@@ -264,6 +268,7 @@ praxis cloud usage
 ```
 
 Output:
+
 ```
 App ID: my-app
 
@@ -279,7 +284,7 @@ Period: 720.0 hours
 ### Enforcing Limits
 
 ```typescript
-import { checkUsageLimits } from "@plures/praxis/cloud";
+import { checkUsageLimits } from '@plures/praxis/cloud';
 
 const result = checkUsageLimits(subscription, {
   syncCount: 1500,
@@ -289,8 +294,8 @@ const result = checkUsageLimits(subscription, {
 });
 
 if (!result.withinLimits) {
-  console.error("Usage limits exceeded:");
-  result.violations.forEach(v => console.error(`  - ${v}`));
+  console.error('Usage limits exceeded:');
+  result.violations.forEach((v) => console.error(`  - ${v}`));
 }
 ```
 
@@ -307,7 +312,7 @@ Authentication tokens are stored securely:
 ### Best Practices
 
 1. **Never commit tokens** to source control
-2. **Rotate tokens regularly** 
+2. **Rotate tokens regularly**
 3. **Use environment variables** for CI/CD
 4. **Revoke tokens** when no longer needed
 5. **Use GitHub App tokens** for production services
@@ -335,7 +340,7 @@ For tests, use mock responses:
 
 ```typescript
 // Mock GitHub API
-vi.mock("../cloud/sponsors.js", () => ({
+vi.mock('../cloud/sponsors.js', () => ({
   createSponsorsClient: vi.fn(() => ({
     getSubscription: vi.fn(async () => ({
       tier: SubscriptionTier.SOLO,

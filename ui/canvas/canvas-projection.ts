@@ -1,6 +1,6 @@
 /**
  * Canvas Projection
- * 
+ *
  * Projects PSF schema to canvas representation and vice versa.
  * Handles layout algorithms and visual arrangement.
  */
@@ -52,7 +52,7 @@ export interface LayoutResult {
 
 /**
  * Canvas Projection class
- * 
+ *
  * Handles projection between PSF schema and canvas visualization.
  */
 export class CanvasProjection {
@@ -145,7 +145,9 @@ export class CanvasProjection {
 
   // Private methods
 
-  private extractNodes(schema: PSFSchema): Array<{ id: string; type: string; position?: PSFPosition }> {
+  private extractNodes(
+    schema: PSFSchema
+  ): Array<{ id: string; type: string; position?: PSFPosition }> {
     const nodes: Array<{ id: string; type: string; position?: PSFPosition }> = [];
 
     for (const fact of schema.facts) {
@@ -443,7 +445,9 @@ export class CanvasProjection {
     return this.finalizeLayout(finalPositions);
   }
 
-  private gridLayout(nodes: Array<{ id: string; type: string; position?: PSFPosition }>): LayoutResult {
+  private gridLayout(
+    nodes: Array<{ id: string; type: string; position?: PSFPosition }>
+  ): LayoutResult {
     const positions = new Map<string, PSFPosition>();
     const cols = Math.ceil(Math.sqrt(nodes.length));
 
@@ -466,7 +470,9 @@ export class CanvasProjection {
     return this.finalizeLayout(positions);
   }
 
-  private circularLayout(nodes: Array<{ id: string; type: string; position?: PSFPosition }>): LayoutResult {
+  private circularLayout(
+    nodes: Array<{ id: string; type: string; position?: PSFPosition }>
+  ): LayoutResult {
     const positions = new Map<string, PSFPosition>();
     const radius = (nodes.length * this.options.nodeSpacing) / (2 * Math.PI);
     const angleStep = (2 * Math.PI) / nodes.length;

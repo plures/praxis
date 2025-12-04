@@ -1,10 +1,10 @@
 /**
  * Cloud Relay Types
- * 
+ *
  * Type definitions for Praxis Cloud Relay service.
  */
 
-import type { PraxisFact, PraxisEvent } from "../core/protocol.js";
+import type { PraxisFact, PraxisEvent } from '../core/protocol.js';
 
 /**
  * Cloud relay configuration
@@ -58,7 +58,7 @@ export interface CRDTSyncMessage {
   /**
    * Message type
    */
-  type: "sync" | "delta" | "snapshot";
+  type: 'sync' | 'delta' | 'snapshot';
 
   /**
    * Application identifier
@@ -130,7 +130,7 @@ export interface UsageMetrics {
  * Health check response
  */
 export interface HealthCheckResponse {
-  status: "healthy" | "degraded" | "unhealthy";
+  status: 'healthy' | 'degraded' | 'unhealthy';
   timestamp: number;
   version: string;
   services: {

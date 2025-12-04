@@ -1,20 +1,29 @@
 /**
  * CodeCanvas Integration
- * 
+ *
  * Integration with plures/code-canvas - A visual schema editor and FSM enforcement tool.
  * Provides visual editing capabilities for Praxis schemas and logic flows.
- * 
+ *
  * Features:
  * - Visual Schema Editor: Drag-and-drop interface for schema design
  * - FSM Visualization: Mermaid and DOT graph generation
  * - State Lifecycle Management: Activity tracking and validation
  * - Canvas Export/Import: YAML and JSON Canvas formats
  * - Guardian Integration: Pre-commit validation and rules enforcement
- * 
+ *
  * @see https://github.com/plures/code-canvas
  */
 
-import type { PraxisSchema, ModelDefinition, ComponentDefinition, LogicDefinition } from "../core/schema/types.js";
+import type {
+  PSFSchema,
+  PSFModel,
+  PSFComponent,
+  PSFFact,
+  PSFEvent,
+  PSFRule,
+  PSFConstraint,
+  PSFFlow,
+} from '../../core/schema-engine/psf.js';
 
 /**
  * Canvas node representing a visual element
@@ -55,7 +64,7 @@ export interface CanvasEdge {
   /** Edge label */
   label?: string;
   /** Edge type */
-  type?: 'dependency' | 'transition' | 'trigger' | 'reference';
+  type?: 'dependency' | 'transition' | 'trigger' | 'reference' | 'event';
   /** Edge style */
   style?: CanvasEdgeStyle;
 }
@@ -106,6 +115,8 @@ export interface CanvasDocument {
   nodes: CanvasNode[];
   /** All edges in the canvas */
   edges: CanvasEdge[];
+  /** Logic flows */
+  flows?: PSFFlow[];
   /** Document metadata */
   metadata?: {
     created: number;
@@ -166,7 +177,7 @@ export interface CanvasEditorConfig {
   /** Canvas document to edit */
   document?: CanvasDocument;
   /** Schema to visualize */
-  schema?: PraxisSchema;
+  schema?: PSFSchema;
   /** Enable FSM validation */
   enableFSM?: boolean;
   /** Custom node styles by type */
@@ -225,21 +236,21 @@ export interface GuardianWarning {
 
 /**
  * Create a canvas document from a Praxis schema
- * 
+ *
  * @example
  * ```typescript
  * import { schemaToCanvas } from '@plures/praxis/integrations/code-canvas';
- * 
+ *
  * const canvas = schemaToCanvas(mySchema, {
  *   layout: 'hierarchical',
  * });
- * 
+ *
  * // Export to YAML
  * const yaml = canvasToYaml(canvas);
  * ```
  */
 export function schemaToCanvas(
-  schema: PraxisSchema,
+  schema: PSFSchema,
   _options: { layout?: 'hierarchical' | 'force' | 'grid' | 'circular' } = {}
 ): CanvasDocument {
   // Note: layout option reserved for future auto-layout implementation
@@ -249,16 +260,21 @@ export function schemaToCanvas(
   let yOffset = 0;
   const xSpacing = 200;
   const ySpacing = 100;
-  
+
   // Add model nodes
   if (schema.models) {
-    schema.models.forEach((model, index) => {
+    schema.models.forEach((model: PSFModel, index: number) => {
+      const pos =
+        model.position && (model.position.x !== 0 || model.position.y !== 0)
+          ? model.position
+          : { x: 50, y: yOffset + index * ySpacing };
+
       const node: CanvasNode = {
-        id: `model-${nodeId++}`,
+        id: model.id || `model-${nodeId++}`,
         type: 'model',
         label: model.name,
-        x: 50,
-        y: yOffset + (index * ySpacing),
+        x: pos.x,
+        y: pos.y,
         width: 150,
         height: 60,
         data: model,
@@ -269,18 +285,23 @@ export function schemaToCanvas(
       };
       nodes.push(node);
     });
-    yOffset += (schema.models.length * ySpacing) + 50;
+    yOffset += schema.models.length * ySpacing + 50;
   }
-  
+
   // Add component nodes
   if (schema.components) {
-    schema.components.forEach((component, index) => {
+    schema.components.forEach((component: PSFComponent, index: number) => {
+      const pos =
+        component.position && (component.position.x !== 0 || component.position.y !== 0)
+          ? component.position
+          : { x: 50 + xSpacing, y: yOffset + index * ySpacing };
+
       const node: CanvasNode = {
-        id: `component-${nodeId++}`,
+        id: component.id || `component-${nodeId++}`,
         type: 'component',
         label: component.name,
-        x: 50 + xSpacing,
-        y: yOffset + (index * ySpacing),
+        x: pos.x,
+        y: pos.y,
         width: 150,
         height: 60,
         data: component,
@@ -290,10 +311,10 @@ export function schemaToCanvas(
         },
       };
       nodes.push(node);
-      
+
       // Add edges for component-model relationships
       if (component.model) {
-        const modelNode = nodes.find(n => n.type === 'model' && n.label === component.model);
+        const modelNode = nodes.find((n) => n.type === 'model' && n.label === component.model);
         if (modelNode) {
           edges.push({
             id: `edge-${edges.length}`,
@@ -305,83 +326,139 @@ export function schemaToCanvas(
         }
       }
     });
-    yOffset += (schema.components.length * ySpacing) + 50;
+    yOffset += schema.components.length * ySpacing + 50;
   }
-  
-  // Add logic nodes
-  if (schema.logic) {
-    schema.logic.forEach((logic) => {
-      // Add events
-      logic.events?.forEach((event, eventIndex) => {
-        const node: CanvasNode = {
-          id: `event-${nodeId++}`,
-          type: 'event',
-          label: event.tag,
-          x: 50 + (xSpacing * 2),
-          y: yOffset + (eventIndex * ySpacing),
-          width: 150,
-          height: 50,
-          data: event,
-          style: {
-            backgroundColor: '#fff3e0',
-            borderColor: '#f57c00',
-          },
-        };
-        nodes.push(node);
-      });
-      
-      yOffset += ((logic.events?.length || 0) * ySpacing) + 30;
-      
-      // Add facts
-      logic.facts?.forEach((fact, factIndex) => {
-        const node: CanvasNode = {
-          id: `fact-${nodeId++}`,
-          type: 'fact',
-          label: fact.tag,
-          x: 50 + (xSpacing * 3),
-          y: yOffset + (factIndex * ySpacing),
-          width: 150,
-          height: 50,
-          data: fact,
-          style: {
-            backgroundColor: '#fce4ec',
-            borderColor: '#c2185b',
-          },
-        };
-        nodes.push(node);
-      });
-      
-      yOffset += ((logic.facts?.length || 0) * ySpacing) + 30;
-      
-      // Add rules
-      logic.rules?.forEach((rule, ruleIndex) => {
-        const node: CanvasNode = {
-          id: `rule-${nodeId++}`,
-          type: 'rule',
-          label: rule.id,
-          x: 50 + (xSpacing * 4),
-          y: yOffset + (ruleIndex * ySpacing),
-          width: 150,
-          height: 50,
-          data: rule,
-          style: {
-            backgroundColor: '#e1f5fe',
-            borderColor: '#0288d1',
-          },
-        };
-        nodes.push(node);
-      });
-      
-      yOffset += ((logic.rules?.length || 0) * ySpacing) + 30;
+
+  // Add events
+  if (schema.events) {
+    schema.events.forEach((event: PSFEvent, index: number) => {
+      const pos =
+        event.position && (event.position.x !== 0 || event.position.y !== 0)
+          ? event.position
+          : { x: 50 + xSpacing * 2, y: yOffset + index * ySpacing };
+
+      const node: CanvasNode = {
+        id: event.id || `event-${nodeId++}`,
+        type: 'event',
+        label: event.tag,
+        x: pos.x,
+        y: pos.y,
+        width: 150,
+        height: 50,
+        data: event,
+        style: {
+          backgroundColor: '#fff3e0',
+          borderColor: '#f57c00',
+        },
+      };
+      nodes.push(node);
+    });
+    yOffset += schema.events.length * ySpacing + 30;
+  }
+
+  // Add facts
+  if (schema.facts) {
+    schema.facts.forEach((fact: PSFFact, index: number) => {
+      const pos =
+        fact.position && (fact.position.x !== 0 || fact.position.y !== 0)
+          ? fact.position
+          : { x: 50 + xSpacing * 3, y: yOffset + index * ySpacing };
+
+      const node: CanvasNode = {
+        id: fact.id || `fact-${nodeId++}`,
+        type: 'fact',
+        label: fact.tag,
+        x: pos.x,
+        y: pos.y,
+        width: 150,
+        height: 50,
+        data: fact,
+        style: {
+          backgroundColor: '#fce4ec',
+          borderColor: '#c2185b',
+        },
+      };
+      nodes.push(node);
+    });
+    yOffset += schema.facts.length * ySpacing + 30;
+  }
+
+  // Add rules
+  if (schema.rules) {
+    schema.rules.forEach((rule: PSFRule, index: number) => {
+      const pos =
+        rule.position && (rule.position.x !== 0 || rule.position.y !== 0)
+          ? rule.position
+          : { x: 50 + xSpacing * 4, y: yOffset + index * ySpacing };
+
+      const node: CanvasNode = {
+        id: rule.id || `rule-${nodeId++}`,
+        type: 'rule',
+        label: rule.id,
+        x: pos.x,
+        y: pos.y,
+        width: 150,
+        height: 50,
+        data: rule,
+        style: {
+          backgroundColor: '#e1f5fe',
+          borderColor: '#0288d1',
+        },
+      };
+      nodes.push(node);
+
+      // Add edges for rule triggers
+      if (rule.triggers) {
+        rule.triggers.forEach((trigger: string) => {
+          const eventNode = nodes.find((n) => n.type === 'event' && n.label === trigger);
+          if (eventNode) {
+            edges.push({
+              id: `edge-${edges.length}`,
+              source: eventNode.id,
+              target: node.id,
+              type: 'event',
+              label: 'triggers',
+            });
+          }
+        });
+      }
+    });
+    yOffset += schema.rules.length * ySpacing + 30;
+  }
+
+  // Add constraints
+  if (schema.constraints) {
+    schema.constraints.forEach((constraint: PSFConstraint, index: number) => {
+      const pos =
+        constraint.position && (constraint.position.x !== 0 || constraint.position.y !== 0)
+          ? constraint.position
+          : { x: 50 + xSpacing * 5, y: yOffset + index * ySpacing };
+
+      const node: CanvasNode = {
+        id: constraint.id || `constraint-${nodeId++}`,
+        type: 'constraint',
+        label: constraint.id,
+        x: pos.x,
+        y: pos.y,
+        width: 150,
+        height: 50,
+        data: constraint,
+        style: {
+          backgroundColor: '#ffebee',
+          borderColor: '#c62828',
+        },
+      };
+      nodes.push(node);
     });
   }
-  
+
   return {
     id: `canvas-${Date.now()}`,
     name: schema.name || 'Praxis Schema',
-    version: schema.version || '1.0.0',
+    version: schema.$version || '1.0.0',
     nodes,
     edges,
+    flows: schema.flows || [],
     metadata: {
       created: Date.now(),
       modified: Date.now(),
@@ -394,95 +471,64 @@ export function schemaToCanvas(
 /**
  * Convert a canvas document back to a Praxis schema
  */
-export function canvasToSchema(canvas: CanvasDocument): PraxisSchema {
-  const models: ModelDefinition[] = [];
-  const components: ComponentDefinition[] = [];
-  const logic: LogicDefinition[] = [];
-  
-  // Group logic elements - using proper schema types
-  const events: Array<{ tag: string; payload: Record<string, string>; description?: string }> = [];
-  const facts: Array<{ tag: string; payload: Record<string, string>; description?: string }> = [];
-  const rules: Array<{ id: string; description: string; on?: string[]; when?: string; then: string; priority?: number }> = [];
-  const constraints: Array<{ id: string; description: string; check: string; message: string }> = [];
-  
+export function canvasToSchema(canvas: CanvasDocument): PSFSchema {
+  const models: PSFModel[] = [];
+  const components: PSFComponent[] = [];
+  const events: PSFEvent[] = [];
+  const facts: PSFFact[] = [];
+  const rules: PSFRule[] = [];
+  const constraints: PSFConstraint[] = [];
+
   for (const node of canvas.nodes) {
+    const position = { x: node.x, y: node.y };
+
     switch (node.type) {
       case 'model':
         if (node.data) {
-          models.push(node.data as ModelDefinition);
+          models.push({ ...(node.data as PSFModel), position });
         }
         break;
       case 'component':
         if (node.data) {
-          components.push(node.data as ComponentDefinition);
+          components.push({ ...(node.data as PSFComponent), position });
         }
         break;
       case 'event':
         if (node.data) {
-          const eventData = node.data as { tag: string; payload?: Record<string, string>; description?: string };
-          events.push({
-            tag: eventData.tag,
-            payload: eventData.payload || {},
-            description: eventData.description,
-          });
+          events.push({ ...(node.data as PSFEvent), position });
         }
         break;
       case 'fact':
         if (node.data) {
-          const factData = node.data as { tag: string; payload?: Record<string, string>; description?: string };
-          facts.push({
-            tag: factData.tag,
-            payload: factData.payload || {},
-            description: factData.description,
-          });
+          facts.push({ ...(node.data as PSFFact), position });
         }
         break;
       case 'rule':
         if (node.data) {
-          const ruleData = node.data as { id: string; description?: string; on?: string[]; when?: string; then?: string; priority?: number };
-          rules.push({
-            id: ruleData.id,
-            description: ruleData.description || '',
-            on: ruleData.on,
-            when: ruleData.when,
-            then: ruleData.then || '',
-            priority: ruleData.priority,
-          });
+          rules.push({ ...(node.data as PSFRule), position });
         }
         break;
       case 'constraint':
         if (node.data) {
-          const constraintData = node.data as { id: string; description?: string; check?: string; message?: string };
-          constraints.push({
-            id: constraintData.id,
-            description: constraintData.description || '',
-            check: constraintData.check || 'true',
-            message: constraintData.message || '',
-          });
+          constraints.push({ ...(node.data as PSFConstraint), position });
         }
         break;
     }
   }
-  
-  // Create logic definition if we have any logic elements
-  if (events.length > 0 || facts.length > 0 || rules.length > 0 || constraints.length > 0) {
-    logic.push({
-      id: 'canvas-logic',
-      description: 'Logic extracted from canvas',
-      events: events.length > 0 ? events : undefined,
-      facts: facts.length > 0 ? facts : undefined,
-      rules: rules.length > 0 ? rules : undefined,
-      constraints: constraints.length > 0 ? constraints : undefined,
-    });
-  }
-  
+
   return {
-    version: canvas.version,
+    $version: '1.0.0',
+    id: canvas.id,
     name: canvas.name,
     description: canvas.metadata?.description,
     models,
     components,
-    logic,
+    events,
+    facts,
+    rules,
+    constraints,
+    flows: canvas.flows || [],
+    metadata: canvas.metadata,
   };
 }
 
@@ -497,7 +543,7 @@ export function canvasToYaml(canvas: CanvasDocument): string {
     '',
     'nodes:',
   ];
-  
+
   for (const node of canvas.nodes) {
     lines.push(`  - id: "${node.id}"`);
     lines.push(`    type: "${node.type}"`);
@@ -511,7 +557,7 @@ export function canvasToYaml(canvas: CanvasDocument): string {
     }
     lines.push('');
   }
-  
+
   lines.push('edges:');
   for (const edge of canvas.edges) {
     lines.push(`  - id: "${edge.id}"`);
@@ -525,7 +571,7 @@ export function canvasToYaml(canvas: CanvasDocument): string {
     }
     lines.push('');
   }
-  
+
   return lines.join('\n');
 }
 
@@ -533,10 +579,8 @@ export function canvasToYaml(canvas: CanvasDocument): string {
  * Export canvas to Mermaid diagram format
  */
 export function canvasToMermaid(canvas: CanvasDocument): string {
-  const lines: string[] = [
-    'graph TD',
-  ];
-  
+  const lines: string[] = ['graph TD'];
+
   // Add node definitions with styling
   for (const node of canvas.nodes) {
     let shape: string;
@@ -564,21 +608,21 @@ export function canvasToMermaid(canvas: CanvasDocument): string {
     }
     lines.push(`    ${node.id}${shape}`);
   }
-  
+
   lines.push('');
-  
+
   // Add edges
   for (const edge of canvas.edges) {
     const label = edge.label ? `|${edge.label}|` : '';
     lines.push(`    ${edge.source} -->${label} ${edge.target}`);
   }
-  
+
   return lines.join('\n');
 }
 
 /**
  * Validate files against FSM lifecycle rules
- * 
+ *
  * This provides integration with the CodeCanvas Guardian for pre-commit validation.
  */
 export function validateWithGuardian(
@@ -588,9 +632,9 @@ export function validateWithGuardian(
 ): GuardianResult {
   const errors: GuardianError[] = [];
   const warnings: GuardianWarning[] = [];
-  
+
   // Check if activity is in a valid state
-  const currentState = lifecycle.find(s => s.id === activity.activity);
+  const currentState = lifecycle.find((s) => s.id === activity.activity);
   if (!currentState) {
     errors.push({
       code: 'INVALID_ACTIVITY',
@@ -598,16 +642,16 @@ export function validateWithGuardian(
       rule: 'lifecycle-state',
     });
   }
-  
+
   // Validate file access based on allowed paths
   if (activity.allowedPaths) {
     for (const file of files) {
-      const allowed = activity.allowedPaths.some(pattern => {
+      const allowed = activity.allowedPaths.some((pattern) => {
         // Simple glob matching
         const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
         return regex.test(file);
       });
-      
+
       if (!allowed) {
         errors.push({
           code: 'PATH_NOT_ALLOWED',
@@ -618,7 +662,7 @@ export function validateWithGuardian(
       }
     }
   }
-  
+
   return {
     valid: errors.length === 0,
     errors,
@@ -630,7 +674,7 @@ export function validateWithGuardian(
 
 /**
  * Create a CodeCanvas editor instance
- * 
+ *
  * Note: This is a placeholder for the visual editor integration.
  * The actual visual editor requires a browser environment.
  */
@@ -640,28 +684,30 @@ export function createCanvasEditor(config: CanvasEditorConfig): {
   removeNode: (id: string) => void;
   addEdge: (edge: Omit<CanvasEdge, 'id'>) => CanvasEdge;
   removeEdge: (id: string) => void;
-  toSchema: () => PraxisSchema;
+  toSchema: () => PSFSchema;
   toYaml: () => string;
   toMermaid: () => string;
 } {
-  const document = config.document || (config.schema 
-    ? schemaToCanvas(config.schema, { layout: config.layout })
-    : {
-        id: `canvas-${Date.now()}`,
-        name: 'New Canvas',
-        version: '1.0.0',
-        nodes: [],
-        edges: [],
-        metadata: { created: Date.now(), modified: Date.now() },
-        viewport: { x: 0, y: 0, zoom: 1 },
-      });
-  
+  const document =
+    config.document ||
+    (config.schema
+      ? schemaToCanvas(config.schema, { layout: config.layout })
+      : {
+          id: `canvas-${Date.now()}`,
+          name: 'New Canvas',
+          version: '1.0.0',
+          nodes: [],
+          edges: [],
+          metadata: { created: Date.now(), modified: Date.now() },
+          viewport: { x: 0, y: 0, zoom: 1 },
+        });
+
   let nodeIdCounter = document.nodes.length;
   let edgeIdCounter = document.edges.length;
-  
+
   return {
     document,
-    
+
     addNode(node: Omit<CanvasNode, 'id'>): CanvasNode {
       const fullNode: CanvasNode = {
         ...node,
@@ -671,19 +717,17 @@ export function createCanvasEditor(config: CanvasEditorConfig): {
       document.metadata!.modified = Date.now();
       return fullNode;
     },
-    
+
     removeNode(id: string): void {
-      const index = document.nodes.findIndex(n => n.id === id);
+      const index = document.nodes.findIndex((n) => n.id === id);
       if (index !== -1) {
         document.nodes.splice(index, 1);
         // Also remove connected edges
-        document.edges = document.edges.filter(
-          e => e.source !== id && e.target !== id
-        );
+        document.edges = document.edges.filter((e) => e.source !== id && e.target !== id);
         document.metadata!.modified = Date.now();
       }
     },
-    
+
     addEdge(edge: Omit<CanvasEdge, 'id'>): CanvasEdge {
       const fullEdge: CanvasEdge = {
         ...edge,
@@ -693,23 +737,23 @@ export function createCanvasEditor(config: CanvasEditorConfig): {
       document.metadata!.modified = Date.now();
       return fullEdge;
     },
-    
+
     removeEdge(id: string): void {
-      const index = document.edges.findIndex(e => e.id === id);
+      const index = document.edges.findIndex((e) => e.id === id);
       if (index !== -1) {
         document.edges.splice(index, 1);
         document.metadata!.modified = Date.now();
       }
     },
-    
-    toSchema(): PraxisSchema {
+
+    toSchema(): PSFSchema {
       return canvasToSchema(document);
     },
-    
+
     toYaml(): string {
       return canvasToYaml(document);
     },
-    
+
     toMermaid(): string {
       return canvasToMermaid(document);
     },

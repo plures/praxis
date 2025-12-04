@@ -17,16 +17,19 @@ This implementation adds comprehensive GitHub-native monetization primitives to 
 
 ### 2. CLI Authentication System ✅
 
-**Files**: 
+**Files**:
+
 - `src/cli/index.ts` - Command definitions
 - `src/cli/commands/auth.ts` - Authentication logic
 
 **Commands**:
+
 - `praxis login` - Device flow or token-based authentication
 - `praxis logout` - Secure logout with token cleanup
 - `praxis whoami` - Display current user and subscription
 
 **Features**:
+
 - GitHub OAuth device flow (recommended)
 - Personal access token support
 - Secure token storage (`~/.praxis/auth.json` with 0600 permissions)
@@ -37,12 +40,14 @@ This implementation adds comprehensive GitHub-native monetization primitives to 
 **File**: `src/cloud/billing.ts`
 
 **Tiers**:
+
 - **Free**: 1K syncs/month, 10MB storage, 1 app
 - **Solo** ($5/mo): 50K syncs/month, 1GB storage, 10 apps
 - **Team** ($20/mo): 500K syncs/month, 10GB storage, 50 apps, 10 members
 - **Enterprise** ($50/mo): 5M syncs/month, 100GB storage, 1K apps, unlimited members
 
 **Features**:
+
 - Tier-based access control
 - Usage limit validation
 - Violation reporting
@@ -60,10 +65,12 @@ This implementation adds comprehensive GitHub-native monetization primitives to 
 ### 5. GitHub Marketplace Preparation ✅
 
 **Files**:
+
 - `src/cloud/marketplace.ts` - Marketplace client
 - `github/marketplace/listing.md` - Listing template
 
 **Features**:
+
 - Webhook event handlers
 - Plan configuration
 - Account management
@@ -74,12 +81,14 @@ This implementation adds comprehensive GitHub-native monetization primitives to 
 **File**: `src/cloud/provisioning.ts`
 
 **Features**:
+
 - Automatic tenant creation based on GitHub user
 - Storage namespace generation (Azure Blob Storage compatible)
 - Namespace validation
 - Tenant ID generation from GitHub user ID
 
 **Namespace Format**: `gh-{username}-{hash}`
+
 - Example: `gh-testuser-0009ix`
 - Lowercase, alphanumeric, hyphens only
 - 3-63 characters (Azure compliant)
@@ -87,10 +96,12 @@ This implementation adds comprehensive GitHub-native monetization primitives to 
 ### 7. Testing ✅
 
 **Files**:
+
 - `src/__tests__/billing.test.ts` - 16 tests
 - `src/__tests__/provisioning.test.ts` - 18 tests
 
 **Coverage**:
+
 - Tier limit validation
 - Access control checks
 - Usage limit enforcement
@@ -101,12 +112,14 @@ This implementation adds comprehensive GitHub-native monetization primitives to 
 ### 8. Documentation ✅
 
 **Files**:
+
 - `docs/MONETIZATION.md` - Comprehensive guide (8KB)
 - `github/marketplace/listing.md` - Marketplace listing (7KB)
 - `examples/github-monetization/README.md` - Integration guide (3KB)
 - `README.md` - Updated with new commands
 
 **Topics Covered**:
+
 - Authentication flows
 - Subscription tiers
 - GitHub App setup
@@ -120,10 +133,12 @@ This implementation adds comprehensive GitHub-native monetization primitives to 
 ### 9. Integration Example ✅
 
 **Files**:
+
 - `examples/github-monetization/index.ts`
 - `examples/github-monetization/README.md`
 
 **Demonstrations**:
+
 - Device flow authentication
 - Subscription checking
 - Tenant provisioning
@@ -168,26 +183,31 @@ This implementation adds comprehensive GitHub-native monetization primitives to 
 ## Key Design Decisions
 
 ### 1. GitHub-Only Authentication
+
 - **Rationale**: Aligns with Microsoft partnership constraint
 - **Benefit**: Single sign-on, no separate auth system needed
 - **Implementation**: OAuth device flow + personal access tokens
 
 ### 2. Four-Tier System
+
 - **Rationale**: Clear upgrade path from free to enterprise
 - **Benefit**: Predictable pricing, easy to understand
 - **Implementation**: Hardcoded limits with enforcement
 
 ### 3. Auto-Provisioning
+
 - **Rationale**: Zero-friction onboarding
 - **Benefit**: No manual setup required
 - **Implementation**: Namespace generation from GitHub handle
 
 ### 4. Usage-Based Limits
+
 - **Rationale**: Fair usage, prevents abuse
 - **Benefit**: Protects infrastructure while allowing growth
 - **Implementation**: Tracked in cloud relay, validated on operations
 
 ### 5. Dual Billing Options
+
 - **Rationale**: Flexibility for different user types
 - **Options**: GitHub Sponsors (individuals) + Marketplace (enterprises)
 - **Implementation**: Unified subscription model
@@ -195,21 +215,25 @@ This implementation adds comprehensive GitHub-native monetization primitives to 
 ## Security Considerations
 
 ### Token Storage ✅
+
 - Location: `~/.praxis/auth.json`
 - Permissions: `0600` (owner read/write only)
 - Format: JSON with user metadata
 
 ### API Communication ✅
+
 - All requests over HTTPS
 - GitHub API tokens never logged
 - Token validation on each request
 
 ### Data Encryption ✅
+
 - Tokens encrypted at rest (production)
 - Storage encrypted via Azure Blob Storage
 - Transit encryption via TLS 1.2+
 
 ### Access Control ✅
+
 - Tier-based feature gating
 - Usage limit enforcement
 - Subscription status checking
@@ -219,39 +243,47 @@ This implementation adds comprehensive GitHub-native monetization primitives to 
 All acceptance criteria from the original issue have been met:
 
 ✅ **Praxis Cloud access controlled by GitHub identity + GitHub Sponsors tier**
-   - Implemented via `src/cloud/auth.ts`, `sponsors.ts`, `billing.ts`
-   - Tier checking on login and cloud operations
+
+- Implemented via `src/cloud/auth.ts`, `sponsors.ts`, `billing.ts`
+- Tier checking on login and cloud operations
 
 ✅ **No custom billing system required**
-   - All billing through GitHub Sponsors or Marketplace
-   - No payment processing in Praxis Cloud
+
+- All billing through GitHub Sponsors or Marketplace
+- No payment processing in Praxis Cloud
 
 ✅ **Minimal developer overhead for monetization collection**
-   - Automatic via GitHub webhooks
-   - No manual invoice management
+
+- Automatic via GitHub webhooks
+- No manual invoice management
 
 ✅ **Praxis CLI can authenticate with `praxis login`**
-   - Device flow implementation
-   - PAT support via `--token` flag
-   - Secure token storage
+
+- Device flow implementation
+- PAT support via `--token` flag
+- Secure token storage
 
 ✅ **Personal access token & GitHub App token support**
-   - PAT: via `--token` flag
-   - App tokens: accepted by cloud relay
+
+- PAT: via `--token` flag
+- App tokens: accepted by cloud relay
 
 ✅ **GitHub Marketplace SaaS listing scaffold prepared**
-   - Listing template created
-   - Webhook handlers implemented
-   - Plans configured
+
+- Listing template created
+- Webhook handlers implemented
+- Plans configured
 
 ✅ **Auto-provision customer storage/tenant based on GitHub user/org**
-   - Tenant creation from GitHub user
-   - Storage namespace generation
-   - Azure-compliant naming
+
+- Tenant creation from GitHub user
+- Storage namespace generation
+- Azure-compliant naming
 
 ## Usage Examples
 
 ### Authentication
+
 ```bash
 # Device flow (recommended)
 praxis login
@@ -264,6 +296,7 @@ praxis whoami
 ```
 
 ### Cloud Management
+
 ```bash
 # Initialize
 praxis cloud init
@@ -276,6 +309,7 @@ praxis cloud usage
 ```
 
 ### Programmatic Usage
+
 ```typescript
 import {
   authenticateWithDeviceFlow,
@@ -283,10 +317,10 @@ import {
   provisionTenant,
   hasAccessToTier,
   SubscriptionTier,
-} from "@plures/praxis/cloud";
+} from '@plures/praxis/cloud';
 
 // Authenticate
-const auth = await authenticateWithDeviceFlow("CLIENT_ID");
+const auth = await authenticateWithDeviceFlow('CLIENT_ID');
 
 // Check subscription
 const client = createSponsorsClient(auth.token);
@@ -324,24 +358,28 @@ CodeQL Analysis: ✅ 0 alerts
 ## Next Steps
 
 ### Immediate (Ready to Use)
+
 1. Update `GITHUB_CLIENT_ID` in production
 2. Deploy cloud relay with authentication middleware
 3. Set up GitHub Sponsors tiers
 4. Test end-to-end authentication flow
 
 ### Short Term
+
 1. Create actual GitHub App from manifest
 2. Set up production webhook endpoints
 3. Configure Azure Blob Storage
 4. Enable usage tracking in relay
 
 ### Medium Term
+
 1. Submit GitHub Marketplace listing
 2. Add multi-region support
 3. Implement audit logging
 4. Add advanced analytics
 
 ### Long Term
+
 1. Organization-level subscriptions
 2. Custom enterprise plans
 3. Reseller partnerships
@@ -350,6 +388,7 @@ CodeQL Analysis: ✅ 0 alerts
 ## Files Changed
 
 ### New Files (15)
+
 - `src/cloud/billing.ts` (267 lines)
 - `src/cloud/sponsors.ts` (215 lines)
 - `src/cloud/marketplace.ts` (276 lines)
@@ -364,6 +403,7 @@ CodeQL Analysis: ✅ 0 alerts
 - `examples/github-monetization/README.md` (142 lines)
 
 ### Modified Files (3)
+
 - `src/cli/index.ts` (+43 lines)
 - `src/cloud/index.ts` (+56 lines)
 - `README.md` (+3 lines)

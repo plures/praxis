@@ -98,7 +98,7 @@
     </div>
   {/if}
 
-  <div class="toolbar-divider" />
+  <div class="toolbar-divider"></div>
 
   <!-- Zoom controls -->
   <div class="toolbar-group">
@@ -133,7 +133,7 @@
     </button>
   </div>
 
-  <div class="toolbar-divider" />
+  <div class="toolbar-divider"></div>
 
   <!-- Grid controls -->
   <div class="toolbar-group">
@@ -157,7 +157,7 @@
     </button>
   </div>
 
-  <div class="toolbar-divider" />
+  <div class="toolbar-divider"></div>
 
   <!-- Undo/Redo -->
   <div class="toolbar-group">
@@ -179,7 +179,7 @@
     </button>
   </div>
 
-  <div class="toolbar-divider" />
+  <div class="toolbar-divider"></div>
 
   <!-- Actions -->
   <div class="toolbar-group">
@@ -204,7 +204,9 @@
     {/if}
   </div>
 
-  <div class="toolbar-spacer" />
+  <div class="toolbar-spacer"></div>
+
+  <slot />
 
   <!-- Export/Save -->
   <div class="toolbar-group">

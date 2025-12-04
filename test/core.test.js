@@ -48,10 +48,12 @@ test('Registry with rules', () => {
     .id('increment-rule')
     .on('INCREMENT')
     .when(() => true)
-    .then((state, event) => [{
-      type: 'LOG',
-      payload: { message: `Count is now ${state.facts.count}` }
-    }])
+    .then((state, event) => [
+      {
+        type: 'LOG',
+        payload: { message: `Count is now ${state.facts.count}` },
+      },
+    ])
     .build();
 
   registry.registerRule(incrementRule);
@@ -175,12 +177,7 @@ test('Actor system', () => {
     },
   }));
 
-  const actor = createActor(
-    'counter-1',
-    { facts: { count: 0 } },
-    stepFn,
-    'counter'
-  );
+  const actor = createActor('counter-1', { facts: { count: 0 } }, stepFn, 'counter');
 
   const system = createActorSystem();
   system.register(actor);

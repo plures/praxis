@@ -1,11 +1,11 @@
 /**
  * Praxis Svelte Components
- * 
+ *
  * Exports types and interfaces for Svelte components in Praxis/RuneBook applications.
- * 
+ *
  * Note: Svelte components (.svelte files) must be imported directly in Svelte applications.
  * This module provides TypeScript types for component props.
- * 
+ *
  * @example
  * ```svelte
  * <script>
@@ -43,4 +43,3 @@ export interface TerminalNodeProps {
  */
 export type { TerminalAdapter } from '../runtime/terminal-adapter.js';
 export { createTerminalAdapter } from '../runtime/terminal-adapter.js';
-

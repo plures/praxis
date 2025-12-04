@@ -1,6 +1,6 @@
 /**
  * Praxis Schema System
- * 
+ *
  * Declarative schema definitions for generating models, components, logic, and documentation.
  */
 
@@ -494,7 +494,7 @@ export function validateSchema(schema: PraxisSchema): ValidationResult {
           message: 'Node type is required',
         });
       }
-      
+
       // Validate terminal node specific props
       if (node.type === 'terminal' && node.props) {
         const props = node.props as Partial<TerminalNodeProps>;
@@ -527,18 +527,54 @@ function isValidIdentifier(str: string): boolean {
   // JavaScript identifier must start with letter, $, or _
   // and can contain letters, digits, $, or _
   const identifierRegex = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
-  
+
   // Also check that it's not a reserved keyword
   const reservedKeywords = [
-    'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger',
-    'default', 'delete', 'do', 'else', 'export', 'extends', 'finally',
-    'for', 'function', 'if', 'import', 'in', 'instanceof', 'new',
-    'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof',
-    'var', 'void', 'while', 'with', 'yield', 'let', 'static',
-    'enum', 'await', 'implements', 'interface', 'package', 'private',
-    'protected', 'public',
+    'break',
+    'case',
+    'catch',
+    'class',
+    'const',
+    'continue',
+    'debugger',
+    'default',
+    'delete',
+    'do',
+    'else',
+    'export',
+    'extends',
+    'finally',
+    'for',
+    'function',
+    'if',
+    'import',
+    'in',
+    'instanceof',
+    'new',
+    'return',
+    'super',
+    'switch',
+    'this',
+    'throw',
+    'try',
+    'typeof',
+    'var',
+    'void',
+    'while',
+    'with',
+    'yield',
+    'let',
+    'static',
+    'enum',
+    'await',
+    'implements',
+    'interface',
+    'package',
+    'private',
+    'protected',
+    'public',
   ];
-  
+
   return identifierRegex.test(str) && !reservedKeywords.includes(str);
 }
 

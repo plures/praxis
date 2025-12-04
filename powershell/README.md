@@ -24,6 +24,7 @@ The Praxis PowerShell adapter provides a cross-language interface to the Praxis 
 ## Installation
 
 1. Build the Praxis TypeScript library:
+
    ```bash
    cd /path/to/praxis
    npm install
@@ -123,9 +124,11 @@ cd powershell/examples
 Initialize the connection to the TypeScript engine.
 
 **Parameters:**
+
 - `EnginePath` (string, required): Path to the compiled CLI adapter
 
 **Example:**
+
 ```powershell
 Initialize-PraxisAdapter -EnginePath "./dist/adapters/cli.js"
 ```
@@ -135,12 +138,14 @@ Initialize-PraxisAdapter -EnginePath "./dist/adapters/cli.js"
 Create a new Praxis state.
 
 **Parameters:**
+
 - `Context` (object, required): Initial context (hashtable or PSCustomObject)
 - `Facts` (array, optional): Array of initial facts
 
 **Returns:** PSCustomObject representing a PraxisState
 
 **Example:**
+
 ```powershell
 $state = New-PraxisState -Context @{ count = 0 }
 ```
@@ -150,12 +155,14 @@ $state = New-PraxisState -Context @{ count = 0 }
 Create a new Praxis event.
 
 **Parameters:**
+
 - `Tag` (string, required): Event type identifier
 - `Payload` (object, required): Event payload data
 
 **Returns:** PSCustomObject representing a PraxisEvent
 
 **Example:**
+
 ```powershell
 $event = New-PraxisEvent -Tag "INCREMENT" -Payload @{}
 ```
@@ -165,12 +172,14 @@ $event = New-PraxisEvent -Tag "INCREMENT" -Payload @{}
 Create a new Praxis fact.
 
 **Parameters:**
+
 - `Tag` (string, required): Fact type identifier
 - `Payload` (object, required): Fact payload data
 
 **Returns:** PSCustomObject representing a PraxisFact
 
 **Example:**
+
 ```powershell
 $fact = New-PraxisFact -Tag "UserLoggedIn" -Payload @{ userId = "alice" }
 ```
@@ -180,6 +189,7 @@ $fact = New-PraxisFact -Tag "UserLoggedIn" -Payload @{ userId = "alice" }
 Process events through the Praxis engine.
 
 **Parameters:**
+
 - `State` (PSCustomObject, required): Current Praxis state
 - `Events` (array, required): Array of events to process
 - `ConfigPath` (string, required): Path to registry configuration JSON
@@ -187,6 +197,7 @@ Process events through the Praxis engine.
 **Returns:** PSCustomObject representing a PraxisStepResult (with `state` and `diagnostics` properties)
 
 **Example:**
+
 ```powershell
 $result = Invoke-PraxisStep -State $state -Events @($event) -ConfigPath "./config.json"
 ```
@@ -196,11 +207,13 @@ $result = Invoke-PraxisStep -State $state -Events @($event) -ConfigPath "./confi
 Check protocol version compatibility.
 
 **Parameters:**
+
 - `State` (PSCustomObject, required): State to check
 
 **Returns:** Boolean indicating compatibility
 
 **Example:**
+
 ```powershell
 $compatible = Test-PraxisProtocolVersion -State $state
 ```
@@ -212,6 +225,7 @@ Get information about the PowerShell adapter.
 **Returns:** PSCustomObject with module information
 
 **Example:**
+
 ```powershell
 $info = Get-PraxisInfo
 Write-Host "Protocol Version: $($info.ProtocolVersion)"

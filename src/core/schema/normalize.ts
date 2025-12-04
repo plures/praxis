@@ -1,6 +1,6 @@
 /**
  * Praxis Schema Normalizer
- * 
+ *
  * Expands and normalizes schema definitions for code generation.
  */
 
@@ -74,19 +74,13 @@ export function normalizeSchema(
   options: NormalizationOptions = {}
 ): NormalizedSchema {
   const schemaPrefix = options.schemaPrefix || schema.name;
-  
+
   // Normalize models
-  const normalizedModels = normalizeModels(
-    schema.models || [],
-    schemaPrefix,
-    options
-  );
-  
+  const normalizedModels = normalizeModels(schema.models || [], schemaPrefix, options);
+
   // Create model lookup map
-  const modelMap = new Map(
-    normalizedModels.map((model) => [model.name, model])
-  );
-  
+  const modelMap = new Map(normalizedModels.map((model) => [model.name, model]));
+
   // Normalize components
   const normalizedComponents = normalizeComponents(
     schema.components || [],
@@ -94,14 +88,10 @@ export function normalizeSchema(
     modelMap,
     options
   );
-  
+
   // Normalize logic
-  const normalizedLogic = normalizeLogic(
-    schema.logic || [],
-    schemaPrefix,
-    options
-  );
-  
+  const normalizedLogic = normalizeLogic(schema.logic || [], schemaPrefix, options);
+
   return {
     ...schema,
     models: normalizedModels,
@@ -121,11 +111,11 @@ function normalizeModels(
   return models.map((model) => {
     const fullName = `${schemaPrefix}.${model.name}`;
     const dependencies = extractModelDependencies(model);
-    
+
     // For now, allFields is the same as fields
     // In the future, this could include inherited fields
     const allFields = [...model.fields];
-    
+
     return {
       ...model,
       fullName,
@@ -140,20 +130,20 @@ function normalizeModels(
  */
 function extractModelDependencies(model: ModelDefinition): string[] {
   const dependencies = new Set<string>();
-  
+
   for (const field of model.fields) {
     if (typeof field.type === 'object' && 'reference' in field.type) {
       dependencies.add(field.type.reference);
     }
   }
-  
+
   // Add relationship dependencies
   if (model.relationships) {
     for (const rel of model.relationships) {
       dependencies.add(rel.target);
     }
   }
-  
+
   return Array.from(dependencies);
 }
 
@@ -168,10 +158,8 @@ function normalizeComponents(
 ): NormalizedComponent[] {
   return components.map((component) => {
     const fullName = `${schemaPrefix}.${component.name}`;
-    const resolvedModel = component.model
-      ? modelMap.get(component.model)
-      : undefined;
-    
+    const resolvedModel = component.model ? modelMap.get(component.model) : undefined;
+
     return {
       ...component,
       fullName,
@@ -190,7 +178,7 @@ function normalizeLogic(
 ): NormalizedLogic[] {
   return logic.map((logicDef) => {
     const fullId = `${schemaPrefix}.${logicDef.id}`;
-    
+
     return {
       ...logicDef,
       fullId,
@@ -201,30 +189,27 @@ function normalizeLogic(
 /**
  * Expand field type to fully qualified type string
  */
-export function expandFieldType(
-  fieldType: any,
-  schemaPrefix: string = ''
-): string {
+export function expandFieldType(fieldType: any, schemaPrefix: string = ''): string {
   if (typeof fieldType === 'string') {
     return fieldType;
   }
-  
+
   if (typeof fieldType === 'object') {
     if ('array' in fieldType) {
       const innerType = expandFieldType(fieldType.array, schemaPrefix);
       return `${innerType}[]`;
     }
-    
+
     if ('object' in fieldType) {
       return 'object';
     }
-    
+
     if ('reference' in fieldType) {
       const refName = fieldType.reference;
       return schemaPrefix ? `${schemaPrefix}.${refName}` : refName;
     }
   }
-  
+
   return 'unknown';
 }
 
@@ -250,13 +235,13 @@ export function fieldTypeToTypeScript(fieldType: any): string {
         return 'unknown';
     }
   }
-  
+
   if (typeof fieldType === 'object') {
     if ('array' in fieldType) {
       const innerType = fieldTypeToTypeScript(fieldType.array);
       return `${innerType}[]`;
     }
-    
+
     if ('object' in fieldType) {
       const fields = fieldType.object;
       const fieldTypes = Object.entries(fields)
@@ -267,30 +252,28 @@ export function fieldTypeToTypeScript(fieldType: any): string {
         .join('; ');
       return `{ ${fieldTypes} }`;
     }
-    
+
     if ('reference' in fieldType) {
       return fieldType.reference;
     }
   }
-  
+
   return 'unknown';
 }
 
 /**
  * Sort models by dependency order (models with no dependencies first)
  */
-export function sortModelsByDependencies(
-  models: NormalizedModel[]
-): NormalizedModel[] {
+export function sortModelsByDependencies(models: NormalizedModel[]): NormalizedModel[] {
   const sorted: NormalizedModel[] = [];
   const visited = new Set<string>();
   const visiting = new Set<string>();
-  
+
   function visit(model: NormalizedModel) {
     if (visited.has(model.name)) {
       return;
     }
-    
+
     if (visiting.has(model.name)) {
       // Circular dependency detected, just add it
       visiting.delete(model.name);
@@ -298,9 +281,9 @@ export function sortModelsByDependencies(
       visited.add(model.name);
       return;
     }
-    
+
     visiting.add(model.name);
-    
+
     // Visit dependencies first
     for (const depName of model.dependencies) {
       const dep = models.find((m) => m.name === depName);
@@ -308,15 +291,15 @@ export function sortModelsByDependencies(
         visit(dep);
       }
     }
-    
+
     visiting.delete(model.name);
     visited.add(model.name);
     sorted.push(model);
   }
-  
+
   for (const model of models) {
     visit(model);
   }
-  
+
   return sorted;
 }

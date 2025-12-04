@@ -2,13 +2,13 @@
  * Engine tests
  */
 
-import { describe, it, expect } from "vitest";
-import { createPraxisEngine } from "../core/engine.js";
-import { PraxisRegistry } from "../core/rules.js";
-import { defineRule, defineConstraint, defineFact, defineEvent } from "../dsl/index.js";
+import { describe, it, expect } from 'vitest';
+import { createPraxisEngine } from '../core/engine.js';
+import { PraxisRegistry } from '../core/rules.js';
+import { defineRule, defineConstraint, defineFact, defineEvent } from '../dsl/index.js';
 
-describe("LogicEngine", () => {
-  it("should create an engine with initial context", () => {
+describe('LogicEngine', () => {
+  it('should create an engine with initial context', () => {
     const registry = new PraxisRegistry<{ count: number }>();
     const engine = createPraxisEngine({
       initialContext: { count: 0 },
@@ -18,17 +18,17 @@ describe("LogicEngine", () => {
     expect(engine.getContext()).toEqual({ count: 0 });
   });
 
-  it("should apply rules when processing events", () => {
+  it('should apply rules when processing events', () => {
     interface Context {
       count: number;
     }
 
-    const Incremented = defineFact<"Incremented", { amount: number }>("Incremented");
-    const Increment = defineEvent<"INCREMENT", {}>("INCREMENT");
+    const Incremented = defineFact<'Incremented', { amount: number }>('Incremented');
+    const Increment = defineEvent<'INCREMENT', {}>('INCREMENT');
 
     const incrementRule = defineRule<Context>({
-      id: "increment",
-      description: "Increment counter",
+      id: 'increment',
+      description: 'Increment counter',
       impl: (state, events) => {
         if (events.some(Increment.is)) {
           state.context.count += 1;
@@ -50,19 +50,19 @@ describe("LogicEngine", () => {
 
     expect(engine.getContext().count).toBe(1);
     expect(result.state.facts).toHaveLength(1);
-    expect(result.state.facts[0]?.tag).toBe("Incremented");
+    expect(result.state.facts[0]?.tag).toBe('Incremented');
   });
 
-  it("should check constraints", () => {
+  it('should check constraints', () => {
     interface Context {
       count: number;
     }
 
     const maxConstraint = defineConstraint<Context>({
-      id: "max100",
-      description: "Count cannot exceed 100",
+      id: 'max100',
+      description: 'Count cannot exceed 100',
       impl: (state) => {
-        return state.context.count <= 100 || "Count exceeds 100";
+        return state.context.count <= 100 || 'Count exceeds 100';
       },
     });
 
@@ -82,21 +82,21 @@ describe("LogicEngine", () => {
     engine.updateContext(() => ({ count: 150 }));
     result = engine.step([]);
     expect(result.diagnostics).toHaveLength(1);
-    expect(result.diagnostics[0]?.kind).toBe("constraint-violation");
+    expect(result.diagnostics[0]?.kind).toBe('constraint-violation');
   });
 
-  it("should handle multiple rules", () => {
+  it('should handle multiple rules', () => {
     interface Context {
       value: number;
     }
 
-    const Doubled = defineFact<"Doubled", {}>("Doubled");
-    const Added = defineFact<"Added", { amount: number }>("Added");
-    const DoubleThenAdd = defineEvent<"DOUBLE_ADD", { amount: number }>("DOUBLE_ADD");
+    const Doubled = defineFact<'Doubled', {}>('Doubled');
+    const Added = defineFact<'Added', { amount: number }>('Added');
+    const DoubleThenAdd = defineEvent<'DOUBLE_ADD', { amount: number }>('DOUBLE_ADD');
 
     const doubleRule = defineRule<Context>({
-      id: "double",
-      description: "Double the value",
+      id: 'double',
+      description: 'Double the value',
       impl: (state, events) => {
         if (events.some(DoubleThenAdd.is)) {
           state.context.value *= 2;
@@ -107,8 +107,8 @@ describe("LogicEngine", () => {
     });
 
     const addRule = defineRule<Context>({
-      id: "add",
-      description: "Add to the value",
+      id: 'add',
+      description: 'Add to the value',
       impl: (state, events) => {
         const event = events.find(DoubleThenAdd.is);
         if (event) {

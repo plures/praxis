@@ -1,10 +1,10 @@
 /**
  * GitHub OAuth Authentication
- * 
+ *
  * GitHub OAuth integration for Praxis Cloud Relay identity.
  */
 
-import type { AuthResult, GitHubUser } from "./types.js";
+import type { AuthResult, GitHubUser } from './types.js';
 
 /**
  * GitHub OAuth configuration
@@ -32,12 +32,12 @@ export class GitHubOAuth {
   getAuthorizationUrl(state?: string): string {
     const params = new URLSearchParams({
       client_id: this.config.clientId,
-      scope: this.config.scope || "read:user user:email",
+      scope: this.config.scope || 'read:user user:email',
       state: state || this.generateState(),
     });
 
     if (this.config.redirectUri) {
-      params.set("redirect_uri", this.config.redirectUri);
+      params.set('redirect_uri', this.config.redirectUri);
     }
 
     return `https://github.com/login/oauth/authorize?${params.toString()}`;
@@ -48,31 +48,28 @@ export class GitHubOAuth {
    */
   async exchangeCode(code: string): Promise<AuthResult> {
     if (!this.config.clientSecret) {
-      throw new Error("Client secret is required for code exchange");
+      throw new Error('Client secret is required for code exchange');
     }
 
     try {
-      const response = await fetch(
-        "https://github.com/login/oauth/access_token",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            client_id: this.config.clientId,
-            client_secret: this.config.clientSecret,
-            code,
-          }),
-        }
-      );
+      const response = await fetch('https://github.com/login/oauth/access_token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          client_id: this.config.clientId,
+          client_secret: this.config.clientSecret,
+          code,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error(`Token exchange failed: ${response.statusText}`);
       }
 
-      const data = await response.json() as any;
+      const data = (await response.json()) as any;
 
       if (data.error) {
         throw new Error(`GitHub OAuth error: ${data.error_description || data.error}`);
@@ -85,9 +82,7 @@ export class GitHubOAuth {
         success: true,
         token: data.access_token,
         user,
-        expiresAt: data.expires_in
-          ? Date.now() + data.expires_in * 1000
-          : undefined,
+        expiresAt: data.expires_in ? Date.now() + data.expires_in * 1000 : undefined,
       };
     } catch (error) {
       return {
@@ -100,10 +95,10 @@ export class GitHubOAuth {
    * Get user information from GitHub
    */
   async getUserInfo(token: string): Promise<GitHubUser> {
-    const response = await fetch("https://api.github.com/user", {
+    const response = await fetch('https://api.github.com/user', {
       headers: {
         Authorization: `Bearer ${token}`,
-        Accept: "application/vnd.github.v3+json",
+        Accept: 'application/vnd.github.v3+json',
       },
     });
 
@@ -111,7 +106,7 @@ export class GitHubOAuth {
       throw new Error(`Failed to get user info: ${response.statusText}`);
     }
 
-    const data = await response.json() as any;
+    const data = (await response.json()) as any;
 
     return {
       id: data.id,
@@ -139,7 +134,7 @@ export class GitHubOAuth {
    */
   private generateState(): string {
     const array = new Uint8Array(16);
-    if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
       crypto.getRandomValues(array);
     } else {
       // Fallback for Node.js
@@ -147,9 +142,7 @@ export class GitHubOAuth {
         array[i] = Math.floor(Math.random() * 256);
       }
     }
-    return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
-      ""
-    );
+    return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
   }
 }
 
@@ -163,36 +156,31 @@ export function createGitHubOAuth(config: GitHubOAuthConfig): GitHubOAuth {
 /**
  * Authenticate with GitHub OAuth device flow (for CLI)
  */
-export async function authenticateWithDeviceFlow(
-  clientId: string
-): Promise<AuthResult> {
+export async function authenticateWithDeviceFlow(clientId: string): Promise<AuthResult> {
   try {
     // Request device code
-    const deviceResponse = await fetch(
-      "https://github.com/login/device/code",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          client_id: clientId,
-          scope: "read:user user:email",
-        }),
-      }
-    );
+    const deviceResponse = await fetch('https://github.com/login/device/code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        client_id: clientId,
+        scope: 'read:user user:email',
+      }),
+    });
 
     if (!deviceResponse.ok) {
       throw new Error(`Device flow initiation failed: ${deviceResponse.statusText}`);
     }
 
-    const deviceData = await deviceResponse.json() as any;
+    const deviceData = (await deviceResponse.json()) as any;
 
-    console.log("\nTo authenticate with GitHub:");
+    console.log('\nTo authenticate with GitHub:');
     console.log(`1. Visit: ${deviceData.verification_uri}`);
     console.log(`2. Enter code: ${deviceData.user_code}`);
-    console.log("\nWaiting for authentication...\n");
+    console.log('\nWaiting for authentication...\n');
 
     // Poll for access token
     const interval = deviceData.interval * 1000 || 5000;
@@ -201,23 +189,20 @@ export async function authenticateWithDeviceFlow(
     while (Date.now() < expiresAt) {
       await new Promise((resolve) => setTimeout(resolve, interval));
 
-      const tokenResponse = await fetch(
-        "https://github.com/login/oauth/access_token",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            client_id: clientId,
-            device_code: deviceData.device_code,
-            grant_type: "urn:ietf:params:oauth:grant-type:device_code",
-          }),
-        }
-      );
+      const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          client_id: clientId,
+          device_code: deviceData.device_code,
+          grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+        }),
+      });
 
-      const tokenData = await tokenResponse.json() as any;
+      const tokenData = (await tokenResponse.json()) as any;
 
       if (tokenData.access_token) {
         // Get user info
@@ -231,12 +216,12 @@ export async function authenticateWithDeviceFlow(
         };
       }
 
-      if (tokenData.error && tokenData.error !== "authorization_pending") {
+      if (tokenData.error && tokenData.error !== 'authorization_pending') {
         throw new Error(`Authentication failed: ${tokenData.error_description || tokenData.error}`);
       }
     }
 
-    throw new Error("Authentication timeout");
+    throw new Error('Authentication timeout');
   } catch (error) {
     return {
       success: false,

@@ -56,7 +56,7 @@ export const appSchema: PraxisSchema = {
   version: '1.0.0',
   name: 'MyApp',
   description: 'My Praxis application',
-  
+
   models: [
     {
       name: 'User',
@@ -67,7 +67,7 @@ export const appSchema: PraxisSchema = {
       ],
     },
   ],
-  
+
   components: [
     {
       name: 'UserForm',
@@ -75,17 +75,13 @@ export const appSchema: PraxisSchema = {
       model: 'User',
     },
   ],
-  
+
   logic: [
     {
       id: 'user-logic',
       description: 'User management logic',
-      events: [
-        { tag: 'USER_CREATE', payload: { name: 'string', email: 'string' } },
-      ],
-      facts: [
-        { tag: 'UserCreated', payload: { userId: 'string' } },
-      ],
+      events: [{ tag: 'USER_CREATE', payload: { name: 'string', email: 'string' } }],
+      facts: [{ tag: 'UserCreated', payload: { userId: 'string' } }],
     },
   ],
 };
@@ -98,6 +94,7 @@ praxis generate --schema src/schemas/app.schema.ts
 ```
 
 This generates:
+
 - Svelte components in `src/components/`
 - Logic definitions in `src/logic/`
 - Type definitions throughout

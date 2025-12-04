@@ -1,6 +1,6 @@
 /**
  * Praxis File Watcher
- * 
+ *
  * Watches PSF schema files and source files for changes,
  * triggering regeneration and sync operations.
  */
@@ -41,7 +41,7 @@ export interface WatcherEvent {
 
 /**
  * File Watcher class
- * 
+ *
  * Watches for file changes and triggers callbacks.
  */
 export class FileWatcher {
@@ -108,7 +108,14 @@ export class FileWatcher {
   /**
    * Watched file extensions (O(1) lookup)
    */
-  private static readonly WATCHED_EXTENSIONS = new Set(['.ts', '.js', '.json', '.yaml', '.yml', '.svelte']);
+  private static readonly WATCHED_EXTENSIONS = new Set([
+    '.ts',
+    '.js',
+    '.json',
+    '.yaml',
+    '.yml',
+    '.svelte',
+  ]);
 
   /**
    * Check if file should be processed
@@ -182,7 +189,7 @@ export class FileWatcher {
 
 /**
  * PSF Schema Watcher
- * 
+ *
  * Specialized watcher for PSF schema files.
  */
 export class PSFSchemaWatcher extends FileWatcher {

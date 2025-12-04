@@ -1,6 +1,6 @@
 /**
  * Cloud Relay Client
- * 
+ *
  * Client for connecting to Praxis Cloud Relay service (Azure-based).
  */
 
@@ -11,7 +11,7 @@ import type {
   CRDTSyncMessage,
   UsageMetrics,
   HealthCheckResponse,
-} from "./types.js";
+} from './types.js';
 
 /**
  * Create a cloud relay client
@@ -30,15 +30,15 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
     async connect(): Promise<void> {
       // Validate endpoint
       if (!config.endpoint) {
-        throw new Error("Cloud relay endpoint is required");
+        throw new Error('Cloud relay endpoint is required');
       }
 
       // Test connection
       try {
         const response = await fetch(`${config.endpoint}/health`, {
-          method: "GET",
+          method: 'GET',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             ...(config.authToken && {
               Authorization: `Bearer ${config.authToken}`,
             }),
@@ -79,7 +79,7 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
 
     async sync(message: CRDTSyncMessage): Promise<void> {
       if (!status.connected) {
-        throw new Error("Not connected to cloud relay");
+        throw new Error('Not connected to cloud relay');
       }
 
       // Update vector clock
@@ -88,9 +88,9 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
 
       try {
         const response = await fetch(`${config.endpoint}/sync`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             ...(config.authToken && {
               Authorization: `Bearer ${config.authToken}`,
             }),
@@ -105,13 +105,10 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
         status.lastSync = Date.now();
 
         // Merge received vector clock
-        const result = await response.json() as any;
+        const result = (await response.json()) as any;
         if (result.clock) {
           Object.entries(result.clock).forEach(([key, value]) => {
-            vectorClock[key] = Math.max(
-              vectorClock[key] || 0,
-              value as number
-            );
+            vectorClock[key] = Math.max(vectorClock[key] || 0, value as number);
           });
         }
       } catch (error) {
@@ -123,28 +120,25 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
 
     async getUsage(): Promise<UsageMetrics> {
       if (!status.connected) {
-        throw new Error("Not connected to cloud relay");
+        throw new Error('Not connected to cloud relay');
       }
 
       try {
-        const response = await fetch(
-          `${config.endpoint}/usage?appId=${config.appId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              ...(config.authToken && {
-                Authorization: `Bearer ${config.authToken}`,
-              }),
-            },
-          }
-        );
+        const response = await fetch(`${config.endpoint}/usage?appId=${config.appId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(config.authToken && {
+              Authorization: `Bearer ${config.authToken}`,
+            }),
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`Failed to get usage: ${response.statusText}`);
         }
 
-        return await response.json() as UsageMetrics;
+        return (await response.json()) as UsageMetrics;
       } catch (error) {
         throw new Error(
           `Failed to get usage metrics: ${error instanceof Error ? error.message : String(error)}`
@@ -155,9 +149,9 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
     async getHealth(): Promise<HealthCheckResponse> {
       try {
         const response = await fetch(`${config.endpoint}/health`, {
-          method: "GET",
+          method: 'GET',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         });
 
@@ -165,7 +159,7 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
           throw new Error(`Health check failed: ${response.statusText}`);
         }
 
-        return await response.json() as HealthCheckResponse;
+        return (await response.json()) as HealthCheckResponse;
       } catch (error) {
         throw new Error(
           `Failed to get health status: ${error instanceof Error ? error.message : String(error)}`
@@ -181,21 +175,21 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
 
 /**
  * Connect to Praxis Cloud Relay
- * 
+ *
  * @param endpoint - Azure Function App endpoint URL
  * @param options - Additional configuration options
  * @returns Cloud relay client instance
- * 
+ *
  * @example
  * ```typescript
  * import { connectRelay } from "@plures/praxis/cloud";
- * 
+ *
  * const relay = await connectRelay("https://my-app.azurewebsites.net", {
  *   appId: "my-app",
  *   authToken: "github-token",
  *   autoSync: true
  * });
- * 
+ *
  * // Sync data
  * await relay.sync({
  *   type: "delta",
@@ -208,7 +202,7 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
  */
 export async function connectRelay(
   endpoint: string,
-  options: Omit<CloudRelayConfig, "endpoint"> = { appId: "default" }
+  options: Omit<CloudRelayConfig, 'endpoint'> = { appId: 'default' }
 ): Promise<CloudRelayClient> {
   const config: CloudRelayConfig = {
     endpoint,

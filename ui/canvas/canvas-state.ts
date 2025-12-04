@@ -1,6 +1,6 @@
 /**
  * Canvas State Management
- * 
+ *
  * Manages the reactive state of the visual canvas editor.
  * Integrates with PluresDB for real-time synchronization.
  */
@@ -125,7 +125,7 @@ export interface CanvasState {
 
 /**
  * Canvas state manager
- * 
+ *
  * Manages the reactive state of the canvas editor.
  */
 export class CanvasStateManager {
@@ -219,7 +219,7 @@ export class CanvasStateManager {
       // Create edges from triggers
       if (rule.triggers) {
         for (const trigger of rule.triggers) {
-          const eventNode = schema.events.find((e) => e.tag === trigger);
+          const eventNode = schema.events.find((e) => e.tag === trigger || e.id === trigger);
           if (eventNode) {
             const edgeId = `edge_${eventNode.id}_${rule.id}`;
             edges.set(edgeId, {
@@ -229,6 +229,27 @@ export class CanvasStateManager {
               type: 'event',
               selected: false,
               label: 'triggers',
+            });
+          }
+        }
+      }
+
+      // Create edges to output events (from logic.events)
+      const ruleData = rule as any;
+      if (ruleData.logic && ruleData.logic.events) {
+        for (const outputEventId of ruleData.logic.events) {
+          const eventNode = schema.events.find(
+            (e) => e.id === outputEventId || e.tag === outputEventId
+          );
+          if (eventNode) {
+            const edgeId = `edge_${rule.id}_${eventNode.id}`;
+            edges.set(edgeId, {
+              id: edgeId,
+              source: rule.id,
+              target: eventNode.id,
+              type: 'event',
+              selected: false,
+              label: 'emits',
             });
           }
         }
@@ -422,9 +443,7 @@ export class CanvasStateManager {
   selectNode(nodeId: string, addToSelection = false): void {
     this.saveToUndo();
 
-    const selection = addToSelection
-      ? new Set(this.state.selection.nodes)
-      : new Set<string>();
+    const selection = addToSelection ? new Set(this.state.selection.nodes) : new Set<string>();
 
     selection.add(nodeId);
 
@@ -443,9 +462,7 @@ export class CanvasStateManager {
    * Move node
    */
   moveNode(nodeId: string, position: PSFPosition): void {
-    const finalPosition = this.state.grid.snap
-      ? this.snapToGrid(position)
-      : position;
+    const finalPosition = this.state.grid.snap ? this.snapToGrid(position) : position;
 
     this.setState({
       ...this.state,
@@ -566,7 +583,10 @@ export class CanvasStateManager {
     this.notifySubscribers();
   }
 
-  private updateNode(nodeId: string, updates: Partial<CanvasNodeState>): Map<string, CanvasNodeState> {
+  private updateNode(
+    nodeId: string,
+    updates: Partial<CanvasNodeState>
+  ): Map<string, CanvasNodeState> {
     const updatedNodes = new Map(this.state.nodes);
     const node = updatedNodes.get(nodeId);
     if (node) {
@@ -608,7 +628,10 @@ export class CanvasStateManager {
     const node = this.state.nodes.get(nodeId);
     if (!node) return;
 
-    const typeMap: Record<CanvasNodeState['type'], 'facts' | 'events' | 'rules' | 'constraints' | 'models' | 'components'> = {
+    const typeMap: Record<
+      CanvasNodeState['type'],
+      'facts' | 'events' | 'rules' | 'constraints' | 'models' | 'components'
+    > = {
       fact: 'facts',
       event: 'events',
       rule: 'rules',

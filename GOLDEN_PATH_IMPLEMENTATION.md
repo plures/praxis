@@ -9,11 +9,13 @@ This document summarizes the implementation of the Praxis v0.2 "Golden Path" —
 ### 1. Schema System (✅ Complete)
 
 **Files:**
+
 - `src/core/schema/types.ts` (existing, already complete)
 - `src/core/schema/loader.ts` (new)
 - `src/core/schema/normalize.ts` (new)
 
 **Features:**
+
 - Schema validation with clear error messages
 - Schema loading from JavaScript files
 - Schema normalization with model resolution
@@ -22,6 +24,7 @@ This document summarizes the implementation of the Praxis v0.2 "Golden Path" —
 ### 2. Code Generators (✅ Complete)
 
 **Logic Generator** (`src/core/logic/generator.ts`)
+
 - Generates `facts.ts` with typed fact definitions
 - Generates `events.ts` with typed event definitions
 - Generates `rules.ts` with rule scaffolds and TODOs
@@ -29,12 +32,14 @@ This document summarizes the implementation of the Praxis v0.2 "Golden Path" —
 - Generates `index.ts` for convenient imports
 
 **Component Generator** (`src/core/component/generator.ts`)
+
 - Already existed, integrated into pipeline
 - Generates Svelte components from schema
 - Includes TypeScript types and documentation
 - Supports form, list, display, and custom components
 
 **PluresDB Generator** (`src/core/pluresdb/generator.ts`)
+
 - Generates database configuration
 - Creates stores for each model
 - Defines indexes based on schema
@@ -45,6 +50,7 @@ This document summarizes the implementation of the Praxis v0.2 "Golden Path" —
 **File:** `src/cli/commands/generate.ts`
 
 **Usage:**
+
 ```bash
 # Generate all code from schema
 praxis generate --schema praxis.schema.js
@@ -59,6 +65,7 @@ praxis generate --schema praxis.schema.js --output ./src/generated
 ```
 
 **Features:**
+
 - Loads and validates schema
 - Normalizes schema for generation
 - Generates all artifacts or specific targets
@@ -68,12 +75,14 @@ praxis generate --schema praxis.schema.js --output ./src/generated
 ### 4. Tests (✅ Complete)
 
 **Schema Tests** (`src/__tests__/schema.test.ts`)
+
 - 8 tests covering validation and normalization
 - Tests schema templates
 - Tests model dependency resolution
 - Tests component-model resolution
 
 **Generator Tests** (`src/__tests__/generators.test.ts`)
+
 - 12 tests covering all generators
 - Tests logic file generation
 - Tests component generation
@@ -81,6 +90,7 @@ praxis generate --schema praxis.schema.js --output ./src/generated
 - Tests options and configuration
 
 **Test Results:**
+
 - 83 total tests passing
 - 8 test files
 - No failing tests
@@ -91,11 +101,13 @@ praxis generate --schema praxis.schema.js --output ./src/generated
 **Location:** `examples/simple-app/`
 
 **Contents:**
+
 - `praxis.schema.js` - Complete TodoApp schema
 - `README.md` - Comprehensive guide
 - Generated code demonstrating full pipeline
 
 **Schema Includes:**
+
 - Models: Todo with typed fields
 - Components: TodoForm, TodoList, TodoItem
 - Logic: Events, facts, rules, and constraints
@@ -148,12 +160,8 @@ export const schema = {
   logic: [
     {
       id: 'user-logic',
-      events: [
-        { tag: 'CREATE_USER', payload: { name: 'string' } },
-      ],
-      facts: [
-        { tag: 'UserCreated', payload: { userId: 'string' } },
-      ],
+      events: [{ tag: 'CREATE_USER', payload: { name: 'string' } }],
+      facts: [{ tag: 'UserCreated', payload: { userId: 'string' } }],
     },
   ],
 };
@@ -166,6 +174,7 @@ praxis generate --schema praxis.schema.js
 ```
 
 Output:
+
 ```
 ✓ Schema loaded successfully
 ✓ Schema normalized
@@ -182,25 +191,26 @@ import { createEngine } from './generated/logic/engine.js';
 import { CREATE_USER } from './generated/logic/events.js';
 
 const engine = createEngine();
-const result = engine.step([
-  CREATE_USER.create({ name: 'Alice' })
-]);
+const result = engine.step([CREATE_USER.create({ name: 'Alice' })]);
 ```
 
 ## Technical Decisions
 
 ### TypeScript Compilation
+
 - Schema files must be JavaScript (.js) or pre-compiled TypeScript
 - This avoids runtime TypeScript compilation complexity
 - Users can compile their schemas with `tsc` if needed
 
 ### Code Generation Strategy
+
 - Generate complete but minimal code
 - Include helpful TODOs where manual work is needed
 - Preserve existing patterns (e.g., defineFact, defineEvent)
 - Type-safe by default
 
 ### File Organization
+
 - Separate files for facts, events, rules
 - Single engine.ts for setup and types
 - Components get separate files per component
@@ -209,16 +219,19 @@ const result = engine.step([
 ## Validation & Safety
 
 ### Schema Validation
+
 - Required fields checked (version, name, models)
 - Model fields validated
 - Clear error messages with paths
 
 ### Generation Validation
+
 - Checks for at least one model
 - Validates model fields
 - Type-safe TypeScript output
 
 ### Security
+
 - CodeQL scan: 0 vulnerabilities
 - No eval or dynamic code execution
 - Pure file generation from AST

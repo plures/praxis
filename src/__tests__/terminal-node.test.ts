@@ -199,7 +199,7 @@ orchestration:
       const result = loadSchemaFromYaml(yaml);
       expect(result.errors).toHaveLength(0);
       expect(result.schema).toBeDefined();
-      
+
       const node = result.schema?.orchestration?.nodes?.[0];
       expect(node?.type).toBe('terminal');
       expect(node?.bindings?.input).toBe('/plures/terminal/input');
@@ -287,13 +287,13 @@ orchestration:
       });
 
       const result = await adapter.executeCommand('echo hello');
-      
+
       expect(result).toBeDefined();
       expect(result.command).toBe('echo hello');
       expect(result.output).toContain('hello');
       expect(result.exitCode).toBe(0);
       expect(result.timestamp).toBeGreaterThan(0);
-      
+
       const state = adapter.getState();
       expect(state.history).toContain('echo hello');
       expect(state.lastOutput).toBe(result.output);
@@ -319,9 +319,9 @@ orchestration:
 
       await adapter.executeCommand('ls');
       await adapter.executeCommand('pwd');
-      
+
       expect(adapter.getHistory()).toHaveLength(2);
-      
+
       adapter.clearHistory();
       expect(adapter.getHistory()).toHaveLength(0);
     });
@@ -343,7 +343,7 @@ orchestration:
   describe('runTerminalCommand convenience function', () => {
     it('executes command using convenience function', async () => {
       const result = await runTerminalCommand('test-node', 'ls -la');
-      
+
       expect(result).toBeDefined();
       expect(result.command).toBe('ls -la');
       expect(result.exitCode).toBe(0);

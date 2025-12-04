@@ -1,6 +1,6 @@
 /**
  * Praxis Create Command
- * 
+ *
  * Creates new Praxis applications and components from templates.
  */
 
@@ -26,30 +26,30 @@ export interface CreateOptions {
 function generatePackageJson(name: string): string {
   const pkg = {
     name: name,
-    version: "0.1.0",
+    version: '0.1.0',
     private: true,
-    type: "module",
+    type: 'module',
     scripts: {
-      dev: "vite",
-      build: "tsc && vite build",
-      preview: "vite preview",
-      generate: "praxis generate",
-      test: "vitest"
+      dev: 'vite',
+      build: 'tsc && vite build',
+      preview: 'vite preview',
+      generate: 'praxis generate',
+      test: 'vitest',
     },
     dependencies: {
-      "@plures/praxis": "^0.2.1"
+      '@plures/praxis': '^0.2.1',
     },
     devDependencies: {
-      "@sveltejs/vite-plugin-svelte": "^5.0.0",
-      "@tsconfig/svelte": "^5.0.4",
-      "svelte": "^5.0.0",
-      "svelte-check": "^4.0.0",
-      "typescript": "^5.6.0",
-      "vite": "^6.0.0",
-      "vitest": "^4.0.0"
-    }
+      '@sveltejs/vite-plugin-svelte': '^5.0.0',
+      '@tsconfig/svelte': '^5.0.4',
+      svelte: '^5.0.0',
+      'svelte-check': '^4.0.0',
+      typescript: '^5.6.0',
+      vite: '^6.0.0',
+      vitest: '^4.0.0',
+    },
   };
-  
+
   return JSON.stringify(pkg, null, 2);
 }
 
@@ -58,22 +58,22 @@ function generatePackageJson(name: string): string {
  */
 function generateTsConfig(): string {
   const config = {
-    extends: "@tsconfig/svelte/tsconfig.json",
+    extends: '@tsconfig/svelte/tsconfig.json',
     compilerOptions: {
-      target: "ESNext",
-      module: "ESNext",
-      moduleResolution: "bundler",
+      target: 'ESNext',
+      module: 'ESNext',
+      moduleResolution: 'bundler',
       strict: true,
       esModuleInterop: true,
       skipLibCheck: true,
       resolveJsonModule: true,
       isolatedModules: true,
-      noEmit: true
+      noEmit: true,
     },
-    include: ["src/**/*"],
-    exclude: ["node_modules"]
+    include: ['src/**/*'],
+    exclude: ['node_modules'],
   };
-  
+
   return JSON.stringify(config, null, 2);
 }
 
@@ -441,18 +441,18 @@ coverage/
 async function createApp(name: string, options: CreateOptions): Promise<void> {
   const template = options.template || 'basic';
   const appDir = resolve(process.cwd(), name);
-  
+
   // Check if directory already exists
   if (existsSync(appDir)) {
     console.error(`\n✗ Directory '${name}' already exists`);
     console.error('  Please choose a different name or remove the existing directory.\n');
     process.exit(1);
   }
-  
+
   console.log(`\n📦 Creating Praxis application: ${name}`);
   console.log(`   Template: ${template}`);
   console.log(`   Location: ${appDir}\n`);
-  
+
   // Create directory structure
   const dirs = [
     appDir,
@@ -461,14 +461,14 @@ async function createApp(name: string, options: CreateOptions): Promise<void> {
     join(appDir, 'src', 'components'),
     join(appDir, 'src', 'logic'),
     join(appDir, 'src', 'store'),
-    join(appDir, 'public')
+    join(appDir, 'public'),
   ];
-  
+
   for (const dir of dirs) {
     await mkdir(dir, { recursive: true });
   }
   console.log('✓ Created directory structure');
-  
+
   // Write configuration files
   await writeFile(join(appDir, 'package.json'), generatePackageJson(name));
   await writeFile(join(appDir, 'tsconfig.json'), generateTsConfig());
@@ -477,21 +477,24 @@ async function createApp(name: string, options: CreateOptions): Promise<void> {
   await writeFile(join(appDir, '.gitignore'), generateGitignore());
   await writeFile(join(appDir, 'README.md'), generateReadme(name, template));
   console.log('✓ Created configuration files');
-  
+
   // Write source files
   await writeFile(join(appDir, 'index.html'), generateIndexHtml(name));
   await writeFile(join(appDir, 'src', 'main.ts'), generateMainTs(name));
   await writeFile(join(appDir, 'src', 'App.svelte'), generateAppSvelte(name));
   await writeFile(join(appDir, 'src', 'schemas', 'app.schema.js'), generateAppSchema(name));
   console.log('✓ Created source files');
-  
+
   // Create placeholder files for generated directories
-  await writeFile(join(appDir, 'src', 'components', '.gitkeep'), '# Generated components will be placed here\n');
+  await writeFile(
+    join(appDir, 'src', 'components', '.gitkeep'),
+    '# Generated components will be placed here\n'
+  );
   await writeFile(join(appDir, 'src', 'logic', '.gitkeep'), '# Logic files will be placed here\n');
   await writeFile(join(appDir, 'src', 'store', '.gitkeep'), '# Store files will be placed here\n');
   await writeFile(join(appDir, 'public', '.gitkeep'), '# Static assets go here\n');
   console.log('✓ Created placeholder files');
-  
+
   console.log(`
 ✅ Application created successfully!
 
@@ -598,29 +601,32 @@ function generateComponentSvelte(name: string): string {
 async function createComponent(name: string, options: CreateOptions): Promise<void> {
   const outputDir = options.directory || join(process.cwd(), 'src', 'components');
   const componentDir = join(outputDir, name);
-  
+
   // Check if component directory already exists
   if (existsSync(componentDir)) {
     console.error(`\n✗ Component '${name}' already exists at ${componentDir}`);
     console.error('  Please choose a different name or remove the existing component.\n');
     process.exit(1);
   }
-  
+
   console.log(`\n🧩 Creating component: ${name}`);
   console.log(`   Location: ${componentDir}\n`);
-  
+
   // Create component directory
   await mkdir(componentDir, { recursive: true });
-  
+
   // Write component files
   await writeFile(join(componentDir, `${name}.svelte`), generateComponentSvelte(name));
   await writeFile(join(componentDir, `${name}.schema.js`), generateComponentSchema(name));
-  await writeFile(join(componentDir, 'index.ts'), `export { default as ${name} } from './${name}.svelte';\n`);
-  
+  await writeFile(
+    join(componentDir, 'index.ts'),
+    `export { default as ${name} } from './${name}.svelte';\n`
+  );
+
   console.log(`✓ Created ${name}.svelte`);
   console.log(`✓ Created ${name}.schema.js`);
   console.log(`✓ Created index.ts`);
-  
+
   console.log(`
 ✅ Component created successfully!
 
@@ -637,20 +643,26 @@ Or use the schema for generation:
 /**
  * Execute the create command
  */
-export async function create(type: string, name: string | undefined, options: CreateOptions): Promise<void> {
+export async function create(
+  type: string,
+  name: string | undefined,
+  options: CreateOptions
+): Promise<void> {
   if (!name) {
     console.error('\n✗ Please provide a name for the ' + type);
     console.error(`  Usage: praxis create ${type} <name>\n`);
     process.exit(1);
   }
-  
+
   // Validate name
   if (!/^[a-zA-Z][a-zA-Z0-9-_]*$/.test(name)) {
     console.error('\n✗ Invalid name format');
-    console.error('  Name must start with a letter and contain only letters, numbers, hyphens, and underscores.\n');
+    console.error(
+      '  Name must start with a letter and contain only letters, numbers, hyphens, and underscores.\n'
+    );
     process.exit(1);
   }
-  
+
   switch (type) {
     case 'app':
       await createApp(name, options);

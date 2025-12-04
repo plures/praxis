@@ -9,6 +9,7 @@ This tutorial walks you through building a simple counter application with Praxi
 ## What You'll Build
 
 A counter application that:
+
 - Displays a count value
 - Has increment and decrement buttons
 - Shows a history of actions
@@ -58,7 +59,7 @@ Create `src/schema.psf.json`:
   "id": "counter-app",
   "name": "Counter",
   "description": "A simple counter application",
-  
+
   "facts": [
     {
       "id": "fact_incremented",
@@ -96,7 +97,7 @@ Create `src/schema.psf.json`:
       }
     }
   ],
-  
+
   "events": [
     {
       "id": "event_increment",
@@ -117,7 +118,7 @@ Create `src/schema.psf.json`:
       "payload": { "type": "object", "properties": {} }
     }
   ],
-  
+
   "rules": [
     {
       "id": "counter.increment",
@@ -141,7 +142,7 @@ Create `src/schema.psf.json`:
       "priority": 10
     }
   ],
-  
+
   "constraints": [
     {
       "id": "counter.nonNegative",
@@ -175,20 +176,15 @@ interface CounterContext {
 }
 
 // Define Facts
-export const Incremented = defineFact<
-  'Incremented',
-  { previousValue: number; newValue: number }
->('Incremented');
+export const Incremented = defineFact<'Incremented', { previousValue: number; newValue: number }>(
+  'Incremented'
+);
 
-export const Decremented = defineFact<
-  'Decremented',
-  { previousValue: number; newValue: number }
->('Decremented');
+export const Decremented = defineFact<'Decremented', { previousValue: number; newValue: number }>(
+  'Decremented'
+);
 
-export const Reset = defineFact<
-  'Reset',
-  { previousValue: number }
->('Reset');
+export const Reset = defineFact<'Reset', { previousValue: number }>('Reset');
 
 // Define Events
 export const INCREMENT = defineEvent<'INCREMENT', {}>('INCREMENT');
@@ -202,14 +198,14 @@ const incrementRule = defineRule<CounterContext>({
   impl: (state, events) => {
     const event = events.find(INCREMENT.is);
     if (!event) return [];
-    
+
     const previousValue = state.context.count;
     const newValue = previousValue + 1;
-    
+
     // Update state
     state.context.count = newValue;
     state.context.history.push(`Incremented from ${previousValue} to ${newValue}`);
-    
+
     // Emit fact
     return [Incremented.create({ previousValue, newValue })];
   },
@@ -221,14 +217,14 @@ const decrementRule = defineRule<CounterContext>({
   impl: (state, events) => {
     const event = events.find(DECREMENT.is);
     if (!event) return [];
-    
+
     const previousValue = state.context.count;
     const newValue = previousValue - 1;
-    
+
     // Update state
     state.context.count = newValue;
     state.context.history.push(`Decremented from ${previousValue} to ${newValue}`);
-    
+
     // Emit fact
     return [Decremented.create({ previousValue, newValue })];
   },
@@ -240,13 +236,13 @@ const resetRule = defineRule<CounterContext>({
   impl: (state, events) => {
     const event = events.find(RESET.is);
     if (!event) return [];
-    
+
     const previousValue = state.context.count;
-    
+
     // Update state
     state.context.count = 0;
     state.context.history.push(`Reset from ${previousValue} to 0`);
-    
+
     // Emit fact
     return [Reset.create({ previousValue })];
   },
@@ -338,10 +334,7 @@ npx tsx src/main.ts
 Update `src/main.ts` to demonstrate history:
 
 ```typescript
-import {
-  createPraxisEngine,
-  PraxisRegistry,
-} from '@plures/praxis';
+import { createPraxisEngine, PraxisRegistry } from '@plures/praxis';
 import { createCounterEngine, INCREMENT, DECREMENT, RESET } from './engine';
 
 // Create engine with history enabled
@@ -350,7 +343,7 @@ const engine = createPraxisEngine({
     count: 0,
     history: [],
   },
-  registry: new PraxisRegistry(),  // You'd use your real registry here
+  registry: new PraxisRegistry(), // You'd use your real registry here
   enableHistory: true,
   maxHistorySize: 10,
 });
@@ -423,9 +416,7 @@ describe('Counter Engine', () => {
 
     it('should emit Incremented fact', () => {
       const result = engine.step([INCREMENT.create({})]);
-      expect(result.state.facts).toContainEqual(
-        expect.objectContaining({ tag: 'Incremented' })
-      );
+      expect(result.state.facts).toContainEqual(expect.objectContaining({ tag: 'Incremented' }));
     });
 
     it('should record in history', () => {
@@ -445,9 +436,7 @@ describe('Counter Engine', () => {
     it('should emit Decremented fact', () => {
       engine.dispatch([INCREMENT.create({})]);
       const result = engine.step([DECREMENT.create({})]);
-      expect(result.state.facts).toContainEqual(
-        expect.objectContaining({ tag: 'Decremented' })
-      );
+      expect(result.state.facts).toContainEqual(expect.objectContaining({ tag: 'Decremented' }));
     });
   });
 
@@ -471,11 +460,7 @@ describe('Counter Engine', () => {
 
   describe('Multiple events', () => {
     it('should handle multiple events at once', () => {
-      engine.dispatch([
-        INCREMENT.create({}),
-        INCREMENT.create({}),
-        INCREMENT.create({}),
-      ]);
+      engine.dispatch([INCREMENT.create({}), INCREMENT.create({}), INCREMENT.create({})]);
       expect(engine.getContext().count).toBe(3);
     });
   });

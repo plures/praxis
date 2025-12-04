@@ -19,7 +19,7 @@ import {
   defineFact,
   defineEvent,
   defineRule,
-} from "@plures/praxis";
+} from '@plures/praxis';
 
 // 1. Define your context type
 interface AppContext {
@@ -27,13 +27,13 @@ interface AppContext {
 }
 
 // 2. Define facts and events
-const MessageSet = defineFact<"MessageSet", { text: string }>("MessageSet");
-const SetMessage = defineEvent<"SET_MESSAGE", { text: string }>("SET_MESSAGE");
+const MessageSet = defineFact<'MessageSet', { text: string }>('MessageSet');
+const SetMessage = defineEvent<'SET_MESSAGE', { text: string }>('SET_MESSAGE');
 
 // 3. Define a rule
 const setMessageRule = defineRule<AppContext>({
-  id: "app.setMessage",
-  description: "Update message when SET_MESSAGE event occurs",
+  id: 'app.setMessage',
+  description: 'Update message when SET_MESSAGE event occurs',
   impl: (state, events) => {
     const event = events.find(SetMessage.is);
     if (event) {
@@ -49,12 +49,12 @@ const registry = new PraxisRegistry<AppContext>();
 registry.registerRule(setMessageRule);
 
 const engine = createPraxisEngine({
-  initialContext: { message: "" },
+  initialContext: { message: '' },
   registry,
 });
 
 // 5. Process events
-const result = engine.step([SetMessage.create({ text: "Hello, Praxis!" })]);
+const result = engine.step([SetMessage.create({ text: 'Hello, Praxis!' })]);
 
 console.log(engine.getContext()); // { message: "Hello, Praxis!" }
 console.log(result.state.facts); // [{ tag: "MessageSet", payload: { text: "Hello, Praxis!" } }]
@@ -63,28 +63,31 @@ console.log(result.state.facts); // [{ tag: "MessageSet", payload: { text: "Hell
 ## Key Concepts
 
 ### Facts
+
 Facts are typed propositions about your domain. They represent "what happened" or "what is true":
 
 ```typescript
-const UserLoggedIn = defineFact<"UserLoggedIn", { userId: string }>("UserLoggedIn");
-const fact = UserLoggedIn.create({ userId: "alice" });
+const UserLoggedIn = defineFact<'UserLoggedIn', { userId: string }>('UserLoggedIn');
+const fact = UserLoggedIn.create({ userId: 'alice' });
 ```
 
 ### Events
+
 Events are temporally ordered facts that drive state changes:
 
 ```typescript
-const Login = defineEvent<"LOGIN", { username: string; password: string }>("LOGIN");
-const event = Login.create({ username: "alice", password: "secret" });
+const Login = defineEvent<'LOGIN', { username: string; password: string }>('LOGIN');
+const event = Login.create({ username: 'alice', password: 'secret' });
 ```
 
 ### Rules
+
 Rules are pure functions that produce new facts from events and current state:
 
 ```typescript
 const loginRule = defineRule<AuthContext>({
-  id: "auth.login",
-  description: "Process login event",
+  id: 'auth.login',
+  description: 'Process login event',
   impl: (state, events) => {
     const loginEvent = events.find(Login.is);
     if (loginEvent) {
@@ -97,12 +100,13 @@ const loginRule = defineRule<AuthContext>({
 ```
 
 ### Constraints
+
 Constraints are invariants that must hold:
 
 ```typescript
 const maxUsersConstraint = defineConstraint<AppContext>({
-  id: "app.maxUsers",
-  description: "Cannot exceed 100 active users",
+  id: 'app.maxUsers',
+  description: 'Cannot exceed 100 active users',
   impl: (state) => {
     const activeUsers = state.context.users?.length ?? 0;
     return activeUsers <= 100 || `Too many users: ${activeUsers}`;
@@ -115,13 +119,13 @@ const maxUsersConstraint = defineConstraint<AppContext>({
 ```typescript
 // Process one or more events
 const result = engine.step([
-  Login.create({ username: "alice", password: "secret" }),
-  SetPreference.create({ key: "theme", value: "dark" }),
+  Login.create({ username: 'alice', password: 'secret' }),
+  SetPreference.create({ key: 'theme', value: 'dark' }),
 ]);
 
 // Check for diagnostics (constraint violations, rule errors)
 if (result.diagnostics.length > 0) {
-  console.error("Issues:", result.diagnostics);
+  console.error('Issues:', result.diagnostics);
 }
 
 // Access the new state
@@ -132,7 +136,7 @@ console.log(result.state.facts);
 ## Using with Svelte v5
 
 ```typescript
-import { createPraxisStore } from "@plures/praxis/svelte";
+import { createPraxisStore } from '@plures/praxis/svelte';
 
 // Create a store from your engine
 const store = createPraxisStore(engine);
@@ -140,7 +144,7 @@ const store = createPraxisStore(engine);
 // In your Svelte component:
 // <script>
 //   $: state = $store;
-//   
+//
 //   function handleLogin() {
 //     store.dispatch([Login.create({ username: "alice", password: "secret" })]);
 //   }
@@ -152,6 +156,7 @@ const store = createPraxisStore(engine);
 The repository includes three complete examples:
 
 ### 1. Auth Basic
+
 Login/logout with session management.
 
 ```bash
@@ -160,6 +165,7 @@ node dist/examples/auth-basic/index.js
 ```
 
 ### 2. Shopping Cart
+
 Complex state management with discounts and constraints.
 
 ```bash
@@ -168,6 +174,7 @@ node dist/examples/cart/index.js
 ```
 
 ### 3. Svelte Counter
+
 Reactive counter with Svelte v5 integration.
 
 ```bash
@@ -178,12 +185,13 @@ node dist/examples/svelte-counter/index.js
 ## Best Practices
 
 ### 1. Keep Rules Pure
+
 Rules should not have side effects. Keep them pure and deterministic:
 
 ```typescript
 // ✓ Good - pure rule
 const incrementRule = defineRule({
-  id: "counter.increment",
+  id: 'counter.increment',
   impl: (state, events) => {
     if (events.some(Increment.is)) {
       state.context.count += 1;
@@ -195,25 +203,26 @@ const incrementRule = defineRule({
 
 // ✗ Bad - side effects in rule
 const badRule = defineRule({
-  id: "bad.rule",
+  id: 'bad.rule',
   impl: (state, events) => {
-    fetch("/api/log"); // ✗ Side effect!
+    fetch('/api/log'); // ✗ Side effect!
     return [];
   },
 });
 ```
 
 ### 2. Use Actors for Side Effects
+
 Side effects should go in actors:
 
 ```typescript
 const logActor: Actor<AppContext> = {
-  id: "logger",
-  description: "Log state changes",
+  id: 'logger',
+  description: 'Log state changes',
   onStateChange: async (state, engine) => {
     // ✓ Side effects belong here
-    await fetch("/api/log", {
-      method: "POST",
+    await fetch('/api/log', {
+      method: 'POST',
       body: JSON.stringify(state.context),
     });
   },
@@ -221,19 +230,21 @@ const logActor: Actor<AppContext> = {
 ```
 
 ### 3. Organize with Modules
+
 Bundle related rules and constraints into modules:
 
 ```typescript
 const authModule = defineModule({
   rules: [loginRule, logoutRule, sessionRefreshRule],
   constraints: [maxSessionsConstraint, sessionTimeoutConstraint],
-  meta: { version: "1.0.0", domain: "authentication" },
+  meta: { version: '1.0.0', domain: 'authentication' },
 });
 
 registry.registerModule(authModule);
 ```
 
 ### 4. Use Type Guards
+
 Take advantage of TypeScript's type narrowing:
 
 ```typescript
@@ -249,10 +260,10 @@ if (event) {
 Praxis is designed to be easily testable:
 
 ```typescript
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from 'vitest';
 
-describe("Login Rule", () => {
-  it("should create UserLoggedIn fact", () => {
+describe('Login Rule', () => {
+  it('should create UserLoggedIn fact', () => {
     const registry = new PraxisRegistry<AuthContext>();
     registry.registerRule(loginRule);
 
@@ -261,13 +272,11 @@ describe("Login Rule", () => {
       registry,
     });
 
-    const result = engine.step([
-      Login.create({ username: "alice", password: "secret" }),
-    ]);
+    const result = engine.step([Login.create({ username: 'alice', password: 'secret' })]);
 
-    expect(engine.getContext().currentUser).toBe("alice");
+    expect(engine.getContext().currentUser).toBe('alice');
     expect(result.state.facts).toHaveLength(1);
-    expect(result.state.facts[0]?.tag).toBe("UserLoggedIn");
+    expect(result.state.facts[0]?.tag).toBe('UserLoggedIn');
   });
 });
 ```

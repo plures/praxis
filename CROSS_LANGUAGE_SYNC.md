@@ -15,6 +15,7 @@ The **protocol version** (`PRAXIS_PROTOCOL_VERSION` / `PraxisProtocol.Version`) 
 All implementations must provide these types with identical JSON structure:
 
 ### PraxisFact
+
 ```json
 {
   "tag": "string",
@@ -23,6 +24,7 @@ All implementations must provide these types with identical JSON structure:
 ```
 
 ### PraxisEvent
+
 ```json
 {
   "tag": "string",
@@ -31,6 +33,7 @@ All implementations must provide these types with identical JSON structure:
 ```
 
 ### PraxisState
+
 ```json
 {
   "context": "any",
@@ -41,6 +44,7 @@ All implementations must provide these types with identical JSON structure:
 ```
 
 ### PraxisDiagnostics
+
 ```json
 {
   "kind": "constraint-violation" | "rule-error",
@@ -50,6 +54,7 @@ All implementations must provide these types with identical JSON structure:
 ```
 
 ### PraxisStepConfig
+
 ```json
 {
   "ruleIds": "string[]",
@@ -58,6 +63,7 @@ All implementations must provide these types with identical JSON structure:
 ```
 
 ### PraxisStepResult
+
 ```json
 {
   "state": "PraxisState",
@@ -67,11 +73,11 @@ All implementations must provide these types with identical JSON structure:
 
 ## Version Matrix
 
-| Component | TypeScript | C# | PowerShell |
-|-----------|------------|-----|------------|
-| Protocol Version | 1.0.0 | 1.0.0 | 1.0.0 |
-| Package Version | 0.2.0 | 0.2.0 | N/A |
-| Package Name | @plures/praxis | Plures.Praxis | Praxis.psm1 |
+| Component        | TypeScript     | C#            | PowerShell  |
+| ---------------- | -------------- | ------------- | ----------- |
+| Protocol Version | 1.0.0          | 1.0.0         | 1.0.0       |
+| Package Version  | 0.2.0          | 0.2.0         | N/A         |
+| Package Name     | @plures/praxis | Plures.Praxis | Praxis.psm1 |
 
 ## Sync Workflow
 
@@ -155,18 +161,18 @@ Assert.Equal("1.0.0", state.ProtocolVersion);
 The PowerShell adapter uses JSON over stdin/stdout:
 
 ```powershell
-$state = '{"context":{},"facts":[],"protocolVersion":"1.0.0"}' | 
+$state = '{"context":{},"facts":[],"protocolVersion":"1.0.0"}' |
   node dist/adapters/cli.js
 ```
 
 ## Publishing Locations
 
-| Platform | Package Name | Registry |
-|----------|--------------|----------|
-| npm | @plures/praxis | https://www.npmjs.com/package/@plures/praxis |
-| NuGet | Plures.Praxis | https://www.nuget.org/packages/Plures.Praxis |
-| JSR | @plures/praxis | https://jsr.io/@plures/praxis |
-| PowerShell | Praxis.psm1 | GitHub Repository |
+| Platform   | Package Name   | Registry                                     |
+| ---------- | -------------- | -------------------------------------------- |
+| npm        | @plures/praxis | https://www.npmjs.com/package/@plures/praxis |
+| NuGet      | Plures.Praxis  | https://www.nuget.org/packages/Plures.Praxis |
+| JSR        | @plures/praxis | https://jsr.io/@plures/praxis                |
+| PowerShell | Praxis.psm1    | GitHub Repository                            |
 
 ## CI/CD Integration
 

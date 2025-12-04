@@ -12,6 +12,7 @@ Praxis 0.2.0 represents a major expansion of the framework from a logic engine i
 ### 🏗️ Framework Infrastructure
 
 #### Complete Schema System
+
 - **Location:** `src/core/schema/`
 - Type definitions for models, components, logic, and orchestration
 - Schema validation and normalization
@@ -19,6 +20,7 @@ Praxis 0.2.0 represents a major expansion of the framework from a logic engine i
 - Multi-target code generation (PluresDB, Svelte, State-Docs, Canvas, DSC)
 
 #### Component Generation
+
 - **Location:** `src/core/component/generator.ts`
 - Automatic Svelte component generation from schemas
 - Support for form, display, list, and navigation components
@@ -26,6 +28,7 @@ Praxis 0.2.0 represents a major expansion of the framework from a logic engine i
 - Test scaffolding and documentation generation
 
 #### CLI Tools
+
 - **Location:** `src/cli/`
 - `praxis create app|component` - Project scaffolding
 - `praxis generate` - Code generation from schemas
@@ -59,6 +62,7 @@ Praxis 0.2.0 represents a major expansion of the framework from a logic engine i
 ### 🔄 Cross-Language Support
 
 #### PowerShell Adapter
+
 - **Location:** `powershell/Praxis.psm1`
 - Complete cmdlet library for Praxis operations
 - JSON bridge to TypeScript engine
@@ -87,6 +91,7 @@ Praxis 0.2.0 represents a major expansion of the framework from a logic engine i
 ### 📚 Examples & Templates
 
 #### Hero E-Commerce Example
+
 - **Location:** `src/examples/hero-ecommerce/`
 - Full authentication system with session management
 - Shopping cart with dynamic pricing
@@ -96,6 +101,7 @@ Praxis 0.2.0 represents a major expansion of the framework from a logic engine i
 - Order history tracking
 
 #### Other Examples
+
 - Advanced TODO app with Svelte integration
 - Basic authentication example
 - Svelte counter with runes
@@ -106,6 +112,7 @@ Praxis 0.2.0 represents a major expansion of the framework from a logic engine i
 **Test Suite Expansion:** 9 tests → 165 tests (1733% increase!)
 
 New test files:
+
 - `actors.test.ts` - Actor lifecycle and behavior (12 tests)
 - `edge-cases.test.ts` - Edge cases and error handling (19 tests)
 - `introspection.test.ts` - Registry introspection (14 tests)
@@ -121,6 +128,7 @@ New test files:
 ### 📖 Documentation
 
 #### Framework Documentation
+
 - `FRAMEWORK.md` - Complete architecture guide (420 lines)
 - `GETTING_STARTED.md` - Comprehensive getting started guide (290 lines)
 - `PROTOCOL_VERSIONING.md` - Protocol versioning specification (275 lines)
@@ -128,6 +136,7 @@ New test files:
 - `ELEVATION_SUMMARY.md` - Framework transformation summary (222 lines)
 
 #### Guides
+
 - `docs/guides/getting-started.md` - Quick start guide
 - `docs/guides/canvas.md` - Canvas integration guide
 - `docs/guides/orchestration.md` - Orchestration guide (DSC/MCP)
@@ -138,6 +147,7 @@ New test files:
 ### 🔧 Infrastructure
 
 #### CI/CD Workflows
+
 - Node.js CI with multiple versions (18.x, 20.x)
 - Deno compatibility checks
 - CodeQL security scanning
@@ -147,6 +157,7 @@ New test files:
 - Stale issue management
 
 #### GitHub Configuration
+
 - Issue templates (bug, enhancement, proposal, integration, generator)
 - Pull request template with comprehensive checklist
 - Funding configuration
@@ -167,13 +178,15 @@ New test files:
 ## Installation
 
 ### npm
+
 ```bash
 npm install @plures/praxis@0.2.0
 ```
 
 ### Deno/JSR
+
 ```typescript
-import { createPraxisEngine } from "jsr:@plures/praxis@0.2.0";
+import { createPraxisEngine } from 'jsr:@plures/praxis@0.2.0';
 ```
 
 ## Upgrading from 0.1.0
@@ -189,12 +202,16 @@ All existing code using 0.1.0 APIs will continue to work without modification.
 ## Publishing Status
 
 ### npm Publishing
+
 ✅ **Enabled** - Will publish to npm when a version tag (e.g., `v0.2.0`) is pushed
+
 - Workflow: `.github/workflows/release.yml`
 - Requires: `NPM_TOKEN` secret configured in repository
 
 ### JSR Publishing
+
 ✅ **Enabled** - Will publish to JSR when a GitHub release is published
+
 - Workflow: `.github/workflows/publish-jsr.yml`
 - Uses: GitHub OIDC token (no secret needed)
 - Note: Some Deno lint warnings exist but don't block publishing
@@ -204,6 +221,7 @@ All existing code using 0.1.0 APIs will continue to work without modification.
 To create a release for this version:
 
 1. **Create and push a git tag:**
+
    ```bash
    git tag v0.2.0
    git push origin v0.2.0
@@ -221,12 +239,14 @@ To create a release for this version:
 ## Next Steps
 
 ### For Users
+
 - Read the [Getting Started Guide](./GETTING_STARTED.md)
 - Explore the [hero e-commerce example](./src/examples/hero-ecommerce/)
 - Try the [Svelte integration](./docs/guides/svelte-integration.md)
 - Set up [GitHub authentication](./src/cloud/README.md) for cloud features
 
 ### For Contributors
+
 - Review the [Framework Guide](./FRAMEWORK.md)
 - Check the [Contributing Guide](./CONTRIBUTING.md)
 - Explore the [introspection tools](./src/core/introspection.ts)
@@ -257,6 +277,7 @@ This release represents a massive collaborative effort to transform Praxis from 
 ## Support
 
 If you encounter any issues or have questions:
+
 1. Check the [documentation](./docs/)
 2. Search [existing issues](https://github.com/plures/praxis/issues)
 3. Open a [new issue](https://github.com/plures/praxis/issues/new/choose)

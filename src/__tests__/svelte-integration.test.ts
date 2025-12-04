@@ -1,6 +1,6 @@
 /**
  * Tests for Svelte 5 Integration
- * 
+ *
  * Tests the enhanced Svelte integration with runes support,
  * history state pattern, and snapshot functionality.
  */
@@ -35,7 +35,7 @@ const Increment = defineEvent<'INCREMENT', { amount?: number }>('INCREMENT');
 
 function createTestEngine() {
   const registry = new PraxisRegistry<CounterContext>();
-  
+
   registry.registerRule(
     defineRule<CounterContext>({
       id: 'counter.increment',
@@ -43,11 +43,11 @@ function createTestEngine() {
       impl: (state, events) => {
         const event = findEvent(events, Increment);
         if (!event) return [];
-        
+
         const amount = event.payload.amount ?? 1;
         state.context.count += amount;
         state.context.history.push(state.context.count);
-        
+
         return [CountIncremented.create({ amount })];
       },
     })
@@ -78,7 +78,7 @@ describe('Svelte Integration - Store API', () => {
 
     // Dispatch event
     store.dispatch([Increment.create({ amount: 5 })]);
-    
+
     expect(states.length).toBe(2);
     expect(states[1].context.count).toBe(5);
 
@@ -98,7 +98,7 @@ describe('Svelte Integration - Store API', () => {
     expect(contexts[0].count).toBe(0);
 
     store.dispatch([Increment.create({ amount: 3 })]);
-    
+
     expect(contexts.length).toBe(2);
     expect(contexts[1].count).toBe(3);
 
@@ -258,7 +258,7 @@ describe('Svelte Integration - Runes API', () => {
 describe('History State Manager', () => {
   it('should record and navigate history', () => {
     const manager = new HistoryStateManager<CounterContext>(10);
-    
+
     // Record initial state
     const state1 = {
       context: { count: 0, history: [0] },
@@ -300,19 +300,19 @@ describe('History State Manager', () => {
 
   it('should truncate future history when recording from past', () => {
     const manager = new HistoryStateManager<CounterContext>(10);
-    
+
     const state1 = {
       context: { count: 0, history: [0] },
       facts: [],
       meta: {},
       protocolVersion: '1.0.0',
     };
-    
+
     // Record 3 states
     manager.record(state1, []);
     manager.record({ ...state1, context: { count: 1, history: [0, 1] } }, []);
     manager.record({ ...state1, context: { count: 2, history: [0, 1, 2] } }, []);
-    
+
     expect(manager.getHistory().length).toBe(3);
 
     // Go back to first state
@@ -322,14 +322,14 @@ describe('History State Manager', () => {
 
     // Record new state - should truncate
     manager.record({ ...state1, context: { count: 10, history: [0, 10] } }, []);
-    
+
     expect(manager.getHistory().length).toBe(2);
     expect(manager.getCurrentIndex()).toBe(1);
   });
 
   it('should limit history size', () => {
     const manager = new HistoryStateManager<CounterContext>(3);
-    
+
     const state = {
       context: { count: 0, history: [0] },
       facts: [],
@@ -339,10 +339,7 @@ describe('History State Manager', () => {
 
     // Record 5 states
     for (let i = 0; i < 5; i++) {
-      manager.record(
-        { ...state, context: { count: i, history: [i] } },
-        []
-      );
+      manager.record({ ...state, context: { count: i, history: [i] } }, []);
     }
 
     // Should only keep last 3
@@ -352,7 +349,7 @@ describe('History State Manager', () => {
 
   it('should clear history', () => {
     const manager = new HistoryStateManager<CounterContext>(10);
-    
+
     const state = {
       context: { count: 0, history: [0] },
       facts: [],
@@ -362,11 +359,11 @@ describe('History State Manager', () => {
 
     manager.record(state, []);
     manager.record({ ...state, context: { count: 1, history: [0, 1] } }, []);
-    
+
     expect(manager.getHistory().length).toBe(2);
 
     manager.clear();
-    
+
     expect(manager.getHistory().length).toBe(0);
     expect(manager.getCurrentIndex()).toBe(-1);
     expect(manager.current()).toBeNull();

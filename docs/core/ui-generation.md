@@ -5,6 +5,7 @@ Praxis automatically generates Svelte components from your schema definitions. T
 ## Overview
 
 From a single schema definition, Praxis generates:
+
 - Svelte 5 components with runes
 - TypeScript type definitions
 - Data binding and validation
@@ -26,6 +27,7 @@ flowchart LR
 Forms are generated from model definitions:
 
 **Schema:**
+
 ```json
 {
   "components": [
@@ -41,33 +43,34 @@ Forms are generated from model definitions:
 ```
 
 **Generated Component:**
+
 ```svelte
 <script lang="ts">
   import type { User } from '../models';
-  
+
   interface Props {
     user?: User;
     onsubmit?: (user: User) => void;
     oncancel?: () => void;
   }
-  
+
   let { user = $bindable(), onsubmit, oncancel }: Props = $props();
-  
+
   let formData = $state({
     username: user?.username ?? '',
     email: user?.email ?? '',
     role: user?.role ?? 'user',
   });
-  
+
   let errors = $state<Record<string, string>>({});
-  
+
   function validate(): boolean {
     errors = {};
     if (!formData.username) errors.username = 'Username is required';
     if (!formData.email) errors.email = 'Email is required';
     return Object.keys(errors).length === 0;
   }
-  
+
   function handleSubmit(e: Event) {
     e.preventDefault();
     if (validate()) {
@@ -82,13 +85,13 @@ Forms are generated from model definitions:
     <input id="username" bind:value={formData.username} />
     {#if errors.username}<span class="error">{errors.username}</span>{/if}
   </div>
-  
+
   <div class="field">
     <label for="email">Email</label>
     <input id="email" type="email" bind:value={formData.email} />
     {#if errors.email}<span class="error">{errors.email}</span>{/if}
   </div>
-  
+
   <div class="field">
     <label for="role">Role</label>
     <select id="role" bind:value={formData.role}>
@@ -97,7 +100,7 @@ Forms are generated from model definitions:
       <option value="guest">Guest</option>
     </select>
   </div>
-  
+
   <div class="actions">
     <button type="submit">Save</button>
     <button type="button" onclick={oncancel}>Cancel</button>
@@ -110,6 +113,7 @@ Forms are generated from model definitions:
 Display components show data in read-only format:
 
 **Schema:**
+
 ```json
 {
   "components": [
@@ -125,15 +129,16 @@ Display components show data in read-only format:
 ```
 
 **Generated Component:**
+
 ```svelte
 <script lang="ts">
   import type { User } from '../models';
-  
+
   interface Props {
     user: User;
     onclick?: (user: User) => void;
   }
-  
+
   let { user, onclick }: Props = $props();
 </script>
 
@@ -149,6 +154,7 @@ Display components show data in read-only format:
 List components display collections:
 
 **Schema:**
+
 ```json
 {
   "components": [
@@ -167,19 +173,20 @@ List components display collections:
 ```
 
 **Generated Component:**
+
 ```svelte
 <script lang="ts">
   import type { User } from '../models';
   import UserCard from './UserCard.svelte';
-  
+
   interface Props {
     users: User[];
     filter?: string;
     onselect?: (user: User) => void;
   }
-  
+
   let { users, filter = '', onselect }: Props = $props();
-  
+
   let filtered = $derived(
     filter
       ? users.filter(u => u.username.includes(filter))
@@ -191,7 +198,7 @@ List components display collections:
   {#each filtered as user (user.id)}
     <UserCard {user} onclick={onselect} />
   {/each}
-  
+
   {#if filtered.length === 0}
     <p class="empty">No users found</p>
   {/if}
@@ -203,6 +210,7 @@ List components display collections:
 Editor components provide rich editing capabilities:
 
 **Schema:**
+
 ```json
 {
   "components": [
@@ -251,9 +259,7 @@ Define events the component emits:
       "id": "comp_cart_item",
       "name": "CartItem",
       "type": "display",
-      "props": [
-        { "name": "item", "type": "CartItem", "required": true }
-      ],
+      "props": [{ "name": "item", "type": "CartItem", "required": true }],
       "events": [
         { "name": "remove", "payload": "{ itemId: string }" },
         { "name": "updateQuantity", "payload": "{ itemId: string; quantity: number }" }
@@ -272,11 +278,11 @@ Generated components can be extended without modifying them:
 <script lang="ts">
   import ProductCard from './generated/ProductCard.svelte';
   import type { Product } from './generated/models';
-  
+
   interface Props {
     product: Product;
   }
-  
+
   let { product }: Props = $props();
 </script>
 
@@ -290,22 +296,23 @@ Generated components can be extended without modifying them:
 
 Praxis maps schema field types to HTML input types:
 
-| Schema Type | HTML Input | Component |
-|-------------|------------|-----------|
-| `string` | `<input type="text">` | Text input |
-| `number` | `<input type="number">` | Number input |
-| `boolean` | `<input type="checkbox">` | Checkbox |
-| `datetime` | `<input type="datetime-local">` | Date picker |
-| `{ enum: [...] }` | `<select>` | Dropdown |
-| `{ array: {...} }` | Custom | Array editor |
-| `object` | Nested form | Fieldset |
-| `uuid` | Hidden | Auto-generated |
+| Schema Type        | HTML Input                      | Component      |
+| ------------------ | ------------------------------- | -------------- |
+| `string`           | `<input type="text">`           | Text input     |
+| `number`           | `<input type="number">`         | Number input   |
+| `boolean`          | `<input type="checkbox">`       | Checkbox       |
+| `datetime`         | `<input type="datetime-local">` | Date picker    |
+| `{ enum: [...] }`  | `<select>`                      | Dropdown       |
+| `{ array: {...} }` | Custom                          | Array editor   |
+| `object`           | Nested form                     | Fieldset       |
+| `uuid`             | Hidden                          | Auto-generated |
 
 ## Validation
 
 Generated forms include validation based on field definitions:
 
 **Schema:**
+
 ```json
 {
   "models": [
@@ -322,27 +329,28 @@ Generated forms include validation based on field definitions:
 ```
 
 **Generated Validation:**
+
 ```svelte
 <script lang="ts">
   function validate(): boolean {
     errors = {};
-    
+
     if (!isValidEmail(formData.email)) {
       errors.email = 'Invalid email format';
     }
-    
+
     if (formData.age < 0 || formData.age > 150) {
       errors.age = 'Age must be between 0 and 150';
     }
-    
+
     if (formData.username.length < 3) {
       errors.username = 'Username must be at least 3 characters';
     }
-    
+
     if (formData.username.length > 20) {
       errors.username = 'Username must be at most 20 characters';
     }
-    
+
     return Object.keys(errors).length === 0;
   }
 </script>
@@ -362,7 +370,7 @@ Component props use the `$props` rune:
     user: User;
     editable?: boolean;
   }
-  
+
   let { user, editable = false }: Props = $props();
 </script>
 ```
@@ -377,7 +385,7 @@ Local state uses the `$state` rune:
     name: '',
     email: ''
   });
-  
+
   let errors = $state<Record<string, string>>({});
 </script>
 ```
@@ -391,7 +399,7 @@ Computed values use the `$derived` rune:
   let filteredItems = $derived(
     items.filter(item => item.name.includes(searchTerm))
   );
-  
+
   let total = $derived(
     items.reduce((sum, item) => sum + item.price, 0)
   );
@@ -407,7 +415,7 @@ Two-way binding uses `$bindable`:
   interface Props {
     value?: string;
   }
-  
+
   let { value = $bindable('') }: Props = $props();
 </script>
 
@@ -423,24 +431,24 @@ Generated components integrate with the Praxis engine:
   import { usePraxisEngine } from '@plures/praxis/svelte';
   import { engine } from '../engine';
   import { AddToCart, RemoveFromCart } from '../generated/events';
-  
+
   const { context, dispatch } = usePraxisEngine(engine);
-  
+
   function handleAddToCart(productId: string) {
     dispatch([AddToCart.create({ productId, quantity: 1 })]);
   }
-  
+
   function handleRemoveFromCart(itemId: string) {
     dispatch([RemoveFromCart.create({ itemId })]);
   }
 </script>
 
-<ProductList 
-  products={context.products} 
-  onaddtocart={handleAddToCart} 
+<ProductList
+  products={context.products}
+  onaddtocart={handleAddToCart}
 />
 
-<ShoppingCart 
+<ShoppingCart
   items={context.cart.items}
   onremove={handleRemoveFromCart}
 />
@@ -457,19 +465,19 @@ Generated components include minimal default styles:
   .field {
     margin-bottom: 1rem;
   }
-  
+
   label {
     display: block;
     margin-bottom: 0.25rem;
   }
-  
+
   input, select, textarea {
     width: 100%;
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
   }
-  
+
   .error {
     color: red;
     font-size: 0.875rem;

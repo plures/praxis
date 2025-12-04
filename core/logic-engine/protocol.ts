@@ -1,6 +1,6 @@
 /**
  * Praxis Protocol
- * 
+ *
  * Re-exports the core protocol from the main source.
  */
 

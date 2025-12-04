@@ -149,7 +149,7 @@ describe('Schema System', () => {
   describe('createSchemaTemplate', () => {
     it('creates a valid schema template', () => {
       const schema = createSchemaTemplate('MyApp');
-      
+
       expect(schema.name).toBe('MyApp');
       expect(schema.version).toBe('1.0.0');
       expect(schema.description).toContain('MyApp');
@@ -176,7 +176,7 @@ describe('Schema System', () => {
       };
 
       const normalized = normalizeSchema(schema);
-      
+
       expect(normalized.models).toHaveLength(1);
       expect(normalized.models[0].fullName).toBe('TestApp.User');
       expect(normalized.models[0].allFields).toHaveLength(2);
@@ -189,9 +189,7 @@ describe('Schema System', () => {
         models: [
           {
             name: 'User',
-            fields: [
-              { name: 'id', type: 'string' },
-            ],
+            fields: [{ name: 'id', type: 'string' }],
           },
         ],
         components: [
@@ -204,7 +202,7 @@ describe('Schema System', () => {
       };
 
       const normalized = normalizeSchema(schema);
-      
+
       expect(normalized.components).toHaveLength(1);
       expect(normalized.components[0].resolvedModel).toBeDefined();
       expect(normalized.components[0].resolvedModel?.name).toBe('User');
@@ -217,9 +215,7 @@ describe('Schema System', () => {
         models: [
           {
             name: 'User',
-            fields: [
-              { name: 'id', type: 'string' },
-            ],
+            fields: [{ name: 'id', type: 'string' }],
           },
           {
             name: 'Task',
@@ -232,8 +228,8 @@ describe('Schema System', () => {
       };
 
       const normalized = normalizeSchema(schema);
-      const taskModel = normalized.models.find(m => m.name === 'Task');
-      
+      const taskModel = normalized.models.find((m) => m.name === 'Task');
+
       expect(taskModel).toBeDefined();
       expect(taskModel?.dependencies).toContain('User');
     });

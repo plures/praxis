@@ -63,7 +63,9 @@ interface AppContext {
   page: string;
 }
 
-const engine = createPraxisEngine<AppContext>({ /* ... */ });
+const engine = createPraxisEngine<AppContext>({
+  /* ... */
+});
 const history = new HistoryStateManager<AppContext>(100);
 
 // Record initial state
@@ -174,12 +176,12 @@ Praxis provides first-class Svelte 5 support with runes:
   import { createMyEngine, Login, Logout } from './my-engine';
 
   const engine = createMyEngine();
-  const { 
-    context, 
-    dispatch, 
-    undo, 
-    redo, 
-    canUndo, 
+  const {
+    context,
+    dispatch,
+    undo,
+    redo,
+    canUndo,
     canRedo,
     snapshots,
     historyIndex
@@ -226,13 +228,13 @@ Praxis provides first-class Svelte 5 support with runes:
   import { createMyEngine } from './my-engine';
 
   const engine = createMyEngine();
-  const { context, snapshots, goToSnapshot, historyIndex } = 
+  const { context, snapshots, goToSnapshot, historyIndex } =
     usePraxisEngine(engine, { enableHistory: true });
 </script>
 
 <div class="debugger">
   <h2>Time-Travel Debugger</h2>
-  
+
   <div class="timeline">
     {#each snapshots as snapshot, index}
       <button
@@ -277,27 +279,39 @@ interface AuthContext {
 }
 
 // Define facts
-const UserAuthenticated = defineFact<'UserAuthenticated', { 
-  userId: string; 
-  name: string 
-}>('UserAuthenticated');
+const UserAuthenticated = defineFact<
+  'UserAuthenticated',
+  {
+    userId: string;
+    name: string;
+  }
+>('UserAuthenticated');
 
-const NavigatedToPage = defineFact<'NavigatedToPage', { 
-  page: string 
-}>('NavigatedToPage');
+const NavigatedToPage = defineFact<
+  'NavigatedToPage',
+  {
+    page: string;
+  }
+>('NavigatedToPage');
 
 // Define events
-const Login = defineEvent<'LOGIN', { 
-  username: string; 
-  password: string 
-}>('LOGIN');
+const Login = defineEvent<
+  'LOGIN',
+  {
+    username: string;
+    password: string;
+  }
+>('LOGIN');
 
 const Logout = defineEvent<'LOGOUT', {}>('LOGOUT');
 
-const NavigateTo = defineEvent<'NAVIGATE_TO', { 
-  page: string;
-  requiresAuth?: boolean;
-}>('NAVIGATE_TO');
+const NavigateTo = defineEvent<
+  'NAVIGATE_TO',
+  {
+    page: string;
+    requiresAuth?: boolean;
+  }
+>('NAVIGATE_TO');
 
 // Define rules
 const loginRule = defineRule<AuthContext>({
@@ -317,9 +331,7 @@ const loginRule = defineRule<AuthContext>({
       state.context.attemptedSecurePage = null;
     }
 
-    return [
-      UserAuthenticated.create({ userId: username, name: username })
-    ];
+    return [UserAuthenticated.create({ userId: username, name: username })];
   },
 });
 
@@ -394,9 +406,9 @@ export { Login, Logout, NavigateTo };
   });
 
   function login() {
-    dispatch([Login.create({ 
-      username: 'alice', 
-      password: 'secret123' 
+    dispatch([Login.create({
+      username: 'alice',
+      password: 'secret123'
     })], 'User Login');
   }
 
@@ -405,16 +417,16 @@ export { Login, Logout, NavigateTo };
   }
 
   function goToProfile() {
-    dispatch([NavigateTo.create({ 
-      page: 'profile', 
-      requiresAuth: true 
+    dispatch([NavigateTo.create({
+      page: 'profile',
+      requiresAuth: true
     })], 'Navigate to Profile');
   }
 
   function returnToPrevious() {
     if (context.previousPage) {
-      dispatch([NavigateTo.create({ 
-        page: context.previousPage 
+      dispatch([NavigateTo.create({
+        page: context.previousPage
       })], 'Return to Previous Page');
     } else if (canUndo) {
       undo();
@@ -506,7 +518,7 @@ function handleLogout() {
 // Clear when starting new workflow
 function startNewProject() {
   historyEngine.clearHistory();
-  historyEngine.dispatch([CreateProject.create({})],'New Project');
+  historyEngine.dispatch([CreateProject.create({})], 'New Project');
 }
 ```
 
@@ -516,10 +528,10 @@ function startNewProject() {
 interface AppContext {
   // Application state
   user: User | null;
-  
+
   // Built-in history tracking in context
   navigationHistory: string[];
-  
+
   // Previous state for quick back
   previousView: string | null;
 }
@@ -530,11 +542,11 @@ const navigationRule = defineRule<AppContext>({
   impl: (state, events) => {
     const nav = findEvent(events, Navigate);
     if (!nav) return [];
-    
+
     state.context.previousView = state.context.currentView;
     state.context.navigationHistory.push(nav.payload.page);
     state.context.currentView = nav.payload.page;
-    
+
     return [];
   },
 });
@@ -571,13 +583,13 @@ const errorRecoveryRule = defineRule<AppContext>({
   impl: (state, events) => {
     const error = findEvent(events, ErrorOccurred);
     if (!error) return [];
-    
+
     // Log error with context
     console.error('Error at state:', state.context);
-    
+
     // You can use history to diagnose or recover
     // historyEngine.undo() to revert to last good state
-    
+
     return [ErrorLogged.create({ error: error.payload })];
   },
 });
@@ -585,14 +597,14 @@ const errorRecoveryRule = defineRule<AppContext>({
 
 ## Comparison with XState
 
-| Feature | XState | Praxis |
-|---------|--------|--------|
-| **Built-in History States** | ✅ Native support | ✅ Pattern-based implementation |
-| **History Types** | Shallow/Deep | Configurable via HistoryStateManager |
-| **Time-Travel** | Via DevTools | ✅ Built into usePraxisEngine |
-| **Undo/Redo** | Custom implementation | ✅ Built-in with createHistoryEngine |
-| **Snapshot Support** | ✅ Via snapshot() | ✅ Via usePraxisEngine snapshots |
-| **History Size Limits** | Manual | ✅ Automatic with maxHistorySize |
+| Feature                     | XState                | Praxis                               |
+| --------------------------- | --------------------- | ------------------------------------ |
+| **Built-in History States** | ✅ Native support     | ✅ Pattern-based implementation      |
+| **History Types**           | Shallow/Deep          | Configurable via HistoryStateManager |
+| **Time-Travel**             | Via DevTools          | ✅ Built into usePraxisEngine        |
+| **Undo/Redo**               | Custom implementation | ✅ Built-in with createHistoryEngine |
+| **Snapshot Support**        | ✅ Via snapshot()     | ✅ Via usePraxisEngine snapshots     |
+| **History Size Limits**     | Manual                | ✅ Automatic with maxHistorySize     |
 
 ## Summary
 
@@ -606,6 +618,7 @@ The history state pattern in Praxis provides:
 - ✅ **Auth Flow Support**: Return to previous states after authentication
 
 The pattern is designed to be:
+
 - **Simple**: Easy to understand and use
 - **Flexible**: Works with any Praxis engine
 - **Performant**: Configurable history limits
@@ -613,6 +626,7 @@ The pattern is designed to be:
 - **Framework-Agnostic**: Use with or without Svelte
 
 For more examples, see:
+
 - [Svelte Counter Example](/src/examples/svelte-counter/index.ts)
 - [Auth Basic Example](/src/examples/auth-basic/index.ts)
 - [Svelte Integration Tests](/src/__tests__/svelte-integration.test.ts)

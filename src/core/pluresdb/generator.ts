@@ -1,6 +1,6 @@
 /**
  * PluresDB Config Generator
- * 
+ *
  * Generates PluresDB configuration from schema definitions.
  */
 
@@ -49,7 +49,7 @@ interface StoreDefinition {
  */
 export class PluresDBGenerator {
   private options: PluresDBGeneratorOptions;
-  
+
   constructor(options: PluresDBGeneratorOptions) {
     this.options = {
       dbVersion: 1,
@@ -58,41 +58,41 @@ export class PluresDBGenerator {
       ...options,
     };
   }
-  
+
   /**
    * Generate PluresDB configuration from schema
    */
   generateConfig(schema: NormalizedSchema): GeneratedPluresDBFile[] {
     const files: GeneratedPluresDBFile[] = [];
-    
+
     // Generate the main config file
     files.push(this.generateConfigFile(schema));
-    
+
     return files;
   }
-  
+
   /**
    * Generate pluresdb-config.ts file
    */
   private generateConfigFile(schema: NormalizedSchema): GeneratedPluresDBFile {
     const lines: string[] = [];
     const dbName = this.options.dbName || schema.name.toLowerCase();
-    
+
     lines.push('/**');
     lines.push(` * PluresDB Configuration for ${schema.name}`);
     lines.push(' * Generated from Praxis schema');
     lines.push(' */');
     lines.push('');
-    
+
     // Import statement (for future PluresDB integration)
-    lines.push('// import { createPluresDB } from \'@plures/pluresdb\';');
+    lines.push("// import { createPluresDB } from '@plures/pluresdb';");
     lines.push('');
-    
+
     // Generate store definitions
     lines.push('/**');
     lines.push(' * Database store configuration');
     lines.push(' * ');
-    
+
     // Document indexing behavior based on configuration
     const autoIndexStrategy = this.options.autoIndex || 'all';
     if (autoIndexStrategy === 'all') {
@@ -106,28 +106,28 @@ export class PluresDBGenerator {
     }
     lines.push(' */');
     lines.push('export const stores = {');
-    
+
     if (schema.models && schema.models.length > 0) {
       for (const model of schema.models) {
         const storeName = model.name.toLowerCase() + 's';
         const storeConfig = this.generateStoreConfig(model);
-        
+
         lines.push(`  ${storeName}: {`);
         lines.push(`    keyPath: '${storeConfig.keyPath}',`);
-        
+
         if (storeConfig.indexes.length > 0) {
-          lines.push(`    indexes: [${storeConfig.indexes.map(idx => `'${idx}'`).join(', ')}],`);
+          lines.push(`    indexes: [${storeConfig.indexes.map((idx) => `'${idx}'`).join(', ')}],`);
         }
-        
+
         lines.push('  },');
       }
     } else {
       lines.push('  // No models defined in schema');
     }
-    
+
     lines.push('};');
     lines.push('');
-    
+
     // Generate main config
     lines.push('/**');
     lines.push(' * Database configuration');
@@ -136,24 +136,24 @@ export class PluresDBGenerator {
     lines.push(`  name: '${dbName}',`);
     lines.push(`  version: ${this.options.dbVersion},`);
     lines.push('  stores,');
-    
+
     if (this.options.enableSync) {
       lines.push('  sync: {');
       lines.push('    enabled: true,');
-      
+
       if (this.options.syncEndpoint) {
         lines.push(`    endpoint: '${this.options.syncEndpoint}',`);
       } else {
-        lines.push('    endpoint: \'ws://localhost:8080/sync\',');
+        lines.push("    endpoint: 'ws://localhost:8080/sync',");
       }
-      
-      lines.push('    conflictResolution: \'last-write-wins\',');
+
+      lines.push("    conflictResolution: 'last-write-wins',");
       lines.push('  },');
     }
-    
+
     lines.push('};');
     lines.push('');
-    
+
     // Generate initialization function
     lines.push('/**');
     lines.push(' * Initialize PluresDB');
@@ -180,40 +180,44 @@ export class PluresDBGenerator {
     lines.push('/**');
     lines.push(' * Get store by name');
     lines.push(' */');
-    lines.push('export function getStore(db: ReturnType<typeof createInMemoryDB>, storeName: string) {');
+    lines.push(
+      'export function getStore(db: ReturnType<typeof createInMemoryDB>, storeName: string) {'
+    );
     lines.push('  const storeDef = dbConfig.stores.find(s => s.name === storeName);');
     lines.push('  if (!storeDef) {');
     lines.push('    throw new Error(`Store "${storeName}" not found in configuration`);');
     lines.push('  }');
     lines.push('  return {');
     lines.push('    get: (key: string) => db.get(`stores/${storeName}/${key}`),');
-    lines.push('    set: (key: string, value: unknown) => db.set(`stores/${storeName}/${key}`, value),');
+    lines.push(
+      '    set: (key: string, value: unknown) => db.set(`stores/${storeName}/${key}`, value),'
+    );
     lines.push('    delete: (key: string) => db.delete(`stores/${storeName}/${key}`),');
     lines.push('    watch: (key: string, callback: (data: unknown) => void) => ');
     lines.push('      db.watch(`stores/${storeName}/${key}`, callback),');
     lines.push('  };');
     lines.push('}');
-    
+
     return {
       path: `${this.options.outputDir}/pluresdb-config.ts`,
       content: lines.join('\n'),
       type: 'config',
     };
   }
-  
+
   /**
    * Generate store configuration for a model
    */
   private generateStoreConfig(model: NormalizedModel): StoreDefinition {
     // Find the ID field (or use 'id' as default)
-    const idField = model.fields.find(f => f.name === 'id' || f.name === '_id');
+    const idField = model.fields.find((f) => f.name === 'id' || f.name === '_id');
     const keyPath = idField ? idField.name : 'id';
-    
+
     const indexes: string[] = [];
-    
+
     // Apply auto-indexing based on configuration
     const autoIndexStrategy = this.options.autoIndex || 'all';
-    
+
     if (autoIndexStrategy === 'all') {
       // Auto-index all string, number, and date fields for query performance
       for (const field of model.fields) {
@@ -225,7 +229,7 @@ export class PluresDBGenerator {
       }
     }
     // For 'explicit' and 'none', we only add indexes explicitly defined in the schema
-    
+
     // Always add indexes from schema index definitions (overrides auto-indexing)
     if (model.indexes) {
       for (const indexDef of model.indexes) {
@@ -236,7 +240,7 @@ export class PluresDBGenerator {
         }
       }
     }
-    
+
     return {
       keyPath,
       indexes,

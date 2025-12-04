@@ -85,7 +85,7 @@ console.log('Cart:', cartEngine.getContext());
 console.log('Notifications:', notificationEngine.getContext());
 
 // Events are processed independently
-authEngine.step([Login.create({})]);  // Only affects auth
+authEngine.step([Login.create({})]); // Only affects auth
 cartEngine.step([Checkout.create({})]); // Only affects cart
 notificationEngine.step([Clear.create({})]); // Only affects notifications
 ```
@@ -133,15 +133,13 @@ class AppCoordinator {
     // When user logs out, clear cart
     if (results.auth.state.facts.some((f: any) => f.tag === 'UserLoggedOut')) {
       this.cartEngine.step([ClearCart.create({})]);
-      this.notificationEngine.step([
-        ShowNotification.create({ message: 'Cart cleared' })
-      ]);
+      this.notificationEngine.step([ShowNotification.create({ message: 'Cart cleared' })]);
     }
 
     // When order is placed, show notification
     if (results.cart.state.facts.some((f: any) => f.tag === 'OrderPlaced')) {
       this.notificationEngine.step([
-        ShowNotification.create({ message: 'Order placed successfully!' })
+        ShowNotification.create({ message: 'Order placed successfully!' }),
       ]);
     }
 
@@ -150,7 +148,7 @@ class AppCoordinator {
       const authContext = this.authEngine.getContext();
       if (!authContext.user) {
         this.notificationEngine.step([
-          ShowNotification.create({ message: 'Please login to continue' })
+          ShowNotification.create({ message: 'Please login to continue' }),
         ]);
       }
     }
@@ -169,11 +167,7 @@ class AppCoordinator {
 }
 
 // Usage
-const coordinator = new AppCoordinator(
-  authEngine,
-  cartEngine,
-  notificationEngine
-);
+const coordinator = new AppCoordinator(authEngine, cartEngine, notificationEngine);
 
 coordinator.dispatch({
   auth: [Login.create({ username: 'alice' })],
@@ -210,7 +204,7 @@ class EventBus {
   publish(event: PraxisEvent) {
     const handlers = this.handlers.get(event.tag);
     if (handlers) {
-      handlers.forEach(handler => handler(event));
+      handlers.forEach((handler) => handler(event));
     }
   }
 }
@@ -221,39 +215,33 @@ const eventBus = new EventBus();
 // Connect engines to event bus
 eventBus.subscribe('USER_LOGGED_OUT', () => {
   cartEngine.step([ClearCart.create({})]);
-  notificationEngine.step([
-    ShowNotification.create({ message: 'Cart cleared' })
-  ]);
+  notificationEngine.step([ShowNotification.create({ message: 'Cart cleared' })]);
 });
 
 eventBus.subscribe('ORDER_PLACED', (event) => {
-  notificationEngine.step([
-    ShowNotification.create({ message: 'Order placed!' })
-  ]);
+  notificationEngine.step([ShowNotification.create({ message: 'Order placed!' })]);
 });
 
 eventBus.subscribe('CART_ITEM_ADDED', (event) => {
   const authContext = authEngine.getContext();
   if (!authContext.user) {
-    notificationEngine.step([
-      ShowNotification.create({ message: 'Login to save your cart' })
-    ]);
+    notificationEngine.step([ShowNotification.create({ message: 'Login to save your cart' })]);
   }
 });
 
 // Dispatch events through bus
 function dispatchWithBroadcast(engine: LogicEngine<any>, events: PraxisEvent[]) {
   const result = engine.step(events);
-  
+
   // Broadcast facts as events
-  result.state.facts.forEach(fact => {
+  result.state.facts.forEach((fact) => {
     eventBus.publish({
       tag: fact.tag,
       payload: fact.payload,
       timestamp: Date.now(),
     });
   });
-  
+
   return result;
 }
 ```
@@ -278,7 +266,7 @@ class HierarchicalEngine {
 
   addChild<T>(id: string, engine: LogicEngine<T>) {
     this.childEngines.set(id, engine);
-    
+
     // Update parent context
     const parentContext = this.parentEngine.getContext();
     parentContext.children.set(id, engine.getContext());
@@ -286,7 +274,7 @@ class HierarchicalEngine {
 
   removeChild(id: string) {
     this.childEngines.delete(id);
-    
+
     const parentContext = this.parentEngine.getContext();
     parentContext.children.delete(id);
   }
@@ -379,14 +367,14 @@ class SharedStateManager {
   subscribe(callback: (state: SharedState) => void) {
     this.subscribers.add(callback);
     callback(this.state);
-    
+
     return () => {
       this.subscribers.delete(callback);
     };
   }
 
   private notify() {
-    this.subscribers.forEach(sub => sub(this.state));
+    this.subscribers.forEach((sub) => sub(this.state));
   }
 }
 
@@ -403,9 +391,7 @@ sharedState.subscribe((state) => {
 
 sharedState.subscribe((state) => {
   // Update notification badge
-  notificationEngine.step([
-    UpdateBadge.create({ count: state.unreadCount })
-  ]);
+  notificationEngine.step([UpdateBadge.create({ count: state.unreadCount })]);
 });
 
 // Engines update shared state
@@ -425,10 +411,10 @@ Using parallel engines with Svelte 5:
 ```svelte
 <script lang="ts">
   import { usePraxisEngine } from '@plures/praxis/svelte';
-  import { 
-    createAuthEngine, 
-    createCartEngine, 
-    createNotificationEngine 
+  import {
+    createAuthEngine,
+    createCartEngine,
+    createNotificationEngine
   } from './engines';
 
   // Create independent engines
@@ -443,14 +429,14 @@ Using parallel engines with Svelte 5:
 
   // Cross-engine reactions
   $: if (auth.context.user) {
-    cart.dispatch([LoadUserCart.create({ 
-      userId: auth.context.user.id 
+    cart.dispatch([LoadUserCart.create({
+      userId: auth.context.user.id
     })]);
   }
 
   $: if (cart.context.items.length > 0 && !auth.context.user) {
-    notifications.dispatch([ShowNotification.create({ 
-      message: 'Please login to continue' 
+    notifications.dispatch([ShowNotification.create({
+      message: 'Please login to continue'
     })]);
   }
 </script>
@@ -498,10 +484,10 @@ Using parallel engines with Svelte 5:
 <script lang="ts">
   import { usePraxisEngine } from '@plures/praxis/svelte';
   import { AppCoordinator } from './coordinator';
-  import { 
-    createAuthEngine, 
-    createCartEngine, 
-    createNotificationEngine 
+  import {
+    createAuthEngine,
+    createCartEngine,
+    createNotificationEngine
   } from './engines';
 
   // Create coordinator
@@ -566,26 +552,20 @@ function setupCoordination() {
   // When user logs in, load their cart
   authEngine.subscribe((state) => {
     if (state.context.user) {
-      cartEngine.step([
-        LoadCart.create({ userId: state.context.user.id })
-      ]);
+      cartEngine.step([LoadCart.create({ userId: state.context.user.id })]);
     }
   });
 
   // When cart updates, update checkout
   cartEngine.subscribe((state) => {
-    checkoutEngine.step([
-      UpdateTotal.create({ total: state.context.total })
-    ]);
+    checkoutEngine.step([UpdateTotal.create({ total: state.context.total })]);
   });
 
   // When checkout completes, clear cart and show notification
   checkoutEngine.subscribe((state) => {
-    if (state.facts.some(f => f.tag === 'OrderPlaced')) {
+    if (state.facts.some((f) => f.tag === 'OrderPlaced')) {
       cartEngine.step([ClearCart.create({})]);
-      notificationEngine.step([
-        ShowNotification.create({ message: 'Order placed!' })
-      ]);
+      notificationEngine.step([ShowNotification.create({ message: 'Order placed!' })]);
     }
   });
 }
@@ -609,7 +589,7 @@ function updatePanel(panelId: keyof typeof panels, events: PraxisEvent[]) {
 
 // Shared coordination for common actions
 function refreshAll() {
-  Object.values(panels).forEach(panel => {
+  Object.values(panels).forEach((panel) => {
     panel.step([Refresh.create({})]);
   });
 }
@@ -619,7 +599,7 @@ function exportAll() {
     panel: id,
     data: panel.getContext(),
   }));
-  
+
   downloadJSON(data, 'dashboard-export.json');
 }
 ```
@@ -641,7 +621,7 @@ function gameTick(deltaTime: number) {
   game.player.step([Tick.create({ deltaTime })]);
   game.inventory.step([Tick.create({ deltaTime })]);
   game.world.step([Tick.create({ deltaTime })]);
-  
+
   // Sync states
   const playerPos = game.player.getContext().position;
   game.world.step([UpdatePlayerPosition.create({ position: playerPos })]);
@@ -655,13 +635,15 @@ function handlePlayerAction(action: string) {
       game.player.step([UseItem.create({ item })]);
       game.inventory.step([RemoveItem.create({ item })]);
       break;
-      
+
     case 'SEND_MESSAGE':
       const player = game.player.getContext();
-      game.chat.step([SendMessage.create({ 
-        player: player.name,
-        message: player.currentMessage
-      })]);
+      game.chat.step([
+        SendMessage.create({
+          player: player.name,
+          message: player.currentMessage,
+        }),
+      ]);
       break;
   }
 }
@@ -673,9 +655,9 @@ function handlePlayerAction(action: string) {
 
 ```typescript
 // ✅ Good: Clear separation of concerns
-const userEngine = createUserEngine();    // User state only
+const userEngine = createUserEngine(); // User state only
 const ordersEngine = createOrdersEngine(); // Orders only
-const cartEngine = createCartEngine();     // Cart only
+const cartEngine = createCartEngine(); // Cart only
 
 // ❌ Bad: Mixing concerns
 const everythingEngine = createEverythingEngine(); // Too much
@@ -719,11 +701,11 @@ describe('Auth Engine', () => {
 ```typescript
 /**
  * Shopping Cart Engine
- * 
+ *
  * Dependencies:
  * - Auth engine: Requires user ID to load cart
  * - Checkout engine: Sends total for checkout
- * 
+ *
  * Emits:
  * - CartUpdated: When items change
  * - CartCleared: When cart is emptied
@@ -735,13 +717,13 @@ export function createCartEngine() {
 
 ## Comparison with XState
 
-| Feature | XState | Praxis |
-|---------|--------|--------|
-| **Parallel States** | `type: 'parallel'` | Multiple engines |
-| **Coordination** | Parent state machine | Coordinator pattern |
-| **Communication** | Event forwarding | Event bus or shared state |
-| **Hierarchy** | Nested states | Parent-child engines |
-| **Testing** | Test parent machine | Test each engine independently |
+| Feature             | XState               | Praxis                         |
+| ------------------- | -------------------- | ------------------------------ |
+| **Parallel States** | `type: 'parallel'`   | Multiple engines               |
+| **Coordination**    | Parent state machine | Coordinator pattern            |
+| **Communication**   | Event forwarding     | Event bus or shared state      |
+| **Hierarchy**       | Nested states        | Parent-child engines           |
+| **Testing**         | Test parent machine  | Test each engine independently |
 
 ## Summary
 
@@ -755,6 +737,7 @@ The parallel state pattern in Praxis provides:
 - ✅ **Scalable**: Add or remove engines as needed
 
 Choose the right pattern based on your needs:
+
 - **Independent engines**: When subsystems don't interact
 - **Event bus**: When you need loose coupling with pub/sub
 - **Coordinator**: When you need centralized orchestration
@@ -762,6 +745,7 @@ Choose the right pattern based on your needs:
 - **Hierarchy**: When you have parent-child relationships
 
 For more examples, see:
+
 - [E-Commerce Example](/src/examples/hero-ecommerce/)
 - [Auth Example](/src/examples/auth-basic/)
 - [Multiple Engine Tests](/src/__tests__/edge-cases.test.ts)

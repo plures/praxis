@@ -1,11 +1,11 @@
 /**
  * Praxis Canvas Svelte Components
- * 
+ *
  * Visual schema editor components for the Praxis framework.
- * 
+ *
  * Note: Svelte components (.svelte files) must be imported directly in Svelte applications.
  * This module provides TypeScript types for component props.
- * 
+ *
  * @example
  * ```svelte
  * <script>

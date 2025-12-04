@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
  * Praxis CLI Adapter
- * 
+ *
  * JSON-based CLI interface for cross-language Praxis engine invocation.
  * Reads JSON from stdin, processes through Praxis engine, outputs JSON to stdout.
- * 
+ *
  * This enables PowerShell, Python, and other languages to use Praxis.
  */
 
-import * as fs from "fs";
+import * as fs from 'fs';
 import {
   createPraxisEngine,
   PraxisRegistry,
@@ -17,7 +17,7 @@ import {
   type PraxisStepResult,
   type RuleDescriptor,
   type ConstraintDescriptor,
-} from "../index.js";
+} from '../index.js';
 
 interface CLIInput {
   state: PraxisState;
@@ -44,7 +44,7 @@ interface RegistryConfig {
  */
 function loadRegistryConfig(configPath: string): RegistryConfig {
   try {
-    const content = fs.readFileSync(configPath, "utf-8");
+    const content = fs.readFileSync(configPath, 'utf-8');
     return JSON.parse(content);
   } catch (error) {
     throw new Error(`Failed to load registry config from ${configPath}: ${error}`);
@@ -71,7 +71,7 @@ function createRegistryFromConfig<TContext = unknown>(
       // Eval the implementation (for demo purposes)
       // In production, load from modules or use a safer evaluation method
       const impl = eval(ruleConfig.impl);
-      
+
       const rule: RuleDescriptor<TContext> = {
         id: ruleConfig.id,
         description: ruleConfig.description,
@@ -92,7 +92,7 @@ function createRegistryFromConfig<TContext = unknown>(
 
     try {
       const impl = eval(constraintConfig.impl);
-      
+
       const constraint: ConstraintDescriptor<TContext> = {
         id: constraintConfig.id,
         description: constraintConfig.description,
@@ -134,14 +134,14 @@ function processStep(input: CLIInput): PraxisStepResult {
 async function main() {
   try {
     // Read input from stdin
-    let inputData = "";
-    
+    let inputData = '';
+
     for await (const chunk of process.stdin) {
       inputData += chunk;
     }
 
     if (!inputData.trim()) {
-      throw new Error("No input provided");
+      throw new Error('No input provided');
     }
 
     // Parse input
@@ -149,7 +149,7 @@ async function main() {
 
     // Validate input
     if (!input.state || !input.events || !input.configPath) {
-      throw new Error("Invalid input: must provide state, events, and configPath");
+      throw new Error('Invalid input: must provide state, events, and configPath');
     }
 
     // Process step
@@ -159,10 +159,16 @@ async function main() {
     console.log(JSON.stringify(result, null, 2));
     process.exit(0);
   } catch (error) {
-    console.error(JSON.stringify({
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-    }, null, 2));
+    console.error(
+      JSON.stringify(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+        },
+        null,
+        2
+      )
+    );
     process.exit(1);
   }
 }

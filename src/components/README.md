@@ -9,6 +9,7 @@ This directory contains Svelte components for Praxis/RuneBook applications.
 A terminal interface component with command execution, history, and canvas integration.
 
 **Features:**
+
 - Command execution with output display
 - Command history tracking
 - Draggable positioning on canvas

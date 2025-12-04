@@ -87,6 +87,7 @@ deno task typecheck
 ### Formatting
 
 We use automated formatting:
+
 - **Node.js**: TypeScript compiler with strict mode
 - **Deno**: `deno fmt` for consistent formatting
 
@@ -136,6 +137,7 @@ Use clear, descriptive commit messages:
 - **chore**: Maintenance tasks
 
 Examples:
+
 ```
 feat: add component generator for Svelte
 fix: resolve schema validation edge case

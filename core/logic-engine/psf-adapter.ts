@@ -1,6 +1,6 @@
 /**
  * PSF-Aware Logic Engine Adapter
- * 
+ *
  * This module connects the logic engine to the Praxis Schema Format (PSF).
  * It enables schema-driven rule evaluation and constraint checking.
  */
@@ -29,7 +29,7 @@ interface CompiledExpression {
 
 /**
  * PSF Adapter for Logic Engine
- * 
+ *
  * Converts PSF rules and constraints to logic engine format.
  */
 export class PSFLogicAdapter {
@@ -108,7 +108,9 @@ export class PSFLogicAdapter {
   /**
    * Convert PSF constraints to logic engine constraint descriptors
    */
-  convertConstraints<TContext = unknown>(constraints: PSFConstraint[]): ConstraintDescriptor<TContext>[] {
+  convertConstraints<TContext = unknown>(
+    constraints: PSFConstraint[]
+  ): ConstraintDescriptor<TContext>[] {
     return constraints.map((constraint) => this.convertConstraint<TContext>(constraint));
   }
 
@@ -142,7 +144,9 @@ export class PSFLogicAdapter {
   /**
    * Load a complete PSF schema into the logic engine
    */
-  loadSchema<TContext = unknown>(schema: PSFSchema): {
+  loadSchema<TContext = unknown>(
+    schema: PSFSchema
+  ): {
     rules: RuleDescriptor<TContext>[];
     constraints: ConstraintDescriptor<TContext>[];
   } {

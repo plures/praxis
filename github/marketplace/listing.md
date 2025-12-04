@@ -1,12 +1,15 @@
 # Praxis Cloud - GitHub Marketplace Listing
 
 ## Application Name
+
 Praxis Cloud
 
 ## Tagline
+
 Local-first application framework with cloud sync and GitHub-native billing
 
 ## Categories
+
 - Developer Tools
 - Productivity
 - Deployment
@@ -73,22 +76,26 @@ await relay.sync({
 ## Pricing Plans
 
 ### Free Tier
+
 **$0/month**
 
 Perfect for trying out Praxis Cloud.
 
 **Included:**
+
 - 1,000 sync operations/month
 - 10 MB storage
 - 1 application/project
 - Community support
 
 ### Solo Plan
+
 **$5/month** or **$50/year** (save $10)
 
 For individual developers.
 
 **Included:**
+
 - 50,000 sync operations/month
 - 1 GB storage
 - 10 applications/projects
@@ -96,11 +103,13 @@ For individual developers.
 - Everything in Free
 
 ### Team Plan
+
 **$20/month** or **$200/year** (save $40)
 
 For small teams.
 
 **Included:**
+
 - 500,000 sync operations/month
 - 10 GB storage
 - 50 applications/projects
@@ -109,11 +118,13 @@ For small teams.
 - Everything in Solo
 
 ### Enterprise Plan
+
 **$50/month** or **$500/year** (save $100)
 
 For large teams and organizations.
 
 **Included:**
+
 - 5,000,000 sync operations/month
 - 100 GB storage
 - 1,000 applications/projects
@@ -222,26 +233,33 @@ For GitHub Marketplace integration, configure the following webhooks:
 ## FAQs
 
 ### Q: Can I use my own Azure account?
+
 **A:** Enterprise plans can configure custom Azure resources. Contact enterprise@plures.dev.
 
 ### Q: What happens if I exceed my limits?
+
 **A:** Syncs will be rate-limited. Upgrade your plan to increase limits.
 
 ### Q: Can I cancel anytime?
+
 **A:** Yes, cancel anytime via GitHub Marketplace. You'll have access until the end of your billing period.
 
 ### Q: Do you offer educational discounts?
+
 **A:** Yes! Contact support@plures.dev with your educational institution email.
 
 ### Q: Is there a trial period?
+
 **A:** The Free tier is always available. Paid plans can be cancelled within 7 days for a full refund.
 
 ### Q: How do I migrate existing data?
+
 **A:** Use the `praxis cloud sync` command to upload existing application state.
 
 ## Changelog
 
 ### Version 0.1.0 (Current)
+
 - Initial GitHub Marketplace listing
 - Support for GitHub OAuth authentication
 - GitHub Sponsors integration

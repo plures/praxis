@@ -1,4 +1,3 @@
-
 import * as fs from 'fs';
 import * as path from 'path';
 import { analyzeRuleFile } from '../../../tools/ast-analyzer/src/ast-analyzer.js';
@@ -7,7 +6,7 @@ export function verifyImplementation() {
   const projectRoot = process.cwd();
   // Default assumption: rules are in src/fsm/rules or src/rules
   // We'll search recursively in src/
-  
+
   const srcDir = path.join(projectRoot, 'src');
   if (!fs.existsSync(srcDir)) {
     console.warn('src directory not found, skipping verification');
@@ -28,15 +27,15 @@ export function verifyImplementation() {
 
   // For now, we just report what we found as a proof of concept
   // In a real scenario, we would compare against the schema
-  
+
   // Check for empty implementations (no mutations, no events)
   const emptyHandlers = allRules
-    .filter(r => r.mutations.length === 0 && r.events.length === 0)
-    .map(r => r.ruleId);
+    .filter((r) => r.mutations.length === 0 && r.events.length === 0)
+    .map((r) => r.ruleId);
 
   return {
     missingHandlers: [], // We'd need the schema to know what's missing
-    emptyHandlers
+    emptyHandlers,
   };
 }
 
@@ -62,4 +61,3 @@ function findRuleFiles(dir: string): string[] {
   }
   return results;
 }
-

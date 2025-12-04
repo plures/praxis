@@ -25,9 +25,9 @@ node dist/examples/github-monetization/index.js
 ### 1. Authenticate Users
 
 ```typescript
-import { authenticateWithDeviceFlow } from "@plures/praxis/cloud";
+import { authenticateWithDeviceFlow } from '@plures/praxis/cloud';
 
-const authResult = await authenticateWithDeviceFlow("YOUR_CLIENT_ID");
+const authResult = await authenticateWithDeviceFlow('YOUR_CLIENT_ID');
 if (authResult.success) {
   console.log(`Authenticated as ${authResult.user?.login}`);
 }
@@ -36,7 +36,7 @@ if (authResult.success) {
 ### 2. Check Subscription Status
 
 ```typescript
-import { createSponsorsClient } from "@plures/praxis/cloud";
+import { createSponsorsClient } from '@plures/praxis/cloud';
 
 const client = createSponsorsClient(token);
 const subscription = await client.getSubscription(username);
@@ -46,7 +46,7 @@ console.log(`Tier: ${subscription.tier}`);
 ### 3. Provision Tenant
 
 ```typescript
-import { provisionTenant } from "@plures/praxis/cloud";
+import { provisionTenant } from '@plures/praxis/cloud';
 
 const result = await provisionTenant(githubUser, subscription);
 if (result.success) {
@@ -57,7 +57,7 @@ if (result.success) {
 ### 4. Check Feature Access
 
 ```typescript
-import { hasAccessToTier, SubscriptionTier } from "@plures/praxis/cloud";
+import { hasAccessToTier, SubscriptionTier } from '@plures/praxis/cloud';
 
 if (hasAccessToTier(subscription, SubscriptionTier.TEAM)) {
   // Enable team features
@@ -67,7 +67,7 @@ if (hasAccessToTier(subscription, SubscriptionTier.TEAM)) {
 ### 5. Validate Usage
 
 ```typescript
-import { checkUsageLimits } from "@plures/praxis/cloud";
+import { checkUsageLimits } from '@plures/praxis/cloud';
 
 const result = checkUsageLimits(subscription, {
   syncCount: 45000,
@@ -77,7 +77,7 @@ const result = checkUsageLimits(subscription, {
 });
 
 if (!result.withinLimits) {
-  console.log("Exceeded limits:", result.violations);
+  console.log('Exceeded limits:', result.violations);
 }
 ```
 

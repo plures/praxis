@@ -1,6 +1,6 @@
 /**
  * Build Command
- * 
+ *
  * Builds a Praxis application for production.
  */
 
@@ -28,23 +28,23 @@ export interface BuildOptions {
 export async function build(options: BuildOptions): Promise<void> {
   const output = options.output || './dist';
   const target = options.target || 'web';
-  
+
   console.log('\n╔═══════════════════════════════════════════════════╗');
   console.log('║   Praxis Production Build                         ║');
   console.log('╚═══════════════════════════════════════════════════╝\n');
-  
+
   // Check if we're in a Praxis project
   const packageJsonPath = path.join(process.cwd(), 'package.json');
-  
+
   if (!fs.existsSync(packageJsonPath)) {
     console.error('Error: No package.json found in current directory.');
     console.log('Make sure you are in a Praxis project directory.\n');
     process.exit(1);
   }
-  
+
   // Read package.json to check for build script
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-  
+
   if (!packageJson.scripts?.build) {
     console.error('Error: No "build" script found in package.json.');
     console.log('\nTo build your Praxis project, add a build script to your package.json:');
@@ -53,22 +53,22 @@ export async function build(options: BuildOptions): Promise<void> {
     console.log('  }\n');
     process.exit(1);
   }
-  
+
   console.log(`Building for: ${target}`);
   console.log(`Output: ${output}`);
   console.log('');
-  
+
   // Handle different build targets
   if (target === 'desktop') {
     await buildDesktop(options);
     return;
   }
-  
+
   if (target === 'mobile') {
     await buildMobile(options);
     return;
   }
-  
+
   // Web build (default)
   await buildWeb(options);
 }
@@ -78,21 +78,21 @@ export async function build(options: BuildOptions): Promise<void> {
  */
 async function buildWeb(options: BuildOptions): Promise<void> {
   const output = options.output || './dist';
-  
+
   console.log('🌐 Building web application...\n');
-  
+
   // Set up environment variables for Vite
   const env = {
     ...process.env,
     FORCE_COLOR: '1',
   };
-  
+
   // Build args
   const args = ['run', 'build'];
   if (output !== './dist') {
     args.push('--', '--outDir', output);
   }
-  
+
   return new Promise((resolve, reject) => {
     const child = spawn('npm', args, {
       stdio: 'inherit',
@@ -100,12 +100,12 @@ async function buildWeb(options: BuildOptions): Promise<void> {
       cwd: process.cwd(),
       env,
     });
-    
+
     child.on('error', (error) => {
       console.error('Build failed:', error.message);
       reject(error);
     });
-    
+
     child.on('exit', (code) => {
       if (code === 0) {
         console.log('\n✅ Build completed successfully!');
@@ -126,10 +126,10 @@ async function buildWeb(options: BuildOptions): Promise<void> {
  */
 async function buildDesktop(_options: BuildOptions): Promise<void> {
   console.log('🖥️  Building desktop application with Tauri...\n');
-  
+
   // Check if Tauri is configured
   const tauriConfigPath = path.join(process.cwd(), 'src-tauri', 'tauri.conf.json');
-  
+
   if (!fs.existsSync(tauriConfigPath)) {
     console.log('Tauri is not configured for this project.');
     console.log('\nTo add Tauri support:');
@@ -139,12 +139,14 @@ async function buildDesktop(_options: BuildOptions): Promise<void> {
     console.log('For more information, see the Tauri integration docs.');
     process.exit(1);
   }
-  
+
   // Check for tauri build script
-  const packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf-8'));
-  
+  const packageJson = JSON.parse(
+    fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf-8')
+  );
+
   const buildScript = packageJson.scripts?.['tauri:build'] || packageJson.scripts?.['tauri'];
-  
+
   return new Promise((resolve, reject) => {
     const child = spawn('npm', ['run', buildScript ? 'tauri:build' : 'tauri', 'build'], {
       stdio: 'inherit',
@@ -155,12 +157,12 @@ async function buildDesktop(_options: BuildOptions): Promise<void> {
         FORCE_COLOR: '1',
       },
     });
-    
+
     child.on('error', (error) => {
       console.error('Desktop build failed:', error.message);
       reject(error);
     });
-    
+
     child.on('exit', (code) => {
       if (code === 0) {
         console.log('\n✅ Desktop build completed!');
@@ -179,10 +181,10 @@ async function buildDesktop(_options: BuildOptions): Promise<void> {
  */
 async function buildMobile(_options: BuildOptions): Promise<void> {
   console.log('📱 Building mobile application...\n');
-  
+
   // Check if Tauri mobile is configured
   const tauriConfigPath = path.join(process.cwd(), 'src-tauri', 'tauri.conf.json');
-  
+
   if (!fs.existsSync(tauriConfigPath)) {
     console.log('Tauri is not configured for this project.');
     console.log('\nTo add mobile support:');
@@ -194,7 +196,7 @@ async function buildMobile(_options: BuildOptions): Promise<void> {
     console.log('For more information, see the Tauri mobile docs.');
     process.exit(1);
   }
-  
+
   console.log('Mobile build requires platform-specific setup:');
   console.log('\n📱 Android:');
   console.log('  npm run tauri android build');

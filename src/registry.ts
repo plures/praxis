@@ -9,10 +9,7 @@ import type { Rule, Constraint, ConstraintViolation } from './dsl.js';
 /**
  * Registry for managing rules and constraints.
  */
-export class Registry<
-  S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
-> {
+export class Registry<S extends PraxisState = PraxisState, E extends PraxisEvent = PraxisEvent> {
   private rules: Map<string, Rule<S, E>> = new Map();
   private constraints: Map<string, Constraint<S>> = new Map();
 
@@ -113,14 +110,12 @@ export class Registry<
    */
   evaluateRules(state: S, event: E): Effect[] {
     const effects: Effect[] = [];
-    
+
     // Get rules that match the event type
     const applicableRules = this.getRulesForEvent(event.type);
-    
+
     // Sort by priority (higher priority first)
-    const sortedRules = applicableRules.sort(
-      (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
-    );
+    const sortedRules = applicableRules.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 
     // Evaluate each rule
     for (const rule of sortedRules) {
@@ -149,9 +144,7 @@ export class Registry<
         if (!constraint.check(state)) {
           violations.push({
             constraintId: constraint.id,
-            message:
-              constraint.errorMessage ||
-              `Constraint '${constraint.id}' violated`,
+            message: constraint.errorMessage || `Constraint '${constraint.id}' violated`,
             state,
           });
         }
@@ -198,7 +191,7 @@ export class Registry<
     rulesByEventType: Record<string, number>;
   } {
     const rulesByEventType: Record<string, number> = {};
-    
+
     for (const rule of this.rules.values()) {
       const eventType = rule.eventType || '*';
       rulesByEventType[eventType] = (rulesByEventType[eventType] || 0) + 1;
@@ -217,7 +210,7 @@ export class Registry<
  */
 export function createRegistry<
   S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
+  E extends PraxisEvent = PraxisEvent,
 >(): Registry<S, E> {
   return new Registry<S, E>();
 }

@@ -66,5 +66,5 @@ export interface Effect {
  */
 export type StepFunction<
   S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
+  E extends PraxisEvent = PraxisEvent,
 > = (state: S, event: E) => StepResult<S>;

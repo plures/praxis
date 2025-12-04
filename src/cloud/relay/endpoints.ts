@@ -1,14 +1,10 @@
 /**
  * Azure Functions Relay Endpoints
- * 
+ *
  * HTTP-triggered Azure Functions for Praxis Cloud Relay.
  */
 
-import type {
-  CRDTSyncMessage,
-  UsageMetrics,
-  HealthCheckResponse,
-} from "../types.js";
+import type { CRDTSyncMessage, UsageMetrics, HealthCheckResponse } from '../types.js';
 
 /**
  * Azure Function context (simplified interface)
@@ -54,12 +50,12 @@ export async function healthEndpoint(
   context: AzureContext,
   _req: AzureHttpRequest
 ): Promise<AzureHttpResponse> {
-  context.log("Health check requested");
+  context.log('Health check requested');
 
   const response: HealthCheckResponse = {
-    status: "healthy",
+    status: 'healthy',
     timestamp: Date.now(),
-    version: "0.1.0",
+    version: '0.1.0',
     services: {
       relay: true,
       eventGrid: true,
@@ -70,7 +66,7 @@ export async function healthEndpoint(
 
   return {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { 'Content-Type': 'application/json' },
     body: response,
   };
 }
@@ -83,13 +79,13 @@ export async function syncEndpoint(
   context: AzureContext,
   req: AzureHttpRequest
 ): Promise<AzureHttpResponse> {
-  context.log("Sync request received");
+  context.log('Sync request received');
 
   // Validate request
-  if (req.method !== "POST") {
+  if (req.method !== 'POST') {
     return {
       status: 405,
-      body: { error: "Method not allowed" },
+      body: { error: 'Method not allowed' },
     };
   }
 
@@ -98,7 +94,7 @@ export async function syncEndpoint(
   if (!message || !message.appId) {
     return {
       status: 400,
-      body: { error: "Invalid sync message" },
+      body: { error: 'Invalid sync message' },
     };
   }
 
@@ -131,7 +127,7 @@ export async function syncEndpoint(
   // Return updated vector clock
   return {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { 'Content-Type': 'application/json' },
     body: {
       success: true,
       clock: message.clock,
@@ -148,14 +144,14 @@ export async function usageEndpoint(
   context: AzureContext,
   req: AzureHttpRequest
 ): Promise<AzureHttpResponse> {
-  context.log("Usage metrics requested");
+  context.log('Usage metrics requested');
 
   const appId = req.query.appId;
 
   if (!appId) {
     return {
       status: 400,
-      body: { error: "appId query parameter is required" },
+      body: { error: 'appId query parameter is required' },
     };
   }
 
@@ -164,13 +160,13 @@ export async function usageEndpoint(
   if (!usage) {
     return {
       status: 404,
-      body: { error: "No usage data found for this app" },
+      body: { error: 'No usage data found for this app' },
     };
   }
 
   return {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { 'Content-Type': 'application/json' },
     body: usage,
   };
 }
@@ -183,14 +179,14 @@ export async function statsEndpoint(
   context: AzureContext,
   req: AzureHttpRequest
 ): Promise<AzureHttpResponse> {
-  context.log("Stats requested");
+  context.log('Stats requested');
 
   const appId = req.query.appId;
 
   if (!appId) {
     return {
       status: 400,
-      body: { error: "appId query parameter is required" },
+      body: { error: 'appId query parameter is required' },
     };
   }
 
@@ -199,7 +195,7 @@ export async function statsEndpoint(
 
   return {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { 'Content-Type': 'application/json' },
     body: {
       appId,
       totalSyncs: syncs.length,
@@ -217,12 +213,12 @@ export async function eventsEndpoint(
   context: AzureContext,
   req: AzureHttpRequest
 ): Promise<AzureHttpResponse> {
-  context.log("Event forwarding requested");
+  context.log('Event forwarding requested');
 
-  if (req.method !== "POST") {
+  if (req.method !== 'POST') {
     return {
       status: 405,
-      body: { error: "Method not allowed" },
+      body: { error: 'Method not allowed' },
     };
   }
 
@@ -231,7 +227,7 @@ export async function eventsEndpoint(
   if (!appId || !events) {
     return {
       status: 400,
-      body: { error: "Invalid event forwarding request" },
+      body: { error: 'Invalid event forwarding request' },
     };
   }
 
@@ -241,7 +237,7 @@ export async function eventsEndpoint(
   // For now, just acknowledge receipt
   return {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { 'Content-Type': 'application/json' },
     body: {
       success: true,
       forwarded: events.length,
@@ -259,15 +255,15 @@ export async function schemaEndpoint(
   context: AzureContext,
   req: AzureHttpRequest
 ): Promise<AzureHttpResponse> {
-  context.log("Schema registry requested");
+  context.log('Schema registry requested');
 
-  if (req.method === "POST") {
+  if (req.method === 'POST') {
     const { appId, schema } = req.body as { appId: string; schema: unknown };
 
     if (!appId || !schema) {
       return {
         status: 400,
-        body: { error: "Invalid schema registration request" },
+        body: { error: 'Invalid schema registration request' },
       };
     }
 
@@ -275,7 +271,7 @@ export async function schemaEndpoint(
 
     return {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
       body: {
         success: true,
         schemaId: `${appId}-${Date.now()}`,
@@ -290,18 +286,18 @@ export async function schemaEndpoint(
   if (!appId) {
     return {
       status: 400,
-      body: { error: "appId query parameter is required" },
+      body: { error: 'appId query parameter is required' },
     };
   }
 
   // Return placeholder schema
   return {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { 'Content-Type': 'application/json' },
     body: {
       appId,
       schema: null,
-      message: "Schema not found",
+      message: 'Schema not found',
     },
   };
 }

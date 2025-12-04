@@ -1,6 +1,6 @@
 /**
  * Orchestrate Command
- * 
+ *
  * Manages distributed orchestration and coordination.
  */
 
@@ -47,11 +47,11 @@ export interface OrchestrateOptions {
  */
 export async function orchestrate(options: OrchestrateOptions): Promise<void> {
   const action = options.action || 'status';
-  
+
   console.log('\n╔═══════════════════════════════════════════════════╗');
   console.log('║   Praxis Orchestration                            ║');
   console.log('╚═══════════════════════════════════════════════════╝\n');
-  
+
   switch (action) {
     case 'init':
       await initOrchestration(options);
@@ -73,13 +73,13 @@ export async function orchestrate(options: OrchestrateOptions): Promise<void> {
  */
 async function initOrchestration(options: OrchestrateOptions): Promise<void> {
   const configPath = options.config || 'praxis.orchestrate.json';
-  
+
   if (fs.existsSync(configPath)) {
     console.log(`Configuration file already exists: ${configPath}`);
     console.log('Use --config to specify a different file.\n');
     return;
   }
-  
+
   const defaultConfig: OrchestrationConfig = {
     nodeId: `node-${Date.now().toString(36)}`,
     role: 'primary',
@@ -95,9 +95,9 @@ async function initOrchestration(options: OrchestrateOptions): Promise<void> {
       timeout: 5000,
     },
   };
-  
+
   fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
-  
+
   console.log(`✓ Created orchestration config: ${configPath}`);
   console.log('\nConfiguration:');
   console.log(`  Node ID: ${defaultConfig.nodeId}`);
@@ -114,42 +114,42 @@ async function initOrchestration(options: OrchestrateOptions): Promise<void> {
  */
 async function startOrchestration(options: OrchestrateOptions): Promise<void> {
   const configPath = options.config || 'praxis.orchestrate.json';
-  
+
   if (!fs.existsSync(configPath)) {
     console.log(`Configuration file not found: ${configPath}`);
     console.log('\nTo create a configuration:');
     console.log('  praxis orchestrate --action init\n');
     return;
   }
-  
+
   const config: OrchestrationConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-  
+
   console.log('Starting orchestration...\n');
   console.log(`  Node ID: ${config.nodeId}`);
   console.log(`  Role: ${config.role}`);
   console.log(`  Endpoints: ${config.endpoints.join(', ')}\n`);
-  
+
   // In a real implementation, this would:
   // 1. Connect to cluster endpoints
   // 2. Register node with cluster
   // 3. Start sync worker
   // 4. Start health check worker
-  
+
   console.log('🔄 Connecting to cluster...');
-  
+
   // Simulate connection delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
   console.log('✓ Connected to cluster');
   console.log('✓ Sync worker started');
   console.log('✓ Health check enabled\n');
-  
+
   console.log('Orchestration is running.');
   console.log('\nTo check status:');
   console.log('  praxis orchestrate --action status\n');
   console.log('To stop:');
   console.log('  praxis orchestrate --action stop\n');
-  
+
   // For a full implementation, this would keep running
   // and handle sync/health checks in the background
 }
@@ -159,16 +159,16 @@ async function startOrchestration(options: OrchestrateOptions): Promise<void> {
  */
 async function stopOrchestration(_options: OrchestrateOptions): Promise<void> {
   console.log('Stopping orchestration...\n');
-  
+
   // In a real implementation, this would:
   // 1. Stop sync worker
   // 2. Unregister from cluster
   // 3. Close connections
-  
+
   console.log('✓ Sync worker stopped');
   console.log('✓ Unregistered from cluster');
   console.log('✓ Connections closed\n');
-  
+
   console.log('Orchestration stopped.\n');
 }
 
@@ -177,7 +177,7 @@ async function stopOrchestration(_options: OrchestrateOptions): Promise<void> {
  */
 async function showOrchestrationStatus(options: OrchestrateOptions): Promise<void> {
   const configPath = options.config || 'praxis.orchestrate.json';
-  
+
   if (!fs.existsSync(configPath)) {
     console.log('Orchestration not configured.\n');
     console.log('To initialize:');
@@ -188,9 +188,9 @@ async function showOrchestrationStatus(options: OrchestrateOptions): Promise<voi
     console.log('  • See docs/guides/orchestration.md for patterns\n');
     return;
   }
-  
+
   const config: OrchestrationConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-  
+
   console.log('Orchestration Status\n');
   console.log('┌──────────────────────────────────────────────────┐');
   console.log(`│ Node ID:     ${config.nodeId.padEnd(36)} │`);
@@ -206,7 +206,7 @@ async function showOrchestrationStatus(options: OrchestrateOptions): Promise<voi
   console.log(`│ Timeout:     ${(config.health.timeout + 'ms').padEnd(36)} │`);
   console.log('└──────────────────────────────────────────────────┘\n');
   console.log('Endpoints:');
-  config.endpoints.forEach(ep => console.log(`  • ${ep}`));
+  config.endpoints.forEach((ep) => console.log(`  • ${ep}`));
   console.log('\nTo start orchestration:');
   console.log(`  praxis orchestrate --action start --config ${configPath}\n`);
 }

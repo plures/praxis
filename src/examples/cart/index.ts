@@ -1,6 +1,6 @@
 /**
  * Cart Example
- * 
+ *
  * Demonstrates shopping cart logic with flows and derived state.
  * Shows how to manage complex state with multiple rules and constraints.
  */
@@ -15,7 +15,7 @@ import {
   defineModule,
   findEvent,
   filterFacts,
-} from "../../index.js";
+} from '../../index.js';
 
 // Define the context type
 interface CartContext {
@@ -25,25 +25,26 @@ interface CartContext {
 }
 
 // Define facts
-const ItemAdded = defineFact<"ItemAdded", { productId: string; quantity: number; price: number }>(
-  "ItemAdded"
+const ItemAdded = defineFact<'ItemAdded', { productId: string; quantity: number; price: number }>(
+  'ItemAdded'
 );
-const ItemRemoved = defineFact<"ItemRemoved", { productId: string }>("ItemRemoved");
-const DiscountApplied = defineFact<"DiscountApplied", { percentage: number }>("DiscountApplied");
-const CartCleared = defineFact<"CartCleared", {}>("CartCleared");
+const ItemRemoved = defineFact<'ItemRemoved', { productId: string }>('ItemRemoved');
+const DiscountApplied = defineFact<'DiscountApplied', { percentage: number }>('DiscountApplied');
+const CartCleared = defineFact<'CartCleared', {}>('CartCleared');
 
 // Define events
-const AddToCart = defineEvent<"ADD_TO_CART", { productId: string; quantity: number; price: number }>(
-  "ADD_TO_CART"
-);
-const RemoveFromCart = defineEvent<"REMOVE_FROM_CART", { productId: string }>("REMOVE_FROM_CART");
-const ApplyDiscount = defineEvent<"APPLY_DISCOUNT", { code: string }>("APPLY_DISCOUNT");
-const ClearCart = defineEvent<"CLEAR_CART", {}>("CLEAR_CART");
+const AddToCart = defineEvent<
+  'ADD_TO_CART',
+  { productId: string; quantity: number; price: number }
+>('ADD_TO_CART');
+const RemoveFromCart = defineEvent<'REMOVE_FROM_CART', { productId: string }>('REMOVE_FROM_CART');
+const ApplyDiscount = defineEvent<'APPLY_DISCOUNT', { code: string }>('APPLY_DISCOUNT');
+const ClearCart = defineEvent<'CLEAR_CART', {}>('CLEAR_CART');
 
 // Define rules
 const addToCartRule = defineRule<CartContext>({
-  id: "cart.addItem",
-  description: "Add item to cart",
+  id: 'cart.addItem',
+  description: 'Add item to cart',
   impl: (_state, events) => {
     const addEvents = events.filter(AddToCart.is);
     return addEvents.map((event) =>
@@ -57,8 +58,8 @@ const addToCartRule = defineRule<CartContext>({
 });
 
 const removeFromCartRule = defineRule<CartContext>({
-  id: "cart.removeItem",
-  description: "Remove item from cart",
+  id: 'cart.removeItem',
+  description: 'Remove item from cart',
   impl: (_state, events) => {
     const removeEvent = findEvent(events, RemoveFromCart);
     if (!removeEvent) {
@@ -69,8 +70,8 @@ const removeFromCartRule = defineRule<CartContext>({
 });
 
 const applyDiscountRule = defineRule<CartContext>({
-  id: "cart.applyDiscount",
-  description: "Apply discount code",
+  id: 'cart.applyDiscount',
+  description: 'Apply discount code',
   impl: (state, events) => {
     const discountEvent = findEvent(events, ApplyDiscount);
     if (!discountEvent || state.context.discountApplied) {
@@ -78,7 +79,7 @@ const applyDiscountRule = defineRule<CartContext>({
     }
 
     // Simple discount logic: "SAVE10" = 10% off
-    const percentage = discountEvent.payload.code === "SAVE10" ? 10 : 0;
+    const percentage = discountEvent.payload.code === 'SAVE10' ? 10 : 0;
     if (percentage > 0) {
       return [DiscountApplied.create({ percentage })];
     }
@@ -87,8 +88,8 @@ const applyDiscountRule = defineRule<CartContext>({
 });
 
 const clearCartRule = defineRule<CartContext>({
-  id: "cart.clear",
-  description: "Clear cart",
+  id: 'cart.clear',
+  description: 'Clear cart',
   impl: (_state, events) => {
     const clearEvent = findEvent(events, ClearCart);
     if (!clearEvent) {
@@ -99,8 +100,8 @@ const clearCartRule = defineRule<CartContext>({
 });
 
 const updateCartContextRule = defineRule<CartContext>({
-  id: "cart.updateContext",
-  description: "Update cart context based on facts",
+  id: 'cart.updateContext',
+  description: 'Update cart context based on facts',
   impl: (state, _events) => {
     const addedItems = filterFacts(state.facts, ItemAdded);
     const removedItems = filterFacts(state.facts, ItemRemoved);
@@ -145,10 +146,7 @@ const updateCartContextRule = defineRule<CartContext>({
     }));
 
     // Calculate total
-    let total = state.context.items.reduce(
-      (sum, item) => sum + item.quantity * item.price,
-      0
-    );
+    let total = state.context.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
     // Apply discount if any
     if (discountFacts.length > 0) {
@@ -165,8 +163,8 @@ const updateCartContextRule = defineRule<CartContext>({
 
 // Define constraints
 const maxItemsConstraint = defineConstraint<CartContext>({
-  id: "cart.maxItems",
-  description: "Cart cannot exceed 100 items",
+  id: 'cart.maxItems',
+  description: 'Cart cannot exceed 100 items',
   impl: (state) => {
     const totalQuantity = state.context.items.reduce((sum, item) => sum + item.quantity, 0);
     return totalQuantity <= 100 || `Cart has ${totalQuantity} items, maximum is 100`;
@@ -174,10 +172,12 @@ const maxItemsConstraint = defineConstraint<CartContext>({
 });
 
 const maxTotalConstraint = defineConstraint<CartContext>({
-  id: "cart.maxTotal",
-  description: "Cart total cannot exceed $10,000",
+  id: 'cart.maxTotal',
+  description: 'Cart total cannot exceed $10,000',
   impl: (state) => {
-    return state.context.total <= 10000 || `Cart total $${state.context.total} exceeds maximum $10,000`;
+    return (
+      state.context.total <= 10000 || `Cart total $${state.context.total} exceeds maximum $10,000`
+    );
   },
 });
 
@@ -191,7 +191,7 @@ const cartModule = defineModule<CartContext>({
     updateCartContextRule,
   ],
   constraints: [maxItemsConstraint, maxTotalConstraint],
-  meta: { version: "1.0.0" },
+  meta: { version: '1.0.0' },
 });
 
 // Create and configure the engine
@@ -213,41 +213,41 @@ function createCartEngine() {
 
 // Example usage
 function runExample() {
-  console.log("=== Cart Example ===\n");
+  console.log('=== Cart Example ===\n');
 
   const engine = createCartEngine();
 
   // Add items
-  console.log("1. Add items to cart:");
+  console.log('1. Add items to cart:');
   engine.step([
-    AddToCart.create({ productId: "prod-1", quantity: 2, price: 29.99 }),
-    AddToCart.create({ productId: "prod-2", quantity: 1, price: 49.99 }),
+    AddToCart.create({ productId: 'prod-1', quantity: 2, price: 29.99 }),
+    AddToCart.create({ productId: 'prod-2', quantity: 1, price: 49.99 }),
   ]);
-  console.log("   Cart:", engine.getContext());
+  console.log('   Cart:', engine.getContext());
   console.log();
 
   // Apply discount
-  console.log("2. Apply discount code:");
-  engine.step([ApplyDiscount.create({ code: "SAVE10" })]);
-  console.log("   Cart:", engine.getContext());
+  console.log('2. Apply discount code:');
+  engine.step([ApplyDiscount.create({ code: 'SAVE10' })]);
+  console.log('   Cart:', engine.getContext());
   console.log();
 
   // Remove item
-  console.log("3. Remove an item:");
-  engine.step([RemoveFromCart.create({ productId: "prod-1" })]);
-  console.log("   Cart:", engine.getContext());
+  console.log('3. Remove an item:');
+  engine.step([RemoveFromCart.create({ productId: 'prod-1' })]);
+  console.log('   Cart:', engine.getContext());
   console.log();
 
   // Add more items
-  console.log("4. Add more items:");
-  engine.step([AddToCart.create({ productId: "prod-3", quantity: 3, price: 15.99 })]);
-  console.log("   Cart:", engine.getContext());
+  console.log('4. Add more items:');
+  engine.step([AddToCart.create({ productId: 'prod-3', quantity: 3, price: 15.99 })]);
+  console.log('   Cart:', engine.getContext());
   console.log();
 
   // Clear cart
-  console.log("5. Clear cart:");
+  console.log('5. Clear cart:');
   engine.step([ClearCart.create({})]);
-  console.log("   Cart:", engine.getContext());
+  console.log('   Cart:', engine.getContext());
   console.log();
 }
 

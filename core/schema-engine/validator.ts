@@ -1,6 +1,6 @@
 /**
  * PSF Validator
- * 
+ *
  * Validates PSF schemas for correctness, completeness, and consistency.
  */
 
@@ -63,13 +63,49 @@ export interface ValidationOptions {
  * Reserved JavaScript keywords
  */
 const RESERVED_KEYWORDS = new Set([
-  'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger',
-  'default', 'delete', 'do', 'else', 'export', 'extends', 'finally',
-  'for', 'function', 'if', 'import', 'in', 'instanceof', 'new',
-  'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof',
-  'var', 'void', 'while', 'with', 'yield', 'let', 'static',
-  'enum', 'await', 'implements', 'interface', 'package', 'private',
-  'protected', 'public',
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'export',
+  'extends',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'import',
+  'in',
+  'instanceof',
+  'new',
+  'return',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with',
+  'yield',
+  'let',
+  'static',
+  'enum',
+  'await',
+  'implements',
+  'interface',
+  'package',
+  'private',
+  'protected',
+  'public',
 ]);
 
 /**
@@ -176,7 +212,11 @@ export class PSFValidator {
       if (!fact.tag) {
         this.addError(`${path}.tag`, 'Fact tag is required', 'missing-tag');
       } else if (this.options.checkNaming && !this.isValidIdentifier(fact.tag)) {
-        this.addError(`${path}.tag`, `"${fact.tag}" is not a valid identifier`, 'invalid-identifier');
+        this.addError(
+          `${path}.tag`,
+          `"${fact.tag}" is not a valid identifier`,
+          'invalid-identifier'
+        );
       }
 
       if (!fact.payload) {
@@ -199,7 +239,11 @@ export class PSFValidator {
       if (!event.tag) {
         this.addError(`${path}.tag`, 'Event tag is required', 'missing-tag');
       } else if (this.options.checkNaming && !this.isValidIdentifier(event.tag)) {
-        this.addError(`${path}.tag`, `"${event.tag}" is not a valid identifier`, 'invalid-identifier');
+        this.addError(
+          `${path}.tag`,
+          `"${event.tag}" is not a valid identifier`,
+          'invalid-identifier'
+        );
       }
 
       if (!event.payload) {
@@ -222,7 +266,11 @@ export class PSFValidator {
       }
 
       if (!rule.description) {
-        this.addWarning(`${path}.description`, 'Rule description is recommended', 'missing-description');
+        this.addWarning(
+          `${path}.description`,
+          'Rule description is recommended',
+          'missing-description'
+        );
       }
 
       if (!rule.then) {
@@ -256,7 +304,11 @@ export class PSFValidator {
       }
 
       if (!constraint.description) {
-        this.addWarning(`${path}.description`, 'Constraint description is recommended', 'missing-description');
+        this.addWarning(
+          `${path}.description`,
+          'Constraint description is recommended',
+          'missing-description'
+        );
       }
 
       if (!constraint.check) {
@@ -264,7 +316,11 @@ export class PSFValidator {
       }
 
       if (!constraint.errorMessage) {
-        this.addWarning(`${path}.errorMessage`, 'Constraint error message is recommended', 'missing-error-message');
+        this.addWarning(
+          `${path}.errorMessage`,
+          'Constraint error message is recommended',
+          'missing-error-message'
+        );
       }
     });
   }
@@ -283,7 +339,11 @@ export class PSFValidator {
       if (!model.name) {
         this.addError(`${path}.name`, 'Model name is required', 'missing-name');
       } else if (this.options.checkNaming && !this.isValidTypeName(model.name)) {
-        this.addError(`${path}.name`, `"${model.name}" is not a valid type name (should be PascalCase)`, 'invalid-type-name');
+        this.addError(
+          `${path}.name`,
+          `"${model.name}" is not a valid type name (should be PascalCase)`,
+          'invalid-type-name'
+        );
       }
 
       if (!model.fields || model.fields.length === 0) {
@@ -297,7 +357,10 @@ export class PSFValidator {
   /**
    * Validate model fields
    */
-  private validateModelFields(fields: { name: string; type: PSFFieldType; optional?: boolean }[], basePath: string): void {
+  private validateModelFields(
+    fields: { name: string; type: PSFFieldType; optional?: boolean }[],
+    basePath: string
+  ): void {
     const fieldNames = new Set<string>();
 
     fields.forEach((field, index) => {
@@ -312,7 +375,11 @@ export class PSFValidator {
         fieldNames.add(field.name);
 
         if (this.options.checkNaming && !this.isValidPropertyName(field.name)) {
-          this.addWarning(`${path}.name`, `"${field.name}" should be camelCase`, 'naming-convention');
+          this.addWarning(
+            `${path}.name`,
+            `"${field.name}" should be camelCase`,
+            'naming-convention'
+          );
         }
       }
 
@@ -390,12 +457,20 @@ export class PSFValidator {
           if (step.next) {
             if (typeof step.next === 'string') {
               if (!stepIds.has(step.next)) {
-                this.addError(`${stepPath}.next`, `Step "${step.next}" does not exist`, 'invalid-step-reference');
+                this.addError(
+                  `${stepPath}.next`,
+                  `Step "${step.next}" does not exist`,
+                  'invalid-step-reference'
+                );
               }
             } else {
               Object.values(step.next).forEach((nextId) => {
                 if (!stepIds.has(nextId)) {
-                  this.addError(`${stepPath}.next`, `Step "${nextId}" does not exist`, 'invalid-step-reference');
+                  this.addError(
+                    `${stepPath}.next`,
+                    `Step "${nextId}" does not exist`,
+                    'invalid-step-reference'
+                  );
                 }
               });
             }
@@ -404,7 +479,11 @@ export class PSFValidator {
 
         // Check initial step
         if (flow.initial && !stepIds.has(flow.initial)) {
-          this.addError(`${path}.initial`, `Initial step "${flow.initial}" does not exist`, 'invalid-step-reference');
+          this.addError(
+            `${path}.initial`,
+            `Initial step "${flow.initial}" does not exist`,
+            'invalid-step-reference'
+          );
         }
       }
     });
@@ -470,11 +549,19 @@ export class PSFValidator {
   /**
    * Check field type for references
    */
-  private checkFieldTypeReferences(type: PSFFieldType, modelNames: Set<string>, path: string): void {
+  private checkFieldTypeReferences(
+    type: PSFFieldType,
+    modelNames: Set<string>,
+    path: string
+  ): void {
     if (typeof type === 'object') {
       if ('reference' in type) {
         if (!modelNames.has(type.reference)) {
-          this.addWarning(path, `Reference to unknown model "${type.reference}"`, 'unknown-reference');
+          this.addWarning(
+            path,
+            `Reference to unknown model "${type.reference}"`,
+            'unknown-reference'
+          );
         }
       } else if ('array' in type) {
         this.checkFieldTypeReferences(type.array, modelNames, path);
@@ -535,7 +622,10 @@ export function createPSFValidator(options?: ValidationOptions): PSFValidator {
 /**
  * Validate a PSF schema (convenience function)
  */
-export function validatePSFSchema(schema: PSFSchema, options?: ValidationOptions): ValidationResult {
+export function validatePSFSchema(
+  schema: PSFSchema,
+  options?: ValidationOptions
+): ValidationResult {
   const validator = new PSFValidator(options);
   return validator.validate(schema);
 }

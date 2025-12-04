@@ -9,11 +9,13 @@ This implementation addresses the critical deficiencies identified in the issue 
 ### 1. Svelte 5 Integration (@plures/praxis/svelte)
 
 #### Store API (Backward Compatible)
+
 - **createPraxisStore()** - Full state tracking with Svelte stores
 - **createContextStore()** - Context-only tracking for better performance
 - **createDerivedStore()** - Selector-based derived values with change detection
 
 #### Runes API (Svelte 5)
+
 - **usePraxisEngine()** - Main composable with history support
 - **usePraxisContext()** - Extract specific values from context
 - **usePraxisSubscription()** - Subscribe with automatic cleanup
@@ -43,14 +45,14 @@ Complete demo with undo/redo, time-travel debugging, and keyboard shortcuts.
 
 ## Comparison with XState
 
-| Feature | XState | Praxis |
-|---------|--------|--------|
-| Svelte 5 Integration | Partial | ✅ Full |
-| Runes Support | Basic | ✅ Complete |
-| History States | Built-in | ✅ Pattern-based |
-| Time-Travel | DevTools | ✅ Built-in |
-| Undo/Redo | Custom | ✅ Built-in |
-| Documentation | Good | ✅ Comprehensive |
+| Feature              | XState   | Praxis           |
+| -------------------- | -------- | ---------------- |
+| Svelte 5 Integration | Partial  | ✅ Full          |
+| Runes Support        | Basic    | ✅ Complete      |
+| History States       | Built-in | ✅ Pattern-based |
+| Time-Travel          | DevTools | ✅ Built-in      |
+| Undo/Redo            | Custom   | ✅ Built-in      |
+| Documentation        | Good     | ✅ Comprehensive |
 
 ## Conclusion
 

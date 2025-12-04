@@ -1,6 +1,6 @@
 /**
  * Terminal Node Runtime Adapter
- * 
+ *
  * Handles terminal command execution and state management.
  * Integrates with pluresDB for state synchronization.
  */
@@ -82,23 +82,28 @@ async function defaultExecutor(
     const { exec } = await import('child_process');
     const { promisify } = await import('util');
     const execAsync = promisify(exec);
-    
+
     // Get process.env safely (only available in Node.js environments)
-    const processEnv = typeof process !== "undefined" ? process.env : {};
-    
+    const processEnv = typeof process !== 'undefined' ? process.env : {};
+
     const result = await execAsync(command, {
       cwd: options.cwd,
       env: { ...processEnv, ...options.env },
       maxBuffer: 10 * 1024 * 1024, // 10MB buffer
       timeout: 60000, // 60 second timeout
     });
-    
+
     return {
       output: result.stdout + (result.stderr ? `\n${result.stderr}` : ''),
       exitCode: 0,
     };
   } catch (error: unknown) {
-    const execError = error as { stdout?: string; stderr?: string; code?: number; message?: string };
+    const execError = error as {
+      stdout?: string;
+      stderr?: string;
+      code?: number;
+      message?: string;
+    };
     return {
       output: (execError.stdout || '') + (execError.stderr || ''),
       exitCode: execError.code || 1,
@@ -109,7 +114,7 @@ async function defaultExecutor(
 
 /**
  * Terminal Runtime Adapter
- * 
+ *
  * Manages terminal node execution and state.
  * Supports command execution with history tracking and PluresDB integration.
  */
@@ -137,22 +142,22 @@ export class TerminalAdapter {
 
   /**
    * Execute a terminal command
-   * 
+   *
    * @param command - Command to execute
    * @returns Execution result
    */
   async executeCommand(command: string): Promise<TerminalExecutionResult> {
     // Add to history
     this.state.history.push(command);
-    
+
     const timestamp = Date.now();
-    
+
     // Execute the command
     const { output, exitCode, error } = await this.executor(command, {
       cwd: this.state.cwd,
       env: this.state.env,
     });
-    
+
     const result: TerminalExecutionResult = {
       command,
       output,
@@ -219,13 +224,13 @@ export class TerminalAdapter {
 
   /**
    * Sync state to PluresDB
-   * 
+   *
    * @param path - PluresDB path for storing results
    * @param data - Data to sync
    */
   private async syncToPluresDB(path: string, data: TerminalExecutionResult): Promise<void> {
     if (!this.db) return;
-    
+
     try {
       // Store the execution result
       await this.db.set(path, {
@@ -233,7 +238,7 @@ export class TerminalAdapter {
         nodeId: this.state.nodeId,
         syncedAt: Date.now(),
       });
-      
+
       // Also append to history path
       const historyPath = `${path}/history`;
       const historyKey = `${historyPath}/${data.timestamp}`;
@@ -248,7 +253,7 @@ export class TerminalAdapter {
    */
   async loadFromPluresDB(): Promise<void> {
     if (!this.db || !this.inputPath) return;
-    
+
     try {
       const data = await this.db.get(this.inputPath);
       if (data && typeof data === 'object') {
@@ -276,7 +281,7 @@ export class TerminalAdapter {
    */
   watchInput(callback: (command: string) => void): (() => void) | null {
     if (!this.db || !this.inputPath) return null;
-    
+
     return this.db.watch(this.inputPath, (data) => {
       if (data && typeof data === 'object' && 'command' in data) {
         callback((data as { command: string }).command);
@@ -287,19 +292,17 @@ export class TerminalAdapter {
 
 /**
  * Create a terminal adapter instance
- * 
+ *
  * @param options - Terminal adapter options
  * @returns Terminal adapter instance
  */
-export function createTerminalAdapter(
-  options: TerminalAdapterOptions
-): TerminalAdapter {
+export function createTerminalAdapter(options: TerminalAdapterOptions): TerminalAdapter {
   return new TerminalAdapter(options);
 }
 
 /**
  * Run a terminal command (convenience function)
- * 
+ *
  * @param nodeId - Terminal node identifier
  * @param command - Command to execute
  * @param options - Additional options
@@ -327,10 +330,11 @@ export function createMockExecutor(
   responses: Record<string, { output: string; exitCode: number; error?: string }>
 ): CommandExecutor {
   return async (command: string) => {
-    const response = responses[command] || responses['*'] || {
-      output: `Mock output for: ${command}`,
-      exitCode: 0,
-    };
+    const response = responses[command] ||
+      responses['*'] || {
+        output: `Mock output for: ${command}`,
+        exitCode: 0,
+      };
     return response;
   };
 }

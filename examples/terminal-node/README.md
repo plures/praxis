@@ -11,9 +11,9 @@ The TerminalNode provides a terminal interface within the Praxis framework, allo
 The `terminal-schema.yaml` file defines a simple terminal node:
 
 ```yaml
-version: "1.0.0"
-name: "TerminalExample"
-description: "Example showing terminal node integration"
+version: '1.0.0'
+name: 'TerminalExample'
+description: 'Example showing terminal node integration'
 orchestration:
   type: custom
   nodes:

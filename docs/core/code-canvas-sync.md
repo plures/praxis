@@ -10,18 +10,18 @@ flowchart LR
         PSF[schema.psf.json]
         TS[TypeScript Files]
     end
-    
+
     subgraph Sync["Sync Engine"]
         Parser[PSF Parser]
         Generator[Code Generator]
         Watcher[File Watcher]
     end
-    
+
     subgraph Canvas["CodeCanvas (Visual)"]
         Visual[Visual Editor]
         Preview[Live Preview]
     end
-    
+
     PSF <--> Parser
     Parser <--> Visual
     Visual --> Generator
@@ -48,6 +48,7 @@ flowchart LR
 ### Hybrid Workflow
 
 Work in both modes simultaneously:
+
 - Use Canvas for visual design and high-level structure
 - Use code editor for detailed logic and fine-tuning
 - Changes sync automatically in both directions
@@ -75,23 +76,23 @@ export const config: CanvasConfig = {
   sync: {
     // Enable bidirectional sync
     enabled: true,
-    
+
     // Watch for file changes
     watchFiles: true,
-    
+
     // Debounce time for file changes (ms)
     debounce: 500,
-    
+
     // How to handle conflicts
-    conflictResolution: 'ask',  // 'ask' | 'canvas' | 'code' | 'merge'
-    
+    conflictResolution: 'ask', // 'ask' | 'canvas' | 'code' | 'merge'
+
     // Auto-regenerate code on Canvas changes
     autoGenerate: true,
-    
+
     // Files to generate
     generateTargets: ['types', 'components', 'docs'],
   },
-  
+
   // Code generation settings
   generation: {
     output: './src/generated',
@@ -109,11 +110,13 @@ export const config: CanvasConfig = {
 With `watchFiles: true`, changes sync in real-time:
 
 **Code → Canvas:**
+
 - Edit `schema.psf.json` in VS Code
 - Save the file
 - Canvas updates within 500ms (configurable debounce)
 
 **Canvas → Code:**
+
 - Make changes in Canvas visual editor
 - Click "Save" or auto-save triggers
 - `schema.psf.json` updates immediately
@@ -140,18 +143,21 @@ Shows a dialog to choose which version to keep:
 #### `'canvas'`
 
 Canvas changes always win:
+
 - Canvas overwrites code changes
 - Safe when primarily designing visually
 
 #### `'code'`
 
 Code changes always win:
+
 - Code overwrites Canvas changes
 - Safe when primarily coding
 
 #### `'merge'`
 
 Attempts to merge changes:
+
 - Works for independent changes (different models, components)
 - Conflicts still require manual resolution
 
@@ -235,7 +241,7 @@ canvas.on('sync:complete', (result) => {
 canvas.on('sync:conflict', (conflict) => {
   console.log('Conflict:', conflict);
   // Handle conflict programmatically
-  conflict.resolve('canvas');  // or 'code' or custom merge
+  conflict.resolve('canvas'); // or 'code' or custom merge
 });
 ```
 
@@ -319,11 +325,13 @@ When merging branches with schema changes:
 Choose whether to commit generated files:
 
 **Commit generated files:**
+
 - ✅ Works without build step
 - ✅ Code review shows generated changes
 - ❌ More merge conflicts
 
 **.gitignore generated files:**
+
 - ✅ Cleaner commits
 - ✅ Fewer conflicts
 - ❌ Requires build step
@@ -365,11 +373,13 @@ Add to your project README:
 ## Development
 
 ### Visual Development
+
 \`\`\`bash
 praxis canvas ./src/schema.psf.json
 \`\`\`
 
 ### Code Generation
+
 \`\`\`bash
 praxis generate --schema ./src/schema.psf.json
 \`\`\`
@@ -380,11 +390,13 @@ praxis generate --schema ./src/schema.psf.json
 ### Sync Not Working
 
 1. **Check Canvas is running:**
+
    ```bash
    praxis canvas status
    ```
 
 2. **Check file watcher:**
+
    ```bash
    praxis canvas --debug
    ```
@@ -427,15 +439,15 @@ const handler = createSyncHandler({
   // Called when code changes
   onCodeChange: async (schema) => {
     // Custom logic before Canvas update
-    return schema;  // Transformed schema
+    return schema; // Transformed schema
   },
-  
+
   // Called when Canvas changes
   onCanvasChange: async (schema) => {
     // Custom logic before code update
-    return schema;  // Transformed schema
+    return schema; // Transformed schema
   },
-  
+
   // Custom conflict resolution
   onConflict: async (local, remote) => {
     // Return merged schema
@@ -457,7 +469,7 @@ const watcher = createPSFWatcher('./schema.psf.json');
 watcher.on('change', async (schema) => {
   // Update external system (e.g., database, API)
   await updateExternalSystem(schema);
-  
+
   // Notify other tools
   eventBus.emit('schema-updated', schema);
 });

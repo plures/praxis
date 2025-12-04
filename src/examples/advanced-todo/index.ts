@@ -1,6 +1,6 @@
 /**
  * Advanced Svelte 5 Integration Example
- * 
+ *
  * Demonstrates the new Svelte 5 runes support with history state pattern.
  * This example shows a todo app with undo/redo and time-travel debugging.
  */
@@ -254,8 +254,8 @@ function runExample() {
 
   // Change filter
   console.log('3. Filtering to active todos:');
-  engine.step([SetFilter.create({ filter: 'active' })])
-  
+  engine.step([SetFilter.create({ filter: 'active' })]);
+
   const context3 = engine.getContext();
   const filtered = getFilteredTodos(context3.todos, context3.filter);
   console.log(`   Filter: ${context3.filter}`);

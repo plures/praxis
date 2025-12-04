@@ -5,6 +5,7 @@ This example demonstrates the Praxis "Golden Path" from schema to working applic
 ## Overview
 
 This is a minimal but complete Praxis application showing:
+
 - Schema-driven development
 - Logic module generation
 - Component generation
@@ -43,6 +44,7 @@ node ../../dist/cli/index.js generate --schema praxis.schema.js
 ```
 
 This generates:
+
 - **Logic module** with facts, events, rules, and engine
 - **Svelte components** for forms, lists, and displays
 - **PluresDB configuration** for local-first data storage
@@ -103,21 +105,25 @@ The `praxis.schema.js` file defines:
 ## Features Demonstrated
 
 ✅ **Schema-Driven Development**
+
 - Single source of truth
 - Type-safe code generation
 - Automatic documentation
 
 ✅ **Logic Engine**
+
 - Event-driven architecture
 - Pure function state management
 - Rule-based logic
 
 ✅ **Component Generation**
+
 - Svelte components from schema
 - Automatic data binding
 - TypeScript types included
 
 ✅ **Local-First Data**
+
 - PluresDB configuration
 - Offline-capable by design
 - Sync ready

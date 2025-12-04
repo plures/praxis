@@ -1,9 +1,9 @@
 /**
  * Praxis DB Adapter
- * 
+ *
  * The DB Adapter module provides integration with PluresDB
  * for local-first, reactive data storage and synchronization.
- * 
+ *
  * Features:
  * - Schema-backed storage
  * - Real-time synchronization

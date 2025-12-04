@@ -15,6 +15,7 @@ This demo showcases CodeCanvas integration for building a visual knowledge manag
 ## Architecture
 
 The application demonstrates:
+
 - **Visual Schema Design**: Define knowledge types in Canvas
 - **Generated Components**: Auto-generate UI from knowledge schema
 - **Graph Storage**: Store knowledge graph in PluresDB
@@ -28,7 +29,7 @@ The application demonstrates:
 export const knowledgeSchema: PraxisSchema = {
   version: '1.0.0',
   name: 'KnowledgeCanvas',
-  
+
   models: [
     {
       name: 'KnowledgeNode',
@@ -52,7 +53,7 @@ export const knowledgeSchema: PraxisSchema = {
       ],
     },
   ],
-  
+
   components: [
     {
       name: 'NodeEditor',
@@ -71,21 +72,25 @@ export const knowledgeSchema: PraxisSchema = {
 ## Canvas Features Demonstrated
 
 ### 1. Visual Node Creation
+
 - Drag-and-drop node creation
 - Type selection from schema
 - Real-time preview
 
 ### 2. Connection Management
+
 - Visual relationship creation
 - Connection type selection
 - Strength indicators
 
 ### 3. Schema Evolution
+
 - Modify schema in Canvas
 - Regenerate components
 - Migrate existing data
 
 ### 4. Documentation Integration
+
 - Automatic State-Docs generation
 - Living documentation
 - Context-aware help
@@ -115,12 +120,14 @@ praxis canvas src/schemas/knowledge.schema.ts
 ## Canvas Workflows
 
 ### Visual-First
+
 1. Design in Canvas
 2. Generate code
 3. Customize styling
 4. Deploy
 
 ### Code-First
+
 1. Define schema in TypeScript
 2. Open in Canvas for visualization
 3. Make visual adjustments
@@ -137,6 +144,7 @@ praxis canvas src/schemas/knowledge.schema.ts
 ## Example Schemas
 
 Pre-configured knowledge types:
+
 - **Concepts**: Ideas and theories
 - **Resources**: Articles, books, videos
 - **People**: Contributors and experts

@@ -17,6 +17,7 @@ The issue requested 5 major features:
 ### ✅ 1. Hardened TypeScript Core
 
 **Test Coverage Expansion:**
+
 - Tests increased from 18 → 63 (250% increase)
 - Added `src/__tests__/actors.test.ts` (12 tests)
 - Added `src/__tests__/edge-cases.test.ts` (19 tests)
@@ -25,6 +26,7 @@ The issue requested 5 major features:
 - 100% pass rate on all tests
 
 **Test Categories:**
+
 - **Actor Behavior**: Lifecycle (start/stop), state change notifications, async methods, timer actors
 - **Edge Cases**: Empty events, large datasets, null/undefined payloads, nested contexts, duplicate events
 - **Failure Paths**: Rule errors, constraint violations, missing IDs, registry operations
@@ -35,40 +37,37 @@ The issue requested 5 major features:
 **Location:** `src/examples/hero-ecommerce/index.ts`
 
 **Features Demonstrated:**
+
 - **Authentication Module**
   - Login/logout with session management
   - Session timeout (30 minutes)
   - Single session enforcement
-  
 - **Shopping Cart Module**
   - Add/remove items
   - Dynamic total calculation
   - Discount code system (SAVE10, SAVE20, FREESHIP)
   - Checkout process
   - Cart clearing on logout
-  
 - **Feature Flags Module**
   - Free shipping toggle
   - Loyalty program toggle
   - New checkout flow toggle
   - A/B testing capabilities
-  
 - **Business Logic**
   - Loyalty points (1 point per dollar)
   - Order history tracking
   - Conditional discounts based on loyalty points
   - Feature flag-based promotions
-  
 - **Actors**
   - Logging actor for important events
   - Analytics actor for metrics tracking
-  
 - **Constraints**
   - Max 100 items in cart
   - Authentication required for cart operations
   - Business rule validation
 
 **Running the Example:**
+
 ```bash
 npm run build
 node dist/examples/hero-ecommerce/index.js
@@ -77,11 +76,13 @@ node dist/examples/hero-ecommerce/index.js
 ### ✅ 3. Protocol Versioning (v1.0.0)
 
 **Protocol Changes:**
+
 - Added `protocolVersion?: string` field to `PraxisState` interface
 - Exported `PRAXIS_PROTOCOL_VERSION = "1.0.0"` constant
 - Engine automatically sets protocol version on state creation
 
 **Documentation:** `PROTOCOL_VERSIONING.md`
+
 - **Semantic Versioning**: MAJOR.MINOR.PATCH strategy
 - **Stability Guarantees**:
   - Core types remain stable within major version
@@ -92,6 +93,7 @@ node dist/examples/hero-ecommerce/index.js
 - **Extension Guidelines**: Language-specific features marked as optional
 
 **Key Guarantees:**
+
 1. Core types won't change in breaking ways within same major version
 2. All protocol types remain JSON-serializable
 3. Changes coordinated across all official implementations
@@ -103,6 +105,7 @@ node dist/examples/hero-ecommerce/index.js
 **PowerShell Module:** `powershell/Praxis.psm1`
 
 **Cmdlets Provided:**
+
 1. `Initialize-PraxisAdapter` - Connect to TypeScript engine
 2. `New-PraxisState` - Create state with context
 3. `New-PraxisEvent` - Create typed event
@@ -112,18 +115,21 @@ node dist/examples/hero-ecommerce/index.js
 7. `Get-PraxisInfo` - Get module information
 
 **CLI Adapter:** `src/adapters/cli.ts`
+
 - JSON stdin/stdout interface
 - Node.js bridge to TypeScript engine
 - Registry configuration from JSON files
 - Error handling and validation
 
 **Example:** `powershell/examples/counter-example.ps1`
+
 - Counter application in PowerShell
 - Protocol version checking
 - Error handling demonstration
 - Configuration file: `counter-config.json`
 
 **Documentation:** `powershell/README.md`
+
 - Installation instructions
 - API reference for all cmdlets
 - Usage examples
@@ -136,6 +142,7 @@ node dist/examples/hero-ecommerce/index.js
 **New Module:** `src/core/introspection.ts`
 
 **RegistryIntrospector Class Methods:**
+
 1. `getStats()` - Registry statistics (counts, IDs)
 2. `generateSchema(version)` - JSON schema output
 3. `generateGraph()` - Graph representation with nodes/edges
@@ -147,17 +154,20 @@ node dist/examples/hero-ecommerce/index.js
 9. `searchConstraints(query)` - Text search in constraints
 
 **Graph Features:**
+
 - Nodes for rules and constraints
 - Edges for dependencies (via metadata)
 - Constraint relationships (constrains, depends-on)
 - Visual differentiation (boxes for rules, diamonds for constraints)
 
 **Export Formats:**
+
 - **DOT**: For Graphviz tools and online renderers
 - **Mermaid**: For markdown documentation and GitHub
 - **JSON Schema**: For documentation generators and IDE support
 
 **Tests:** `src/__tests__/introspection.test.ts` (14 tests)
+
 - Statistics retrieval
 - Schema generation
 - Graph generation with dependencies
@@ -169,6 +179,7 @@ node dist/examples/hero-ecommerce/index.js
 ## Documentation Updates
 
 ### Main README
+
 - Added "What's New" section highlighting all 5 features
 - Updated architecture diagram
 - Added introspection API examples
@@ -177,6 +188,7 @@ node dist/examples/hero-ecommerce/index.js
 - Enhanced features list with new capabilities
 
 ### New Documentation Files
+
 1. `PROTOCOL_VERSIONING.md` - Comprehensive protocol versioning guide
 2. `powershell/README.md` - PowerShell adapter documentation
 3. `FEATURE_SUMMARY.md` - This file
@@ -184,6 +196,7 @@ node dist/examples/hero-ecommerce/index.js
 ## Metrics
 
 ### Code Additions
+
 - **Tests**: +45 tests (+250%)
 - **Examples**: +1 hero example (657 lines)
 - **Core Modules**: +1 introspection module (350 lines)
@@ -192,6 +205,7 @@ node dist/examples/hero-ecommerce/index.js
 - **Documentation**: +3 comprehensive docs (15,000+ words)
 
 ### Quality Metrics
+
 - **Test Pass Rate**: 100% (63/63 tests)
 - **Build Status**: Clean compilation with strict TypeScript
 - **TypeScript Errors**: 0
@@ -213,6 +227,7 @@ The foundation is now in place for:
 ## Conclusion
 
 All 5 requested features have been successfully implemented with:
+
 - ✅ Production-ready quality
 - ✅ Comprehensive testing
 - ✅ Detailed documentation

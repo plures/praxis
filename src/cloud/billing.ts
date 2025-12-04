@@ -1,6 +1,6 @@
 /**
  * GitHub Sponsors and Marketplace Billing
- * 
+ *
  * Types and utilities for GitHub-based monetization.
  */
 
@@ -11,22 +11,22 @@ export enum SubscriptionTier {
   /**
    * Free tier - limited usage
    */
-  FREE = "free",
-  
+  FREE = 'free',
+
   /**
    * Solo tier - individual developers via GitHub Sponsors
    */
-  SOLO = "solo",
-  
+  SOLO = 'solo',
+
   /**
    * Team tier - small teams via GitHub Sponsors
    */
-  TEAM = "team",
-  
+  TEAM = 'team',
+
   /**
    * Enterprise tier - self-service enterprise via GitHub Sponsors/Marketplace
    */
-  ENTERPRISE = "enterprise",
+  ENTERPRISE = 'enterprise',
 }
 
 /**
@@ -36,17 +36,17 @@ export enum BillingProvider {
   /**
    * GitHub Sponsors
    */
-  SPONSORS = "sponsors",
-  
+  SPONSORS = 'sponsors',
+
   /**
    * GitHub Marketplace (SaaS)
    */
-  MARKETPLACE = "marketplace",
-  
+  MARKETPLACE = 'marketplace',
+
   /**
    * Free tier (no billing)
    */
-  NONE = "none",
+  NONE = 'none',
 }
 
 /**
@@ -56,22 +56,22 @@ export enum SubscriptionStatus {
   /**
    * Active subscription
    */
-  ACTIVE = "active",
-  
+  ACTIVE = 'active',
+
   /**
    * Subscription cancelled, but still valid until period end
    */
-  CANCELLED = "cancelled",
-  
+  CANCELLED = 'cancelled',
+
   /**
    * Subscription expired or payment failed
    */
-  EXPIRED = "expired",
-  
+  EXPIRED = 'expired',
+
   /**
    * No subscription
    */
-  NONE = "none",
+  NONE = 'none',
 }
 
 /**
@@ -82,26 +82,26 @@ export interface TierLimits {
    * Maximum sync operations per month
    */
   maxSyncsPerMonth: number;
-  
+
   /**
    * Maximum storage in bytes
    */
   maxStorageBytes: number;
-  
+
   /**
    * Maximum number of team members (null = unlimited)
    */
   maxTeamMembers: number | null;
-  
+
   /**
    * Maximum number of apps/projects
    */
   maxApps: number;
-  
+
   /**
    * Support level
    */
-  supportLevel: "community" | "standard" | "priority";
+  supportLevel: 'community' | 'standard' | 'priority';
 }
 
 /**
@@ -112,42 +112,42 @@ export interface Subscription {
    * Subscription tier
    */
   tier: SubscriptionTier;
-  
+
   /**
    * Subscription status
    */
   status: SubscriptionStatus;
-  
+
   /**
    * Billing provider
    */
   provider: BillingProvider;
-  
+
   /**
    * GitHub sponsor tier ID (if applicable)
    */
   sponsorTierId?: string;
-  
+
   /**
    * GitHub Marketplace plan ID (if applicable)
    */
   marketplacePlanId?: number;
-  
+
   /**
    * Subscription start date
    */
   startDate: number;
-  
+
   /**
    * Current period end date
    */
   periodEnd?: number;
-  
+
   /**
    * Whether subscription auto-renews
    */
   autoRenew: boolean;
-  
+
   /**
    * Usage limits for this tier
    */
@@ -161,23 +161,23 @@ export interface BillingEvent {
   /**
    * Event type
    */
-  type: "subscription_created" | "subscription_cancelled" | "subscription_renewed" | "tier_changed";
-  
+  type: 'subscription_created' | 'subscription_cancelled' | 'subscription_renewed' | 'tier_changed';
+
   /**
    * Timestamp
    */
   timestamp: number;
-  
+
   /**
    * User/organization ID
    */
   userId: number;
-  
+
   /**
    * Old subscription (for changes)
    */
   oldSubscription?: Subscription;
-  
+
   /**
    * New subscription
    */
@@ -193,28 +193,28 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
     maxStorageBytes: 10 * 1024 * 1024, // 10 MB
     maxTeamMembers: 1,
     maxApps: 1,
-    supportLevel: "community",
+    supportLevel: 'community',
   },
   [SubscriptionTier.SOLO]: {
     maxSyncsPerMonth: 50000,
     maxStorageBytes: 1024 * 1024 * 1024, // 1 GB
     maxTeamMembers: 1,
     maxApps: 10,
-    supportLevel: "standard",
+    supportLevel: 'standard',
   },
   [SubscriptionTier.TEAM]: {
     maxSyncsPerMonth: 500000,
     maxStorageBytes: 10 * 1024 * 1024 * 1024, // 10 GB
     maxTeamMembers: 10,
     maxApps: 50,
-    supportLevel: "standard",
+    supportLevel: 'standard',
   },
   [SubscriptionTier.ENTERPRISE]: {
     maxSyncsPerMonth: 5000000,
     maxStorageBytes: 100 * 1024 * 1024 * 1024, // 100 GB
     maxTeamMembers: null, // unlimited
     maxApps: 1000,
-    supportLevel: "priority",
+    supportLevel: 'priority',
   },
 };
 
@@ -228,17 +228,17 @@ export function hasAccessToTier(
   if (subscription.status !== SubscriptionStatus.ACTIVE) {
     return false;
   }
-  
+
   const tierOrder = [
     SubscriptionTier.FREE,
     SubscriptionTier.SOLO,
     SubscriptionTier.TEAM,
     SubscriptionTier.ENTERPRISE,
   ];
-  
+
   const currentTierIndex = tierOrder.indexOf(subscription.tier);
   const requiredTierIndex = tierOrder.indexOf(requiredTier);
-  
+
   return currentTierIndex >= requiredTierIndex;
 }
 
@@ -258,19 +258,19 @@ export function checkUsageLimits(
   violations: string[];
 } {
   const violations: string[] = [];
-  
+
   if (usage.syncCount > subscription.limits.maxSyncsPerMonth) {
     violations.push(
       `Sync limit exceeded: ${usage.syncCount}/${subscription.limits.maxSyncsPerMonth}`
     );
   }
-  
+
   if (usage.storageBytes > subscription.limits.maxStorageBytes) {
     violations.push(
       `Storage limit exceeded: ${(usage.storageBytes / 1024 / 1024).toFixed(2)}MB/${(subscription.limits.maxStorageBytes / 1024 / 1024).toFixed(2)}MB`
     );
   }
-  
+
   if (
     subscription.limits.maxTeamMembers !== null &&
     usage.teamMembers > subscription.limits.maxTeamMembers
@@ -279,13 +279,11 @@ export function checkUsageLimits(
       `Team member limit exceeded: ${usage.teamMembers}/${subscription.limits.maxTeamMembers}`
     );
   }
-  
+
   if (usage.appCount > subscription.limits.maxApps) {
-    violations.push(
-      `App limit exceeded: ${usage.appCount}/${subscription.limits.maxApps}`
-    );
+    violations.push(`App limit exceeded: ${usage.appCount}/${subscription.limits.maxApps}`);
   }
-  
+
   return {
     withinLimits: violations.length === 0,
     violations,
@@ -314,16 +312,19 @@ export function createSponsorSubscription(
   monthlyPriceInCents: number
 ): Subscription {
   let tier = SubscriptionTier.FREE;
-  
+
   // Map price to tier (example pricing)
-  if (monthlyPriceInCents >= 5000) { // $50/month
+  if (monthlyPriceInCents >= 5000) {
+    // $50/month
     tier = SubscriptionTier.ENTERPRISE;
-  } else if (monthlyPriceInCents >= 2000) { // $20/month
+  } else if (monthlyPriceInCents >= 2000) {
+    // $20/month
     tier = SubscriptionTier.TEAM;
-  } else if (monthlyPriceInCents >= 500) { // $5/month
+  } else if (monthlyPriceInCents >= 500) {
+    // $5/month
     tier = SubscriptionTier.SOLO;
   }
-  
+
   return {
     tier,
     status: SubscriptionStatus.ACTIVE,

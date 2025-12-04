@@ -10,12 +10,7 @@ export interface RuleAnalysis {
 
 export function analyzeRuleFile(filePath: string): RuleAnalysis[] {
   const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const sourceFile = ts.createSourceFile(
-    filePath,
-    fileContent,
-    ts.ScriptTarget.Latest,
-    true
-  );
+  const sourceFile = ts.createSourceFile(filePath, fileContent, ts.ScriptTarget.Latest, true);
 
   const results: RuleAnalysis[] = [];
 
@@ -44,7 +39,7 @@ export function analyzeRuleFile(filePath: string): RuleAnalysis[] {
     let implMethod: ts.ArrowFunction | ts.FunctionExpression | undefined;
 
     // Extract ID and impl
-    obj.properties.forEach(prop => {
+    obj.properties.forEach((prop) => {
       if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
         if (prop.name.text === 'id') {
           if (ts.isStringLiteral(prop.initializer)) {
@@ -62,7 +57,7 @@ export function analyzeRuleFile(filePath: string): RuleAnalysis[] {
       const analysis = analyzeImpl(implMethod, fileContent);
       results.push({
         ruleId,
-        ...analysis
+        ...analysis,
       });
     }
   }
@@ -74,20 +69,20 @@ export function analyzeRuleFile(filePath: string): RuleAnalysis[] {
 
     const body = func.body;
     if (ts.isBlock(body)) {
-      body.statements.forEach(stmt => {
+      body.statements.forEach((stmt) => {
         // 1. Detect Guards: if (...) return [];
         if (ts.isIfStatement(stmt)) {
           const thenStmt = stmt.thenStatement;
           let isGuard = false;
-          
+
           // Check if 'then' block returns empty array
           if (ts.isReturnStatement(thenStmt)) {
-             isGuard = isReturnEmptyArray(thenStmt);
+            isGuard = isReturnEmptyArray(thenStmt);
           } else if (ts.isBlock(thenStmt)) {
-             // Check if block contains just return []
-             if (thenStmt.statements.length === 1 && ts.isReturnStatement(thenStmt.statements[0])) {
-               isGuard = isReturnEmptyArray(thenStmt.statements[0]);
-             }
+            // Check if block contains just return []
+            if (thenStmt.statements.length === 1 && ts.isReturnStatement(thenStmt.statements[0])) {
+              isGuard = isReturnEmptyArray(thenStmt.statements[0]);
+            }
           }
 
           if (isGuard) {
@@ -125,7 +120,7 @@ export function analyzeRuleFile(filePath: string): RuleAnalysis[] {
         }
       }
     }
-    ts.forEachChild(node, n => findMutations(n, mutations, sourceFile));
+    ts.forEachChild(node, (n) => findMutations(n, mutations, sourceFile));
   }
 
   function findEvents(node: ts.Node, events: string[], sourceFile: ts.SourceFile) {
@@ -137,7 +132,7 @@ export function analyzeRuleFile(filePath: string): RuleAnalysis[] {
         }
       }
     }
-    ts.forEachChild(node, n => findEvents(n, events, sourceFile));
+    ts.forEachChild(node, (n) => findEvents(n, events, sourceFile));
   }
 
   visit(sourceFile);

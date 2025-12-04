@@ -97,7 +97,7 @@ unsubscribe();
   <p>Count: {$store.context.count}</p>
   <p>Facts: {$store.facts.length}</p>
   <p>Protocol: {$store.protocolVersion}</p>
-  
+
   <button onclick={() => store.dispatch([Increment.create({})])}>
     Increment
   </button>
@@ -135,7 +135,7 @@ contextStore.dispatch([MyEvent.create({})]);
 <div>
   <h2>User: {$context.user?.name || 'Guest'}</h2>
   <p>Page: {$context.currentPage}</p>
-  
+
   <button onclick={() => context.dispatch([UpdateUser.create({ name: 'Alice' })])}>
     Update User
   </button>
@@ -149,10 +149,7 @@ Creates a store that extracts and tracks a specific value from the context.
 ```typescript
 import { createDerivedStore } from '@plures/praxis/svelte';
 
-const countStore = createDerivedStore(
-  engine,
-  (context) => context.count
-);
+const countStore = createDerivedStore(engine, (context) => context.count);
 
 // Only updates when the derived value changes
 countStore.subscribe((count) => {
@@ -176,7 +173,7 @@ countStore.dispatch([Increment.create({})]);
 <div>
   <p>Count: {$count}</p>
   <p>User: {$userName || 'Anonymous'}</p>
-  
+
   <button onclick={() => count.dispatch([Increment.create({})])}>
     Increment
   </button>
@@ -195,16 +192,16 @@ The main composable for Svelte 5 runes. Provides reactive access to engine state
 import { usePraxisEngine } from '@plures/praxis/svelte';
 
 const {
-  state,      // Full state (reactive)
-  context,    // Context (reactive)
-  facts,      // Facts array (reactive)
-  dispatch,   // Dispatch events
+  state, // Full state (reactive)
+  context, // Context (reactive)
+  facts, // Facts array (reactive)
+  dispatch, // Dispatch events
   // History features (when enableHistory: true)
-  snapshots,  // Array of state snapshots
-  undo,       // Undo last action
-  redo,       // Redo action
-  canUndo,    // Boolean: can undo?
-  canRedo,    // Boolean: can redo?
+  snapshots, // Array of state snapshots
+  undo, // Undo last action
+  redo, // Redo action
+  canUndo, // Boolean: can undo?
+  canRedo, // Boolean: can redo?
   historyIndex, // Current position in history
   goToSnapshot, // Jump to specific snapshot
 } = usePraxisEngine(engine, {
@@ -239,12 +236,12 @@ const {
   import { createCounterEngine, Increment } from './counter';
 
   const engine = createCounterEngine();
-  const { 
-    context, 
-    dispatch, 
-    undo, 
-    redo, 
-    canUndo, 
+  const {
+    context,
+    dispatch,
+    undo,
+    redo,
+    canUndo,
     canRedo,
     snapshots,
     historyIndex
@@ -351,17 +348,17 @@ usePraxisSubscription(engine, (state) => {
   import { createMyEngine } from './engine';
 
   const engine = createMyEngine();
-  const { 
-    context, 
-    snapshots, 
-    goToSnapshot, 
-    historyIndex 
+  const {
+    context,
+    snapshots,
+    goToSnapshot,
+    historyIndex
   } = usePraxisEngine(engine, { enableHistory: true });
 </script>
 
 <div class="debugger">
   <h2>Time-Travel Debugger</h2>
-  
+
   <div class="timeline">
     {#each snapshots as snapshot, index}
       <button
@@ -387,12 +384,12 @@ usePraxisSubscription(engine, (state) => {
     gap: 0.5rem;
     overflow-x: auto;
   }
-  
+
   .timeline button {
     padding: 0.5rem;
     border: 2px solid #ccc;
   }
-  
+
   .timeline button.active {
     border-color: #007bff;
     background: #e7f3ff;
@@ -408,7 +405,7 @@ usePraxisSubscription(engine, (state) => {
   import { createTextEngine, InsertText, DeleteText } from './text-engine';
 
   const engine = createTextEngine();
-  const { context, dispatch, undo, redo, canUndo, canRedo } = 
+  const { context, dispatch, undo, redo, canUndo, canRedo } =
     usePraxisEngine(engine, { enableHistory: true });
 
   let input = '';
@@ -504,7 +501,7 @@ usePraxisSubscription(engine, (state) => {
 
 <div class="cart">
   <h2>Shopping Cart</h2>
-  
+
   {#if isEmpty}
     <p>Your cart is empty</p>
   {:else}
@@ -513,7 +510,7 @@ usePraxisSubscription(engine, (state) => {
         <li>{item.name} - ${item.price}</li>
       {/each}
     </ul>
-    
+
     <div class="summary">
       <p>Items: {itemCount}</p>
       <p>Total: ${total.toFixed(2)}</p>
@@ -581,13 +578,13 @@ usePraxisSubscription(engine, (state) => {
 // For user-facing features
 usePraxisEngine(engine, {
   enableHistory: true,
-  maxHistorySize: 20  // Smaller for better performance
+  maxHistorySize: 20, // Smaller for better performance
 });
 
 // For debugging/development
 usePraxisEngine(engine, {
   enableHistory: true,
-  maxHistorySize: 100  // Larger for more history
+  maxHistorySize: 100, // Larger for more history
 });
 ```
 
@@ -600,11 +597,7 @@ dispatch([UpdateUser.create({ name: 'Alice' })]);
 dispatch([SaveData.create({})]);
 
 // ✅ Single dispatch
-dispatch([
-  Increment.create({}),
-  UpdateUser.create({ name: 'Alice' }),
-  SaveData.create({})
-]);
+dispatch([Increment.create({}), UpdateUser.create({ name: 'Alice' }), SaveData.create({})]);
 ```
 
 ### 4. Memoize Selectors
@@ -637,7 +630,9 @@ interface MyContext {
   user: { id: string; name: string } | null;
 }
 
-const engine: LogicEngine<MyContext> = createPraxisEngine({ /* ... */ });
+const engine: LogicEngine<MyContext> = createPraxisEngine({
+  /* ... */
+});
 
 // Store types are inferred
 const store: Readable<PraxisState & { context: MyContext }> & {
@@ -646,28 +641,25 @@ const store: Readable<PraxisState & { context: MyContext }> & {
 
 // Runes types are inferred
 const binding: PraxisEngineBinding<MyContext> = usePraxisEngine(engine, {
-  enableHistory: true
+  enableHistory: true,
 });
 
 // Selector types are inferred
-const count: number = usePraxisContext(
-  engine,
-  (ctx: MyContext) => ctx.count
-);
+const count: number = usePraxisContext(engine, (ctx: MyContext) => ctx.count);
 ```
 
 ## Migration from XState
 
 If you're coming from XState:
 
-| XState | Praxis |
-|--------|--------|
+| XState                                      | Praxis                                                  |
+| ------------------------------------------- | ------------------------------------------------------- |
 | `const [state, send] = useMachine(machine)` | `const { context, dispatch } = usePraxisEngine(engine)` |
-| `state.context.count` | `context.count` |
-| `send({ type: 'INCREMENT' })` | `dispatch([Increment.create({})])` |
-| `state.matches('idle')` | Check context: `context.status === 'idle'` |
-| `state.history` | `usePraxisEngine(engine, { enableHistory: true })` |
-| `const service = interpret(machine)` | `const store = createPraxisStore(engine)` |
+| `state.context.count`                       | `context.count`                                         |
+| `send({ type: 'INCREMENT' })`               | `dispatch([Increment.create({})])`                      |
+| `state.matches('idle')`                     | Check context: `context.status === 'idle'`              |
+| `state.history`                             | `usePraxisEngine(engine, { enableHistory: true })`      |
+| `const service = interpret(machine)`        | `const store = createPraxisStore(engine)`               |
 
 ## Examples
 

@@ -258,8 +258,17 @@
       "fields": [
         { "name": "id", "type": "uuid", "description": "Unique form identifier" },
         { "name": "name", "type": "string", "description": "Form name" },
-        { "name": "description", "type": "string", "optional": true, "description": "Form description" },
-        { "name": "fields", "type": { "array": { "reference": "FormField" } }, "description": "Form fields" },
+        {
+          "name": "description",
+          "type": "string",
+          "optional": true,
+          "description": "Form description"
+        },
+        {
+          "name": "fields",
+          "type": { "array": { "reference": "FormField" } },
+          "description": "Form fields"
+        },
         { "name": "createdAt", "type": "datetime", "description": "Creation timestamp" },
         { "name": "updatedAt", "type": "datetime", "description": "Last update timestamp" }
       ]
@@ -270,12 +279,43 @@
       "description": "A form field definition",
       "fields": [
         { "name": "id", "type": "string", "description": "Unique field identifier" },
-        { "name": "type", "type": { "enum": ["text", "number", "email", "select", "checkbox", "radio", "textarea", "date", "file"] }, "description": "Field type" },
+        {
+          "name": "type",
+          "type": {
+            "enum": [
+              "text",
+              "number",
+              "email",
+              "select",
+              "checkbox",
+              "radio",
+              "textarea",
+              "date",
+              "file"
+            ]
+          },
+          "description": "Field type"
+        },
         { "name": "label", "type": "string", "description": "Field label" },
-        { "name": "placeholder", "type": "string", "optional": true, "description": "Placeholder text" },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "optional": true,
+          "description": "Placeholder text"
+        },
         { "name": "required", "type": "boolean", "description": "Is field required" },
-        { "name": "options", "type": { "array": { "type": "string" } }, "optional": true, "description": "Options for select/radio fields" },
-        { "name": "validation", "type": "object", "optional": true, "description": "Validation rules" },
+        {
+          "name": "options",
+          "type": { "array": { "type": "string" } },
+          "optional": true,
+          "description": "Options for select/radio fields"
+        },
+        {
+          "name": "validation",
+          "type": "object",
+          "optional": true,
+          "description": "Validation rules"
+        },
         { "name": "order", "type": "number", "description": "Display order" }
       ]
     },
@@ -306,7 +346,12 @@
       "type": "editor",
       "description": "Main form builder interface",
       "props": [
-        { "name": "form", "type": "Form", "required": false, "description": "Existing form to edit" }
+        {
+          "name": "form",
+          "type": "Form",
+          "required": false,
+          "description": "Existing form to edit"
+        }
       ],
       "events": [
         { "name": "save", "payload": "Form", "description": "Fired when form is saved" },
@@ -320,7 +365,11 @@
       "description": "Palette of available field types",
       "props": [],
       "events": [
-        { "name": "fieldSelect", "payload": "{ fieldType: string }", "description": "Fired when a field type is selected" }
+        {
+          "name": "fieldSelect",
+          "payload": "{ fieldType: string }",
+          "description": "Fired when a field type is selected"
+        }
       ]
     },
     {
@@ -334,7 +383,11 @@
       ],
       "events": [
         { "name": "save", "payload": "FormField", "description": "Fired when field is saved" },
-        { "name": "delete", "payload": "{ fieldId: string }", "description": "Fired when field is deleted" }
+        {
+          "name": "delete",
+          "payload": "{ fieldId: string }",
+          "description": "Fired when field is deleted"
+        }
       ]
     },
     {
@@ -346,7 +399,11 @@
         { "name": "form", "type": "Form", "required": true, "description": "Form to preview" }
       ],
       "events": [
-        { "name": "submit", "payload": "object", "description": "Fired when preview form is submitted" }
+        {
+          "name": "submit",
+          "payload": "object",
+          "description": "Fired when preview form is submitted"
+        }
       ]
     },
     {
@@ -357,12 +414,31 @@
       "model": "Form",
       "props": [
         { "name": "form", "type": "Form", "required": true, "description": "Form definition" },
-        { "name": "initialData", "type": "object", "required": false, "description": "Initial form data" },
-        { "name": "readOnly", "type": "boolean", "required": false, "default": false, "description": "Read-only mode" }
+        {
+          "name": "initialData",
+          "type": "object",
+          "required": false,
+          "description": "Initial form data"
+        },
+        {
+          "name": "readOnly",
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Read-only mode"
+        }
       ],
       "events": [
-        { "name": "submit", "payload": "{ formId: string; data: object }", "description": "Fired when form is submitted" },
-        { "name": "change", "payload": "{ fieldId: string; value: any }", "description": "Fired when a field value changes" }
+        {
+          "name": "submit",
+          "payload": "{ formId: string; data: object }",
+          "description": "Fired when form is submitted"
+        },
+        {
+          "name": "change",
+          "payload": "{ fieldId: string; value: any }",
+          "description": "Fired when a field value changes"
+        }
       ]
     },
     {
@@ -372,11 +448,25 @@
       "description": "List of form submissions",
       "model": "FormSubmission",
       "props": [
-        { "name": "formId", "type": "string", "required": true, "description": "Form ID to show submissions for" },
-        { "name": "submissions", "type": "FormSubmission[]", "required": true, "description": "Submissions to display" }
+        {
+          "name": "formId",
+          "type": "string",
+          "required": true,
+          "description": "Form ID to show submissions for"
+        },
+        {
+          "name": "submissions",
+          "type": "FormSubmission[]",
+          "required": true,
+          "description": "Submissions to display"
+        }
       ],
       "events": [
-        { "name": "view", "payload": "FormSubmission", "description": "Fired when a submission is viewed" },
+        {
+          "name": "view",
+          "payload": "FormSubmission",
+          "description": "Fired when a submission is viewed"
+        },
         { "name": "export", "description": "Fired when export is requested" }
       ]
     }

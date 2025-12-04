@@ -4,13 +4,13 @@ Praxis is designed to be extensible. This guide explains how to create plugins, 
 
 ## Extension Types
 
-| Type | Description | Use Case |
-|------|-------------|----------|
-| **Plugins** | Extend engine behavior | Add middleware, effects, logging |
-| **Generators** | Custom code generation | Generate for other frameworks |
-| **Adapters** | External integrations | Connect to databases, APIs |
-| **Templates** | Custom project scaffolding | Organization-specific setups |
-| **Canvas Extensions** | Extend visual editor | Custom components, tools |
+| Type                  | Description                | Use Case                         |
+| --------------------- | -------------------------- | -------------------------------- |
+| **Plugins**           | Extend engine behavior     | Add middleware, effects, logging |
+| **Generators**        | Custom code generation     | Generate for other frameworks    |
+| **Adapters**          | External integrations      | Connect to databases, APIs       |
+| **Templates**         | Custom project scaffolding | Organization-specific setups     |
+| **Canvas Extensions** | Extend visual editor       | Custom components, tools         |
 
 ## Plugins
 
@@ -29,28 +29,28 @@ interface LoggerOptions {
 export function createLoggerPlugin(options: LoggerOptions): PraxisPlugin {
   return {
     name: 'logger',
-    
+
     // Called when engine is created
     onInit(engine) {
       console.log(`${options.prefix || ''} Engine initialized`);
     },
-    
+
     // Called before each step
     beforeStep(state, events) {
       if (options.level === 'debug') {
         console.log('Events:', events);
       }
-      return { state, events };  // Can modify
+      return { state, events }; // Can modify
     },
-    
+
     // Called after each step
     afterStep(result) {
       if (options.level === 'debug') {
         console.log('Facts:', result.state.facts);
       }
-      return result;  // Can modify
+      return result; // Can modify
     },
-    
+
     // Called on error
     onError(error, state, events) {
       console.error(`${options.prefix || ''} Error:`, error);
@@ -81,26 +81,22 @@ const engine = createPraxisEngine({
 ```typescript
 interface PraxisPlugin<TContext = any> {
   name: string;
-  
+
   // Lifecycle hooks
   onInit?(engine: PraxisEngine<TContext>): void;
   onDestroy?(): void;
-  
+
   // Step hooks
   beforeStep?(
     state: PraxisState<TContext>,
     events: PraxisEvent[]
   ): { state: PraxisState<TContext>; events: PraxisEvent[] };
-  
+
   afterStep?(result: StepResult<TContext>): StepResult<TContext>;
-  
+
   // Error handling
-  onError?(
-    error: Error,
-    state: PraxisState<TContext>,
-    events: PraxisEvent[]
-  ): void;
-  
+  onError?(error: Error, state: PraxisState<TContext>, events: PraxisEvent[]): void;
+
   // Subscription
   onStateChange?(state: PraxisState<TContext>): void;
 }
@@ -123,10 +119,10 @@ interface ReactGeneratorOptions {
 export const reactGenerator: Generator<ReactGeneratorOptions> = {
   name: 'react',
   description: 'Generate React components from PSF schema',
-  
+
   generate(schema: PSFSchema, options: ReactGeneratorOptions): GeneratorOutput[] {
     const outputs: GeneratorOutput[] = [];
-    
+
     // Generate components
     for (const component of schema.components) {
       const code = generateReactComponent(component, options);
@@ -136,7 +132,7 @@ export const reactGenerator: Generator<ReactGeneratorOptions> = {
         type: 'component',
       });
     }
-    
+
     // Generate types (TypeScript only)
     if (options.typescript) {
       const types = generateTypes(schema);
@@ -146,20 +142,20 @@ export const reactGenerator: Generator<ReactGeneratorOptions> = {
         type: 'types',
       });
     }
-    
+
     return outputs;
   },
 };
 
 function generateReactComponent(component: ComponentDef, options: ReactGeneratorOptions): string {
   const { name, type, model, props } = component;
-  
+
   return `
 import React from 'react';
 ${options.typescript ? `import type { ${model} } from '../types';` : ''}
 
 ${options.typescript ? `interface ${name}Props {` : ''}
-${props?.map(p => `  ${p.name}${p.required ? '' : '?'}: ${p.type};`).join('\n')}
+${props?.map((p) => `  ${p.name}${p.required ? '' : '?'}: ${p.type};`).join('\n')}
 ${options.typescript ? '}' : ''}
 
 export function ${name}(${options.typescript ? `props: ${name}Props` : 'props'}) {
@@ -189,11 +185,11 @@ registerGenerator(reactGenerator);
 
 ```typescript
 interface GeneratorOutput {
-  path: string;           // Output file path
-  content: string;        // Generated code
-  type: OutputType;       // 'component' | 'types' | 'docs' | 'config'
-  overwrite?: boolean;    // Allow overwriting existing files
-  format?: boolean;       // Apply code formatting
+  path: string; // Output file path
+  content: string; // Generated code
+  type: OutputType; // 'component' | 'types' | 'docs' | 'config'
+  overwrite?: boolean; // Allow overwriting existing files
+  format?: boolean; // Apply code formatting
 }
 ```
 
@@ -211,24 +207,24 @@ interface PostgresOptions {
 
 export function createPostgresAdapter(options: PostgresOptions): DatabaseAdapter {
   let pool: Pool;
-  
+
   return {
     name: 'postgres',
-    
+
     async connect() {
       pool = new Pool({ connectionString: options.connectionString });
       await pool.connect();
     },
-    
+
     async disconnect() {
       await pool.end();
     },
-    
+
     async createCollection(name: string, schema: CollectionSchema) {
       const columns = schemaToColumns(schema);
       await pool.query(`CREATE TABLE IF NOT EXISTS ${name} (${columns})`);
     },
-    
+
     async insert(collection: string, document: any) {
       const { columns, values, placeholders } = prepareInsert(document);
       const result = await pool.query(
@@ -237,16 +233,13 @@ export function createPostgresAdapter(options: PostgresOptions): DatabaseAdapter
       );
       return result.rows[0];
     },
-    
+
     async find(collection: string, query: Query) {
       const { where, params } = queryToSQL(query);
-      const result = await pool.query(
-        `SELECT * FROM ${collection} ${where}`,
-        params
-      );
+      const result = await pool.query(`SELECT * FROM ${collection} ${where}`, params);
       return result.rows;
     },
-    
+
     // ... other CRUD operations
   };
 }
@@ -284,6 +277,7 @@ templates/
 ```
 
 **template.json:**
+
 ```json
 {
   "name": "my-template",
@@ -300,14 +294,12 @@ templates/
       "prompt": "Author name"
     }
   ],
-  "postInstall": [
-    "npm install",
-    "npx praxis generate --schema ./src/schema.psf.json"
-  ]
+  "postInstall": ["npm install", "npx praxis generate --schema ./src/schema.psf.json"]
 }
 ```
 
 **package.json.template:**
+
 ```json
 {
   "name": "{{appName}}",
@@ -344,7 +336,7 @@ import type { CanvasExtension, CanvasContext } from '@plures/praxis/canvas';
 
 export const customPaletteExtension: CanvasExtension = {
   name: 'custom-palette',
-  
+
   // Add items to the component palette
   palette: {
     category: 'Custom',
@@ -362,7 +354,7 @@ export const customPaletteExtension: CanvasExtension = {
       },
     ],
   },
-  
+
   // Add toolbar buttons
   toolbar: [
     {
@@ -375,7 +367,7 @@ export const customPaletteExtension: CanvasExtension = {
       },
     },
   ],
-  
+
   // Add context menu items
   contextMenu: [
     {
@@ -393,14 +385,15 @@ export const customPaletteExtension: CanvasExtension = {
 ### Registering Canvas Extensions
 
 **canvas.config.ts:**
+
 ```typescript
 import { customPaletteExtension } from './extensions/custom-palette';
 
 export const config: CanvasConfig = {
   extensions: [
     customPaletteExtension,
-    '@plures/canvas-figma',  // npm package
-    './extensions/my-extension.ts',  // local file
+    '@plures/canvas-figma', // npm package
+    './extensions/my-extension.ts', // local file
   ],
 };
 ```
@@ -421,6 +414,7 @@ my-praxis-extension/
 ```
 
 **package.json:**
+
 ```json
 {
   "name": "@myorg/praxis-extension-foo",
@@ -479,7 +473,7 @@ Handle errors gracefully:
 ```typescript
 export const myPlugin: PraxisPlugin = {
   name: 'my-plugin',
-  
+
   beforeStep(state, events) {
     try {
       // Plugin logic
@@ -500,22 +494,25 @@ Include comprehensive README:
 # My Praxis Extension
 
 ## Installation
+
 \`\`\`bash
 npm install @myorg/praxis-extension-foo
 \`\`\`
 
 ## Usage
+
 \`\`\`typescript
 import { createFooPlugin } from '@myorg/praxis-extension-foo';
 
 const engine = createPraxisEngine({
-  plugins: [createFooPlugin({ option: 'value' })],
+plugins: [createFooPlugin({ option: 'value' })],
 });
 \`\`\`
 
 ## Options
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
+
+| Option | Type   | Default   | Description |
+| ------ | ------ | --------- | ----------- |
 | option | string | 'default' | Description |
 ```
 
@@ -534,15 +531,15 @@ describe('MyPlugin', () => {
     const plugin = createMyPlugin({
       onLog: (msg) => logs.push(msg),
     });
-    
+
     const engine = createPraxisEngine({
       initialContext: {},
       registry: new PraxisRegistry(),
       plugins: [plugin],
     });
-    
+
     engine.dispatch([{ tag: 'TEST', payload: {} }]);
-    
+
     expect(logs).toContain('Step executed');
   });
 });

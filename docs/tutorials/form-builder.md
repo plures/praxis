@@ -9,6 +9,7 @@ This tutorial walks you through building a dynamic form builder application. You
 ## What You'll Build
 
 A form builder that allows users to:
+
 - Create new forms with a name and description
 - Add various field types (text, number, select, checkbox, etc.)
 - Configure field properties (label, required, validation)
@@ -63,8 +64,14 @@ The form builder schema is available at `examples/form-builder/schema.psf.json`.
 {
   "events": [
     { "tag": "CreateForm", "payload": { "name": "string" } },
-    { "tag": "AddField", "payload": { "formId": "string", "fieldType": "string", "label": "string" } },
-    { "tag": "UpdateField", "payload": { "fieldId": "string", "label": "string", "required": "boolean" } },
+    {
+      "tag": "AddField",
+      "payload": { "formId": "string", "fieldType": "string", "label": "string" }
+    },
+    {
+      "tag": "UpdateField",
+      "payload": { "fieldId": "string", "label": "string", "required": "boolean" }
+    },
     { "tag": "ReorderFields", "payload": { "formId": "string", "fieldOrder": "string[]" } },
     { "tag": "SubmitForm", "payload": { "formId": "string", "data": "object" } }
   ]
@@ -121,20 +128,48 @@ interface FormBuilderContext {
 }
 
 // Facts
-export const FormCreated = defineFact<'FormCreated', { formId: string; name: string }>('FormCreated');
-export const FieldAdded = defineFact<'FieldAdded', { formId: string; fieldId: string; fieldType: string }>('FieldAdded');
-export const FieldRemoved = defineFact<'FieldRemoved', { formId: string; fieldId: string }>('FieldRemoved');
+export const FormCreated = defineFact<'FormCreated', { formId: string; name: string }>(
+  'FormCreated'
+);
+export const FieldAdded = defineFact<
+  'FieldAdded',
+  { formId: string; fieldId: string; fieldType: string }
+>('FieldAdded');
+export const FieldRemoved = defineFact<'FieldRemoved', { formId: string; fieldId: string }>(
+  'FieldRemoved'
+);
 export const FieldUpdated = defineFact<'FieldUpdated', { fieldId: string }>('FieldUpdated');
-export const FormSubmitted = defineFact<'FormSubmitted', { formId: string; submissionId: string }>('FormSubmitted');
-export const ValidationFailed = defineFact<'ValidationFailed', { formId: string; errors: Array<{ fieldId: string; message: string }> }>('ValidationFailed');
+export const FormSubmitted = defineFact<'FormSubmitted', { formId: string; submissionId: string }>(
+  'FormSubmitted'
+);
+export const ValidationFailed = defineFact<
+  'ValidationFailed',
+  { formId: string; errors: Array<{ fieldId: string; message: string }> }
+>('ValidationFailed');
 
 // Events
-export const CREATE_FORM = defineEvent<'CREATE_FORM', { name: string; description?: string }>('CREATE_FORM');
-export const ADD_FIELD = defineEvent<'ADD_FIELD', { formId: string; fieldType: string; label: string; required?: boolean }>('ADD_FIELD');
-export const REMOVE_FIELD = defineEvent<'REMOVE_FIELD', { formId: string; fieldId: string }>('REMOVE_FIELD');
-export const UPDATE_FIELD = defineEvent<'UPDATE_FIELD', { fieldId: string; updates: Partial<FormField> }>('UPDATE_FIELD');
-export const REORDER_FIELDS = defineEvent<'REORDER_FIELDS', { formId: string; fieldOrder: string[] }>('REORDER_FIELDS');
-export const SUBMIT_FORM = defineEvent<'SUBMIT_FORM', { formId: string; data: Record<string, any> }>('SUBMIT_FORM');
+export const CREATE_FORM = defineEvent<'CREATE_FORM', { name: string; description?: string }>(
+  'CREATE_FORM'
+);
+export const ADD_FIELD = defineEvent<
+  'ADD_FIELD',
+  { formId: string; fieldType: string; label: string; required?: boolean }
+>('ADD_FIELD');
+export const REMOVE_FIELD = defineEvent<'REMOVE_FIELD', { formId: string; fieldId: string }>(
+  'REMOVE_FIELD'
+);
+export const UPDATE_FIELD = defineEvent<
+  'UPDATE_FIELD',
+  { fieldId: string; updates: Partial<FormField> }
+>('UPDATE_FIELD');
+export const REORDER_FIELDS = defineEvent<
+  'REORDER_FIELDS',
+  { formId: string; fieldOrder: string[] }
+>('REORDER_FIELDS');
+export const SUBMIT_FORM = defineEvent<
+  'SUBMIT_FORM',
+  { formId: string; data: Record<string, any> }
+>('SUBMIT_FORM');
 export const SELECT_FORM = defineEvent<'SELECT_FORM', { formId: string }>('SELECT_FORM');
 export const SELECT_FIELD = defineEvent<'SELECT_FIELD', { fieldId: string | null }>('SELECT_FIELD');
 
@@ -145,10 +180,10 @@ const createFormRule = defineRule<FormBuilderContext>({
   impl: (state, events) => {
     const event = events.find(CREATE_FORM.is);
     if (!event) return [];
-    
+
     const now = new Date();
     const formId = `form_${Date.now().toString(36)}`;
-    
+
     const form: Form = {
       id: formId,
       name: event.payload.name,
@@ -157,10 +192,10 @@ const createFormRule = defineRule<FormBuilderContext>({
       createdAt: now,
       updatedAt: now,
     };
-    
+
     state.context.forms.push(form);
     state.context.activeFormId = formId;
-    
+
     return [FormCreated.create({ formId, name: event.payload.name })];
   },
 });
@@ -171,10 +206,10 @@ const addFieldRule = defineRule<FormBuilderContext>({
   impl: (state, events) => {
     const event = events.find(ADD_FIELD.is);
     if (!event) return [];
-    
-    const form = state.context.forms.find(f => f.id === event.payload.formId);
+
+    const form = state.context.forms.find((f) => f.id === event.payload.formId);
     if (!form) return [];
-    
+
     const fieldId = `field_${Date.now().toString(36)}`;
     const field: FormField = {
       id: fieldId,
@@ -183,16 +218,18 @@ const addFieldRule = defineRule<FormBuilderContext>({
       required: event.payload.required ?? false,
       order: form.fields.length,
     };
-    
+
     form.fields.push(field);
     form.updatedAt = new Date();
     state.context.selectedFieldId = fieldId;
-    
-    return [FieldAdded.create({ 
-      formId: event.payload.formId, 
-      fieldId, 
-      fieldType: event.payload.fieldType 
-    })];
+
+    return [
+      FieldAdded.create({
+        formId: event.payload.formId,
+        fieldId,
+        fieldType: event.payload.fieldType,
+      }),
+    ];
   },
 });
 
@@ -202,22 +239,22 @@ const removeFieldRule = defineRule<FormBuilderContext>({
   impl: (state, events) => {
     const event = events.find(REMOVE_FIELD.is);
     if (!event) return [];
-    
-    const form = state.context.forms.find(f => f.id === event.payload.formId);
+
+    const form = state.context.forms.find((f) => f.id === event.payload.formId);
     if (!form) return [];
-    
-    form.fields = form.fields.filter(f => f.id !== event.payload.fieldId);
+
+    form.fields = form.fields.filter((f) => f.id !== event.payload.fieldId);
     form.updatedAt = new Date();
-    
+
     // Reorder remaining fields
     form.fields.forEach((field, index) => {
       field.order = index;
     });
-    
+
     if (state.context.selectedFieldId === event.payload.fieldId) {
       state.context.selectedFieldId = null;
     }
-    
+
     return [FieldRemoved.create({ formId: event.payload.formId, fieldId: event.payload.fieldId })];
   },
 });
@@ -228,16 +265,16 @@ const updateFieldRule = defineRule<FormBuilderContext>({
   impl: (state, events) => {
     const event = events.find(UPDATE_FIELD.is);
     if (!event) return [];
-    
+
     for (const form of state.context.forms) {
-      const field = form.fields.find(f => f.id === event.payload.fieldId);
+      const field = form.fields.find((f) => f.id === event.payload.fieldId);
       if (field) {
         Object.assign(field, event.payload.updates);
         form.updatedAt = new Date();
         return [FieldUpdated.create({ fieldId: event.payload.fieldId })];
       }
     }
-    
+
     return [];
   },
 });
@@ -248,13 +285,13 @@ const reorderFieldsRule = defineRule<FormBuilderContext>({
   impl: (state, events) => {
     const event = events.find(REORDER_FIELDS.is);
     if (!event) return [];
-    
-    const form = state.context.forms.find(f => f.id === event.payload.formId);
+
+    const form = state.context.forms.find((f) => f.id === event.payload.formId);
     if (!form) return [];
-    
+
     // Create a map of field id to field
-    const fieldMap = new Map(form.fields.map(f => [f.id, f]));
-    
+    const fieldMap = new Map(form.fields.map((f) => [f.id, f]));
+
     // Reorder based on new order
     form.fields = event.payload.fieldOrder
       .map((id, index) => {
@@ -266,9 +303,9 @@ const reorderFieldsRule = defineRule<FormBuilderContext>({
         return null;
       })
       .filter((f): f is FormField => f !== null);
-    
+
     form.updatedAt = new Date();
-    
+
     return [];
   },
 });
@@ -279,13 +316,13 @@ const submitFormRule = defineRule<FormBuilderContext>({
   impl: (state, events) => {
     const event = events.find(SUBMIT_FORM.is);
     if (!event) return [];
-    
-    const form = state.context.forms.find(f => f.id === event.payload.formId);
+
+    const form = state.context.forms.find((f) => f.id === event.payload.formId);
     if (!form) return [];
-    
+
     // Validate required fields
     const errors: Array<{ fieldId: string; message: string }> = [];
-    
+
     for (const field of form.fields) {
       if (field.required) {
         const value = event.payload.data[field.id];
@@ -293,7 +330,7 @@ const submitFormRule = defineRule<FormBuilderContext>({
           errors.push({ fieldId: field.id, message: `${field.label} is required` });
         }
       }
-      
+
       // Type-specific validation
       if (field.type === 'email' && event.payload.data[field.id]) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -301,18 +338,18 @@ const submitFormRule = defineRule<FormBuilderContext>({
           errors.push({ fieldId: field.id, message: 'Invalid email address' });
         }
       }
-      
+
       if (field.type === 'number' && event.payload.data[field.id]) {
         if (isNaN(Number(event.payload.data[field.id]))) {
           errors.push({ fieldId: field.id, message: 'Must be a number' });
         }
       }
     }
-    
+
     if (errors.length > 0) {
       return [ValidationFailed.create({ formId: event.payload.formId, errors })];
     }
-    
+
     // Create submission
     const submissionId = `sub_${Date.now().toString(36)}`;
     const submission: FormSubmission = {
@@ -321,9 +358,9 @@ const submitFormRule = defineRule<FormBuilderContext>({
       data: event.payload.data,
       submittedAt: new Date(),
     };
-    
+
     state.context.submissions.push(submission);
-    
+
     return [FormSubmitted.create({ formId: event.payload.formId, submissionId })];
   },
 });
@@ -334,10 +371,10 @@ const selectFormRule = defineRule<FormBuilderContext>({
   impl: (state, events) => {
     const event = events.find(SELECT_FORM.is);
     if (!event) return [];
-    
+
     state.context.activeFormId = event.payload.formId;
     state.context.selectedFieldId = null;
-    
+
     return [];
   },
 });
@@ -348,9 +385,9 @@ const selectFieldRule = defineRule<FormBuilderContext>({
   impl: (state, events) => {
     const event = events.find(SELECT_FIELD.is);
     if (!event) return [];
-    
+
     state.context.selectedFieldId = event.payload.fieldId;
-    
+
     return [];
   },
 });
@@ -361,7 +398,7 @@ const uniqueFieldIdsConstraint = defineConstraint<FormBuilderContext>({
   description: 'All field IDs must be unique within a form',
   check: (state) => {
     for (const form of state.context.forms) {
-      const ids = form.fields.map(f => f.id);
+      const ids = form.fields.map((f) => f.id);
       if (ids.length !== new Set(ids).size) {
         return false;
       }
@@ -376,7 +413,7 @@ const maxFieldsConstraint = defineConstraint<FormBuilderContext>({
   id: 'form.maxFields',
   description: 'Form cannot have more than 50 fields',
   check: (state) => {
-    return state.context.forms.every(form => form.fields.length <= 50);
+    return state.context.forms.every((form) => form.fields.length <= 50);
   },
   errorMessage: 'Form cannot have more than 50 fields',
   severity: 'error',
@@ -413,13 +450,13 @@ export function createFormBuilderEngine() {
 // Helper functions
 export function getActiveForm(context: FormBuilderContext): Form | null {
   if (!context.activeFormId) return null;
-  return context.forms.find(f => f.id === context.activeFormId) || null;
+  return context.forms.find((f) => f.id === context.activeFormId) || null;
 }
 
 export function getSelectedField(context: FormBuilderContext): FormField | null {
   if (!context.selectedFieldId) return null;
   for (const form of context.forms) {
-    const field = form.fields.find(f => f.id === context.selectedFieldId);
+    const field = form.fields.find((f) => f.id === context.selectedFieldId);
     if (field) return field;
   }
   return null;
@@ -442,65 +479,77 @@ import {
 
 async function main() {
   console.log('🛠️  Form Builder Demo\n');
-  
+
   const engine = createFormBuilderEngine();
-  
+
   // Create a contact form
   console.log('Creating contact form...');
-  engine.dispatch([CREATE_FORM.create({ 
-    name: 'Contact Form', 
-    description: 'Get in touch with us' 
-  })]);
-  
+  engine.dispatch([
+    CREATE_FORM.create({
+      name: 'Contact Form',
+      description: 'Get in touch with us',
+    }),
+  ]);
+
   const form = getActiveForm(engine.getContext());
   if (!form) throw new Error('Form not created');
-  
+
   console.log(`✅ Created form: ${form.name}\n`);
-  
+
   // Add fields
   console.log('Adding fields...');
-  
-  engine.dispatch([ADD_FIELD.create({ 
-    formId: form.id, 
-    fieldType: 'text', 
-    label: 'Full Name', 
-    required: true 
-  })]);
-  
-  engine.dispatch([ADD_FIELD.create({ 
-    formId: form.id, 
-    fieldType: 'email', 
-    label: 'Email Address', 
-    required: true 
-  })]);
-  
-  engine.dispatch([ADD_FIELD.create({ 
-    formId: form.id, 
-    fieldType: 'select', 
-    label: 'Subject', 
-    required: true 
-  })]);
-  
-  engine.dispatch([ADD_FIELD.create({ 
-    formId: form.id, 
-    fieldType: 'textarea', 
-    label: 'Message', 
-    required: true 
-  })]);
-  
+
+  engine.dispatch([
+    ADD_FIELD.create({
+      formId: form.id,
+      fieldType: 'text',
+      label: 'Full Name',
+      required: true,
+    }),
+  ]);
+
+  engine.dispatch([
+    ADD_FIELD.create({
+      formId: form.id,
+      fieldType: 'email',
+      label: 'Email Address',
+      required: true,
+    }),
+  ]);
+
+  engine.dispatch([
+    ADD_FIELD.create({
+      formId: form.id,
+      fieldType: 'select',
+      label: 'Subject',
+      required: true,
+    }),
+  ]);
+
+  engine.dispatch([
+    ADD_FIELD.create({
+      formId: form.id,
+      fieldType: 'textarea',
+      label: 'Message',
+      required: true,
+    }),
+  ]);
+
   // Update the select field with options
   const updatedForm = getActiveForm(engine.getContext())!;
-  const subjectField = updatedForm.fields.find(f => f.label === 'Subject');
+  const subjectField = updatedForm.fields.find((f) => f.label === 'Subject');
   if (subjectField) {
-    engine.dispatch([UPDATE_FIELD.create({
-      fieldId: subjectField.id,
-      updates: {
-        options: ['General Inquiry', 'Support', 'Feedback', 'Other'],
-        placeholder: 'Select a subject',
-      },
-    })]);
+    engine.dispatch([
+      UPDATE_FIELD.create({
+        fieldId: subjectField.id,
+        updates: {
+          options: ['General Inquiry', 'Support', 'Feedback', 'Other'],
+          placeholder: 'Select a subject',
+        },
+      }),
+    ]);
   }
-  
+
   // Display form structure
   const finalForm = getActiveForm(engine.getContext())!;
   console.log('\n📋 Form Structure:');
@@ -509,7 +558,7 @@ async function main() {
   console.log(`Description: ${finalForm.description || 'N/A'}`);
   console.log(`Fields: ${finalForm.fields.length}`);
   console.log('');
-  
+
   finalForm.fields.forEach((field, i) => {
     const required = field.required ? '*' : '';
     console.log(`  ${i + 1}. [${field.type}] ${field.label}${required}`);
@@ -518,56 +567,60 @@ async function main() {
     }
   });
   console.log('─'.repeat(50));
-  
+
   // Test form submission - with validation error
   console.log('\n📝 Testing form submission (incomplete data)...');
-  const result1 = engine.step([SUBMIT_FORM.create({
-    formId: form.id,
-    data: {
-      [finalForm.fields[0].id]: 'John Doe',
-      // Missing email, subject, message
-    },
-  })]);
-  
-  const validationFailed = result1.state.facts.find(f => f.tag === 'ValidationFailed');
+  const result1 = engine.step([
+    SUBMIT_FORM.create({
+      formId: form.id,
+      data: {
+        [finalForm.fields[0].id]: 'John Doe',
+        // Missing email, subject, message
+      },
+    }),
+  ]);
+
+  const validationFailed = result1.state.facts.find((f) => f.tag === 'ValidationFailed');
   if (validationFailed) {
     console.log('❌ Validation failed:');
     (validationFailed.payload as any).errors.forEach((err: any) => {
       console.log(`   - ${err.message}`);
     });
   }
-  
+
   // Test form submission - successful
   console.log('\n📝 Testing form submission (complete data)...');
-  const result2 = engine.step([SUBMIT_FORM.create({
-    formId: form.id,
-    data: {
-      [finalForm.fields[0].id]: 'John Doe',
-      [finalForm.fields[1].id]: 'john@example.com',
-      [finalForm.fields[2].id]: 'Support',
-      [finalForm.fields[3].id]: 'I need help with my account.',
-    },
-  })]);
-  
-  const submitted = result2.state.facts.find(f => f.tag === 'FormSubmitted');
+  const result2 = engine.step([
+    SUBMIT_FORM.create({
+      formId: form.id,
+      data: {
+        [finalForm.fields[0].id]: 'John Doe',
+        [finalForm.fields[1].id]: 'john@example.com',
+        [finalForm.fields[2].id]: 'Support',
+        [finalForm.fields[3].id]: 'I need help with my account.',
+      },
+    }),
+  ]);
+
+  const submitted = result2.state.facts.find((f) => f.tag === 'FormSubmitted');
   if (submitted) {
     console.log('✅ Form submitted successfully!');
     console.log(`   Submission ID: ${(submitted.payload as any).submissionId}`);
   }
-  
+
   // Show submissions
   console.log('\n📊 Submissions:');
   const ctx = engine.getContext();
   ctx.submissions.forEach((sub, i) => {
     console.log(`  ${i + 1}. Submitted at ${sub.submittedAt.toLocaleString()}`);
   });
-  
+
   // Demonstrate undo
   console.log('\n⏪ Demonstrating undo...');
   console.log(`   Before undo: ${ctx.submissions.length} submissions`);
   engine.undo();
   console.log(`   After undo: ${engine.getContext().submissions.length} submissions`);
-  
+
   console.log('\n🎉 Done!');
 }
 
@@ -581,7 +634,7 @@ main().catch(console.error);
 When updating nested structures like fields within a form:
 
 ```typescript
-const form = state.context.forms.find(f => f.id === formId);
+const form = state.context.forms.find((f) => f.id === formId);
 if (form) {
   form.fields.push(newField);
   form.updatedAt = new Date();
@@ -604,8 +657,8 @@ return [FormSubmitted.create({ formId, submissionId })];
 Undo/redo works automatically with `enableHistory: true`:
 
 ```typescript
-engine.undo();  // Reverts to previous state
-engine.redo();  // Moves forward again
+engine.undo(); // Reverts to previous state
+engine.redo(); // Moves forward again
 ```
 
 ## Next Steps

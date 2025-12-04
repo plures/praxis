@@ -13,7 +13,6 @@
   export let edge: CanvasEdgeState;
   export let sourcePosition: PSFPosition;
   export let targetPosition: PSFPosition;
-  export let zoom: number = 1;
   export let readonly: boolean = false;
 
   const dispatch = createEventDispatcher<{

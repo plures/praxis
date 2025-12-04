@@ -1,6 +1,6 @@
 /**
  * PraxisDB Adapter
- * 
+ *
  * Provides a minimal adapter layer for PluresDB integration.
  * This module defines the core interface and an in-memory implementation.
  */
@@ -12,7 +12,7 @@ export type UnsubscribeFn = () => void;
 
 /**
  * Core database interface for Praxis
- * 
+ *
  * Provides a minimal API for get/set/watch operations.
  * Can be backed by in-memory storage or PluresDB.
  */
@@ -42,7 +42,7 @@ export interface PraxisDB {
 
 /**
  * In-memory implementation of PraxisDB
- * 
+ *
  * Provides a simple in-memory store for development and testing.
  * Suitable for proxying to PluresDB later.
  */
@@ -56,7 +56,7 @@ export class InMemoryPraxisDB implements PraxisDB {
 
   async set<T>(key: string, value: T): Promise<void> {
     this.store.set(key, value);
-    
+
     // Notify watchers
     const keyWatchers = this.watchers.get(key);
     if (keyWatchers) {
@@ -70,11 +70,11 @@ export class InMemoryPraxisDB implements PraxisDB {
     if (!this.watchers.has(key)) {
       this.watchers.set(key, new Set());
     }
-    
+
     const watchers = this.watchers.get(key)!;
     const wrappedCallback = (val: unknown) => callback(val as T);
     watchers.add(wrappedCallback);
-    
+
     // Return unsubscribe function
     return () => {
       watchers.delete(wrappedCallback);
@@ -102,9 +102,9 @@ export class InMemoryPraxisDB implements PraxisDB {
 
 /**
  * Create a new in-memory PraxisDB instance
- * 
+ *
  * @returns InMemoryPraxisDB instance
- * 
+ *
  * @example
  * ```typescript
  * const db = createInMemoryDB();

@@ -5,6 +5,7 @@ Welcome to Praxis, the full-stack application framework for the Plures ecosystem
 ## What is Praxis?
 
 Praxis is a **schema-driven framework** that unifies:
+
 - **Logic Engine**: Facts, events, rules, and constraints for business logic
 - **Component Generation**: Auto-generate UI from schemas
 - **Local-First Data**: PluresDB for reactive, offline-capable storage
@@ -28,6 +29,7 @@ npm install -g @plures/praxis
 ```
 
 Verify installation:
+
 ```bash
 praxis --version
 ```
@@ -43,6 +45,7 @@ npm install
 ```
 
 This creates a basic Praxis app with:
+
 - Schema setup
 - Logic engine configuration
 - Svelte UI scaffolding
@@ -76,7 +79,7 @@ export const appSchema: PraxisSchema = {
   version: '1.0.0',
   name: 'MyFirstApp',
   description: 'My first Praxis application',
-  
+
   // Define data models
   models: [
     {
@@ -88,12 +91,10 @@ export const appSchema: PraxisSchema = {
         { name: 'completed', type: 'boolean', default: false },
         { name: 'createdAt', type: 'date' },
       ],
-      indexes: [
-        { name: 'by_created', fields: ['createdAt'] },
-      ],
+      indexes: [{ name: 'by_created', fields: ['createdAt'] }],
     },
   ],
-  
+
   // Define UI components
   components: [
     {
@@ -109,7 +110,7 @@ export const appSchema: PraxisSchema = {
       description: 'List of all tasks',
     },
   ],
-  
+
   // Define business logic
   logic: [
     {
@@ -168,6 +169,7 @@ praxis generate --schema src/schemas/app.schema.ts
 ```
 
 This generates:
+
 - `src/components/TaskForm.svelte` - Form component
 - `src/components/TaskList.svelte` - List component
 - `src/logic/facts.ts` - Fact definitions
@@ -213,7 +215,7 @@ Edit `src/App.svelte`:
   import { engine } from './logic/engine';
   import TaskForm from './components/TaskForm.svelte';
   import TaskList from './components/TaskList.svelte';
-  
+
   const store = createPraxisStore(engine);
 </script>
 
@@ -245,6 +247,7 @@ Open http://localhost:5173 to see your app!
 ### Schemas
 
 Schemas are the single source of truth. They define:
+
 - **Models**: Data structures and relationships
 - **Components**: UI elements and their behavior
 - **Logic**: Facts, events, rules, and constraints
@@ -253,6 +256,7 @@ Schemas are the single source of truth. They define:
 ### Logic Engine
 
 The Praxis logic engine processes:
+
 - **Events**: Things that happen (user actions, external triggers)
 - **Facts**: Derived information about the domain
 - **Rules**: Pure functions that transform events into facts
@@ -261,6 +265,7 @@ The Praxis logic engine processes:
 ### Component Generation
 
 Components are generated from schemas but can be customized:
+
 - Generated components provide scaffolding
 - Extend with custom behavior and styling
 - Regenerate safely (customizations preserved in separate files)
@@ -268,6 +273,7 @@ Components are generated from schemas but can be customized:
 ### Local-First Data
 
 PluresDB provides:
+
 - Reactive data storage
 - Offline operation
 - Automatic sync when connected

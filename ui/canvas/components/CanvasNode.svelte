@@ -31,7 +31,6 @@
   let dragStartY = 0;
   let nodeStartX = 0;
   let nodeStartY = 0;
-  let nodeElement: HTMLDivElement;
 
   // Node type colors
   const typeColors: Record<CanvasNodeState['type'], { bg: string; border: string; text: string }> = {
@@ -147,7 +146,6 @@
 </script>
 
 <div
-  bind:this={nodeElement}
   class="canvas-node"
   class:selected={node.selected}
   class:dragging={isDragging}
@@ -164,7 +162,7 @@
   role="button"
   tabindex="0"
   aria-label="{node.type}: {node.label}"
-  aria-selected={node.selected}
+  aria-pressed={node.selected}
 >
   <div class="node-header">
     <span class="node-icon">{icon}</span>
@@ -176,8 +174,8 @@
   {/if}
   
   <!-- Connection ports -->
-  <div class="node-port port-input" aria-label="Input port" />
-  <div class="node-port port-output" aria-label="Output port" />
+  <div class="node-port port-input" aria-label="Input port"></div>
+  <div class="node-port port-output" aria-label="Output port"></div>
 </div>
 
 <style>
@@ -252,6 +250,7 @@
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
   }
 

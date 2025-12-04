@@ -39,10 +39,10 @@ export const clusterSchema: PraxisSchema = {
   version: '1.0.0',
   name: 'SelfOrchestrating',
   description: 'Self-orchestrating distributed system',
-  
+
   orchestration: {
     type: 'dsc',
-    
+
     nodes: [
       {
         id: 'primary',
@@ -70,13 +70,13 @@ export const clusterSchema: PraxisSchema = {
         },
       },
     ],
-    
+
     sync: {
       interval: 5000,
       conflictResolution: 'last-write-wins',
       targets: ['primary', 'replica-*'],
     },
-    
+
     health: {
       interval: 30000,
       endpoints: ['/health/live', '/health/ready'],
@@ -94,28 +94,28 @@ export const clusterSchema: PraxisSchema = {
 // orchestration/discovery.ts
 export class NodeDiscovery {
   private peers: Map<string, NodeInfo> = new Map();
-  
+
   async discover(): Promise<NodeInfo[]> {
     // Multicast discovery
     const discovered = await multicastDiscover({
       port: 8090,
       timeout: 5000,
     });
-    
+
     // Register discovered nodes
     for (const node of discovered) {
       if (!this.peers.has(node.id)) {
         await this.registerPeer(node);
       }
     }
-    
+
     return Array.from(this.peers.values());
   }
-  
+
   async registerPeer(node: NodeInfo): Promise<void> {
     this.peers.set(node.id, node);
     console.log(`Discovered node: ${node.id} (${node.role})`);
-    
+
     // Establish connection
     await this.connectToPeer(node);
   }
@@ -130,36 +130,36 @@ export class HealthMonitor {
   async checkHealth(nodeId: string): Promise<HealthStatus> {
     try {
       const response = await fetch(`http://${nodeId}/health/live`);
-      
+
       if (response.ok) {
         return { status: 'healthy', node: nodeId };
       }
-      
+
       return { status: 'unhealthy', node: nodeId };
     } catch (error) {
       return { status: 'unreachable', node: nodeId };
     }
   }
-  
+
   async handleUnhealthy(nodeId: string): Promise<void> {
     console.log(`Node ${nodeId} is unhealthy, initiating recovery...`);
-    
+
     // Attempt restart
     await this.restartNode(nodeId);
-    
+
     // Wait and check again
     await sleep(5000);
     const status = await this.checkHealth(nodeId);
-    
+
     if (status.status !== 'healthy') {
       // Restart failed, trigger failover
       await this.failover(nodeId);
     }
   }
-  
+
   async failover(failedNodeId: string): Promise<void> {
     console.log(`Failover initiated for ${failedNodeId}`);
-    
+
     if (failedNodeId === 'primary') {
       // Promote replica to primary
       const replica = this.findHealthyReplica();
@@ -181,13 +181,11 @@ export class HealthMonitor {
 export class StateCoordinator {
   async syncState(state: ClusterState): Promise<void> {
     const nodes = await this.discovery.getActiveNodes();
-    
+
     // Sync to all nodes in parallel
-    await Promise.all(
-      nodes.map(node => this.syncToNode(node, state))
-    );
+    await Promise.all(nodes.map((node) => this.syncToNode(node, state)));
   }
-  
+
   async syncToNode(node: NodeInfo, state: ClusterState): Promise<void> {
     try {
       await fetch(`http://${node.address}/sync`, {
@@ -201,15 +199,12 @@ export class StateCoordinator {
       this.syncQueue.add({ node, state, retries: 0 });
     }
   }
-  
-  async resolveConflict(
-    local: ClusterState,
-    remote: ClusterState
-  ): Promise<ClusterState> {
+
+  async resolveConflict(local: ClusterState, remote: ClusterState): Promise<ClusterState> {
     // Last-write-wins with vector clocks
     const localClock = local.vectorClock;
     const remoteClock = remote.vectorClock;
-    
+
     if (this.isNewer(remoteClock, localClock)) {
       return remote;
     } else if (this.isNewer(localClock, remoteClock)) {
@@ -229,51 +224,51 @@ export class StateCoordinator {
 export class AutoScaler {
   async checkScalingNeeds(): Promise<void> {
     const metrics = await this.collectMetrics();
-    
+
     // Check CPU across all nodes
     const avgCPU = metrics.reduce((sum, m) => sum + m.cpu, 0) / metrics.length;
-    
+
     if (avgCPU > 80 && this.canScaleUp()) {
       await this.scaleUp();
     } else if (avgCPU < 20 && this.canScaleDown()) {
       await this.scaleDown();
     }
   }
-  
+
   async scaleUp(): Promise<void> {
     console.log('Scaling up cluster...');
-    
+
     // Spawn new worker node
     const newNode = await this.spawnNode({
       type: 'worker',
       role: 'processor',
     });
-    
+
     // Wait for it to be healthy
     await this.waitForHealthy(newNode.id);
-    
+
     // Add to cluster
     await this.addToCluster(newNode);
-    
+
     console.log(`Scaled up: added node ${newNode.id}`);
   }
-  
+
   async scaleDown(): Promise<void> {
     console.log('Scaling down cluster...');
-    
+
     // Find least utilized worker
     const node = await this.findLeastUtilized('worker');
-    
+
     if (node) {
       // Drain connections
       await this.drain(node.id);
-      
+
       // Remove from cluster
       await this.removeFromCluster(node.id);
-      
+
       // Terminate node
       await this.terminateNode(node.id);
-      
+
       console.log(`Scaled down: removed node ${node.id}`);
     }
   }
@@ -358,6 +353,7 @@ npm run monitor
 Access the monitoring dashboard at http://localhost:3000
 
 Features:
+
 - Cluster topology visualization
 - Real-time metrics (CPU, memory, requests)
 - Health status for all nodes
@@ -369,6 +365,7 @@ Features:
 ### DSC Configuration
 
 Edit `orchestration/dsc.config.ts` to customize:
+
 - Health check intervals
 - Scaling thresholds
 - Sync strategies
@@ -377,6 +374,7 @@ Edit `orchestration/dsc.config.ts` to customize:
 ### Node Configuration
 
 Each node type can be configured:
+
 - Resource limits
 - Port numbers
 - Role-specific behavior
@@ -404,8 +402,8 @@ services:
     build: .
     command: npm run start:primary
     ports:
-      - "8080:8080"
-    
+      - '8080:8080'
+
   replica:
     build: .
     command: npm run start:replica
@@ -413,7 +411,7 @@ services:
       replicas: 2
     depends_on:
       - primary
-  
+
   worker:
     build: .
     command: npm run start:worker
@@ -426,6 +424,7 @@ services:
 ### Kubernetes
 
 See `k8s/` directory for Kubernetes manifests with:
+
 - StatefulSet for primary
 - Deployment for replicas
 - DaemonSet for workers
@@ -435,6 +434,7 @@ See `k8s/` directory for Kubernetes manifests with:
 ## Performance Metrics
 
 Monitor these metrics:
+
 - Node count and distribution
 - State sync latency
 - Health check success rate

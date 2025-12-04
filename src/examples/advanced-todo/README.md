@@ -5,6 +5,7 @@ A comprehensive example demonstrating Praxis's Svelte 5 integration with history
 ## Features
 
 ### Core Functionality
+
 - ✅ Add, complete, and remove todos
 - ✅ Filter by all, active, or completed
 - ✅ Complete all todos at once
@@ -12,6 +13,7 @@ A comprehensive example demonstrating Praxis's Svelte 5 integration with history
 - ✅ Real-time statistics
 
 ### Advanced Features
+
 - 🔄 **Undo/Redo**: Full history tracking with keyboard shortcuts
 - 🕰️ **Time-Travel Debugging**: Navigate through state snapshots
 - ⚡ **Svelte 5 Runes**: Modern reactive API
@@ -21,12 +23,14 @@ A comprehensive example demonstrating Praxis's Svelte 5 integration with history
 ## Architecture
 
 ### State Management
+
 - **Engine**: Praxis logic engine managing todo state
 - **Rules**: Pure functions handling events
 - **Facts**: Immutable history of what happened
 - **Context**: Current application state
 
 ### Svelte Integration
+
 - **usePraxisEngine**: Main composable with history support
 - **Reactive Derivations**: Computed values with `$:` syntax
 - **Event Dispatching**: Type-safe event handling
@@ -71,7 +75,7 @@ export function createTodoEngine() {
   const registry = new PraxisRegistry<TodoContext>();
   registry.registerRule(addTodoRule);
   // ... register more rules
-  
+
   return createPraxisEngine({
     initialContext: { todos: [], filter: 'all', nextId: 1 },
     registry,
@@ -127,6 +131,7 @@ node dist/examples/advanced-todo/index.js
 ```
 
 Output:
+
 ```
 === Advanced Todo Example ===
 
@@ -157,11 +162,13 @@ Output:
 To use the Svelte component in your app:
 
 1. Install dependencies:
+
 ```bash
 npm install @plures/praxis svelte@^5.0.0
 ```
 
 2. Import and use the component:
+
 ```svelte
 <script>
   import TodoApp from '@plures/praxis/examples/advanced-todo/App.svelte';
@@ -179,7 +186,7 @@ Or create your own component using the engine:
 
   const engine = createTodoEngine();
   const { context, dispatch } = usePraxisEngine(engine);
-  
+
   let text = '';
 </script>
 
@@ -226,9 +233,15 @@ const addTodoRule = defineRule({
     // - Testable
     const event = findEvent(events, AddTodo);
     if (!event) return [];
-    
-    state.context.todos.push({ /* ... */ });
-    return [TodoAdded.create({ /* ... */ })];
+
+    state.context.todos.push({
+      /* ... */
+    });
+    return [
+      TodoAdded.create({
+        /* ... */
+      }),
+    ];
   },
 });
 ```
@@ -240,8 +253,8 @@ const addTodoRule = defineRule({
 const facts = engine.getFacts();
 
 // Find specific facts
-const added = facts.filter(f => f.tag === 'TodoAdded');
-const toggled = facts.filter(f => f.tag === 'TodoToggled');
+const added = facts.filter((f) => f.tag === 'TodoAdded');
+const toggled = facts.filter((f) => f.tag === 'TodoToggled');
 
 // Facts enable:
 // - Audit trails
@@ -270,10 +283,10 @@ const { undo, redo, snapshots, goToSnapshot } = usePraxisEngine(engine, {
 });
 
 // Navigate history
-undo();                    // Go back
-redo();                    // Go forward
-goToSnapshot(5);           // Jump to specific snapshot
-console.log(snapshots);    // View all snapshots
+undo(); // Go back
+redo(); // Go forward
+goToSnapshot(5); // Jump to specific snapshot
+console.log(snapshots); // View all snapshots
 ```
 
 ## Testing
@@ -287,7 +300,7 @@ describe('Todo Engine', () => {
   it('should add todos', () => {
     const engine = createTodoEngine();
     engine.step([AddTodo.create({ text: 'Test todo' })]);
-    
+
     const context = engine.getContext();
     expect(context.todos.length).toBe(1);
     expect(context.todos[0].text).toBe('Test todo');
@@ -296,10 +309,10 @@ describe('Todo Engine', () => {
   it('should toggle todos', () => {
     const engine = createTodoEngine();
     engine.step([AddTodo.create({ text: 'Test' })]);
-    
+
     const context = engine.getContext();
     const todoId = context.todos[0].id;
-    
+
     engine.step([ToggleTodo.create({ id: todoId })]);
     expect(engine.getContext().todos[0].completed).toBe(true);
   });
@@ -309,55 +322,60 @@ describe('Todo Engine', () => {
 ## Performance Tips
 
 1. **Batch Events**: Dispatch multiple events at once
+
    ```typescript
-   dispatch([
-     AddTodo.create({ text: 'Todo 1' }),
-     AddTodo.create({ text: 'Todo 2' }),
-     AddTodo.create({ text: 'Todo 3' }),
-   ], 'Batch Add');
+   dispatch(
+     [
+       AddTodo.create({ text: 'Todo 1' }),
+       AddTodo.create({ text: 'Todo 2' }),
+       AddTodo.create({ text: 'Todo 3' }),
+     ],
+     'Batch Add'
+   );
    ```
 
 2. **Limit History**: Adjust history size based on needs
+
    ```typescript
    usePraxisEngine(engine, { maxHistorySize: 20 });
    ```
 
 3. **Selective Subscriptions**: Use derived stores for specific values
    ```typescript
-   const count = createDerivedStore(engine, ctx => ctx.todos.length);
+   const count = createDerivedStore(engine, (ctx) => ctx.todos.length);
    ```
 
 ## Comparison with Other Libraries
 
 ### vs. Redux + Redux Toolkit
 
-| Feature | Redux + RTK | Praxis |
-|---------|-------------|--------|
-| State Updates | Reducers | Rules |
-| Side Effects | Thunks/Sagas | Actors |
-| Time-Travel | DevTools | Built-in |
-| TypeScript | Good | Excellent |
-| Learning Curve | Medium | Low |
+| Feature        | Redux + RTK  | Praxis    |
+| -------------- | ------------ | --------- |
+| State Updates  | Reducers     | Rules     |
+| Side Effects   | Thunks/Sagas | Actors    |
+| Time-Travel    | DevTools     | Built-in  |
+| TypeScript     | Good         | Excellent |
+| Learning Curve | Medium       | Low       |
 
 ### vs. XState
 
-| Feature | XState | Praxis |
-|---------|--------|--------|
-| State Machines | Native | Engine-based |
+| Feature            | XState         | Praxis                |
+| ------------------ | -------------- | --------------------- |
+| State Machines     | Native         | Engine-based          |
 | Svelte Integration | @xstate/svelte | @plures/praxis/svelte |
-| History States | Built-in | Pattern-based |
-| Visual Tools | Stately | State-Docs (planned) |
-| Learning Curve | High | Medium |
+| History States     | Built-in       | Pattern-based         |
+| Visual Tools       | Stately        | State-Docs (planned)  |
+| Learning Curve     | High           | Medium                |
 
 ### vs. Svelte Stores
 
-| Feature | Svelte Stores | Praxis |
-|---------|---------------|--------|
-| Simplicity | Very High | High |
-| Structure | Manual | Built-in |
-| Time-Travel | Manual | Built-in |
-| Rules/Logic | Manual | Built-in |
-| TypeScript | Good | Excellent |
+| Feature     | Svelte Stores | Praxis    |
+| ----------- | ------------- | --------- |
+| Simplicity  | Very High     | High      |
+| Structure   | Manual        | Built-in  |
+| Time-Travel | Manual        | Built-in  |
+| Rules/Logic | Manual        | Built-in  |
+| TypeScript  | Good          | Excellent |
 
 ## Next Steps
 

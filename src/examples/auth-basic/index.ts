@@ -1,6 +1,6 @@
 /**
  * Auth Basic Example
- * 
+ *
  * Demonstrates basic authentication logic with login/logout using Praxis.
  * Shows how to define facts, events, rules, and constraints.
  */
@@ -14,7 +14,7 @@ import {
   defineConstraint,
   findEvent,
   filterFacts,
-} from "../../index.js";
+} from '../../index.js';
 
 // Define the context type
 interface AuthContext {
@@ -23,21 +23,21 @@ interface AuthContext {
 }
 
 // Define facts
-const UserLoggedIn = defineFact<"UserLoggedIn", { userId: string; timestamp: number }>(
-  "UserLoggedIn"
+const UserLoggedIn = defineFact<'UserLoggedIn', { userId: string; timestamp: number }>(
+  'UserLoggedIn'
 );
-const UserLoggedOut = defineFact<"UserLoggedOut", { userId: string; timestamp: number }>(
-  "UserLoggedOut"
+const UserLoggedOut = defineFact<'UserLoggedOut', { userId: string; timestamp: number }>(
+  'UserLoggedOut'
 );
 
 // Define events
-const Login = defineEvent<"LOGIN", { username: string; password: string }>("LOGIN");
-const Logout = defineEvent<"LOGOUT", {}>("LOGOUT");
+const Login = defineEvent<'LOGIN', { username: string; password: string }>('LOGIN');
+const Logout = defineEvent<'LOGOUT', {}>('LOGOUT');
 
 // Define rules
 const loginRule = defineRule<AuthContext>({
-  id: "auth.login",
-  description: "Process login event and create UserLoggedIn fact",
+  id: 'auth.login',
+  description: 'Process login event and create UserLoggedIn fact',
   impl: (_state, events) => {
     const loginEvent = findEvent(events, Login);
     if (!loginEvent) {
@@ -51,8 +51,8 @@ const loginRule = defineRule<AuthContext>({
 });
 
 const logoutRule = defineRule<AuthContext>({
-  id: "auth.logout",
-  description: "Process logout event and create UserLoggedOut fact",
+  id: 'auth.logout',
+  description: 'Process logout event and create UserLoggedOut fact',
   impl: (state, events) => {
     const logoutEvent = findEvent(events, Logout);
     if (!logoutEvent || !state.context.currentUser) {
@@ -69,8 +69,8 @@ const logoutRule = defineRule<AuthContext>({
 });
 
 const updateContextRule = defineRule<AuthContext>({
-  id: "auth.updateContext",
-  description: "Update context based on login/logout facts",
+  id: 'auth.updateContext',
+  description: 'Update context based on login/logout facts',
   impl: (state, _events) => {
     // This rule updates context based on facts (side effect on context)
     const loginFacts = filterFacts(state.facts, UserLoggedIn);
@@ -95,8 +95,8 @@ const updateContextRule = defineRule<AuthContext>({
 
 // Define constraints
 const singleSessionConstraint = defineConstraint<AuthContext>({
-  id: "auth.singleSession",
-  description: "Only one user can be logged in at a time",
+  id: 'auth.singleSession',
+  description: 'Only one user can be logged in at a time',
   impl: (state) => {
     const loginFacts = filterFacts(state.facts, UserLoggedIn);
     const logoutFacts = filterFacts(state.facts, UserLoggedOut);
@@ -127,31 +127,31 @@ function createAuthEngine() {
 
 // Example usage
 function runExample() {
-  console.log("=== Auth Basic Example ===\n");
+  console.log('=== Auth Basic Example ===\n');
 
   const engine = createAuthEngine();
 
   // Login
-  console.log("1. User logs in:");
-  let result = engine.step([Login.create({ username: "alice", password: "secret123" })]);
-  console.log("   Context:", engine.getContext());
-  console.log("   Facts:", result.state.facts);
-  console.log("   Diagnostics:", result.diagnostics);
+  console.log('1. User logs in:');
+  let result = engine.step([Login.create({ username: 'alice', password: 'secret123' })]);
+  console.log('   Context:', engine.getContext());
+  console.log('   Facts:', result.state.facts);
+  console.log('   Diagnostics:', result.diagnostics);
   console.log();
 
   // Try to login again (should violate constraint)
-  console.log("2. Another user tries to log in:");
-  result = engine.step([Login.create({ username: "bob", password: "secret456" })]);
-  console.log("   Context:", engine.getContext());
-  console.log("   Diagnostics:", result.diagnostics);
+  console.log('2. Another user tries to log in:');
+  result = engine.step([Login.create({ username: 'bob', password: 'secret456' })]);
+  console.log('   Context:', engine.getContext());
+  console.log('   Diagnostics:', result.diagnostics);
   console.log();
 
   // Logout
-  console.log("3. User logs out:");
+  console.log('3. User logs out:');
   result = engine.step([Logout.create({})]);
-  console.log("   Context:", engine.getContext());
-  console.log("   Facts (last 3):", result.state.facts.slice(-3));
-  console.log("   Diagnostics:", result.diagnostics);
+  console.log('   Context:', engine.getContext());
+  console.log('   Facts (last 3):', result.state.facts.slice(-3));
+  console.log('   Diagnostics:', result.diagnostics);
   console.log();
 }
 

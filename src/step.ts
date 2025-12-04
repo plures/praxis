@@ -11,7 +11,7 @@ import type { Registry } from './registry.js';
  */
 export interface StepOptions<
   S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
+  E extends PraxisEvent = PraxisEvent,
 > {
   /** Registry containing rules and constraints */
   registry?: Registry<S, E>;
@@ -27,7 +27,7 @@ export interface StepOptions<
  */
 export function createStepFunction<
   S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
+  E extends PraxisEvent = PraxisEvent,
 >(options: StepOptions<S, E> = {}): StepFunction<S, E> {
   const { registry, checkConstraints = true, reducer } = options;
 
@@ -38,9 +38,7 @@ export function createStepFunction<
     if (checkConstraints && registry) {
       const violations = registry.checkConstraints(state);
       if (violations.length > 0) {
-        errors.push(
-          ...violations.map((v) => `Pre-condition: ${v.message}`)
-        );
+        errors.push(...violations.map((v) => `Pre-condition: ${v.message}`));
         // Return current state with errors
         return { state, errors };
       }
@@ -78,9 +76,7 @@ export function createStepFunction<
     if (checkConstraints && registry) {
       const violations = registry.checkConstraints(newState);
       if (violations.length > 0) {
-        errors.push(
-          ...violations.map((v) => `Post-condition: ${v.message}`)
-        );
+        errors.push(...violations.map((v) => `Post-condition: ${v.message}`));
         // Return previous state with errors to maintain invariants
         return { state, errors };
       }
@@ -98,10 +94,9 @@ export function createStepFunction<
  * Simple step function that just applies a reducer.
  * Useful for basic state transitions without rules or constraints.
  */
-export function step<
-  S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
->(reducer: (state: S, event: E) => S): StepFunction<S, E> {
+export function step<S extends PraxisState = PraxisState, E extends PraxisEvent = PraxisEvent>(
+  reducer: (state: S, event: E) => S
+): StepFunction<S, E> {
   return (state: S, event: E): StepResult<S> => {
     try {
       const newState = reducer(state, event);
@@ -120,10 +115,9 @@ export function step<
  * Each step function is applied in sequence, with the output of one
  * becoming the input to the next.
  */
-export function compose<
-  S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
->(...steps: StepFunction<S, E>[]): StepFunction<S, E> {
+export function compose<S extends PraxisState = PraxisState, E extends PraxisEvent = PraxisEvent>(
+  ...steps: StepFunction<S, E>[]
+): StepFunction<S, E> {
   return (state: S, event: E): StepResult<S> => {
     let currentState = state;
     const allEffects: StepResult<S>['effects'] = [];

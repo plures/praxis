@@ -155,9 +155,19 @@
       "fields": [
         { "name": "id", "type": "uuid", "description": "Unique product identifier" },
         { "name": "name", "type": "string", "description": "Product name" },
-        { "name": "description", "type": "string", "optional": true, "description": "Product description" },
+        {
+          "name": "description",
+          "type": "string",
+          "optional": true,
+          "description": "Product description"
+        },
         { "name": "price", "type": "number", "description": "Product price in cents" },
-        { "name": "imageUrl", "type": "string", "optional": true, "description": "Product image URL" },
+        {
+          "name": "imageUrl",
+          "type": "string",
+          "optional": true,
+          "description": "Product image URL"
+        },
         { "name": "category", "type": "string", "description": "Product category" },
         { "name": "inStock", "type": "boolean", "description": "Whether product is in stock" }
       ],
@@ -190,9 +200,17 @@
       "description": "A completed order",
       "fields": [
         { "name": "id", "type": "uuid", "description": "Order identifier" },
-        { "name": "items", "type": { "array": { "reference": "CartItem" } }, "description": "Order items" },
+        {
+          "name": "items",
+          "type": { "array": { "reference": "CartItem" } },
+          "description": "Order items"
+        },
         { "name": "total", "type": "number", "description": "Order total" },
-        { "name": "status", "type": { "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] }, "description": "Order status" },
+        {
+          "name": "status",
+          "type": { "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] },
+          "description": "Order status"
+        },
         { "name": "createdAt", "type": "datetime", "description": "Order creation time" }
       ]
     }
@@ -205,11 +223,26 @@
       "description": "Displays a single product",
       "model": "Product",
       "props": [
-        { "name": "product", "type": "Product", "required": true, "description": "The product to display" },
-        { "name": "showAddToCart", "type": "boolean", "required": false, "default": true, "description": "Show add to cart button" }
+        {
+          "name": "product",
+          "type": "Product",
+          "required": true,
+          "description": "The product to display"
+        },
+        {
+          "name": "showAddToCart",
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Show add to cart button"
+        }
       ],
       "events": [
-        { "name": "addToCart", "payload": "{ productId: string; quantity: number }", "description": "Fired when add to cart is clicked" }
+        {
+          "name": "addToCart",
+          "payload": "{ productId: string; quantity: number }",
+          "description": "Fired when add to cart is clicked"
+        }
       ]
     },
     {
@@ -219,11 +252,25 @@
       "description": "Displays a list of products",
       "model": "Product",
       "props": [
-        { "name": "products", "type": "Product[]", "required": true, "description": "Products to display" },
-        { "name": "category", "type": "string", "required": false, "description": "Filter by category" }
+        {
+          "name": "products",
+          "type": "Product[]",
+          "required": true,
+          "description": "Products to display"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "required": false,
+          "description": "Filter by category"
+        }
       ],
       "events": [
-        { "name": "productSelected", "payload": "Product", "description": "Fired when a product is selected" }
+        {
+          "name": "productSelected",
+          "payload": "Product",
+          "description": "Fired when a product is selected"
+        }
       ]
     },
     {
@@ -237,8 +284,16 @@
       ],
       "events": [
         { "name": "checkout", "description": "Fired when checkout is initiated" },
-        { "name": "removeItem", "payload": "{ productId: string }", "description": "Fired when item is removed" },
-        { "name": "updateQuantity", "payload": "{ productId: string; quantity: number }", "description": "Fired when quantity is updated" }
+        {
+          "name": "removeItem",
+          "payload": "{ productId: string }",
+          "description": "Fired when item is removed"
+        },
+        {
+          "name": "updateQuantity",
+          "payload": "{ productId: string; quantity: number }",
+          "description": "Fired when quantity is updated"
+        }
       ]
     },
     {
@@ -250,7 +305,11 @@
         { "name": "total", "type": "number", "required": true, "description": "Order total" }
       ],
       "events": [
-        { "name": "submit", "payload": "CheckoutData", "description": "Fired when form is submitted" }
+        {
+          "name": "submit",
+          "payload": "CheckoutData",
+          "description": "Fired when form is submitted"
+        }
       ]
     }
   ],

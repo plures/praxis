@@ -1,6 +1,6 @@
 /**
  * Praxis Schema Loader
- * 
+ *
  * Loads and validates Praxis schema files.
  */
 
@@ -40,20 +40,20 @@ export async function loadSchema(
   options: LoaderOptions = {}
 ): Promise<LoaderResult> {
   const errors: string[] = [];
-  
+
   try {
     // Only .js files are supported. TypeScript schema files must be compiled to .js first.
     // Use a compiled JavaScript file for your schema.
     // Dynamic import is used, which works with .js files only.
-    
+
     // Convert to absolute URL for ES module import
     let fileUrl = pathToFileURL(filePath).href;
-    
+
     // Attempt to import .ts or .js files directly. If import fails, error will be caught below.
-    
+
     // Dynamic import of the schema file
     const module = await import(fileUrl);
-    
+
     // Look for common schema export names
     let schema: PraxisSchema | undefined;
     if (module.default) {
@@ -67,23 +67,20 @@ export async function loadSchema(
       const exports = Object.values(module);
       const possibleSchema = exports.find(
         (exp): exp is PraxisSchema =>
-          typeof exp === 'object' &&
-          exp !== null &&
-          'version' in exp &&
-          'name' in exp
+          typeof exp === 'object' && exp !== null && 'version' in exp && 'name' in exp
       );
       if (possibleSchema) {
         schema = possibleSchema;
       }
     }
-    
+
     if (!schema) {
       errors.push(
         'Schema file must export a PraxisSchema object (as default, schema, or appSchema)'
       );
       return { errors };
     }
-    
+
     // Validate if requested
     let validation: ValidationResult | undefined;
     if (options.validate !== false) {
@@ -95,7 +92,7 @@ export async function loadSchema(
         });
       }
     }
-    
+
     return {
       schema,
       validation,
@@ -114,15 +111,12 @@ export async function loadSchema(
 /**
  * Load schema from JSON string
  */
-export function loadSchemaFromJson(
-  json: string,
-  options: LoaderOptions = {}
-): LoaderResult {
+export function loadSchemaFromJson(json: string, options: LoaderOptions = {}): LoaderResult {
   const errors: string[] = [];
-  
+
   try {
     const schema = JSON.parse(json) as PraxisSchema;
-    
+
     // Validate if requested
     let validation: ValidationResult | undefined;
     if (options.validate !== false) {
@@ -134,7 +128,7 @@ export function loadSchemaFromJson(
         });
       }
     }
-    
+
     return {
       schema,
       validation,
@@ -153,15 +147,12 @@ export function loadSchemaFromJson(
 /**
  * Load schema from YAML string
  */
-export function loadSchemaFromYaml(
-  yaml: string,
-  options: LoaderOptions = {}
-): LoaderResult {
+export function loadSchemaFromYaml(yaml: string, options: LoaderOptions = {}): LoaderResult {
   const errors: string[] = [];
-  
+
   try {
     const schema = yamlLoad(yaml) as PraxisSchema;
-    
+
     // Validate if requested
     let validation: ValidationResult | undefined;
     if (options.validate !== false) {
@@ -173,7 +164,7 @@ export function loadSchemaFromYaml(
         });
       }
     }
-    
+
     return {
       schema,
       validation,
@@ -212,34 +203,28 @@ export async function loadSchemaFromFile(
  */
 export function validateForGeneration(schema: PraxisSchema): ValidationResult {
   const errors: string[] = [];
-  
+
   // Check for entities/models
   if (!schema.models || schema.models.length === 0) {
     errors.push('Schema must define at least one model for generation');
   }
-  
+
   // Check that models have valid fields
   schema.models?.forEach((model, index) => {
     if (!model.fields || model.fields.length === 0) {
-      errors.push(
-        `Model "${model.name}" at index ${index} must have at least one field`
-      );
+      errors.push(`Model "${model.name}" at index ${index} must have at least one field`);
     }
-    
+
     model.fields?.forEach((field, fieldIndex) => {
       if (!field.name) {
-        errors.push(
-          `Field at index ${fieldIndex} in model "${model.name}" must have a name`
-        );
+        errors.push(`Field at index ${fieldIndex} in model "${model.name}" must have a name`);
       }
       if (!field.type) {
-        errors.push(
-          `Field "${field.name}" in model "${model.name}" must have a type`
-        );
+        errors.push(`Field "${field.name}" in model "${model.name}" must have a type`);
       }
     });
   });
-  
+
   return {
     valid: errors.length === 0,
     errors: errors.map((message) => ({ path: 'schema', message })),

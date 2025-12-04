@@ -5,6 +5,7 @@ This example demonstrates how to use the `TerminalNode` Svelte component with th
 ## Overview
 
 This example shows:
+
 - Creating multiple terminal adapters
 - Rendering terminal nodes on a canvas
 - Drag and drop positioning
@@ -170,6 +171,7 @@ npm run build
 ## Integration with RuneBook
 
 This example lays the foundation for RuneBook's reactive canvas where terminal nodes will:
+
 - Execute real commands via RuneBook execution engine
 - Sync state with PluresDB
 - Connect to other nodes (InputNode, DisplayNode, AgentNode)

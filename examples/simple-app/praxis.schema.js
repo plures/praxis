@@ -1,6 +1,6 @@
 /**
  * Simple Todo App Schema
- * 
+ *
  * Demonstrates the Praxis Golden Path:
  * Schema -> Logic -> Components -> Runtime
  */
@@ -9,7 +9,7 @@ export const schema = {
   version: '1.0.0',
   name: 'TodoApp',
   description: 'A simple todo application built with Praxis',
-  
+
   models: [
     {
       name: 'Todo',
@@ -21,12 +21,10 @@ export const schema = {
         { name: 'completed', type: 'boolean' },
         { name: 'createdAt', type: 'date' },
       ],
-      indexes: [
-        { name: 'completed_idx', fields: ['completed'] },
-      ],
+      indexes: [{ name: 'completed_idx', fields: ['completed'] }],
     },
   ],
-  
+
   components: [
     {
       name: 'TodoForm',
@@ -47,12 +45,12 @@ export const schema = {
       model: 'Todo',
     },
   ],
-  
+
   logic: [
     {
       id: 'todo-logic',
       description: 'Todo management logic',
-      
+
       events: [
         {
           tag: 'CREATE_TODO',
@@ -70,7 +68,7 @@ export const schema = {
           description: 'Delete a todo item',
         },
       ],
-      
+
       facts: [
         {
           tag: 'TodoCreated',
@@ -88,7 +86,7 @@ export const schema = {
           description: 'A todo was deleted',
         },
       ],
-      
+
       rules: [
         {
           id: 'todo.create',
@@ -109,7 +107,7 @@ export const schema = {
           priority: 5,
         },
       ],
-      
+
       constraints: [
         {
           id: 'todo.title-required',

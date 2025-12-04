@@ -12,11 +12,14 @@ const PORT = 3000;
 const WS_PORT = 3001;
 
 const PROJECT_ROOT = process.cwd();
-const CANVAS_JSON_PATH = process.env.PRAXIS_CANVAS_PATH || path.join(PROJECT_ROOT, 'praxis.canvas.json');
+const CANVAS_JSON_PATH =
+  process.env.PRAXIS_CANVAS_PATH || path.join(PROJECT_ROOT, 'praxis.canvas.json');
 const HTML_TEMPLATE_PATH = path.join(__dirname, '../template/index.html');
 
 // Default to a standard structure, or use env var
-const RULES_DIR = process.env.PRAXIS_RULES_DIR ? path.resolve(process.env.PRAXIS_RULES_DIR) : path.join(PROJECT_ROOT, 'src/rules');
+const RULES_DIR = process.env.PRAXIS_RULES_DIR
+  ? path.resolve(process.env.PRAXIS_RULES_DIR)
+  : path.join(PROJECT_ROOT, 'src/rules');
 const SCAFFOLD_DIR = path.join(RULES_DIR, 'scaffolded');
 const INDEX_FILE = path.join(RULES_DIR, 'index.ts');
 
@@ -31,13 +34,13 @@ function broadcastAnalysis() {
   try {
     const { missingHandlers, emptyHandlers } = verifyImplementation();
     const events = [
-      ...missingHandlers.map(h => ({ type: h, status: 'unhandled' })),
-      ...emptyHandlers.map(h => ({ type: h, status: 'empty' }))
+      ...missingHandlers.map((h) => ({ type: h, status: 'unhandled' })),
+      ...emptyHandlers.map((h) => ({ type: h, status: 'empty' })),
     ];
-    
+
     const msg = JSON.stringify({
       type: 'LOGIC_INSPECTION',
-      events
+      events,
     });
 
     wss.clients.forEach((client: WebSocket) => {
@@ -52,7 +55,7 @@ function broadcastAnalysis() {
 
 wss.on('connection', (ws: WebSocket) => {
   console.log('Client connected');
-  
+
   // Send initial analysis
   setTimeout(broadcastAnalysis, 1000);
 
@@ -88,9 +91,9 @@ async function startServer() {
       try {
         let canvasData: any = { nodes: [], edges: [] };
         if (fs.existsSync(CANVAS_JSON_PATH)) {
-            canvasData = JSON.parse(fs.readFileSync(CANVAS_JSON_PATH, 'utf-8'));
+          canvasData = JSON.parse(fs.readFileSync(CANVAS_JSON_PATH, 'utf-8'));
         }
-        
+
         let html = fs.readFileSync(HTML_TEMPLATE_PATH, 'utf-8');
 
         // Transform Praxis Canvas format to Cytoscape format
@@ -160,7 +163,7 @@ async function startServer() {
         try {
           const positions = JSON.parse(body);
           if (!fs.existsSync(CANVAS_JSON_PATH)) {
-             throw new Error('Canvas file not found');
+            throw new Error('Canvas file not found');
           }
           const canvasData = JSON.parse(fs.readFileSync(CANVAS_JSON_PATH, 'utf-8'));
 
@@ -186,9 +189,9 @@ async function startServer() {
       req.on('end', async () => {
         try {
           if (!fs.existsSync(SCAFFOLD_DIR)) {
-             fs.mkdirSync(SCAFFOLD_DIR, { recursive: true });
+            fs.mkdirSync(SCAFFOLD_DIR, { recursive: true });
           }
-          
+
           const { id, description, triggers } = JSON.parse(body);
           const safeName = id.replace(/\./g, '_');
           const fileName = `${safeName}.ts`;
@@ -221,7 +224,7 @@ export const ${safeName} = defineRule<ApplicationEngineContext>({
             let indexContent = fs.readFileSync(INDEX_FILE, 'utf-8');
             const exportLine = `export * from './scaffolded/${safeName}.js';`;
             if (!indexContent.includes(exportLine)) {
-                fs.appendFileSync(INDEX_FILE, `\n${exportLine}`);
+              fs.appendFileSync(INDEX_FILE, `\n${exportLine}`);
             }
           }
 

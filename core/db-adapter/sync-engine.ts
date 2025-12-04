@@ -1,9 +1,9 @@
 /**
  * PSF Schema Sync Engine
- * 
+ *
  * Provides real-time bidirectional synchronization between
  * Code ↔ PSF Schema ↔ Canvas using PluresDB as the sync backend.
- * 
+ *
  * The sync engine ensures that:
  * 1. Schema changes propagate to all connected clients in real-time
  * 2. Conflicts are resolved using CRDT-style last-write-wins with metadata
@@ -63,7 +63,7 @@ export interface SyncStatus {
 
 /**
  * Schema Sync Engine
- * 
+ *
  * Manages real-time synchronization of PSF schemas.
  */
 export class SchemaSyncEngine {
@@ -292,7 +292,15 @@ export class SchemaSyncEngine {
     const changes: SchemaChangeEvent[] = [];
     const now = Date.now();
 
-    const keys: (keyof PSFSchema)[] = ['facts', 'events', 'rules', 'constraints', 'models', 'components', 'flows'];
+    const keys: (keyof PSFSchema)[] = [
+      'facts',
+      'events',
+      'rules',
+      'constraints',
+      'models',
+      'components',
+      'flows',
+    ];
 
     for (const key of keys) {
       const oldArray = oldSchema[key] as unknown[];
@@ -354,7 +362,7 @@ export function createSchemaSyncEngine(options: SchemaSyncOptions): SchemaSyncEn
 
 /**
  * Schema store for PluresDB
- * 
+ *
  * Provides a higher-level API for storing and managing PSF schemas.
  */
 export class PSFSchemaStore {
@@ -414,7 +422,10 @@ export class PSFSchemaStore {
   /**
    * Get or create a sync engine for a schema
    */
-  async getSyncEngine(schemaId: string, options?: Partial<SchemaSyncOptions>): Promise<SchemaSyncEngine> {
+  async getSyncEngine(
+    schemaId: string,
+    options?: Partial<SchemaSyncOptions>
+  ): Promise<SchemaSyncEngine> {
     if (this.syncEngines.has(schemaId)) {
       return this.syncEngines.get(schemaId)!;
     }

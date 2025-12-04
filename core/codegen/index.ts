@@ -1,6 +1,6 @@
 /**
  * Praxis Code Generation
- * 
+ *
  * Centralized code generation from PSF schemas.
  * Generates TypeScript, Svelte components, and documentation.
  */

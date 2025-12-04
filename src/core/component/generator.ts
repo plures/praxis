@@ -1,6 +1,6 @@
 /**
  * Praxis Component Generator
- * 
+ *
  * Generates Svelte components from schema definitions.
  */
 
@@ -71,10 +71,7 @@ export class ComponentGenerator {
   /**
    * Generate component from definition
    */
-  generateComponent(
-    component: ComponentDefinition,
-    model?: ModelDefinition
-  ): GenerationResult {
+  generateComponent(component: ComponentDefinition, model?: ModelDefinition): GenerationResult {
     const files: GeneratedFile[] = [];
     const errors: GenerationError[] = [];
 
@@ -135,10 +132,7 @@ export class ComponentGenerator {
   /**
    * Generate Svelte component code
    */
-  private generateSvelteComponent(
-    component: ComponentDefinition,
-    model?: ModelDefinition
-  ): string {
+  private generateSvelteComponent(component: ComponentDefinition, model?: ModelDefinition): string {
     const script = this.generateScript(component, model);
     const template = this.generateTemplate(component, model);
     const styles = this.generateStyles(component);
@@ -157,7 +151,7 @@ ${styles ? `<style>\n${styles}\n</style>` : ''}`;
    */
   private generateScript(
     component: ComponentDefinition,
-    _model?: ModelDefinition  // Prefix with _ to indicate intentionally unused
+    _model?: ModelDefinition // Prefix with _ to indicate intentionally unused
   ): string {
     const lines: string[] = [];
 
@@ -169,11 +163,8 @@ ${styles ? `<style>\n${styles}\n</style>` : ''}`;
     if (component.props && component.props.length > 0) {
       component.props.forEach((prop) => {
         const typeAnnotation = this.config.typescript ? `: ${prop.type}` : '';
-        const defaultValue =
-          prop.default !== undefined ? ` = ${JSON.stringify(prop.default)}` : '';
-        lines.push(
-          `  export let ${prop.name}${typeAnnotation}${defaultValue};`
-        );
+        const defaultValue = prop.default !== undefined ? ` = ${JSON.stringify(prop.default)}` : '';
+        lines.push(`  export let ${prop.name}${typeAnnotation}${defaultValue};`);
       });
       lines.push('');
     }
@@ -230,10 +221,7 @@ ${styles ? `<style>\n${styles}\n</style>` : ''}`;
   /**
    * Generate component template
    */
-  private generateTemplate(
-    component: ComponentDefinition,
-    model?: ModelDefinition
-  ): string {
+  private generateTemplate(component: ComponentDefinition, model?: ModelDefinition): string {
     switch (component.type) {
       case 'form':
         return this.generateFormTemplate(component, model);
@@ -251,10 +239,7 @@ ${styles ? `<style>\n${styles}\n</style>` : ''}`;
   /**
    * Generate form template
    */
-  private generateFormTemplate(
-    component: ComponentDefinition,
-    model?: ModelDefinition
-  ): string {
+  private generateFormTemplate(component: ComponentDefinition, model?: ModelDefinition): string {
     const fields = model?.fields || [];
     const formFields = fields
       .map((field) => {
@@ -268,10 +253,7 @@ ${styles ? `<style>\n${styles}\n</style>` : ''}`;
   /**
    * Generate display template
    */
-  private generateDisplayTemplate(
-    component: ComponentDefinition,
-    model?: ModelDefinition
-  ): string {
+  private generateDisplayTemplate(component: ComponentDefinition, model?: ModelDefinition): string {
     const fields = model?.fields || [];
     const displayFields = fields
       .map((field) => {
@@ -287,7 +269,7 @@ ${styles ? `<style>\n${styles}\n</style>` : ''}`;
    */
   private generateListTemplate(
     component: ComponentDefinition,
-    _model?: ModelDefinition  // Prefix with _ to indicate intentionally unused
+    _model?: ModelDefinition // Prefix with _ to indicate intentionally unused
   ): string {
     return `<div class="${component.name.toLowerCase()}">\n  {#each items as item}\n    <div class="item">{item.name}</div>\n  {/each}\n</div>`;
   }

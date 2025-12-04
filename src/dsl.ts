@@ -9,26 +9,23 @@ import type { PraxisState, PraxisEvent, Effect } from './types.js';
 /**
  * A condition function that checks if a rule should fire.
  */
-export type Condition<
-  S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
-> = (state: S, event: E) => boolean;
+export type Condition<S extends PraxisState = PraxisState, E extends PraxisEvent = PraxisEvent> = (
+  state: S,
+  event: E
+) => boolean;
 
 /**
  * An action function that produces effects when a rule fires.
  */
-export type Action<
-  S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
-> = (state: S, event: E) => Effect[];
+export type Action<S extends PraxisState = PraxisState, E extends PraxisEvent = PraxisEvent> = (
+  state: S,
+  event: E
+) => Effect[];
 
 /**
  * A rule that fires when its condition is met.
  */
-export interface Rule<
-  S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
-> {
+export interface Rule<S extends PraxisState = PraxisState, E extends PraxisEvent = PraxisEvent> {
   /** Unique identifier for the rule */
   id: string;
   /** Human-readable description of what the rule does */
@@ -69,10 +66,7 @@ export interface ConstraintViolation {
 /**
  * DSL builder for creating rules with a fluent interface.
  */
-export class RuleBuilder<
-  S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
-> {
+export class RuleBuilder<S extends PraxisState = PraxisState, E extends PraxisEvent = PraxisEvent> {
   private rule: Partial<Rule<S, E>> = {};
 
   /**
@@ -201,7 +195,7 @@ export class ConstraintBuilder<S extends PraxisState = PraxisState> {
  */
 export function rule<
   S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
+  E extends PraxisEvent = PraxisEvent,
 >(): RuleBuilder<S, E> {
   return new RuleBuilder<S, E>();
 }

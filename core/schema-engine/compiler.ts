@@ -1,6 +1,6 @@
 /**
  * PSF Compiler
- * 
+ *
  * Compiles TypeScript DSL definitions to PSF format.
  * This enables code → schema synchronization.
  */
@@ -24,13 +24,49 @@ import { PSF_VERSION, generatePSFId } from './psf.js';
  * Reserved JavaScript keywords (O(1) lookup)
  */
 const RESERVED_KEYWORDS = new Set([
-  'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger',
-  'default', 'delete', 'do', 'else', 'export', 'extends', 'finally',
-  'for', 'function', 'if', 'import', 'in', 'instanceof', 'new',
-  'return', 'super', 'switch', 'this', 'throw', 'try', 'typeof',
-  'var', 'void', 'while', 'with', 'yield', 'let', 'static',
-  'enum', 'await', 'implements', 'interface', 'package', 'private',
-  'protected', 'public',
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'export',
+  'extends',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'import',
+  'in',
+  'instanceof',
+  'new',
+  'return',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with',
+  'yield',
+  'let',
+  'static',
+  'enum',
+  'await',
+  'implements',
+  'interface',
+  'package',
+  'private',
+  'protected',
+  'public',
 ]);
 
 /**
@@ -183,7 +219,10 @@ export class PSFCompiler {
         warnings: this.warnings,
       };
     } catch (error) {
-      this.addError('compilation-failed', error instanceof Error ? error.message : 'Unknown compilation error');
+      this.addError(
+        'compilation-failed',
+        error instanceof Error ? error.message : 'Unknown compilation error'
+      );
       return {
         success: false,
         errors: this.errors,
@@ -364,13 +403,16 @@ export class PSFCompiler {
 
     // Handle enum types
     if (typeStr.startsWith('enum:')) {
-      const values = typeStr.slice(5).split('|').map((v) => v.trim());
+      const values = typeStr
+        .slice(5)
+        .split('|')
+        .map((v) => v.trim());
       return { enum: values };
     }
 
     // Handle basic types
     const basicTypes = ['string', 'number', 'boolean', 'date', 'datetime', 'uuid'] as const;
-    if (basicTypes.includes(typeStr as typeof basicTypes[number])) {
+    if (basicTypes.includes(typeStr as (typeof basicTypes)[number])) {
       return typeStr as PSFFieldType;
     }
 

@@ -92,12 +92,8 @@ describe('Documentation Generator', () => {
         name: 'UserForm',
         type: 'form',
         description: 'Form for creating users',
-        props: [
-          { name: 'title', type: 'string', required: true, description: 'Form title' },
-        ],
-        events: [
-          { name: 'submit', payload: 'User', description: 'Form submitted' },
-        ],
+        props: [{ name: 'title', type: 'string', required: true, description: 'Form title' }],
+        events: [{ name: 'submit', payload: 'User', description: 'Form submitted' }],
       },
     ];
 
@@ -118,9 +114,7 @@ describe('Documentation Generator', () => {
         id: 'model_1',
         name: 'User',
         fields: [{ name: 'id', type: 'string' }],
-        relationships: [
-          { name: 'posts', type: 'one-to-many', target: 'Post' },
-        ],
+        relationships: [{ name: 'posts', type: 'one-to-many', target: 'Post' }],
       },
       {
         id: 'model_2',

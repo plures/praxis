@@ -142,7 +142,11 @@
       "description": "Input for creating new todos",
       "props": [],
       "events": [
-        { "name": "create", "payload": "{ title: string }", "description": "Fired when a new todo is created" }
+        {
+          "name": "create",
+          "payload": "{ title: string }",
+          "description": "Fired when a new todo is created"
+        }
       ]
     },
     {
@@ -167,7 +171,12 @@
       "model": "Todo",
       "props": [
         { "name": "todos", "type": "Todo[]", "required": true, "description": "List of todos" },
-        { "name": "filter", "type": "string", "required": false, "description": "Filter: all, active, completed" }
+        {
+          "name": "filter",
+          "type": "string",
+          "required": false,
+          "description": "Filter: all, active, completed"
+        }
       ],
       "events": []
     }

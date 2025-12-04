@@ -1,14 +1,10 @@
 /**
  * Terminal Node Example
- * 
+ *
  * Demonstrates the usage of TerminalNode in Praxis
  */
 
-import {
-  createTerminalAdapter,
-  runTerminalCommand,
-  loadSchemaFromFile,
-} from '../../dist/index.js';
+import { createTerminalAdapter, runTerminalCommand, loadSchemaFromFile } from '../../dist/index.js';
 
 async function main() {
   console.log('=== Praxis Terminal Node Example ===\n');
@@ -61,14 +57,14 @@ async function main() {
   console.log('\n6. Loading terminal schema from YAML...');
   const schemaPath = new URL('./terminal-schema.yaml', import.meta.url).pathname;
   const schemaResult = await loadSchemaFromFile(schemaPath);
-  
+
   if (schemaResult.schema) {
     console.log(`Schema loaded: ${schemaResult.schema.name}`);
     console.log(`Description: ${schemaResult.schema.description}`);
-    
+
     const nodes = schemaResult.schema.orchestration?.nodes || [];
     console.log(`\nTerminal nodes defined: ${nodes.length}`);
-    
+
     nodes.forEach((node, index) => {
       console.log(`\nNode ${index + 1}:`);
       console.log(`  ID: ${node.id}`);

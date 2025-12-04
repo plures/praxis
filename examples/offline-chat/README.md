@@ -16,16 +16,19 @@ This demo showcases the local-first architecture capabilities of the Praxis fram
 ## Key Implementation Points
 
 ### Offline Message Storage
+
 - Messages stored locally in PluresDB
 - Automatic queueing when offline
 - Status tracking (pending, sent, delivered, read)
 
 ### Automatic Sync
+
 - Network detection
 - Batch sync on reconnection
 - Conflict resolution with last-write-wins
 
 ### Real-Time Features
+
 - Typing indicators
 - Read receipts
 - Online/offline status

@@ -1,18 +1,18 @@
 /**
  * DSL Helpers
- * 
+ *
  * Ergonomic TypeScript helpers for defining facts, events, rules, constraints, and flows.
  * These produce both strongly-typed APIs and serializable descriptors.
  */
 
-import type { PraxisEvent, PraxisFact } from "../core/protocol.js";
+import type { PraxisEvent, PraxisFact } from '../core/protocol.js';
 import type {
   RuleDescriptor,
   ConstraintDescriptor,
   PraxisModule,
   RuleFn,
   ConstraintFn,
-} from "../core/rules.js";
+} from '../core/rules.js';
 
 /**
  * Strongly typed fact definition
@@ -25,7 +25,7 @@ export interface FactDefinition<TTag extends string, TPayload> {
 
 /**
  * Define a typed fact
- * 
+ *
  * @example
  * const UserLoggedIn = defineFact<"UserLoggedIn", { userId: string }>("UserLoggedIn");
  * const fact = UserLoggedIn.create({ userId: "123" });
@@ -58,7 +58,7 @@ export interface EventDefinition<TTag extends string, TPayload> {
 
 /**
  * Define a typed event
- * 
+ *
  * @example
  * const Login = defineEvent<"LOGIN", { username: string; password: string }>("LOGIN");
  * const event = Login.create({ username: "alice", password: "secret" });
@@ -89,7 +89,7 @@ export interface DefineRuleOptions<TContext = unknown> {
 
 /**
  * Define a rule
- * 
+ *
  * @example
  * const loginRule = defineRule({
  *   id: "auth.login",
@@ -126,7 +126,7 @@ export interface DefineConstraintOptions<TContext = unknown> {
 
 /**
  * Define a constraint
- * 
+ *
  * @example
  * const maxCartItems = defineConstraint({
  *   id: "cart.maxItems",
@@ -159,7 +159,7 @@ export interface DefineModuleOptions<TContext = unknown> {
 
 /**
  * Define a module (bundle of rules and constraints)
- * 
+ *
  * @example
  * const authModule = defineModule({
  *   rules: [loginRule, logoutRule],

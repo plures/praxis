@@ -16,6 +16,7 @@
 ## 📊 Project Dashboard
 
 ### Quick Links
+
 - 📖 [Documentation](./docs/) | [Getting Started](./GETTING_STARTED.md) | [Framework Guide](./FRAMEWORK.md)
 - 💬 [Discussions](https://github.com/plures/praxis/discussions) | [Issues](https://github.com/plures/praxis/issues)
 - 🚀 [Contributing](./CONTRIBUTING.md) | [Security Policy](./SECURITY.md)
@@ -24,34 +25,34 @@
 
 ### Project Status
 
-| Category | Status |
-|----------|--------|
-| **CI/CD** | ✅ Automated testing & builds |
-| **Version** | 1.0.2 (Stable) |
-| **Runtime Support** | Node.js 18+, Deno (experimental), .NET 8+ |
-| **Package Registries** | npm ✅ / NuGet ✅ / JSR ✅  |
-| **Test Coverage** | 327 TypeScript + 95 C# tests passing |
-| **Documentation** | 📚 Comprehensive guides available |
+| Category               | Status                                    |
+| ---------------------- | ----------------------------------------- |
+| **CI/CD**              | ✅ Automated testing & builds             |
+| **Version**            | 1.0.2 (Stable)                            |
+| **Runtime Support**    | Node.js 18+, Deno (experimental), .NET 8+ |
+| **Package Registries** | npm ✅ / NuGet ✅ / JSR ✅                |
+| **Test Coverage**      | 327 TypeScript + 95 C# tests passing      |
+| **Documentation**      | 📚 Comprehensive guides available         |
 
 ### Language Support
 
-| Language | Package | Registry | Status |
-|----------|---------|----------|--------|
-| **TypeScript** | @plures/praxis | npm | ✅ Available |
-| **C#** | Plures.Praxis | NuGet | ✅ Available |
-| **PowerShell** | Praxis.psm1 | GitHub | ✅ Available |
+| Language       | Package        | Registry | Status       |
+| -------------- | -------------- | -------- | ------------ |
+| **TypeScript** | @plures/praxis | npm      | ✅ Available |
+| **C#**         | Plures.Praxis  | NuGet    | ✅ Available |
+| **PowerShell** | Praxis.psm1    | GitHub   | ✅ Available |
 
 ### Integration Status
 
-| Integration | Status | Notes |
-|------------|--------|-------|
-| **Praxis Cloud** | ✅ Available | Azure-hosted relay for sync & monetization |
-| **PluresDB** | ✅ Available | Local-first reactive datastore with 32 tests |
-| **Unum** | ✅ Available | Identity & channels integration |
-| **Svelte 5** | ✅ Full Support | Runes API, stores, history, time-travel |
-| **Tauri** | ✅ Available | Cross-platform desktop runtime |
-| **CodeCanvas** | ✅ Available | Visual schema editor & FSM enforcement |
-| **State-Docs** | ✅ Available | Documentation generation from schemas |
+| Integration      | Status          | Notes                                        |
+| ---------------- | --------------- | -------------------------------------------- |
+| **Praxis Cloud** | ✅ Available    | Azure-hosted relay for sync & monetization   |
+| **PluresDB**     | ✅ Available    | Local-first reactive datastore with 32 tests |
+| **Unum**         | ✅ Available    | Identity & channels integration              |
+| **Svelte 5**     | ✅ Full Support | Runes API, stores, history, time-travel      |
+| **Tauri**        | ✅ Available    | Cross-platform desktop runtime               |
+| **CodeCanvas**   | ✅ Available    | Visual schema editor & FSM enforcement       |
+| **State-Docs**   | ✅ Available    | Documentation generation from schemas        |
 
 ---
 
@@ -93,6 +94,7 @@ PSF is the canonical JSON/AST format that defines your entire application:
 ```
 
 From this schema, Praxis generates:
+
 - **TypeScript types** for facts, events, rules
 - **Svelte components** for UI
 - **Markdown documentation** with Mermaid diagrams
@@ -171,6 +173,7 @@ Praxis provides these integrated capabilities:
 ## Framework Features
 
 ### 🏗️ Full Application Framework
+
 - **Schema-Driven**: Define data models, logic, and UI in unified schemas
 - **Component Generation**: Auto-generate Svelte components from schemas
 - **CLI Tools**: `praxis create`, `praxis generate`, `praxis canvas` commands
@@ -178,12 +181,14 @@ Praxis provides these integrated capabilities:
 - **Integrated Stack**: PluresDB + Unum + ADP + State-Docs + Canvas
 
 ### 🎨 Visual Development
+
 - **CodeCanvas Integration**: Visual schema and logic editor
 - **Component Preview**: See generated components in real-time
 - **Flow Visualization**: Visualize state machines and orchestration
 - **Interactive Docs**: Navigate documentation with State-Docs
 
 ### 🔌 Ecosystem Integration
+
 - **PluresDB**: Local-first reactive data storage
 - **Unum**: Identity and channels for distributed systems
 - **ADP**: Architectural guardrails and decision tracking
@@ -192,6 +197,7 @@ Praxis provides these integrated capabilities:
 - **Tauri**: Cross-platform runtime (web/desktop/mobile)
 
 ### ⚡ Svelte 5 Integration
+
 - **Runes API**: Modern `$state`, `$derived`, `$effect` support
 - **History States**: Built-in undo/redo and time-travel debugging
 - **Store API**: Backward-compatible stores for Svelte 4/5
@@ -299,6 +305,7 @@ npm run build
 ```
 
 Available CLI commands:
+
 - `praxis login` - Authenticate with GitHub (device flow or token)
 - `praxis logout` - Log out from Praxis Cloud
 - `praxis whoami` - Show current authenticated user
@@ -357,7 +364,7 @@ import {
   defineFact,
   defineEvent,
   defineRule,
-} from "@plures/praxis";
+} from '@plures/praxis';
 
 // Define the context type
 interface AuthContext {
@@ -365,13 +372,13 @@ interface AuthContext {
 }
 
 // Define facts and events
-const UserLoggedIn = defineFact<"UserLoggedIn", { userId: string }>("UserLoggedIn");
-const Login = defineEvent<"LOGIN", { username: string }>("LOGIN");
+const UserLoggedIn = defineFact<'UserLoggedIn', { userId: string }>('UserLoggedIn');
+const Login = defineEvent<'LOGIN', { username: string }>('LOGIN');
 
 // Define rules
 const loginRule = defineRule<AuthContext>({
-  id: "auth.login",
-  description: "Process login event",
+  id: 'auth.login',
+  description: 'Process login event',
   impl: (state, events) => {
     const loginEvent = events.find(Login.is);
     if (loginEvent) {
@@ -392,7 +399,7 @@ const engine = createPraxisEngine({
 });
 
 // Dispatch events
-const result = engine.step([Login.create({ username: "alice" })]);
+const result = engine.step([Login.create({ username: 'alice' })]);
 console.log(result.state.facts); // [{ tag: "UserLoggedIn", payload: { userId: "alice" } }]
 console.log(engine.getContext()); // { currentUser: "alice" }
 ```
@@ -400,13 +407,13 @@ console.log(engine.getContext()); // { currentUser: "alice" }
 ### With Constraints
 
 ```typescript
-import { defineConstraint } from "@plures/praxis";
+import { defineConstraint } from '@plures/praxis';
 
 const maxSessionsConstraint = defineConstraint<AuthContext>({
-  id: "auth.maxSessions",
-  description: "Only one user can be logged in at a time",
+  id: 'auth.maxSessions',
+  description: 'Only one user can be logged in at a time',
   impl: (state) => {
-    return state.context.currentUser === null || "User already logged in";
+    return state.context.currentUser === null || 'User already logged in';
   },
 });
 
@@ -418,7 +425,7 @@ registry.registerConstraint(maxSessionsConstraint);
 #### Store API (Svelte 4/5 Compatible)
 
 ```typescript
-import { createPraxisStore, createDerivedStore } from "@plures/praxis/svelte";
+import { createPraxisStore, createDerivedStore } from '@plures/praxis/svelte';
 
 const stateStore = createPraxisStore(engine);
 const userStore = createDerivedStore(engine, (ctx) => ctx.currentUser);
@@ -438,7 +445,7 @@ const userStore = createDerivedStore(engine, (ctx) => ctx.currentUser);
   import { createMyEngine, Login } from './my-engine';
 
   const engine = createMyEngine();
-  const { 
+  const {
     context,      // Reactive context
     dispatch,     // Dispatch events
     undo,         // Undo last action
@@ -453,15 +460,15 @@ const userStore = createDerivedStore(engine, (ctx) => ctx.currentUser);
 
 <div>
   <p>User: {context.currentUser || 'Guest'}</p>
-  
+
   <button onclick={() => dispatch([Login.create({ username: 'alice' })])}>
     Login
   </button>
-  
+
   <button onclick={undo} disabled={!canUndo}>
     ⟲ Undo
   </button>
-  
+
   <button onclick={redo} disabled={!canRedo}>
     ⟳ Redo
   </button>
@@ -469,12 +476,14 @@ const userStore = createDerivedStore(engine, (ctx) => ctx.currentUser);
 ```
 
 See the [Advanced Todo Example](src/examples/advanced-todo/) for a complete demo with:
+
 - Undo/redo functionality
 - Time-travel debugging
 - Keyboard shortcuts
 - Beautiful UI
 
 For comprehensive guides:
+
 - [Svelte Integration Guide](docs/guides/svelte-integration.md)
 - [History State Pattern](docs/guides/history-state-pattern.md)
 - [Parallel State Pattern](docs/guides/parallel-state-pattern.md)
@@ -511,6 +520,7 @@ type PraxisStepFn = (
 ```
 
 This protocol is:
+
 - Pure and deterministic (data in → data out)
 - No side effects, no global state
 - JSON-friendly for cross-language compatibility
@@ -586,7 +596,9 @@ See [FRAMEWORK.md](./FRAMEWORK.md) for complete architecture documentation.
 The repository includes multiple complete examples:
 
 ### 1. Hero E-Commerce (`src/examples/hero-ecommerce`)
+
 Comprehensive example demonstrating all Praxis features in a single application:
+
 - Authentication with session management
 - Shopping cart with discount rules
 - Feature flags for A/B testing
@@ -600,7 +612,9 @@ node dist/examples/hero-ecommerce/index.js
 ```
 
 ### 2. Offline-First Chat (`examples/offline-chat`)
+
 Demonstrates local-first architecture with PluresDB:
+
 - Offline message composition and storage
 - Automatic sync when connected
 - Message queue for offline messages
@@ -610,7 +624,9 @@ Demonstrates local-first architecture with PluresDB:
 See [examples/offline-chat/README.md](./examples/offline-chat/README.md)
 
 ### 3. Knowledge Canvas (`examples/knowledge-canvas`)
+
 Showcases CodeCanvas integration for visual knowledge management:
+
 - Visual knowledge graph editing
 - Schema-driven content types
 - Generated UI components
@@ -620,7 +636,9 @@ Showcases CodeCanvas integration for visual knowledge management:
 See [examples/knowledge-canvas/README.md](./examples/knowledge-canvas/README.md)
 
 ### 4. Self-Orchestrating Node (`examples/distributed-node`)
+
 Demonstrates distributed orchestration with DSC/MCP:
+
 - Automatic node discovery
 - Self-healing behavior
 - State synchronization across nodes
@@ -630,7 +648,9 @@ Demonstrates distributed orchestration with DSC/MCP:
 See [examples/distributed-node/README.md](./examples/distributed-node/README.md)
 
 ### 5. Terminal Node (`examples/terminal-node`)
+
 Demonstrates the terminal node feature for command execution:
+
 - Terminal adapter creation and configuration
 - Command execution and history tracking
 - YAML schema loading with terminal nodes
@@ -645,6 +665,7 @@ node examples/terminal-node/index.js
 See [examples/terminal-node/README.md](./examples/terminal-node/README.md) and [docs/TERMINAL_NODE.md](./docs/TERMINAL_NODE.md)
 
 ### 6. Auth Basic (`src/examples/auth-basic`)
+
 Login/logout with facts, rules, and constraints.
 
 ```bash
@@ -653,6 +674,7 @@ node dist/examples/auth-basic/index.js
 ```
 
 ### 7. Cart (`src/examples/cart`)
+
 Shopping cart with multiple rules, constraints, and complex state management.
 
 ```bash
@@ -661,6 +683,7 @@ node dist/examples/cart/index.js
 ```
 
 ### 8. Svelte Counter (`src/examples/svelte-counter`)
+
 Counter example showing Svelte v5 integration with reactive stores.
 
 ```bash
@@ -669,21 +692,25 @@ node dist/examples/svelte-counter/index.js
 ```
 
 ### 9. Terminal Canvas (`examples/terminal-canvas`)
+
 Combines terminal nodes with visual canvas features in a Svelte app.
 
 See [examples/terminal-canvas/README.md](./examples/terminal-canvas/README.md)
 
 ### 10. GitHub Monetization (`examples/github-monetization`)
+
 Example of GitHub-based monetization integration with Praxis Cloud.
 
 See [examples/github-monetization/README.md](./examples/github-monetization/README.md)
 
 ### 11. Simple App (`examples/simple-app`)
+
 A minimal example demonstrating basic Praxis schema usage.
 
 See [examples/simple-app/README.md](./examples/simple-app/README.md)
 
 ### 12. Cloud Sync (`examples/cloud-sync`)
+
 Demonstrates real-time synchronization with Praxis Cloud relay service.
 
 See [examples/cloud-sync/README.md](./examples/cloud-sync/README.md)
@@ -718,7 +745,7 @@ See [examples/cloud-sync/README.md](./examples/cloud-sync/README.md)
 Tools for examining and visualizing your Praxis logic:
 
 ```typescript
-import { createIntrospector, PRAXIS_PROTOCOL_VERSION } from "@plures/praxis";
+import { createIntrospector, PRAXIS_PROTOCOL_VERSION } from '@plures/praxis';
 
 const introspector = createIntrospector(registry);
 
@@ -745,6 +772,7 @@ const maxConstraints = introspector.searchConstraints('max');
 ```
 
 **Available methods:**
+
 - `getStats()` - Get registry statistics
 - `generateSchema(protocolVersion)` - Generate JSON schema
 - `generateGraph()` - Generate graph representation
@@ -764,11 +792,11 @@ Praxis integrates with the full Plures ecosystem:
 Local-first reactive datastore for offline-capable applications. **Now fully implemented** with 32 tests covering all features.
 
 ```typescript
-import { 
-  createInMemoryDB, 
-  createPraxisDBStore, 
+import {
+  createInMemoryDB,
+  createPraxisDBStore,
   createPluresDBAdapter,
-  attachToEngine 
+  attachToEngine,
 } from '@plures/praxis/pluresdb';
 
 // Create an in-memory database
@@ -778,26 +806,27 @@ const db = createInMemoryDB();
 const store = createPraxisDBStore({ db });
 
 // Or create an adapter to attach to an engine
-const adapter = createPluresDBAdapter({ 
-  db, 
+const adapter = createPluresDBAdapter({
+  db,
   registry,
-  initialContext: {} 
+  initialContext: {},
 });
 
 // Attach adapter to engine for automatic persistence
 adapter.attachEngine(engine);
 
 // Persist facts and events
-await adapter.persistFacts([{ tag: "UserLoggedIn", payload: { userId: "alice" } }]);
-await adapter.persistEvents([{ tag: "LOGIN", payload: { username: "alice" } }]);
+await adapter.persistFacts([{ tag: 'UserLoggedIn', payload: { userId: 'alice' } }]);
+await adapter.persistEvents([{ tag: 'LOGIN', payload: { username: 'alice' } }]);
 
 // Subscribe to changes
 adapter.subscribeToEvents((events) => {
-  console.log("New events:", events);
+  console.log('New events:', events);
 });
 ```
 
 **Features:**
+
 - **In-memory adapter**: Ready-to-use implementation for development and testing
 - **Reactive store**: Watch for changes with callbacks
 - **Schema registry**: Store and retrieve schemas in PluresDB
@@ -1011,6 +1040,7 @@ See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for complete documentat
 ## Roadmap
 
 ### Current Focus
+
 - Full CodeCanvas integration
 - Enhanced Unum identity support
 - Advanced State-Docs generation
@@ -1018,6 +1048,7 @@ See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for complete documentat
 - Real PluresDB sync with CRDT/offline-first capabilities
 
 ### Long Term
+
 - Mobile templates (iOS, Android)
 - Enterprise features
 - Advanced orchestration
@@ -1029,8 +1060,9 @@ See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for complete documentat
 The core protocol is implemented across multiple languages:
 
 **TypeScript** (Primary, npm: `@plures/praxis`)
+
 ```typescript
-import { createPraxisEngine, PraxisRegistry } from "@plures/praxis";
+import { createPraxisEngine, PraxisRegistry } from '@plures/praxis';
 
 const engine = createPraxisEngine({
   initialContext: {},
@@ -1040,6 +1072,7 @@ const result = engine.step(events);
 ```
 
 **C#** (.NET 8+, NuGet: `Plures.Praxis`)
+
 ```csharp
 var engine = PraxisEngine.Create(new PraxisEngineOptions<TContext> { ... });
 var result = engine.Step(events);
@@ -1048,6 +1081,7 @@ var result = engine.Step(events);
 See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for full documentation.
 
 **PowerShell** (GitHub: `Praxis.psm1`)
+
 ```powershell
 $newState = Invoke-PraxisStep -State $state -Events $events
 ```

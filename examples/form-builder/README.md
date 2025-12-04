@@ -5,6 +5,7 @@ A dynamic form builder application demonstrating Praxis schema composition and c
 ## Overview
 
 Form Builder showcases advanced Praxis 1.0 features including:
+
 - Schema-driven form definition
 - Dynamic component generation
 - Field validation and constraints
@@ -26,6 +27,7 @@ Form Builder showcases advanced Praxis 1.0 features including:
 The schema defines:
 
 ### Facts
+
 - `FormCreated`: A new form was created
 - `FieldAdded`: A field was added to a form
 - `FieldRemoved`: A field was removed from a form
@@ -34,6 +36,7 @@ The schema defines:
 - `ValidationFailed`: Form validation failed
 
 ### Events
+
 - `CreateForm`: Create a new form
 - `AddField`: Add a field to the form
 - `RemoveField`: Remove a field from the form
@@ -42,11 +45,13 @@ The schema defines:
 - `SubmitForm`: Submit form data
 
 ### Models
+
 - `Form`: Form definition with name and fields
 - `FormField`: Field configuration with type, label, validation
 - `FormSubmission`: Submitted form data
 
 ### Components
+
 - `FormBuilder`: Main builder interface
 - `FieldPalette`: Available field types
 - `FieldEditor`: Field configuration editor
@@ -104,7 +109,7 @@ const engine = createPraxisEngine({
 // Create a new form
 engine.dispatch({
   tag: 'CreateForm',
-  payload: { name: 'Contact Form', description: 'Customer contact form' }
+  payload: { name: 'Contact Form', description: 'Customer contact form' },
 });
 
 // Add fields
@@ -114,8 +119,8 @@ engine.dispatch({
     formId: 'form-id',
     fieldType: 'text',
     label: 'Full Name',
-    required: true
-  }
+    required: true,
+  },
 });
 
 engine.dispatch({
@@ -124,8 +129,8 @@ engine.dispatch({
     formId: 'form-id',
     fieldType: 'email',
     label: 'Email Address',
-    required: true
-  }
+    required: true,
+  },
 });
 
 // Submit form data
@@ -135,9 +140,9 @@ engine.dispatch({
     formId: 'form-id',
     data: {
       'field-1': 'John Doe',
-      'field-2': 'john@example.com'
-    }
-  }
+      'field-2': 'john@example.com',
+    },
+  },
 });
 ```
 
@@ -150,7 +155,7 @@ flowchart TB
         FormBuilder --> FieldEditor
         FormBuilder --> FormPreview
     end
-    
+
     subgraph Logic["Logic Engine"]
         CreateForm --> FormCreated
         AddField --> FieldAdded
@@ -159,13 +164,13 @@ flowchart TB
         Validation --> |success| FormSubmitted
         Validation --> |failure| ValidationFailed
     end
-    
+
     subgraph Data["Data Models"]
         Form[(Form)]
         FormField[(FormField)]
         FormSubmission[(FormSubmission)]
     end
-    
+
     FormCreated --> Form
     FieldAdded --> FormField
     FormSubmitted --> FormSubmission
@@ -173,17 +178,17 @@ flowchart TB
 
 ## Field Types
 
-| Type | Description | Options |
-|------|-------------|---------|
-| `text` | Single-line text input | maxLength, minLength, pattern |
-| `number` | Numeric input | min, max, step |
-| `email` | Email address input | Built-in email validation |
-| `select` | Dropdown selection | options array |
-| `checkbox` | Boolean checkbox | - |
-| `radio` | Radio button group | options array |
-| `textarea` | Multi-line text | rows, maxLength |
-| `date` | Date picker | min, max |
-| `file` | File upload | accept, maxSize |
+| Type       | Description            | Options                       |
+| ---------- | ---------------------- | ----------------------------- |
+| `text`     | Single-line text input | maxLength, minLength, pattern |
+| `number`   | Numeric input          | min, max, step                |
+| `email`    | Email address input    | Built-in email validation     |
+| `select`   | Dropdown selection     | options array                 |
+| `checkbox` | Boolean checkbox       | -                             |
+| `radio`    | Radio button group     | options array                 |
+| `textarea` | Multi-line text        | rows, maxLength               |
+| `date`     | Date picker            | min, max                      |
+| `file`     | File upload            | accept, maxSize               |
 
 ## Validation Rules
 
@@ -227,8 +232,8 @@ const db = createPluresDB({
   collections: [Form, FormSubmission],
   sync: {
     enabled: true,
-    endpoint: 'https://your-sync-endpoint.com'
-  }
+    endpoint: 'https://your-sync-endpoint.com',
+  },
 });
 ```
 

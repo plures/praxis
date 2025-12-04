@@ -1,6 +1,6 @@
 /**
  * PluresDB Integration
- * 
+ *
  * Integration with pluresdb - reactive graph datastore and event source/sink.
  * This module provides adapters for:
  * - Storing Praxis state in pluresdb
@@ -9,26 +9,45 @@
  * - Reactive queries and subscriptions
  */
 
-import type { LogicEngine } from "../core/engine.js";
-import type { PraxisEvent, PraxisFact } from "../core/protocol.js";
-import type { PraxisRegistry } from "../core/rules.js";
-import type { PraxisDB, UnsubscribeFn } from "../core/pluresdb/adapter.js";
-import { PraxisDBStore, createPraxisDBStore } from "../core/pluresdb/store.js";
+import type { LogicEngine } from '../core/engine.js';
+import type { PraxisEvent, PraxisFact } from '../core/protocol.js';
+import type { PraxisRegistry } from '../core/rules.js';
+import type { PraxisDB, UnsubscribeFn } from '../core/pluresdb/adapter.js';
+import { PraxisDBStore, createPraxisDBStore } from '../core/pluresdb/store.js';
 
 // Re-export core pluresdb types and implementations
 // Note: Using explicit exports to avoid circular dependency issues
-export { InMemoryPraxisDB, createInMemoryDB } from "../core/pluresdb/adapter.js";
-export type { PraxisDB, UnsubscribeFn } from "../core/pluresdb/adapter.js";
-export { PraxisDBStore, createPraxisDBStore, PRAXIS_PATHS, getFactPath, getEventPath, generateId } from "../core/pluresdb/store.js";
-export type { EventStreamEntry, PraxisDBStoreOptions, RuleErrorHandler } from "../core/pluresdb/store.js";
-export { PraxisSchemaRegistry, createSchemaRegistry, registerSchema, getSchemaPath } from "../core/pluresdb/schema-registry.js";
-export type { StoredSchema } from "../core/pluresdb/schema-registry.js";
-export { PluresDBGenerator, createPluresDBGenerator } from "../core/pluresdb/generator.js";
-export type { PluresDBGeneratorOptions, GeneratedPluresDBFile } from "../core/pluresdb/generator.js";
+export { InMemoryPraxisDB, createInMemoryDB } from '../core/pluresdb/adapter.js';
+export type { PraxisDB, UnsubscribeFn } from '../core/pluresdb/adapter.js';
+export {
+  PraxisDBStore,
+  createPraxisDBStore,
+  PRAXIS_PATHS,
+  getFactPath,
+  getEventPath,
+  generateId,
+} from '../core/pluresdb/store.js';
+export type {
+  EventStreamEntry,
+  PraxisDBStoreOptions,
+  RuleErrorHandler,
+} from '../core/pluresdb/store.js';
+export {
+  PraxisSchemaRegistry,
+  createSchemaRegistry,
+  registerSchema,
+  getSchemaPath,
+} from '../core/pluresdb/schema-registry.js';
+export type { StoredSchema } from '../core/pluresdb/schema-registry.js';
+export { PluresDBGenerator, createPluresDBGenerator } from '../core/pluresdb/generator.js';
+export type {
+  PluresDBGeneratorOptions,
+  GeneratedPluresDBFile,
+} from '../core/pluresdb/generator.js';
 
 /**
  * PluresDB adapter interface for engine integration
- * 
+ *
  * Provides:
  * - Event sourcing (persist events to pluresdb)
  * - State snapshots (persist state to pluresdb)
@@ -53,14 +72,11 @@ export interface PluresDBAdapter<TContext = unknown> {
 
   /**
    * Subscribe to changes for a given tag
-   * 
+   *
    * Note: This watches for derived facts that are created when events are processed.
    * The callback receives the new facts as event-like objects for convenience.
    */
-  subscribeToEvents(
-    callback: (events: PraxisEvent[]) => void,
-    query?: unknown
-  ): () => void;
+  subscribeToEvents(callback: (events: PraxisEvent[]) => void, query?: unknown): () => void;
 
   /**
    * Attach the adapter to an engine
@@ -87,16 +103,16 @@ export interface PluresDBAdapterOptions<TContext = unknown> {
 
 /**
  * Create a PluresDB adapter with full implementation
- * 
+ *
  * @example
  * ```typescript
  * const db = createInMemoryDB();
  * const registry = new PraxisRegistry();
  * const adapter = createPluresDBAdapter({ db, registry });
- * 
+ *
  * const engine = createPraxisEngine({ initialContext: {}, registry });
  * adapter.attachEngine(engine);
- * 
+ *
  * await adapter.persistFacts([{ tag: "UserLoggedIn", payload: { userId: "alice" } }]);
  * ```
  */
@@ -115,7 +131,11 @@ export function createPluresDBAdapter<TContext = unknown>(
       await store.storeFacts(facts);
     },
 
-    async loadEvents(query?: { tag?: string; since?: number; limit?: number }): Promise<PraxisEvent[]> {
+    async loadEvents(query?: {
+      tag?: string;
+      since?: number;
+      limit?: number;
+    }): Promise<PraxisEvent[]> {
       if (!query?.tag) {
         return [];
       }
@@ -123,7 +143,7 @@ export function createPluresDBAdapter<TContext = unknown>(
         since: query.since,
         limit: query.limit,
       });
-      return entries.map(e => e.event);
+      return entries.map((e) => e.event);
     },
 
     subscribeToEvents(
@@ -133,17 +153,17 @@ export function createPluresDBAdapter<TContext = unknown>(
       if (!query?.tag) {
         return () => {};
       }
-      
+
       // Watch for new facts that might be derived from events
       const unsubscribe = store.watchFacts(query.tag, (facts) => {
         // Convert facts to events for the callback
-        const events: PraxisEvent[] = facts.map(f => ({
+        const events: PraxisEvent[] = facts.map((f) => ({
           tag: f.tag,
           payload: f.payload,
         }));
         callback(events);
       });
-      
+
       subscriptions.push(unsubscribe);
       return unsubscribe;
     },
@@ -165,27 +185,27 @@ export function createPluresDBAdapter<TContext = unknown>(
 
 /**
  * Attach a PraxisDBStore to a LogicEngine
- * 
+ *
  * This function creates a bidirectional connection between the store and engine:
  * - Events processed by the engine are persisted to the store
  * - Facts from the store are synchronized to the engine
- * 
+ *
  * @param store The PraxisDBStore instance
  * @param engine The LogicEngine instance
  * @returns Cleanup function to detach the store
- * 
+ *
  * @example
  * ```typescript
  * const db = createInMemoryDB();
  * const registry = new PraxisRegistry();
  * const store = createPraxisDBStore(db, registry);
  * const engine = createPraxisEngine({ initialContext: {}, registry });
- * 
+ *
  * const detach = attachToEngine(store, engine);
- * 
+ *
  * // Events are now automatically persisted
  * engine.step([{ tag: "LOGIN", payload: { username: "alice" } }]);
- * 
+ *
  * // Cleanup
  * detach();
  * ```
@@ -196,7 +216,7 @@ export function attachToEngine<TContext = unknown>(
 ): UnsubscribeFn {
   // Sync context from engine to store
   store.updateContext(engine.getContext());
-  
+
   // Return cleanup function
   return () => {
     store.dispose();

@@ -1,8 +1,8 @@
 /**
  * Praxis - Practical, Provable Application Logic
- * 
+ *
  * A typed, functional application logic engine built on strong types.
- * 
+ *
  * Core concepts:
  * - Facts: typed propositions about the domain
  * - Events: temporally ordered facts meant to drive change
@@ -10,15 +10,15 @@
  * - Constraints: invariants that must always hold
  * - Flows: orchestrated behaviors
  * - Actors: effectful units that perform side effects
- * 
+ *
  * @example
  * ```typescript
  * import { createPraxisEngine, PraxisRegistry, defineFact, defineEvent, defineRule } from "@plures/praxis";
- * 
+ *
  * // Define facts and events
  * const UserLoggedIn = defineFact<"UserLoggedIn", { userId: string }>("UserLoggedIn");
  * const Login = defineEvent<"LOGIN", { username: string }>("LOGIN");
- * 
+ *
  * // Define rules
  * const loginRule = defineRule({
  *   id: "auth.login",
@@ -31,16 +31,16 @@
  *     return [];
  *   }
  * });
- * 
+ *
  * // Create engine
  * const registry = new PraxisRegistry();
  * registry.registerRule(loginRule);
- * 
+ *
  * const engine = createPraxisEngine({
  *   initialContext: {},
  *   registry
  * });
- * 
+ *
  * // Dispatch events
  * const result = engine.step([Login.create({ username: "alice" })]);
  * console.log(result.state.facts); // [{ tag: "UserLoggedIn", payload: { userId: "alice" } }]
@@ -56,8 +56,8 @@ export type {
   PraxisStepConfig,
   PraxisStepResult,
   PraxisStepFn,
-} from "./core/protocol.js";
-export { PRAXIS_PROTOCOL_VERSION } from "./core/protocol.js";
+} from './core/protocol.js';
+export { PRAXIS_PROTOCOL_VERSION } from './core/protocol.js';
 
 // Rules and constraints
 export type {
@@ -68,16 +68,16 @@ export type {
   RuleDescriptor,
   ConstraintDescriptor,
   PraxisModule,
-} from "./core/rules.js";
-export { PraxisRegistry } from "./core/rules.js";
+} from './core/rules.js';
+export { PraxisRegistry } from './core/rules.js';
 
 // Engine
-export type { PraxisEngineOptions } from "./core/engine.js";
-export { LogicEngine, createPraxisEngine } from "./core/engine.js";
+export type { PraxisEngineOptions } from './core/engine.js';
+export { LogicEngine, createPraxisEngine } from './core/engine.js';
 
 // Actors
-export type { Actor } from "./core/actors.js";
-export { ActorManager, createTimerActor } from "./core/actors.js";
+export type { Actor } from './core/actors.js';
+export { ActorManager, createTimerActor } from './core/actors.js';
 
 // Introspection
 export type {
@@ -89,8 +89,8 @@ export type {
   ConstraintSchema,
   RegistrySchema,
   RegistryStats,
-} from "./core/introspection.js";
-export { RegistryIntrospector, createIntrospector } from "./core/introspection.js";
+} from './core/introspection.js';
+export { RegistryIntrospector, createIntrospector } from './core/introspection.js';
 
 // DSL helpers
 export {
@@ -103,14 +103,14 @@ export {
   filterFacts,
   findEvent,
   findFact,
-} from "./dsl/index.js";
+} from './dsl/index.js';
 export type {
   FactDefinition,
   EventDefinition,
   DefineRuleOptions,
   DefineConstraintOptions,
   DefineModuleOptions,
-} from "./dsl/index.js";
+} from './dsl/index.js';
 
 // Terminal Node Runtime
 export type {
@@ -118,13 +118,13 @@ export type {
   TerminalNodeState,
   TerminalAdapterOptions,
   CommandExecutor,
-} from "./runtime/terminal-adapter.js";
+} from './runtime/terminal-adapter.js';
 export {
   TerminalAdapter,
   createTerminalAdapter,
   runTerminalCommand,
   createMockExecutor,
-} from "./runtime/terminal-adapter.js";
+} from './runtime/terminal-adapter.js';
 
 // Schema Types (including Terminal Node types)
 export type {
@@ -138,21 +138,18 @@ export type {
   ModelDefinition,
   ComponentDefinition,
   LogicDefinition,
-} from "./core/schema/types.js";
-export { validateSchema, createSchemaTemplate } from "./core/schema/types.js";
+} from './core/schema/types.js';
+export { validateSchema, createSchemaTemplate } from './core/schema/types.js';
 
 // Schema Loader (supports JSON, YAML, and TS)
-export type {
-  LoaderOptions,
-  LoaderResult,
-} from "./core/schema/loader.js";
+export type { LoaderOptions, LoaderResult } from './core/schema/loader.js';
 export {
   loadSchema,
   loadSchemaFromJson,
   loadSchemaFromYaml,
   loadSchemaFromFile,
   validateForGeneration,
-} from "./core/schema/loader.js";
+} from './core/schema/loader.js';
 
 // PluresDB Integration
 export type {
@@ -165,7 +162,7 @@ export type {
   GeneratedPluresDBFile,
   PluresDBAdapter,
   PluresDBAdapterOptions,
-} from "./integrations/pluresdb.js";
+} from './integrations/pluresdb.js';
 export {
   InMemoryPraxisDB,
   createInMemoryDB,
@@ -183,7 +180,7 @@ export {
   createPluresDBGenerator,
   createPluresDBAdapter,
   attachToEngine,
-} from "./integrations/pluresdb.js";
+} from './integrations/pluresdb.js';
 
 // Unum Integration (Identity & Channels)
 export type {
@@ -193,11 +190,8 @@ export type {
   UnumIdentity,
   UnumAdapterConfig,
   UnumAdapter,
-} from "./integrations/unum.js";
-export {
-  createUnumAdapter,
-  attachUnumToEngine,
-} from "./integrations/unum.js";
+} from './integrations/unum.js';
+export { createUnumAdapter, attachUnumToEngine } from './integrations/unum.js';
 
 // CodeCanvas Integration (Visual Schema Editor)
 export type {
@@ -212,7 +206,7 @@ export type {
   GuardianResult,
   GuardianError,
   GuardianWarning,
-} from "./integrations/code-canvas.js";
+} from './integrations/code-canvas.js';
 export {
   schemaToCanvas,
   canvasToSchema,
@@ -220,7 +214,7 @@ export {
   canvasToMermaid,
   validateWithGuardian,
   createCanvasEditor,
-} from "./integrations/code-canvas.js";
+} from './integrations/code-canvas.js';
 
 // State-Docs Integration (Documentation Generation)
 export type {
@@ -229,12 +223,12 @@ export type {
   StateMachineDoc,
   StateDoc,
   TransitionDoc,
-} from "./integrations/state-docs.js";
+} from './integrations/state-docs.js';
 export {
   StateDocsGenerator,
   createStateDocsGenerator,
   generateDocs,
-} from "./integrations/state-docs.js";
+} from './integrations/state-docs.js';
 
 // Tauri Integration (Desktop Apps)
 export type {
@@ -254,10 +248,10 @@ export type {
   TauriBridge,
   TauriUpdateInfo,
   TauriPraxisAdapter,
-} from "./integrations/tauri.js";
+} from './integrations/tauri.js';
 export {
   createMockTauriBridge,
   createTauriPraxisAdapter,
   attachTauriToEngine,
   generateTauriConfig,
-} from "./integrations/tauri.js";
+} from './integrations/tauri.js';

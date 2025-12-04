@@ -57,8 +57,8 @@ const schema: PraxisSchema = {
 ### YAML
 
 ```yaml
-version: "1.0.0"
-name: "MyApp"
+version: '1.0.0'
+name: 'MyApp'
 orchestration:
   type: custom
   nodes:
@@ -129,10 +129,10 @@ const terminal = createTerminalAdapter({
 // Execute a command
 const result = await terminal.executeCommand('echo "Hello World"');
 
-console.log(result.command);    // 'echo "Hello World"'
-console.log(result.output);     // Command output (currently stubbed)
-console.log(result.exitCode);   // 0 for success
-console.log(result.timestamp);  // Execution timestamp
+console.log(result.command); // 'echo "Hello World"'
+console.log(result.output); // Command output (currently stubbed)
+console.log(result.exitCode); // 0 for success
+console.log(result.timestamp); // Execution timestamp
 ```
 
 ### Managing Command History
@@ -201,16 +201,16 @@ import TerminalNode from '@plures/praxis/components/TerminalNode.svelte';
 
 **Props:**
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `adapter` | `TerminalAdapter` | required | Terminal adapter instance |
-| `x` | `number` | `0` | X position on canvas |
-| `y` | `number` | `0` | Y position on canvas |
-| `width` | `number` | `600` | Component width in pixels |
-| `height` | `number` | `400` | Component height in pixels |
-| `draggable` | `boolean` | `true` | Enable drag to move |
-| `resizable` | `boolean` | `true` | Enable resize handle |
-| `showContextMenu` | `boolean` | `false` | Show context menu |
+| Prop              | Type              | Default  | Description                |
+| ----------------- | ----------------- | -------- | -------------------------- |
+| `adapter`         | `TerminalAdapter` | required | Terminal adapter instance  |
+| `x`               | `number`          | `0`      | X position on canvas       |
+| `y`               | `number`          | `0`      | Y position on canvas       |
+| `width`           | `number`          | `600`    | Component width in pixels  |
+| `height`          | `number`          | `400`    | Component height in pixels |
+| `draggable`       | `boolean`         | `true`   | Enable drag to move        |
+| `resizable`       | `boolean`         | `true`   | Enable resize handle       |
+| `showContextMenu` | `boolean`         | `false`  | Show context menu          |
 
 **Features:**
 
@@ -347,19 +347,19 @@ The main class for managing terminal node runtime behavior.
 ```typescript
 class TerminalAdapter {
   constructor(options: TerminalAdapterOptions);
-  
+
   /** Execute a terminal command */
   executeCommand(command: string): Promise<TerminalExecutionResult>;
-  
+
   /** Get current terminal state */
   getState(): Readonly<TerminalNodeState>;
-  
+
   /** Update terminal props */
   updateProps(props: Partial<TerminalNodeProps>): void;
-  
+
   /** Clear command history */
   clearHistory(): void;
-  
+
   /** Get command history */
   getHistory(): ReadonlyArray<string>;
 }
@@ -441,7 +441,7 @@ const terminal = createTerminalAdapter({
 });
 
 await terminal.executeCommand('echo "New session"');
-console.log(terminal.getHistory()); 
+console.log(terminal.getHistory());
 // ['echo "Previous session"', 'echo "New session"']
 ```
 
@@ -469,8 +469,8 @@ Terminal nodes support PluresDB bindings for reactive state management:
 ```typescript
 const terminal = createTerminalAdapter({
   nodeId: 'reactive-terminal',
-  inputPath: '/app/terminal/input',   // Listen for commands
-  outputPath: '/app/terminal/output',  // Publish results
+  inputPath: '/app/terminal/input', // Listen for commands
+  outputPath: '/app/terminal/output', // Publish results
 });
 
 // When implemented, commands from inputPath will be auto-executed
@@ -521,6 +521,7 @@ Visual terminal component for Praxis Canvas is now available! Use the `TerminalN
 ```
 
 **Component Features:**
+
 - Drag and drop positioning
 - Resizable dimensions
 - Context menu operations
@@ -540,6 +541,7 @@ npm test
 ```
 
 Tests cover:
+
 - Schema validation with various configurations
 - YAML and JSON loading
 - Terminal adapter creation and configuration
@@ -580,6 +582,7 @@ To adopt terminal nodes:
 ## Support
 
 For questions, issues, or feature requests:
+
 - GitHub Issues: https://github.com/plures/praxis/issues
 - Documentation: https://github.com/plures/praxis/tree/main/docs
 

@@ -1,6 +1,6 @@
 /**
  * Documentation Generator
- * 
+ *
  * Generates Markdown documentation from PSF schemas.
  * Produces API docs, architecture diagrams, and user guides.
  */
@@ -802,7 +802,10 @@ export function createDocsGenerator(options?: DocsGeneratorOptions): DocsGenerat
 /**
  * Generate documentation from PSF schema (convenience function)
  */
-export function generateDocs(schema: PSFSchema, options?: DocsGeneratorOptions): DocsGenerationResult {
+export function generateDocs(
+  schema: PSFSchema,
+  options?: DocsGeneratorOptions
+): DocsGenerationResult {
   const generator = new DocsGenerator(options);
   return generator.generate(schema);
 }

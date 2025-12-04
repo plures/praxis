@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-11-25
 
 ### Added
+
 - **Stable Release**: First stable release of Praxis framework for both TypeScript and C#
 - **C# Implementation** (`csharp/`)
   - Full parity with TypeScript implementation
@@ -20,12 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - NuGet package: `Plures.Praxis`
 
 ### Changed
+
 - **Version Bump**: Both TypeScript and C# packages are now at 1.0.0
 - **Cross-Language Sync**: Both implementations are fully synchronized at protocol version 1.0.0
 
 ## [0.2.1] - 2025-11-25
 
 ### Added
+
 - **CLI Create Command** (`src/cli/commands/create.ts`)
   - `praxis create app <name>` - Create new Praxis applications with full scaffolding
   - `praxis create component <name>` - Create new Svelte 5 components
@@ -70,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `praxis orchestrate` - Distributed coordination management
 
 ### Changed
+
 - **Terminal Adapter** (`src/runtime/terminal-adapter.ts`)
   - Now executes actual shell commands using child_process
   - PluresDB integration for state persistence
@@ -101,6 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 #### Framework Infrastructure
+
 - **Complete Schema System** (`src/core/schema/`)
   - Comprehensive type definitions for models, components, logic, and orchestration
   - Schema validation and normalization
@@ -124,6 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Full Commander.js integration with help system
 
 #### Svelte 5 Integration
+
 - **Runes API Integration** (`src/integrations/svelte.ts`)
   - `usePraxisState` - Reactive state management with Svelte 5 runes
   - `usePraxisHistory` - Time-travel debugging with undo/redo
@@ -138,6 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integration with Praxis schemas
 
 #### Cloud & Monetization
+
 - **Praxis Cloud Integration** (`src/cloud/`)
   - GitHub-based authentication (OAuth device flow + PAT)
   - Tier-based billing (Free, Solo, Team, Enterprise)
@@ -152,6 +159,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Subscription status management
 
 #### Cross-Language Support
+
 - **PowerShell Adapter** (`powershell/Praxis.psm1`)
   - Full cmdlet library for Praxis operations
   - JSON bridge to TypeScript engine
@@ -165,6 +173,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Registry configuration from files
 
 #### Introspection & Visualization
+
 - **Registry Introspection** (`src/core/introspection.ts`)
   - Statistics retrieval (counts, IDs)
   - JSON schema generation
@@ -181,6 +190,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Migration path documentation
 
 #### Examples & Templates
+
 - **Hero E-Commerce Example** (`src/examples/hero-ecommerce/`)
   - Authentication with session management
   - Shopping cart with dynamic pricing
@@ -199,6 +209,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fullstack app template with all features
 
 #### Documentation
+
 - **Framework Documentation**
   - `FRAMEWORK.md` - Complete architecture guide
   - `GETTING_STARTED.md` - Comprehensive getting started guide
@@ -227,6 +238,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - API reference
 
 #### Testing
+
 - **Expanded Test Suite** (9 → 165 tests, 1733% increase)
   - `src/__tests__/actors.test.ts` - Actor lifecycle and behavior (12 tests)
   - `src/__tests__/edge-cases.test.ts` - Edge cases and error handling (19 tests)
@@ -242,6 +254,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All existing tests maintained and passing
 
 #### Infrastructure
+
 - **CI/CD Workflows** (`.github/workflows/`)
   - Node.js CI with multiple versions (18.x, 20.x)
   - Deno compatibility checks
@@ -265,6 +278,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - NPM and JSR publishing setup
 
 ### Changed
+
 - **README.md** - Updated to reflect full framework capabilities
   - Framework positioning and philosophy
   - Comprehensive feature list
@@ -278,11 +292,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Peer dependencies for Svelte 5
 
 ### Fixed
+
 - TypeScript compilation with strict mode
 - Test suite organization with proper vitest configuration
 - Export paths for library consumption
 
 ### Security
+
 - CodeQL scanning enabled
 - Secure token storage for authentication
 - GitHub OAuth with proper scopes
@@ -292,6 +308,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-11-15
 
 ### Added
+
 - Initial release of Praxis TypeScript library
 - Core type definitions: `PraxisState`, `PraxisEvent`, `StepResult`, `Effect`, `StepFunction`
 - Fluent DSL for defining rules and constraints
@@ -306,6 +323,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation and README
 
 ### Features
+
 - **Logic-First Design**: Build applications around facts, events, rules, and constraints
 - **Pure Functional Core**: State transitions via pure `step` functions
 - **Fluent DSL**: Intuitive API for defining rules and constraints

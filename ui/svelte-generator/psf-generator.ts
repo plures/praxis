@@ -1,10 +1,15 @@
 /**
  * PSF-Aware Svelte Generator
- * 
+ *
  * Generates Svelte components directly from PSF schema.
  */
 
-import type { PSFSchema, PSFComponent, PSFModel, PSFFieldType } from '../../core/schema-engine/psf.js';
+import type {
+  PSFSchema,
+  PSFComponent,
+  PSFModel,
+  PSFFieldType,
+} from '../../core/schema-engine/psf.js';
 
 /**
  * Generated Svelte component
@@ -62,9 +67,7 @@ export class PSFSvelteGenerator {
 
     // Generate components defined in schema
     for (const comp of schema.components) {
-      const model = comp.model
-        ? schema.models.find((m) => m.name === comp.model)
-        : undefined;
+      const model = comp.model ? schema.models.find((m) => m.name === comp.model) : undefined;
       components.push(this.generateComponent(comp, model));
     }
 
@@ -186,9 +189,13 @@ export class PSFSvelteGenerator {
 
       case 'list':
         lines.push('  // List handling');
-        lines.push(`  export let items${this.options.typescript ? `: ${model?.name || 'unknown'}[]` : ''} = [];`);
+        lines.push(
+          `  export let items${this.options.typescript ? `: ${model?.name || 'unknown'}[]` : ''} = [];`
+        );
         lines.push('');
-        lines.push(`  function handleSelect(item${this.options.typescript ? `: ${model?.name || 'unknown'}` : ''}) {`);
+        lines.push(
+          `  function handleSelect(item${this.options.typescript ? `: ${model?.name || 'unknown'}` : ''}) {`
+        );
         lines.push("    dispatch('select', item);");
         lines.push('  }');
         break;
@@ -243,11 +250,17 @@ export class PSFSvelteGenerator {
         lines.push(`    <label for="${field.name}">${label}</label>`);
 
         if (inputType === 'textarea') {
-          lines.push(`    <textarea id="${field.name}" bind:value={formData.${field.name}}></textarea>`);
+          lines.push(
+            `    <textarea id="${field.name}" bind:value={formData.${field.name}}></textarea>`
+          );
         } else if (inputType === 'checkbox') {
-          lines.push(`    <input type="checkbox" id="${field.name}" bind:checked={formData.${field.name}} />`);
+          lines.push(
+            `    <input type="checkbox" id="${field.name}" bind:checked={formData.${field.name}} />`
+          );
         } else {
-          lines.push(`    <input type="${inputType}" id="${field.name}" bind:value={formData.${field.name}} />`);
+          lines.push(
+            `    <input type="${inputType}" id="${field.name}" bind:value={formData.${field.name}} />`
+          );
         }
 
         lines.push(`  </div>`);
@@ -304,7 +317,8 @@ export class PSFSvelteGenerator {
     lines.push(`          <button on:click={() => handleSelect(item)}>`);
 
     if (model && model.fields.length > 0) {
-      const displayField = model.fields.find((f) => f.name === 'name' || f.name === 'title') || model.fields[0];
+      const displayField =
+        model.fields.find((f) => f.name === 'name' || f.name === 'title') || model.fields[0];
       lines.push(`            {item.${displayField.name}}`);
     } else {
       lines.push(`            {item}`);
@@ -466,7 +480,9 @@ describe('${comp.name}', () => {
       lines.push('| Name | Type | Required | Description |');
       lines.push('| ---- | ---- | -------- | ----------- |');
       for (const prop of comp.props) {
-        lines.push(`| ${prop.name} | \`${prop.type}\` | ${prop.required ? 'Yes' : 'No'} | ${prop.description || '-'} |`);
+        lines.push(
+          `| ${prop.name} | \`${prop.type}\` | ${prop.required ? 'Yes' : 'No'} | ${prop.description || '-'} |`
+        );
       }
     } else {
       lines.push('No props defined.');

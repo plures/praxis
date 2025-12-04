@@ -2,7 +2,7 @@
 
 /**
  * Praxis CLI
- * 
+ *
  * Command-line interface for the Praxis framework.
  */
 
@@ -81,7 +81,11 @@ program
   .option('-t, --target <target>', 'Generation target (all, logic, components, pluresdb)', 'all')
   .option('-o, --output <dir>', 'Output directory', './generated')
   .option('-w, --watch', 'Watch for changes')
-  .option('--auto-index <strategy>', 'Auto-indexing strategy for PluresDB (all, explicit, none)', 'all')
+  .option(
+    '--auto-index <strategy>',
+    'Auto-indexing strategy for PluresDB (all, explicit, none)',
+    'all'
+  )
   .action(async (options) => {
     await generate(options);
   });
@@ -206,13 +210,13 @@ cloudCmd
   .description('View cloud usage metrics')
   .action(async () => {
     try {
-    const { cloudUsage } = await import('./commands/cloud.js');
-    await cloudUsage();
-  } catch (error) {
-    console.error('Error retrieving usage metrics:', error);
-    process.exit(1);
-  }
-});
+      const { cloudUsage } = await import('./commands/cloud.js');
+      await cloudUsage();
+    } catch (error) {
+      console.error('Error retrieving usage metrics:', error);
+      process.exit(1);
+    }
+  });
 
 // Verify command
 program

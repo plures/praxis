@@ -1,6 +1,6 @@
 /**
  * Example: Order Processing System using Actors and Flows
- * 
+ *
  * This example demonstrates:
  * - Multiple actors working together
  * - Flows for tracking order progression
@@ -29,12 +29,14 @@ const outOfStockRule = rule()
   .id('out-of-stock-alert')
   .on('CHECK_INVENTORY')
   .when((state, event) => state.facts.stock < event.data.quantity)
-  .then((state, event) => [{
-    type: 'ALERT',
-    payload: {
-      message: `Low stock for ${event.data.product}: ${state.facts.stock} available, ${event.data.quantity} requested`,
+  .then((state, event) => [
+    {
+      type: 'ALERT',
+      payload: {
+        message: `Low stock for ${event.data.product}: ${state.facts.stock} available, ${event.data.quantity} requested`,
+      },
     },
-  }])
+  ])
   .build();
 
 inventoryRegistry.registerRule(outOfStockRule);
@@ -44,14 +46,16 @@ const orderConfirmedRule = rule()
   .id('order-confirmed')
   .on('CONFIRM_ORDER')
   .when((state) => state.facts.status === 'pending')
-  .then((state) => [{
-    type: 'SEND_EMAIL',
-    payload: {
-      to: state.facts.customerEmail,
-      subject: 'Order Confirmed',
-      body: `Your order #${state.facts.orderId} has been confirmed!`,
+  .then((state) => [
+    {
+      type: 'SEND_EMAIL',
+      payload: {
+        to: state.facts.customerEmail,
+        subject: 'Order Confirmed',
+        body: `Your order #${state.facts.orderId} has been confirmed!`,
+      },
     },
-  }])
+  ])
   .priority(10)
   .build();
 
@@ -74,7 +78,7 @@ const inventoryStep = createStepFunction({
     switch (event.type) {
       case 'CHECK_INVENTORY':
         return state;
-        
+
       case 'RESERVE_INVENTORY':
         const reserved = Math.min(state.facts.stock, event.data.quantity);
         return {
@@ -85,7 +89,7 @@ const inventoryStep = createStepFunction({
             reserved: (state.facts.reserved || 0) + reserved,
           },
         };
-        
+
       case 'RELEASE_INVENTORY':
         return {
           ...state,
@@ -95,7 +99,7 @@ const inventoryStep = createStepFunction({
             reserved: Math.max(0, (state.facts.reserved || 0) - event.data.quantity),
           },
         };
-        
+
       default:
         return state;
     }
@@ -118,7 +122,7 @@ const orderStep = createStepFunction({
             status: 'pending',
           },
         };
-        
+
       case 'CONFIRM_ORDER':
         return {
           ...state,
@@ -128,7 +132,7 @@ const orderStep = createStepFunction({
             confirmedAt: event.timestamp,
           },
         };
-        
+
       case 'SHIP_ORDER':
         return {
           ...state,
@@ -138,7 +142,7 @@ const orderStep = createStepFunction({
             shippedAt: event.timestamp,
           },
         };
-        
+
       case 'DELIVER_ORDER':
         return {
           ...state,
@@ -148,7 +152,7 @@ const orderStep = createStepFunction({
             deliveredAt: event.timestamp,
           },
         };
-        
+
       default:
         return state;
     }
@@ -184,18 +188,22 @@ system.register(mouseInventory);
 system.register(order1);
 
 // Create order flow
-const orderFlow = createFlow('order-processing', [
-  { id: 'create', expectedEventType: 'CREATE_ORDER' },
-  { id: 'confirm', expectedEventType: 'CONFIRM_ORDER' },
-  { id: 'ship', expectedEventType: 'SHIP_ORDER' },
-  { id: 'deliver', expectedEventType: 'DELIVER_ORDER' },
-], 'Track order from creation to delivery');
+const orderFlow = createFlow(
+  'order-processing',
+  [
+    { id: 'create', expectedEventType: 'CREATE_ORDER' },
+    { id: 'confirm', expectedEventType: 'CONFIRM_ORDER' },
+    { id: 'ship', expectedEventType: 'SHIP_ORDER' },
+    { id: 'deliver', expectedEventType: 'DELIVER_ORDER' },
+  ],
+  'Track order from creation to delivery'
+);
 
 // Helper to handle effects
 function handleEffects(effects) {
   if (!effects || effects.length === 0) return;
-  
-  effects.forEach(effect => {
+
+  effects.forEach((effect) => {
     switch (effect.type) {
       case 'ALERT':
         console.log(`  ⚠️  ${effect.payload.message}`);
@@ -227,7 +235,10 @@ let result = system.send('order-001', {
     ],
   },
 });
-let flowResult = advanceFlow(orderFlow, result ? { type: 'CREATE_ORDER', timestamp: Date.now() } : null);
+let flowResult = advanceFlow(
+  orderFlow,
+  result ? { type: 'CREATE_ORDER', timestamp: Date.now() } : null
+);
 console.log(`  ✅ Flow: ${flowResult.flow.steps[flowResult.flow.currentStep - 1].id}`);
 handleEffects(result?.effects);
 
@@ -248,7 +259,9 @@ result = system.send('inventory-laptop', {
   timestamp: Date.now(),
   data: { quantity: 2 },
 });
-console.log(`  ✅ Reserved 2 laptops. Remaining: ${system.get('inventory-laptop').state.facts.stock}`);
+console.log(
+  `  ✅ Reserved 2 laptops. Remaining: ${system.get('inventory-laptop').state.facts.stock}`
+);
 
 result = system.send('inventory-mouse', {
   type: 'RESERVE_INVENTORY',
@@ -289,8 +302,12 @@ console.log(`  🎉 Flow complete: ${flowResult.flow.complete}`);
 // Display final state
 console.log('\n=== Final System State ===');
 console.log('\nInventory:');
-console.log(`  Laptops: ${system.get('inventory-laptop').state.facts.stock} available, ${system.get('inventory-laptop').state.facts.reserved} reserved`);
-console.log(`  Mice: ${system.get('inventory-mouse').state.facts.stock} available, ${system.get('inventory-mouse').state.facts.reserved} reserved`);
+console.log(
+  `  Laptops: ${system.get('inventory-laptop').state.facts.stock} available, ${system.get('inventory-laptop').state.facts.reserved} reserved`
+);
+console.log(
+  `  Mice: ${system.get('inventory-mouse').state.facts.stock} available, ${system.get('inventory-mouse').state.facts.reserved} reserved`
+);
 
 console.log('\nOrder:');
 const orderState = system.get('order-001').state.facts;

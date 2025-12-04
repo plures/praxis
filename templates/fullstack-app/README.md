@@ -79,6 +79,7 @@ export const features = {
 ### 3. Define schemas
 
 The template includes example schemas:
+
 - `auth.schema.ts` - User authentication and sessions
 - `data.schema.ts` - Application data models
 - `app.schema.ts` - Main application configuration
@@ -90,6 +91,7 @@ praxis generate --target all
 ```
 
 Generates:
+
 - Components from all schemas
 - Logic modules with facts, events, rules
 - PluresDB models
@@ -128,6 +130,7 @@ npm run build
 ### Authentication Module
 
 Pre-configured authentication with:
+
 - User registration and login
 - Session management
 - JWT tokens (optional)
@@ -137,6 +140,7 @@ Pre-configured authentication with:
 ### Data Module
 
 Example data models:
+
 - Users
 - Posts
 - Comments
@@ -145,6 +149,7 @@ Example data models:
 ### Canvas Integration
 
 Visual editing for:
+
 - Schema definitions
 - Logic flows
 - Component layouts
@@ -153,6 +158,7 @@ Visual editing for:
 ### Orchestration
 
 Distributed coordination:
+
 - Node configuration
 - State synchronization
 - Health monitoring
@@ -232,6 +238,7 @@ npm run build:mobile
 All documentation is automatically generated in `src/docs/` using State-Docs.
 
 To view:
+
 ```bash
 npm run docs
 ```
@@ -239,12 +246,14 @@ npm run docs
 ## Testing
 
 The template includes:
+
 - Unit tests for logic modules
 - Component tests
 - Integration tests
 - E2E test scaffolds
 
 Run all tests:
+
 ```bash
 npm test
 ```
@@ -252,6 +261,7 @@ npm test
 ## Monitoring
 
 Built-in monitoring with:
+
 - Performance metrics
 - Error tracking
 - User analytics (opt-in)

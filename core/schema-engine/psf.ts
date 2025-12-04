@@ -1,9 +1,9 @@
 /**
  * Praxis Schema Format (PSF) Types
- * 
+ *
  * PSF is the canonical AST format that serves as the single source of truth.
  * All code, canvas, and documentation are derived from or synchronized with PSF.
- * 
+ *
  * Design principles:
  * - JSON-serializable for persistence and transmission
  * - Supports bidirectional code ↔ canvas sync
@@ -211,7 +211,16 @@ export type PSFFieldType =
  */
 export interface PSFValidation {
   /** Validation type */
-  type: 'required' | 'min' | 'max' | 'minLength' | 'maxLength' | 'pattern' | 'email' | 'url' | 'custom';
+  type:
+    | 'required'
+    | 'min'
+    | 'max'
+    | 'minLength'
+    | 'maxLength'
+    | 'pattern'
+    | 'email'
+    | 'url'
+    | 'custom';
   /** Validation value */
   value?: unknown;
   /** Error message */

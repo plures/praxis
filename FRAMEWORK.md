@@ -55,6 +55,7 @@ The Praxis framework is organized into these core areas:
 The Praxis schema system provides a declarative way to define your application structure.
 
 **Key Features:**
+
 - Type-safe schema definitions
 - Validation and constraints
 - Multi-target generation (models, components, docs, orchestration)
@@ -62,6 +63,7 @@ The Praxis schema system provides a declarative way to define your application s
 - Version management
 
 **Schema Format:**
+
 ```typescript
 interface PraxisSchema {
   version: string;
@@ -76,6 +78,7 @@ interface PraxisSchema {
 ```
 
 **Outputs:**
+
 - PluresDB models for data storage
 - Svelte components for UI
 - State-Docs documentation
@@ -88,6 +91,7 @@ interface PraxisSchema {
 The logic engine provides the computational core of Praxis applications.
 
 **Components:**
+
 - **Facts**: Typed propositions about the domain
 - **Events**: Temporally ordered facts that drive change
 - **Rules**: Pure functions that derive new facts
@@ -96,6 +100,7 @@ The logic engine provides the computational core of Praxis applications.
 - **Actors**: Effectful units for side effects
 
 **Architecture:**
+
 - Pure, functional core with immutable state
 - JSON-friendly protocol for cross-language use
 - Type-safe TypeScript implementation
@@ -106,6 +111,7 @@ The logic engine provides the computational core of Praxis applications.
 The component factory generates Svelte components from schemas.
 
 **Features:**
+
 - Schema-to-component transformation
 - Data binding generation
 - Event handler generation
@@ -113,6 +119,7 @@ The component factory generates Svelte components from schemas.
 - Canvas-compatible output
 
 **Generated Components Include:**
+
 - Form components with validation
 - Data display components
 - Navigation components
@@ -123,6 +130,7 @@ The component factory generates Svelte components from schemas.
 PluresDB provides the data storage and synchronization layer.
 
 **Capabilities:**
+
 - Local-first reactive datastore
 - Automatic sync when connected
 - Query and subscription APIs
@@ -130,6 +138,7 @@ PluresDB provides the data storage and synchronization layer.
 - Conflict resolution
 
 **Integration Points:**
+
 - Schema-driven model generation
 - Logic engine fact/event storage
 - Component data binding
@@ -140,6 +149,7 @@ PluresDB provides the data storage and synchronization layer.
 CodeCanvas provides visual development capabilities.
 
 **Features:**
+
 - Visual schema editor
 - Logic flow designer
 - Component preview
@@ -147,6 +157,7 @@ CodeCanvas provides visual development capabilities.
 - Documentation navigation
 
 **Use Cases:**
+
 - Design schemas visually
 - Build logic flows with drag-and-drop
 - Preview generated components
@@ -158,6 +169,7 @@ CodeCanvas provides visual development capabilities.
 Support for distributed system coordination.
 
 **Capabilities:**
+
 - Desired State Configuration (DSC)
 - Model Context Protocol (MCP) integration
 - Multi-node coordination
@@ -165,6 +177,7 @@ Support for distributed system coordination.
 - Health monitoring
 
 **Use Cases:**
+
 - Self-healing distributed systems
 - Automatic node onboarding
 - Configuration management
@@ -177,37 +190,47 @@ The Praxis CLI provides commands for creating and managing applications.
 ### Commands
 
 #### `praxis create app [name]`
+
 Create a new Praxis application from a template.
 
 Options:
+
 - `--template`: Template to use (basic, fullstack, distributed)
 - `--features`: Features to include (auth, canvas, orchestration)
 
 #### `praxis create component [name]`
+
 Create a new component from a schema.
 
 Options:
+
 - `--schema`: Path to schema file
 - `--output`: Output directory
 
 #### `praxis generate`
+
 Generate code from schemas.
 
 Options:
+
 - `--target`: Generation target (components, models, docs, all)
 - `--watch`: Watch for schema changes
 
 #### `praxis canvas [schema]`
+
 Open CodeCanvas for visual editing.
 
 Options:
+
 - `--port`: Port for Canvas server
 - `--mode`: Mode (edit, view, present)
 
 #### `praxis orchestrate`
+
 Manage orchestration and distributed coordination.
 
 Options:
+
 - `--config`: Orchestration configuration file
 - `--nodes`: Number of nodes to coordinate
 
@@ -216,6 +239,7 @@ Options:
 ### Basic App Template
 
 A minimal Praxis application with:
+
 - Schema definition
 - Logic engine setup
 - Basic Svelte UI
@@ -225,6 +249,7 @@ A minimal Praxis application with:
 ### Fullstack App Template
 
 A complete application with:
+
 - All Basic App features
 - Authentication module
 - Component library
@@ -235,6 +260,7 @@ A complete application with:
 ### Component Template
 
 A reusable component with:
+
 - Schema definition
 - Generated Svelte component
 - Unit tests
@@ -244,6 +270,7 @@ A reusable component with:
 ### Orchestrator Template
 
 A distributed application with:
+
 - DSC configuration
 - Multi-node setup
 - State synchronization
@@ -257,6 +284,7 @@ A distributed application with:
 **Current Status**: Foundation in place (`src/integrations/pluresdb.ts`)
 
 **Planned Features**:
+
 - Schema-to-model transformation
 - Reactive queries from logic engine
 - Event sourcing from facts/events
@@ -268,6 +296,7 @@ A distributed application with:
 **Current Status**: Planned
 
 **Planned Features**:
+
 - Identity management
 - Channel-based messaging
 - Distributed actor communication
@@ -279,6 +308,7 @@ A distributed application with:
 **Current Status**: Planned
 
 **Planned Features**:
+
 - Architectural guardrails
 - Decision tracking from schemas
 - Static analysis of logic rules
@@ -290,6 +320,7 @@ A distributed application with:
 **Current Status**: Planned
 
 **Planned Features**:
+
 - Automatic documentation from schemas
 - Logic flow documentation
 - Component documentation
@@ -301,6 +332,7 @@ A distributed application with:
 **Current Status**: Planned
 
 **Planned Features**:
+
 - Visual schema editor
 - Logic flow designer
 - Component preview server
@@ -312,6 +344,7 @@ A distributed application with:
 ### Offline-First Chat
 
 Demonstrates:
+
 - Local-first architecture
 - PluresDB for message storage
 - Real-time sync when connected
@@ -321,6 +354,7 @@ Demonstrates:
 ### Knowledge Canvas
 
 Demonstrates:
+
 - Canvas visual editing
 - Knowledge graph modeling
 - Schema-driven UI generation
@@ -330,6 +364,7 @@ Demonstrates:
 ### Self-Orchestrating Node
 
 Demonstrates:
+
 - DSC orchestration
 - Automatic node discovery
 - Self-healing behavior
@@ -339,36 +374,48 @@ Demonstrates:
 ## Development Workflow
 
 ### 1. Define Schema
+
 ```typescript
 // app.schema.ts
 export const schema: PraxisSchema = {
-  version: "1.0.0",
-  name: "MyApp",
-  models: [/* ... */],
-  components: [/* ... */],
-  logic: [/* ... */]
+  version: '1.0.0',
+  name: 'MyApp',
+  models: [
+    /* ... */
+  ],
+  components: [
+    /* ... */
+  ],
+  logic: [
+    /* ... */
+  ],
 };
 ```
 
 ### 2. Generate Code
+
 ```bash
 praxis generate --target all
 ```
 
 ### 3. Customize Generated Code
+
 Edit generated components and logic as needed.
 
 ### 4. Visual Editing (Optional)
+
 ```bash
 praxis canvas app.schema.ts
 ```
 
 ### 5. Run Application
+
 ```bash
 npm run dev
 ```
 
 ### 6. Deploy
+
 ```bash
 npm run build
 ```
@@ -376,6 +423,7 @@ npm run build
 ## Future Enhancements
 
 ### Short Term
+
 - Complete CLI implementation
 - Basic templates
 - Schema validation
@@ -383,6 +431,7 @@ npm run build
 - Documentation generation
 
 ### Medium Term
+
 - Full Canvas integration
 - PluresDB complete integration
 - Unum identity support
@@ -390,6 +439,7 @@ npm run build
 - Advanced orchestration
 
 ### Long Term
+
 - C# and PowerShell framework bindings
 - Mobile-first templates
 - Distributed tracing

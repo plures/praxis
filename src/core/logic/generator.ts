@@ -1,14 +1,10 @@
 /**
  * Praxis Logic Generator
- * 
+ *
  * Generates logic module code from schema definitions.
  */
 
-import type {
-  FactDefinition,
-  EventDefinition,
-  RuleDefinition,
-} from '../schema/types.js';
+import type { FactDefinition, EventDefinition, RuleDefinition } from '../schema/types.js';
 import type { NormalizedSchema } from '../schema/normalize.js';
 
 /**
@@ -40,7 +36,7 @@ export interface GeneratedLogicFile {
  */
 export class LogicGenerator {
   private options: LogicGeneratorOptions;
-  
+
   constructor(options: LogicGeneratorOptions) {
     this.options = {
       typescript: true,
@@ -48,16 +44,16 @@ export class LogicGenerator {
       ...options,
     };
   }
-  
+
   /**
    * Generate all logic files from schema
    */
   generateLogic(schema: NormalizedSchema): GeneratedLogicFile[] {
     const files: GeneratedLogicFile[] = [];
-    
+
     // Collect all logic definitions
     const allLogic = schema.logic || [];
-    
+
     if (allLogic.length === 0) {
       // Generate minimal structure even without logic definitions
       files.push(this.generateFactsFile([]));
@@ -67,49 +63,51 @@ export class LogicGenerator {
       files.push(this.generateIndexFile());
       return files;
     }
-    
+
     // Collect all facts, events, and rules from logic definitions
     const allFacts = allLogic.flatMap((logic) => logic.facts || []);
     const allEvents = allLogic.flatMap((logic) => logic.events || []);
     const allRules = allLogic.flatMap((logic) => logic.rules || []);
-    
+
     // Generate individual files
     files.push(this.generateFactsFile(allFacts));
     files.push(this.generateEventsFile(allEvents));
     files.push(this.generateRulesFile(allRules));
     files.push(this.generateEngineFile(schema));
     files.push(this.generateIndexFile());
-    
+
     return files;
   }
-  
+
   /**
    * Generate facts.ts file
    */
   private generateFactsFile(facts: FactDefinition[]): GeneratedLogicFile {
     const ext = this.options.typescript ? 'ts' : 'js';
     const lines: string[] = [];
-    
+
     lines.push("import { defineFact } from '@plures/praxis';");
     lines.push('');
-    
+
     if (this.options.includeDocs) {
       lines.push('/**');
       lines.push(' * Fact definitions');
       lines.push(' */');
       lines.push('');
     }
-    
+
     if (facts.length === 0) {
       lines.push('// No facts defined in schema');
       lines.push('// Example:');
-      lines.push('// export const UserCreated = defineFact<"UserCreated", { userId: string }>("UserCreated");');
+      lines.push(
+        '// export const UserCreated = defineFact<"UserCreated", { userId: string }>("UserCreated");'
+      );
     } else {
       for (const fact of facts) {
         if (this.options.includeDocs && fact.description) {
           lines.push(`/** ${fact.description} */`);
         }
-        
+
         const payloadType = this.generatePayloadType(fact.payload);
         lines.push(
           `export const ${fact.tag} = defineFact<"${fact.tag}", ${payloadType}>("${fact.tag}");`
@@ -117,41 +115,43 @@ export class LogicGenerator {
         lines.push('');
       }
     }
-    
+
     return {
       path: `${this.options.outputDir}/facts.${ext}`,
       content: lines.join('\n'),
       type: 'facts',
     };
   }
-  
+
   /**
    * Generate events.ts file
    */
   private generateEventsFile(events: EventDefinition[]): GeneratedLogicFile {
     const ext = this.options.typescript ? 'ts' : 'js';
     const lines: string[] = [];
-    
+
     lines.push("import { defineEvent } from '@plures/praxis';");
     lines.push('');
-    
+
     if (this.options.includeDocs) {
       lines.push('/**');
       lines.push(' * Event definitions');
       lines.push(' */');
       lines.push('');
     }
-    
+
     if (events.length === 0) {
       lines.push('// No events defined in schema');
       lines.push('// Example:');
-      lines.push('// export const CreateUser = defineEvent<"CREATE_USER", { name: string; email: string }>("CREATE_USER");');
+      lines.push(
+        '// export const CreateUser = defineEvent<"CREATE_USER", { name: string; email: string }>("CREATE_USER");'
+      );
     } else {
       for (const event of events) {
         if (this.options.includeDocs && event.description) {
           lines.push(`/** ${event.description} */`);
         }
-        
+
         const payloadType = this.generatePayloadType(event.payload);
         lines.push(
           `export const ${event.tag} = defineEvent<"${event.tag}", ${payloadType}>("${event.tag}");`
@@ -159,33 +159,33 @@ export class LogicGenerator {
         lines.push('');
       }
     }
-    
+
     return {
       path: `${this.options.outputDir}/events.${ext}`,
       content: lines.join('\n'),
       type: 'events',
     };
   }
-  
+
   /**
    * Generate rules.ts file
    */
   private generateRulesFile(rules: RuleDefinition[]): GeneratedLogicFile {
     const ext = this.options.typescript ? 'ts' : 'js';
     const lines: string[] = [];
-    
+
     lines.push("import { defineRule } from '@plures/praxis';");
     lines.push("import * as Facts from './facts.js';");
     lines.push("import * as Events from './events.js';");
     lines.push('');
-    
+
     if (this.options.includeDocs) {
       lines.push('/**');
       lines.push(' * Rule definitions');
       lines.push(' */');
       lines.push('');
     }
-    
+
     if (rules.length === 0) {
       lines.push('// No rules defined in schema');
       lines.push('// Example:');
@@ -207,42 +207,42 @@ export class LogicGenerator {
         if (this.options.includeDocs && rule.description) {
           lines.push(`/** ${rule.description} */`);
         }
-        
+
         lines.push(`export const ${this.sanitizeIdentifier(rule.id)}Rule = defineRule({`);
         lines.push(`  id: '${rule.id}',`);
         lines.push(`  description: '${rule.description}',`);
-        
+
         if (rule.priority !== undefined) {
           lines.push(`  priority: ${rule.priority},`);
         }
-        
+
         // Generate implementation based on rule definition
         const eventTriggers = rule.on || [];
         const condition = rule.when || 'true';
         const action = rule.then;
-        
+
         lines.push('  impl: (state, events) => {');
-        
+
         // Add event filtering if triggers are specified
         if (eventTriggers.length > 0) {
           lines.push(`    // Filter for triggering events: ${eventTriggers.join(', ')}`);
           lines.push(`    const triggerEvents = events.filter(e => `);
-          lines.push(`      [${eventTriggers.map(e => `'${e}'`).join(', ')}].includes(e.tag)`);
+          lines.push(`      [${eventTriggers.map((e) => `'${e}'`).join(', ')}].includes(e.tag)`);
           lines.push('    );');
           lines.push('    if (triggerEvents.length === 0) return [];');
           lines.push('');
         }
-        
+
         // Add condition check
         if (condition && condition !== 'true') {
           lines.push(`    // Condition: ${condition}`);
           lines.push(`    // Implement condition logic here`);
           lines.push('');
         }
-        
+
         // Parse action to generate appropriate response
         lines.push(`    // Action: ${action}`);
-        
+
         // Try to generate a fact from the action
         const factMatch = action.match(/emit\s*\(\s*['"](\w+)['"]/);
         if (factMatch) {
@@ -255,12 +255,12 @@ export class LogicGenerator {
           // Default: return empty array
           lines.push('    return [];');
         }
-        
+
         lines.push('  },');
         lines.push('});');
         lines.push('');
       }
-      
+
       // Export all rules as array
       lines.push('export const rules = [');
       for (const rule of rules) {
@@ -268,25 +268,25 @@ export class LogicGenerator {
       }
       lines.push('];');
     }
-    
+
     return {
       path: `${this.options.outputDir}/rules.${ext}`,
       content: lines.join('\n'),
       type: 'rules',
     };
   }
-  
+
   /**
    * Generate engine.ts file
    */
   private generateEngineFile(schema: NormalizedSchema): GeneratedLogicFile {
     const ext = this.options.typescript ? 'ts' : 'js';
     const lines: string[] = [];
-    
+
     lines.push("import { createPraxisEngine, PraxisRegistry } from '@plures/praxis';");
     lines.push("import { rules } from './rules.js';");
     lines.push('');
-    
+
     if (this.options.includeDocs) {
       lines.push('/**');
       lines.push(` * ${schema.name} Logic Engine`);
@@ -296,14 +296,14 @@ export class LogicGenerator {
       lines.push(' */');
       lines.push('');
     }
-    
+
     // Generate context type from models
     if (this.options.typescript) {
       lines.push('/**');
       lines.push(' * Application context type');
       lines.push(' */');
       lines.push('export interface AppContext {');
-      
+
       if (schema.models && schema.models.length > 0) {
         for (const model of schema.models) {
           lines.push(`  ${model.name.toLowerCase()}s: ${model.name}[];`);
@@ -311,10 +311,10 @@ export class LogicGenerator {
       } else {
         lines.push('  // Add your context properties here');
       }
-      
+
       lines.push('}');
       lines.push('');
-      
+
       // Generate model types
       if (schema.models && schema.models.length > 0) {
         for (const model of schema.models) {
@@ -329,7 +329,7 @@ export class LogicGenerator {
         }
       }
     }
-    
+
     // Create registry and engine
     lines.push('/**');
     lines.push(' * Create the logic engine');
@@ -344,7 +344,7 @@ export class LogicGenerator {
     lines.push('');
     lines.push('  // Create engine with initial context');
     lines.push('  const initialContext: AppContext = {');
-    
+
     if (schema.models && schema.models.length > 0) {
       for (const model of schema.models) {
         lines.push(`    ${model.name.toLowerCase()}s: [],`);
@@ -352,7 +352,7 @@ export class LogicGenerator {
     } else {
       lines.push('    // Initialize your context here');
     }
-    
+
     lines.push('  };');
     lines.push('');
     lines.push('  return createPraxisEngine({');
@@ -360,33 +360,33 @@ export class LogicGenerator {
     lines.push('    registry,');
     lines.push('  });');
     lines.push('}');
-    
+
     return {
       path: `${this.options.outputDir}/engine.${ext}`,
       content: lines.join('\n'),
       type: 'engine',
     };
   }
-  
+
   /**
    * Generate index.ts file
    */
   private generateIndexFile(): GeneratedLogicFile {
     const ext = this.options.typescript ? 'ts' : 'js';
     const lines: string[] = [];
-    
+
     lines.push("export * from './facts.js';");
     lines.push("export * from './events.js';");
     lines.push("export * from './rules.js';");
     lines.push("export * from './engine.js';");
-    
+
     return {
       path: `${this.options.outputDir}/index.${ext}`,
       content: lines.join('\n'),
       type: 'index',
     };
   }
-  
+
   /**
    * Generate TypeScript type from payload definition
    */
@@ -396,7 +396,7 @@ export class LogicGenerator {
       .join('; ');
     return `{ ${fields} }`;
   }
-  
+
   /**
    * Map field type to TypeScript type
    */
@@ -419,7 +419,7 @@ export class LogicGenerator {
           return 'unknown';
       }
     }
-    
+
     if (typeof type === 'object') {
       if ('array' in type) {
         const innerType = this.mapFieldType(type.array);
@@ -429,10 +429,10 @@ export class LogicGenerator {
         return type.reference;
       }
     }
-    
+
     return 'unknown';
   }
-  
+
   /**
    * Sanitize identifier for variable names
    */

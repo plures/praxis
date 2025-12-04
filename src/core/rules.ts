@@ -1,12 +1,12 @@
 /**
  * Rules and Constraints System
- * 
+ *
  * This module defines the types and registry for rules and constraints.
  * Rules and constraints are identified by stable IDs and can be described as data,
  * making them portable across languages and suitable for DSL-based definitions.
  */
 
-import type { PraxisEvent, PraxisFact, PraxisState } from "./protocol.js";
+import type { PraxisEvent, PraxisFact, PraxisState } from './protocol.js';
 
 /**
  * Unique identifier for a rule
@@ -21,7 +21,7 @@ export type ConstraintId = string;
 /**
  * A rule function derives new facts or transitions from context + input facts/events.
  * Rules must be pure - no side effects.
- * 
+ *
  * @param state Current Praxis state
  * @param events Events to process
  * @returns Array of new facts to add to the state
@@ -34,7 +34,7 @@ export type RuleFn<TContext = unknown> = (
 /**
  * A constraint function checks that an invariant holds.
  * Constraints must be pure - no side effects.
- * 
+ *
  * @param state Current Praxis state
  * @returns true if constraint is satisfied, false or error message if violated
  */

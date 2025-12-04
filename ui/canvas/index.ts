@@ -1,9 +1,9 @@
 /**
  * Praxis Canvas
- * 
+ *
  * Real-time visual editor for PSF schemas.
  * Provides bidirectional sync between canvas and code.
- * 
+ *
  * Features:
  * - Drag-and-drop nodes for facts, events, rules, constraints
  * - Visual links and relationships
@@ -14,14 +14,14 @@
  * - Undo/redo
  * - Grid snapping
  * - Multiple layout algorithms
- * 
+ *
  * @example
  * ```svelte
  * <script>
  *   import PraxisCanvas from '@plures/praxis/ui/canvas/components/PraxisCanvas.svelte';
  *   import { mySchema } from './schema.js';
  * </script>
- * 
+ *
  * <PraxisCanvas schema={mySchema} theme="dark" />
  * ```
  */

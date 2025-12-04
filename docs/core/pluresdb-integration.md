@@ -5,6 +5,7 @@ PluresDB is Praxis's local-first reactive datastore. This document explains how 
 ## Overview
 
 PluresDB provides:
+
 - **Local-first storage**: Data lives on the device
 - **Reactive queries**: Automatic UI updates on data changes
 - **Sync**: Automatic synchronization when connected
@@ -17,18 +18,18 @@ flowchart TB
         Engine[Logic Engine]
         UI[UI Components]
     end
-    
+
     subgraph PluresDB["PluresDB"]
         Local[(Local Store)]
         Sync[Sync Engine]
         CRDT[CRDT Resolver]
     end
-    
+
     subgraph Cloud["Praxis Cloud"]
         Relay[Relay Server]
         Remote[(Remote Store)]
     end
-    
+
     Engine <--> Local
     UI <--> Local
     Local <--> Sync
@@ -57,18 +58,18 @@ import { createPluresDB } from '@plures/praxis';
 const db = createPluresDB({
   // Database name (stored in IndexedDB)
   name: 'my-app-db',
-  
+
   // Schema version (increment to migrate)
   version: 1,
-  
+
   // Collections to create
   collections: ['users', 'posts', 'comments'],
-  
+
   // Sync configuration (optional)
   sync: {
     enabled: true,
     endpoint: 'https://your-sync-server.com',
-    interval: 5000,  // ms
+    interval: 5000, // ms
   },
 });
 ```
@@ -167,10 +168,7 @@ await db.users.updateById('user-123', {
 });
 
 // Update matching documents
-await db.users.updateMany(
-  { role: 'guest' },
-  { $set: { active: false } }
-);
+await db.users.updateMany({ role: 'guest' }, { $set: { active: false } });
 
 // Replace document
 await db.users.replaceById('user-123', {
@@ -199,7 +197,7 @@ PluresDB queries are reactive - they automatically update when data changes.
 ```typescript
 // Subscribe to all users
 const unsubscribe = db.users.subscribe(
-  {},  // Query
+  {}, // Query
   (users) => {
     console.log('Users updated:', users);
   }
@@ -214,10 +212,10 @@ unsubscribe();
 ```svelte
 <script lang="ts">
   import { db } from '../db';
-  
+
   // Reactive query as a store
   const users = db.users.query({});
-  
+
   // Derived query
   const activeUsers = db.users.query({ active: true });
 </script>
@@ -351,10 +349,10 @@ const db = createPluresDB({
       name: 'documents',
       schema: {
         id: { type: 'uuid' },
-        title: { type: 'string', crdt: 'lww' },  // Last-write-wins
-        content: { type: 'string', crdt: 'rga' },  // Sequence CRDT
-        tags: { type: 'array', crdt: 'or-set' },  // Add-wins set
-        viewCount: { type: 'number', crdt: 'counter' },  // Counter
+        title: { type: 'string', crdt: 'lww' }, // Last-write-wins
+        content: { type: 'string', crdt: 'rga' }, // Sequence CRDT
+        tags: { type: 'array', crdt: 'or-set' }, // Add-wins set
+        viewCount: { type: 'number', crdt: 'counter' }, // Counter
       },
     },
   ],
@@ -436,10 +434,7 @@ const db = createPluresDB({
 const posts = await db.posts.find({ authorId: 'user-123' });
 
 // Uses compound index
-const recentPosts = await db.posts.find(
-  { authorId: 'user-123' },
-  { sort: { createdAt: -1 } }
-);
+const recentPosts = await db.posts.find({ authorId: 'user-123' }, { sort: { createdAt: -1 } });
 
 // Uses multikey index for array
 const taggedPosts = await db.posts.find({ tags: 'javascript' });
@@ -456,9 +451,7 @@ From your PSF schema:
   "models": [
     {
       "name": "Post",
-      "fields": [
-        { "name": "authorId", "type": "string" }
-      ],
+      "fields": [{ "name": "authorId", "type": "string" }],
       "relationships": [
         {
           "name": "author",
@@ -476,21 +469,15 @@ From your PSF schema:
 
 ```typescript
 // Include related documents
-const posts = await db.posts.find(
-  {},
-  { include: ['author'] }
-);
+const posts = await db.posts.find({}, { include: ['author'] });
 
 // Each post has author populated
-posts.forEach(post => {
+posts.forEach((post) => {
   console.log(`${post.title} by ${post.author.username}`);
 });
 
 // Nested includes
-const posts = await db.posts.find(
-  {},
-  { include: ['author', 'comments.author'] }
-);
+const posts = await db.posts.find({}, { include: ['author', 'comments.author'] });
 ```
 
 ## Integration with Logic Engine
@@ -560,7 +547,7 @@ engine.subscribe((state) => {
 ```typescript
 const db = createPluresDB({
   name: 'my-app',
-  version: 2,  // Increment version
+  version: 2, // Increment version
   collections: ['users', 'posts'],
   migrations: [
     {
@@ -578,9 +565,12 @@ const db = createPluresDB({
       },
       down: async (db) => {
         // Rollback migration
-        await db.users.updateMany({}, {
-          $unset: { role: true },
-        });
+        await db.users.updateMany(
+          {},
+          {
+            $unset: { role: true },
+          }
+        );
       },
     },
   ],
@@ -601,7 +591,7 @@ const db = createPluresDB({
         username: { type: 'string', required: true },
         email: { type: 'string', required: true, unique: true },
       },
-      validate: true,  // Enable validation
+      validate: true, // Enable validation
     },
   ],
 });

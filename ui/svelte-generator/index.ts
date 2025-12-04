@@ -1,6 +1,6 @@
 /**
  * Praxis Svelte Generator
- * 
+ *
  * Generates Svelte components from PSF schema definitions.
  * Provides a complete UI generation pipeline from schema to components.
  */

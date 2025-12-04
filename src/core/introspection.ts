@@ -1,18 +1,18 @@
 /**
  * Introspection and Visualization Utilities
- * 
+ *
  * Provides APIs to introspect the registry, generate schemas,
  * and export graph representations for external tools.
  */
 
-import type { PraxisRegistry, RuleDescriptor, ConstraintDescriptor } from "./rules.js";
+import type { PraxisRegistry, RuleDescriptor, ConstraintDescriptor } from './rules.js';
 
 /**
  * Graph node representing a rule in the system
  */
 export interface RuleNode {
   id: string;
-  type: "rule";
+  type: 'rule';
   description: string;
   meta?: Record<string, unknown>;
 }
@@ -22,7 +22,7 @@ export interface RuleNode {
  */
 export interface ConstraintNode {
   id: string;
-  type: "constraint";
+  type: 'constraint';
   description: string;
   meta?: Record<string, unknown>;
 }
@@ -33,7 +33,7 @@ export interface ConstraintNode {
 export interface GraphEdge {
   from: string;
   to: string;
-  type: "triggers" | "constrains" | "depends-on";
+  type: 'triggers' | 'constrains' | 'depends-on';
 }
 
 /**
@@ -55,7 +55,7 @@ export interface RegistryGraph {
 export interface RuleSchema {
   id: string;
   description: string;
-  type: "rule";
+  type: 'rule';
   meta?: Record<string, unknown>;
 }
 
@@ -65,7 +65,7 @@ export interface RuleSchema {
 export interface ConstraintSchema {
   id: string;
   description: string;
-  type: "constraint";
+  type: 'constraint';
   meta?: Record<string, unknown>;
 }
 
@@ -119,14 +119,14 @@ export class RegistryIntrospector<TContext = unknown> {
     const rules: RuleSchema[] = this.registry.getAllRules().map((rule) => ({
       id: rule.id,
       description: rule.description,
-      type: "rule" as const,
+      type: 'rule' as const,
       meta: rule.meta,
     }));
 
     const constraints: ConstraintSchema[] = this.registry.getAllConstraints().map((constraint) => ({
       id: constraint.id,
       description: constraint.description,
-      type: "constraint" as const,
+      type: 'constraint' as const,
       meta: constraint.meta,
     }));
 
@@ -143,7 +143,7 @@ export class RegistryIntrospector<TContext = unknown> {
 
   /**
    * Generate a graph representation of the registry
-   * 
+   *
    * This creates nodes for rules and constraints.
    * Edges can be inferred from metadata if rules/constraints
    * document their dependencies.
@@ -156,7 +156,7 @@ export class RegistryIntrospector<TContext = unknown> {
     for (const rule of this.registry.getAllRules()) {
       nodes.push({
         id: rule.id,
-        type: "rule",
+        type: 'rule',
         description: rule.description,
         meta: rule.meta,
       });
@@ -170,7 +170,7 @@ export class RegistryIntrospector<TContext = unknown> {
           edges.push({
             from: String(dep),
             to: rule.id,
-            type: "depends-on",
+            type: 'depends-on',
           });
         }
       }
@@ -180,7 +180,7 @@ export class RegistryIntrospector<TContext = unknown> {
     for (const constraint of this.registry.getAllConstraints()) {
       nodes.push({
         id: constraint.id,
-        type: "constraint",
+        type: 'constraint',
         description: constraint.description,
         meta: constraint.meta,
       });
@@ -194,7 +194,7 @@ export class RegistryIntrospector<TContext = unknown> {
           edges.push({
             from: constraint.id,
             to: String(target),
-            type: "constrains",
+            type: 'constrains',
           });
         }
       }
@@ -205,75 +205,77 @@ export class RegistryIntrospector<TContext = unknown> {
       edges,
       meta: {
         nodeCount: nodes.length,
-        ruleCount: nodes.filter((n) => n.type === "rule").length,
-        constraintCount: nodes.filter((n) => n.type === "constraint").length,
+        ruleCount: nodes.filter((n) => n.type === 'rule').length,
+        constraintCount: nodes.filter((n) => n.type === 'constraint').length,
       },
     };
   }
 
   /**
    * Export graph in DOT format (Graphviz)
-   * 
+   *
    * This can be rendered with Graphviz tools or online services.
    */
   exportDOT(): string {
     const graph = this.generateGraph();
     const lines: string[] = [];
 
-    lines.push("digraph PraxisRegistry {");
-    lines.push("  rankdir=TB;");
-    lines.push("  node [shape=box, style=rounded];");
-    lines.push("");
+    lines.push('digraph PraxisRegistry {');
+    lines.push('  rankdir=TB;');
+    lines.push('  node [shape=box, style=rounded];');
+    lines.push('');
 
     // Add nodes
     for (const node of graph.nodes) {
-      const shape = node.type === "rule" ? "box" : "diamond";
-      const color = node.type === "rule" ? "lightblue" : "lightcoral";
+      const shape = node.type === 'rule' ? 'box' : 'diamond';
+      const color = node.type === 'rule' ? 'lightblue' : 'lightcoral';
       const label = `${node.id}\\n${node.description}`;
-      lines.push(`  "${node.id}" [label="${label}", shape=${shape}, style=filled, fillcolor=${color}];`);
+      lines.push(
+        `  "${node.id}" [label="${label}", shape=${shape}, style=filled, fillcolor=${color}];`
+      );
     }
 
-    lines.push("");
+    lines.push('');
 
     // Add edges
     for (const edge of graph.edges) {
-      const style = edge.type === "constrains" ? "dashed" : "solid";
+      const style = edge.type === 'constrains' ? 'dashed' : 'solid';
       lines.push(`  "${edge.from}" -> "${edge.to}" [label="${edge.type}", style=${style}];`);
     }
 
-    lines.push("}");
+    lines.push('}');
 
-    return lines.join("\n");
+    return lines.join('\n');
   }
 
   /**
    * Export graph in Mermaid format
-   * 
+   *
    * Mermaid is a markdown-friendly diagramming language.
    */
   exportMermaid(): string {
     const graph = this.generateGraph();
     const lines: string[] = [];
 
-    lines.push("graph TB");
+    lines.push('graph TB');
 
     // Add nodes
     for (const node of graph.nodes) {
-      const shape = node.type === "rule" ? "[" : "{" ;
-      const endShape = node.type === "rule" ? "]" : "}";
+      const shape = node.type === 'rule' ? '[' : '{';
+      const endShape = node.type === 'rule' ? ']' : '}';
       const label = `${node.id}<br/>${node.description}`;
       lines.push(`  ${node.id}${shape}"${label}"${endShape}`);
     }
 
-    lines.push("");
+    lines.push('');
 
     // Add edges
     for (const edge of graph.edges) {
-      const arrow = edge.type === "constrains" ? "-.->|constrains|" : "-->|" + edge.type + "|";
+      const arrow = edge.type === 'constrains' ? '-.->|constrains|' : '-->|' + edge.type + '|';
       lines.push(`  ${edge.from} ${arrow} ${edge.to}`);
     }
 
-    return lines.join("\n");
+    return lines.join('\n');
   }
 
   /**

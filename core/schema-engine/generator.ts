@@ -1,6 +1,6 @@
 /**
  * PSF Generator
- * 
+ *
  * Generates TypeScript DSL code from PSF schema.
  * This enables schema → code synchronization.
  */
@@ -150,7 +150,9 @@ export class PSFGenerator {
       }
 
       const payloadType = this.generatePayloadType(fact.payload);
-      lines.push(`export const ${fact.tag} = defineFact<"${fact.tag}", ${payloadType}>("${fact.tag}");`);
+      lines.push(
+        `export const ${fact.tag} = defineFact<"${fact.tag}", ${payloadType}>("${fact.tag}");`
+      );
       lines.push('');
     }
 
@@ -182,7 +184,9 @@ export class PSFGenerator {
       }
 
       const payloadType = this.generatePayloadType(event.payload);
-      lines.push(`export const ${event.tag} = defineEvent<"${event.tag}", ${payloadType}>("${event.tag}");`);
+      lines.push(
+        `export const ${event.tag} = defineEvent<"${event.tag}", ${payloadType}>("${event.tag}");`
+      );
       lines.push('');
     }
 
@@ -390,7 +394,9 @@ export class PSFGenerator {
       if (component.props.length > 0) {
         lines.push(`  props: [`);
         for (const prop of component.props) {
-          lines.push(`    { name: '${prop.name}', type: '${prop.type}', required: ${prop.required ?? false} },`);
+          lines.push(
+            `    { name: '${prop.name}', type: '${prop.type}', required: ${prop.required ?? false} },`
+          );
         }
         lines.push(`  ],`);
       }
@@ -398,7 +404,9 @@ export class PSFGenerator {
       if (component.events.length > 0) {
         lines.push(`  events: [`);
         for (const event of component.events) {
-          lines.push(`    { name: '${event.name}'${event.payload ? `, payload: '${event.payload}'` : ''} },`);
+          lines.push(
+            `    { name: '${event.name}'${event.payload ? `, payload: '${event.payload}'` : ''} },`
+          );
         }
         lines.push(`  ],`);
       }
@@ -525,7 +533,9 @@ export class PSFGenerator {
   /**
    * Generate TypeScript type from payload schema
    */
-  private generatePayloadType(payload: { properties: Record<string, { type: PSFFieldType | string; description?: string }> }): string {
+  private generatePayloadType(payload: {
+    properties: Record<string, { type: PSFFieldType | string; description?: string }>;
+  }): string {
     const props = Object.entries(payload.properties)
       .map(([key, value]) => `${key}: ${this.fieldTypeToTS(value.type)}`)
       .join('; ');
@@ -611,7 +621,7 @@ export class PSFGenerator {
    */
   private escapeString(str: string): string {
     return str
-      .replace(/\\/g, '\\\\')  // Escape backslashes first
+      .replace(/\\/g, '\\\\') // Escape backslashes first
       .replace(/'/g, "\\'")
       .replace(/\n/g, '\\n')
       .replace(/\r/g, '\\r')

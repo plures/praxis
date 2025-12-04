@@ -2,25 +2,25 @@
  * Cloud Relay Tests
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { createCloudRelay } from "../cloud/client.js";
-import type { CloudRelayConfig, HealthCheckResponse, UsageMetrics } from "../cloud/types.js";
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { createCloudRelay } from '../cloud/client.js';
+import type { CloudRelayConfig, HealthCheckResponse, UsageMetrics } from '../cloud/types.js';
 
-describe("Cloud Relay Client", () => {
+describe('Cloud Relay Client', () => {
   let config: CloudRelayConfig;
 
   beforeEach(() => {
     config = {
-      endpoint: "https://test.example.com",
-      appId: "test-app",
-      authToken: "test-token",
+      endpoint: 'https://test.example.com',
+      appId: 'test-app',
+      authToken: 'test-token',
     };
 
     // Mock fetch globally
     global.fetch = vi.fn();
   });
 
-  it("should create a cloud relay client", () => {
+  it('should create a cloud relay client', () => {
     const client = createCloudRelay(config);
     expect(client).toBeDefined();
     expect(client.getStatus).toBeDefined();
@@ -31,7 +31,7 @@ describe("Cloud Relay Client", () => {
     expect(client.getHealth).toBeDefined();
   });
 
-  it("should return initial status as disconnected", () => {
+  it('should return initial status as disconnected', () => {
     const client = createCloudRelay(config);
     const status = client.getStatus();
     expect(status.connected).toBe(false);
@@ -39,11 +39,11 @@ describe("Cloud Relay Client", () => {
     expect(status.appId).toBe(config.appId);
   });
 
-  it("should connect to relay successfully", async () => {
+  it('should connect to relay successfully', async () => {
     const mockHealthResponse: HealthCheckResponse = {
-      status: "healthy",
+      status: 'healthy',
       timestamp: Date.now(),
-      version: "0.1.0",
+      version: '0.1.0',
       services: {
         relay: true,
         eventGrid: true,
@@ -65,21 +65,21 @@ describe("Cloud Relay Client", () => {
     expect(status.lastSync).toBeDefined();
   });
 
-  it("should throw error when connecting to unavailable endpoint", async () => {
+  it('should throw error when connecting to unavailable endpoint', async () => {
     (global.fetch as any).mockResolvedValueOnce({
       ok: false,
-      statusText: "Service Unavailable",
+      statusText: 'Service Unavailable',
     });
 
     const client = createCloudRelay(config);
-    await expect(client.connect()).rejects.toThrow("Health check failed");
+    await expect(client.connect()).rejects.toThrow('Health check failed');
   });
 
-  it("should sync facts and events", async () => {
+  it('should sync facts and events', async () => {
     const mockHealthResponse: HealthCheckResponse = {
-      status: "healthy",
+      status: 'healthy',
       timestamp: Date.now(),
-      version: "0.1.0",
+      version: '0.1.0',
       services: {
         relay: true,
         eventGrid: true,
@@ -90,7 +90,7 @@ describe("Cloud Relay Client", () => {
 
     const mockSyncResponse = {
       success: true,
-      clock: { "test-app": 1 },
+      clock: { 'test-app': 1 },
       timestamp: Date.now(),
     };
 
@@ -108,10 +108,10 @@ describe("Cloud Relay Client", () => {
     await client.connect();
 
     await client.sync({
-      type: "delta",
+      type: 'delta',
       appId: config.appId,
       clock: {},
-      facts: [{ tag: "TestFact", payload: { value: 42 } }],
+      facts: [{ tag: 'TestFact', payload: { value: 42 } }],
       events: [],
       timestamp: Date.now(),
     });
@@ -119,11 +119,11 @@ describe("Cloud Relay Client", () => {
     expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 
-  it("should get usage metrics", async () => {
+  it('should get usage metrics', async () => {
     const mockHealthResponse: HealthCheckResponse = {
-      status: "healthy",
+      status: 'healthy',
       timestamp: Date.now(),
-      version: "0.1.0",
+      version: '0.1.0',
       services: {
         relay: true,
         eventGrid: true,
@@ -161,11 +161,11 @@ describe("Cloud Relay Client", () => {
     expect(usage.eventCount).toBe(50);
   });
 
-  it("should get health status", async () => {
+  it('should get health status', async () => {
     const mockHealthResponse: HealthCheckResponse = {
-      status: "healthy",
+      status: 'healthy',
       timestamp: Date.now(),
-      version: "0.1.0",
+      version: '0.1.0',
       services: {
         relay: true,
         eventGrid: true,
@@ -188,15 +188,15 @@ describe("Cloud Relay Client", () => {
     await client.connect();
 
     const health = await client.getHealth();
-    expect(health.status).toBe("healthy");
+    expect(health.status).toBe('healthy');
     expect(health.services.relay).toBe(true);
   });
 
-  it("should disconnect and clear auto-sync timer", async () => {
+  it('should disconnect and clear auto-sync timer', async () => {
     const mockHealthResponse: HealthCheckResponse = {
-      status: "healthy",
+      status: 'healthy',
       timestamp: Date.now(),
-      version: "0.1.0",
+      version: '0.1.0',
       services: {
         relay: true,
         eventGrid: true,
@@ -225,23 +225,23 @@ describe("Cloud Relay Client", () => {
     expect(statusAfter.connected).toBe(false);
   });
 
-  it("should throw error when syncing while disconnected", async () => {
+  it('should throw error when syncing while disconnected', async () => {
     const client = createCloudRelay(config);
 
     await expect(
       client.sync({
-        type: "delta",
+        type: 'delta',
         appId: config.appId,
         clock: {},
         facts: [],
         events: [],
         timestamp: Date.now(),
       })
-    ).rejects.toThrow("Not connected");
+    ).rejects.toThrow('Not connected');
   });
 
-  it("should throw error when getting usage while disconnected", async () => {
+  it('should throw error when getting usage while disconnected', async () => {
     const client = createCloudRelay(config);
-    await expect(client.getUsage()).rejects.toThrow("Not connected");
+    await expect(client.getUsage()).rejects.toThrow('Not connected');
   });
 });

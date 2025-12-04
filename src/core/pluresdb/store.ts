@@ -1,6 +1,6 @@
 /**
  * PraxisDB Store
- * 
+ *
  * Connects Praxis Facts, Events, Rules, and Constraints to PluresDB.
  * Provides CRDT-backed storage for facts and append-only event streams.
  */
@@ -8,22 +8,22 @@
 // Declare process for TypeScript in non-Node environments (e.g., Deno)
 declare const process: { env: { [key: string]: string | undefined } } | undefined;
 
-import type { PraxisDB, UnsubscribeFn } from "./adapter.js";
-import type { PraxisRegistry } from "../rules.js";
-import type { PraxisFact, PraxisEvent, PraxisState } from "../protocol.js";
+import type { PraxisDB, UnsubscribeFn } from './adapter.js';
+import type { PraxisRegistry } from '../rules.js';
+import type { PraxisFact, PraxisEvent, PraxisState } from '../protocol.js';
 
 /**
  * Key paths for Praxis data in PluresDB
  */
 export const PRAXIS_PATHS = {
   /** Base path for all Praxis data */
-  BASE: "/_praxis",
+  BASE: '/_praxis',
   /** Path for facts storage */
-  FACTS: "/_praxis/facts",
+  FACTS: '/_praxis/facts',
   /** Path for events storage */
-  EVENTS: "/_praxis/events",
+  EVENTS: '/_praxis/events',
   /** Path for schema registry */
-  SCHEMAS: "/_praxis/schemas",
+  SCHEMAS: '/_praxis/schemas',
 } as const;
 
 /**
@@ -80,9 +80,9 @@ export interface PraxisDBStoreOptions<TContext = unknown> {
 
 /**
  * PraxisDBStore
- * 
+ *
  * Manages persistence and reactive updates for Praxis state in PluresDB.
- * 
+ *
  * - Facts are stored as CRDT-backed documents under `/_praxis/facts/<factTag>/<id>`
  * - Events are stored as append-only streams under `/_praxis/events/<eventTag>`
  * - Rules are triggered automatically when watched keys change
@@ -98,7 +98,7 @@ export type RuleErrorHandler = (ruleId: string, error: unknown) => void;
  */
 const defaultErrorHandler: RuleErrorHandler = (ruleId, error) => {
   // Default behavior: silent in production, can be overridden
-  if (typeof process !== "undefined" && process.env?.NODE_ENV === "development") {
+  if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
     console.error(`Error executing rule "${ruleId}":`, error);
   }
 };
@@ -120,10 +120,10 @@ export class PraxisDBStore<TContext = unknown> {
 
   /**
    * Store a fact in PluresDB
-   * 
+   *
    * Facts are stored under `/_praxis/facts/<factTag>/<id>`
    * If no id is provided in the payload, a timestamp-based id is used.
-   * 
+   *
    * @param fact The fact to store
    * @returns Promise that resolves when the fact is stored
    */
@@ -131,31 +131,31 @@ export class PraxisDBStore<TContext = unknown> {
     // Run constraints before storing
     const constraintResult = await this.checkConstraints([fact]);
     if (!constraintResult.valid) {
-      throw new Error(`Constraint violation: ${constraintResult.errors.join(", ")}`);
+      throw new Error(`Constraint violation: ${constraintResult.errors.join(', ')}`);
     }
 
     await this.persistFact(fact);
-    
+
     // Trigger rule evaluation - facts stored directly may trigger derived computations
     await this.triggerRules([fact]);
   }
 
   /**
    * Store multiple facts in PluresDB
-   * 
+   *
    * @param facts The facts to store
    */
   async storeFacts(facts: PraxisFact[]): Promise<void> {
     // Run constraints before storing
     const constraintResult = await this.checkConstraints(facts);
     if (!constraintResult.valid) {
-      throw new Error(`Constraint violation: ${constraintResult.errors.join(", ")}`);
+      throw new Error(`Constraint violation: ${constraintResult.errors.join(', ')}`);
     }
 
     for (const fact of facts) {
       await this.persistFact(fact);
     }
-    
+
     // Trigger rule evaluation
     await this.triggerRules(facts);
   }
@@ -173,7 +173,7 @@ export class PraxisDBStore<TContext = unknown> {
 
   /**
    * Get a fact by tag and id
-   * 
+   *
    * @param factTag The fact type tag
    * @param id The fact id
    * @returns The fact or undefined if not found
@@ -185,35 +185,35 @@ export class PraxisDBStore<TContext = unknown> {
 
   /**
    * Append an event to the event stream
-   * 
+   *
    * Events are stored as append-only streams under `/_praxis/events/<eventTag>`
-   * 
+   *
    * @param event The event to append
    */
   async appendEvent(event: PraxisEvent): Promise<void> {
     const path = getEventPath(event.tag);
-    
+
     // Get existing events for this tag
-    const existingEvents = await this.db.get<EventStreamEntry[]>(path) ?? [];
-    
+    const existingEvents = (await this.db.get<EventStreamEntry[]>(path)) ?? [];
+
     // Create new entry
     const entry: EventStreamEntry = {
       event,
       timestamp: Date.now(),
       sequence: existingEvents.length,
     };
-    
+
     // Append and store
     const newEvents = [...existingEvents, entry];
     await this.db.set(path, newEvents);
-    
+
     // Trigger rules with this event
     await this.triggerRulesForEvents([event]);
   }
 
   /**
    * Append multiple events to their respective streams
-   * 
+   *
    * @param events The events to append
    */
   async appendEvents(events: PraxisEvent[]): Promise<void> {
@@ -223,29 +223,29 @@ export class PraxisDBStore<TContext = unknown> {
       const existing = eventsByTag.get(event.tag) ?? [];
       eventsByTag.set(event.tag, [...existing, event]);
     }
-    
+
     // Append each group
     for (const [tag, tagEvents] of eventsByTag) {
       const path = getEventPath(tag);
-      const existingEvents = await this.db.get<EventStreamEntry[]>(path) ?? [];
+      const existingEvents = (await this.db.get<EventStreamEntry[]>(path)) ?? [];
       let sequence = existingEvents.length;
-      
-      const newEntries = tagEvents.map(event => ({
+
+      const newEntries = tagEvents.map((event) => ({
         event,
         timestamp: Date.now(),
         sequence: sequence++,
       }));
-      
+
       await this.db.set(path, [...existingEvents, ...newEntries]);
     }
-    
+
     // Trigger rules
     await this.triggerRulesForEvents(events);
   }
 
   /**
    * Get events from a stream
-   * 
+   *
    * @param eventTag The event type tag
    * @param options Query options
    * @returns Array of event stream entries
@@ -255,32 +255,32 @@ export class PraxisDBStore<TContext = unknown> {
     options?: { since?: number; limit?: number }
   ): Promise<EventStreamEntry[]> {
     const path = getEventPath(eventTag);
-    const events = await this.db.get<EventStreamEntry[]>(path) ?? [];
-    
+    const events = (await this.db.get<EventStreamEntry[]>(path)) ?? [];
+
     let result = events;
-    
+
     if (options?.since !== undefined) {
       const sinceTimestamp = options.since;
-      result = result.filter(e => e.timestamp > sinceTimestamp);
+      result = result.filter((e) => e.timestamp > sinceTimestamp);
     }
-    
+
     if (options?.limit !== undefined) {
       result = result.slice(-options.limit);
     }
-    
+
     return result;
   }
 
   /**
    * Watch a fact path for changes
-   * 
+   *
    * @param factTag The fact type tag to watch
    * @param callback Called when facts of this type change
    * @returns Unsubscribe function
    */
   watchFacts(factTag: string, callback: (facts: PraxisFact[]) => void): UnsubscribeFn {
     const path = getFactPath(factTag);
-    
+
     // Register the callback
     if (!this.factWatchers.has(factTag)) {
       this.factWatchers.set(factTag, new Set());
@@ -289,14 +289,14 @@ export class PraxisDBStore<TContext = unknown> {
     if (watchers) {
       watchers.add(callback);
     }
-    
+
     // Watch the path in the DB
     const unsubscribe = this.db.watch<PraxisFact>(path, (fact) => {
       callback([fact]);
     });
-    
+
     this.subscriptions.push(unsubscribe);
-    
+
     return () => {
       unsubscribe();
       this.factWatchers.get(factTag)?.delete(callback);
@@ -311,20 +311,20 @@ export class PraxisDBStore<TContext = unknown> {
   ): Promise<{ valid: boolean; errors: string[] }> {
     const constraints = this.registry.getAllConstraints();
     const errors: string[] = [];
-    
+
     // Build a minimal state for constraint checking
     const state: PraxisState & { context: TContext } = {
       context: this.context,
       facts: newFacts,
       meta: {},
     };
-    
+
     for (const constraint of constraints) {
       try {
         const result = constraint.impl(state);
         if (result === false) {
           errors.push(`Constraint "${constraint.id}" violated`);
-        } else if (typeof result === "string") {
+        } else if (typeof result === 'string') {
           errors.push(result);
         }
       } catch (error) {
@@ -333,7 +333,7 @@ export class PraxisDBStore<TContext = unknown> {
         );
       }
     }
-    
+
     return {
       valid: errors.length === 0,
       errors,
@@ -342,12 +342,12 @@ export class PraxisDBStore<TContext = unknown> {
 
   /**
    * Trigger rules when new facts are added
-   * 
+   *
    * This method is called after facts are stored. It can be extended
    * for derived fact computation where rules generate new facts based
    * on existing facts. Currently implemented as a hook point for future
    * enhancements.
-   * 
+   *
    * @param _newFacts The newly stored facts (unused in current implementation)
    */
   private async triggerRules(_newFacts: PraxisFact[]): Promise<void> {
@@ -361,14 +361,14 @@ export class PraxisDBStore<TContext = unknown> {
    */
   private async triggerRulesForEvents(events: PraxisEvent[]): Promise<void> {
     const rules = this.registry.getAllRules();
-    
+
     // Build state for rule evaluation
     const state: PraxisState & { context: TContext } = {
       context: this.context,
       facts: [],
       meta: {},
     };
-    
+
     // Execute each rule
     const derivedFacts: PraxisFact[] = [];
     for (const rule of rules) {
@@ -379,7 +379,7 @@ export class PraxisDBStore<TContext = unknown> {
         this.onRuleError(rule.id, error);
       }
     }
-    
+
     // Store derived facts (without re-triggering rules to avoid infinite loops)
     if (derivedFacts.length > 0) {
       const constraintResult = await this.checkConstraints(derivedFacts);
@@ -419,19 +419,19 @@ export class PraxisDBStore<TContext = unknown> {
 
 /**
  * Create a new PraxisDBStore
- * 
+ *
  * @param db The PraxisDB instance to use
  * @param registry The PraxisRegistry for rules and constraints
  * @param initialContext Optional initial context
  * @param onRuleError Optional error handler for rule execution errors
  * @returns PraxisDBStore instance
- * 
+ *
  * @example
  * ```typescript
  * const db = createInMemoryDB();
  * const registry = new PraxisRegistry();
  * const store = createPraxisDBStore(db, registry);
- * 
+ *
  * await store.storeFact({ tag: "UserLoggedIn", payload: { userId: "alice" } });
  * await store.appendEvent({ tag: "LOGIN", payload: { username: "alice" } });
  * ```

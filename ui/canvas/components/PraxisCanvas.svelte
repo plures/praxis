@@ -21,8 +21,7 @@
   import { 
     CanvasStateManager, 
     type CanvasState, 
-    type CanvasNodeState, 
-    type CanvasEdgeState,
+    type CanvasNodeState,
     type CanvasMode 
   } from '../canvas-state.js';
   import { CanvasProjection, type LayoutOptions } from '../canvas-projection.js';
@@ -70,11 +69,119 @@
   // Derived values
   $: nodes = canvasState?.nodes ? Array.from(canvasState.nodes.values()) : [];
   $: edges = canvasState?.edges ? Array.from(canvasState.edges.values()) : [];
+  $: flows = schema?.flows || [];
+  
+  // Flow filtering
+  let selectedFlowId: string | null = null;
+  let selectedEventId: string | null = null;
+
+  $: eventChainNodeIds = selectedEventId ? (() => {
+      const ids = new Set<string>();
+      ids.add(selectedEventId);
+
+      // Find rules triggered by this event
+      const rules = nodes.filter(n =>
+          n.type === 'rule' &&
+          ((n.data as any).triggers?.includes(selectedEventId) || (n.data as any).on?.includes(selectedEventId))
+      );
+
+      rules.forEach(r => {
+          ids.add(r.id);
+          // Add outputs
+          const logic = (r.data as any).logic;
+          if (logic?.events) {
+              logic.events.forEach((e: string) => ids.add(e));
+          }
+      });
+      return ids;
+  })() : null;
+  
+  $: filteredNodes = selectedFlowId 
+    ? nodes.filter(n => {
+        // Include nodes explicitly in the flow (via metadata)
+        if (n.type === 'rule' && (n.data as any)?.meta?.flowId === selectedFlowId) return true;
+        
+        // Include nodes connected to the flow's rules
+        // This is a simplified check; a more robust graph traversal might be needed
+        // but for now, we check if the node is connected to any visible rule
+        const flowRuleIds = new Set(nodes
+          .filter(r => r.type === 'rule' && (r.data as any)?.meta?.flowId === selectedFlowId)
+          .map(r => r.id));
+          
+        // Check edges to see if this node is connected to a flow rule
+        const connectedToFlow = edges.some(e => 
+          (flowRuleIds.has(e.source) && e.target === n.id) || 
+          (flowRuleIds.has(e.target) && e.source === n.id)
+        );
+        
+        return connectedToFlow;
+      })
+    : selectedEventId
+      ? nodes.filter(n => eventChainNodeIds?.has(n.id))
+      : nodes;
+
+  $: filteredEdges = (selectedFlowId || selectedEventId)
+    ? edges.filter(e => {
+        const sourceVisible = filteredNodes.some(n => n.id === e.source);
+        const targetVisible = filteredNodes.some(n => n.id === e.target);
+        return sourceVisible && targetVisible;
+      })
+    : edges;
+
   $: selectedNodeCount = canvasState?.selection?.nodes?.size ?? 0;
   $: selectedEdgeCount = canvasState?.selection?.edges?.size ?? 0;
   $: selectedCount = selectedNodeCount + selectedEdgeCount;
   $: canUndo = undoStack.length > 0;
   $: canRedo = redoStack.length > 0;
+
+  // Fit view to content
+  function fitView() {
+    if (!canvasState?.nodes || canvasState.nodes.size === 0 || !canvasElement) return;
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    for (const node of canvasState.nodes.values()) {
+      minX = Math.min(minX, node.position.x);
+      minY = Math.min(minY, node.position.y);
+      // Approximate node size
+      const width = node.type === 'model' ? 250 : 200;
+      const height = node.type === 'model' ? 300 : 100;
+      maxX = Math.max(maxX, node.position.x + width);
+      maxY = Math.max(maxY, node.position.y + height);
+    }
+
+    if (minX === Infinity) return;
+
+    // Add padding
+    const padding = 50;
+    minX -= padding;
+    minY -= padding;
+    maxX += padding;
+    maxY += padding;
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    const containerWidth = canvasElement.clientWidth;
+    const containerHeight = canvasElement.clientHeight;
+
+    if (containerWidth === 0 || containerHeight === 0) return;
+
+    const zoomX = containerWidth / width;
+    const zoomY = containerHeight / height;
+    let zoom = Math.min(zoomX, zoomY);
+
+    // Clamp zoom
+    zoom = Math.min(Math.max(zoom, 0.1), 1.5);
+
+    const x = -minX * zoom + (containerWidth - width * zoom) / 2;
+    const y = -minY * zoom + (containerHeight - height * zoom) / 2;
+
+    stateManager.setViewport({ x, y, zoom });
+  }
 
   // Get node position for edge rendering
   function getNodePosition(nodeId: string): PSFPosition {
@@ -83,17 +190,31 @@
   }
 
   // Load schema on mount and when it changes
-  $: if (schema && stateManager) {
+  let lastLoadedSchema: PSFSchema | null = null;
+  let lastLoadedSchemaId: string | undefined;
+
+  $: if (schema && stateManager && schema !== lastLoadedSchema) {
+    const isSameSchema = lastLoadedSchemaId === schema.id;
+    lastLoadedSchema = schema;
+    lastLoadedSchemaId = schema.id;
+
     stateManager.loadFromSchema(schema);
     
     // Auto-layout nodes without positions
-    if (canvasState?.nodes) {
-      const newPositions = projection.autoLayoutMissingPositions(canvasState.nodes, schema);
+    // Use stateManager.getState() to avoid reactive dependency on canvasState
+    const currentState = stateManager.getState();
+    if (currentState.nodes && currentState.nodes.size > 0) {
+      const newPositions = projection.autoLayoutMissingPositions(currentState.nodes, schema);
       for (const [nodeId, position] of newPositions) {
-        const node = canvasState.nodes.get(nodeId);
+        const node = currentState.nodes.get(nodeId);
         if (node && !node.hasExplicitPosition) {
           stateManager.moveNode(nodeId, position);
         }
+      }
+      
+      // Fit view after layout - only once per schema load
+      if (!isSameSchema) {
+        setTimeout(() => fitView(), 100);
       }
     }
   }
@@ -170,7 +291,7 @@
     stateManager.moveNode(event.detail.nodeId, event.detail.position);
   }
 
-  function handleNodeDragEnd(event: CustomEvent<{ nodeId: string; position: PSFPosition }>) {
+  function handleNodeDragEnd(_event: CustomEvent<{ nodeId: string; position: PSFPosition }>) {
     // Update schema when drag ends
     if (schema) {
       const updatedSchema = stateManager.exportToSchema(schema);
@@ -191,7 +312,7 @@
   }
 
   // Edge event handlers
-  function handleEdgeSelect(event: CustomEvent<{ edgeId: string; addToSelection: boolean }>) {
+  function handleEdgeSelect(_event: CustomEvent<{ edgeId: string; addToSelection: boolean }>) {
     // TODO: Implement edge selection in state manager
     closeContextMenu();
   }
@@ -248,7 +369,7 @@
     // TODO: Implement node/edge deletion
   }
 
-  function handleAddNode(event: CustomEvent<{ type: CanvasNodeState['type'] }>) {
+  function handleAddNode(_event: CustomEvent<{ type: CanvasNodeState['type'] }>) {
     // TODO: Implement add node at center of viewport
   }
 
@@ -287,7 +408,7 @@
     contextMenu = null;
   }
 
-  function handleContextMenuAction(action: string) {
+  function handleContextMenuAction(_action: string) {
     // TODO: Implement context menu actions
     closeContextMenu();
   }
@@ -381,9 +502,51 @@
       on:autoLayout={handleAutoLayout}
       on:exportSchema={handleExportSchema}
       on:save={handleSave}
-    />
+    >
+      <div class="flow-selector" style="margin-left: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span style="font-size: 0.8rem; opacity: 0.7;">Flow:</span>
+        <select 
+          bind:value={selectedFlowId}
+          on:change={() => selectedEventId = null}
+          style="
+            background: var(--bg-secondary, #2d2d2d);
+            color: var(--text-primary, #fff);
+            border: 1px solid var(--border-color, #444);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.8rem;
+          "
+        >
+          <option value={null}>All Flows</option>
+          {#each flows as flow}
+            <option value={flow.id}>{flow.name}</option>
+          {/each}
+        </select>
+
+        <span style="font-size: 0.8rem; opacity: 0.7; margin-left: 0.5rem;">Event:</span>
+        <select 
+          bind:value={selectedEventId}
+          on:change={() => selectedFlowId = null}
+          style="
+            background: var(--bg-secondary, #2d2d2d);
+            color: var(--text-primary, #fff);
+            border: 1px solid var(--border-color, #444);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.8rem;
+          "
+        >
+          <option value={null}>All Events</option>
+          {#each schema?.events || [] as event}
+            <option value={event.id}>{event.id}</option>
+          {/each}
+        </select>
+      </div>
+    </CanvasToolbar>
   {/if}
 
+  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+  <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
   <div
     class="canvas-viewport"
     bind:this={canvasElement}
@@ -436,12 +599,11 @@
           bind:this={svgElement}
           aria-label="Node connections"
         >
-          {#each edges as edge (edge.id)}
+          {#each filteredEdges as edge (edge.id)}
             <CanvasEdge
               {edge}
               sourcePosition={getNodePosition(edge.source)}
               targetPosition={getNodePosition(edge.target)}
-              zoom={canvasState.viewport.zoom}
               {readonly}
               on:select={handleEdgeSelect}
               on:contextMenu={handleEdgeContextMenu}
@@ -450,7 +612,7 @@
         </svg>
 
         <!-- Nodes -->
-        {#each nodes as node (node.id)}
+        {#each filteredNodes as node (node.id)}
           <CanvasNode
             {node}
             zoom={canvasState.viewport.zoom}
@@ -510,7 +672,7 @@
         <button class="context-menu-item" on:click={() => handleContextMenuAction('duplicate')}>
           📋 Duplicate
         </button>
-        <div class="context-menu-divider" />
+        <div class="context-menu-divider"></div>
         <button class="context-menu-item danger" on:click={() => handleContextMenuAction('delete')}>
           🗑️ Delete
         </button>
@@ -534,7 +696,7 @@
         <button class="context-menu-item" on:click={() => handleContextMenuAction('addConstraint')}>
           🔒 Add Constraint
         </button>
-        <div class="context-menu-divider" />
+        <div class="context-menu-divider"></div>
         <button class="context-menu-item" on:click={() => handleContextMenuAction('addModel')}>
           📦 Add Model
         </button>

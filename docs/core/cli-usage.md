@@ -46,22 +46,22 @@ praxis create app my-app --directory ./projects
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--template` | Template to use: `basic`, `fullstack`, `minimal` |
-| `--directory` | Output directory |
-| `--no-git` | Skip git initialization |
-| `--no-install` | Skip npm install |
+| Option         | Description                                      |
+| -------------- | ------------------------------------------------ |
+| `--template`   | Template to use: `basic`, `fullstack`, `minimal` |
+| `--directory`  | Output directory                                 |
+| `--no-git`     | Skip git initialization                          |
+| `--no-install` | Skip npm install                                 |
 
 **Available Templates:**
 
-| Template | Description |
-|----------|-------------|
-| `basic` | Simple app with logic engine and Svelte |
-| `fullstack` | Complete app with PluresDB, auth, and sync |
-| `minimal` | Bare minimum Praxis setup |
-| `component` | Reusable component library |
-| `orchestrator` | Distributed node orchestration |
+| Template       | Description                                |
+| -------------- | ------------------------------------------ |
+| `basic`        | Simple app with logic engine and Svelte    |
+| `fullstack`    | Complete app with PluresDB, auth, and sync |
+| `minimal`      | Bare minimum Praxis setup                  |
+| `component`    | Reusable component library                 |
+| `orchestrator` | Distributed node orchestration             |
 
 ### `praxis generate`
 
@@ -89,15 +89,15 @@ praxis generate --schema ./schema.psf.json --check
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--schema` | Path to PSF schema file |
-| `--output` | Output directory (default: `./generated`) |
-| `--only` | Comma-separated targets: `types`, `components`, `docs`, `rules`, `pluresdb` |
-| `--watch` | Watch for changes and regenerate |
-| `--force` | Overwrite existing files |
-| `--check` | Verify files are up-to-date (exit code 1 if not) |
-| `--format` | Output format: `typescript`, `javascript` |
+| Option     | Description                                                                 |
+| ---------- | --------------------------------------------------------------------------- |
+| `--schema` | Path to PSF schema file                                                     |
+| `--output` | Output directory (default: `./generated`)                                   |
+| `--only`   | Comma-separated targets: `types`, `components`, `docs`, `rules`, `pluresdb` |
+| `--watch`  | Watch for changes and regenerate                                            |
+| `--force`  | Overwrite existing files                                                    |
+| `--check`  | Verify files are up-to-date (exit code 1 if not)                            |
+| `--format` | Output format: `typescript`, `javascript`                                   |
 
 ### `praxis canvas`
 
@@ -122,14 +122,14 @@ praxis canvas ./schema.psf.json --mode view
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--port` | Server port (default: 3000) |
-| `--host` | Server host (default: localhost) |
-| `--config` | Path to canvas config file |
-| `--mode` | Mode: `edit`, `view`, `present` |
-| `--new` | Create new schema |
-| `--watch` | Enable file watching |
+| Option     | Description                      |
+| ---------- | -------------------------------- |
+| `--port`   | Server port (default: 3000)      |
+| `--host`   | Server host (default: localhost) |
+| `--config` | Path to canvas config file       |
+| `--mode`   | Mode: `edit`, `view`, `present`  |
+| `--new`    | Create new schema                |
+| `--watch`  | Enable file watching             |
 
 ### `praxis dev`
 
@@ -148,12 +148,12 @@ praxis dev --open
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--port` | Server port (default: 5173) |
-| `--host` | Server host (default: localhost) |
-| `--open` | Open browser automatically |
-| `--config` | Path to vite config |
+| Option     | Description                      |
+| ---------- | -------------------------------- |
+| `--port`   | Server port (default: 5173)      |
+| `--host`   | Server host (default: localhost) |
+| `--open`   | Open browser automatically       |
+| `--config` | Path to vite config              |
 
 ### `praxis build`
 
@@ -172,10 +172,10 @@ praxis build --target node
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--output` | Output directory |
-| `--target` | Build target: `browser`, `node`, `tauri` |
+| Option     | Description                                  |
+| ---------- | -------------------------------------------- |
+| `--output` | Output directory                             |
+| `--target` | Build target: `browser`, `node`, `tauri`     |
 | `--minify` | Minify output (default: true for production) |
 
 ### `praxis validate`
@@ -195,11 +195,11 @@ praxis validate --schema ./schema.psf.json --strict
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--schema` | Path to PSF schema file |
+| Option      | Description                   |
+| ----------- | ----------------------------- |
+| `--schema`  | Path to PSF schema file       |
 | `--verbose` | Show detailed validation info |
-| `--strict` | Treat warnings as errors |
+| `--strict`  | Treat warnings as errors      |
 
 ### `praxis docs`
 
@@ -221,13 +221,13 @@ praxis docs --schema ./schema.psf.json --watch
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--schema` | Path to PSF schema file |
+| Option     | Description                          |
+| ---------- | ------------------------------------ |
+| `--schema` | Path to PSF schema file              |
 | `--output` | Output directory (default: `./docs`) |
-| `--format` | Output format: `markdown`, `html` |
-| `--serve` | Serve docs on local server |
-| `--watch` | Watch for changes |
+| `--format` | Output format: `markdown`, `html`    |
+| `--serve`  | Serve docs on local server           |
+| `--watch`  | Watch for changes                    |
 
 ### Cloud Commands
 
@@ -304,7 +304,7 @@ export default {
     path: './src/schema.psf.json',
     validate: true,
   },
-  
+
   // Generation settings
   generate: {
     output: './src/generated',
@@ -312,19 +312,19 @@ export default {
     format: 'typescript',
     formatting: 'prettier',
   },
-  
+
   // Development settings
   dev: {
     port: 5173,
     open: true,
   },
-  
+
   // Canvas settings
   canvas: {
     port: 3000,
     sync: true,
   },
-  
+
   // Cloud settings
   cloud: {
     enabled: true,
@@ -411,18 +411,18 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      
+
       - run: npm install
-      
+
       # Validate schema
       - run: npx praxis validate --schema ./src/schema.psf.json --strict
-      
+
       # Check generated files are current
       - run: npx praxis generate --schema ./src/schema.psf.json --check
-      
+
       # Build
       - run: npx praxis build
-      
+
       # Test
       - run: npm test
 ```

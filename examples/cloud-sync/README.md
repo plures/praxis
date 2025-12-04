@@ -22,6 +22,7 @@ npm start
 ## What it Does
 
 This example:
+
 - Connects to Praxis Cloud Relay
 - Creates a simple task management application
 - Syncs tasks across multiple clients using CRDT protocol
@@ -30,36 +31,36 @@ This example:
 ## Code Overview
 
 ```typescript
-import { connectRelay } from "@plures/praxis/cloud";
-import { createPraxisEngine, PraxisRegistry } from "@plures/praxis";
+import { connectRelay } from '@plures/praxis/cloud';
+import { createPraxisEngine, PraxisRegistry } from '@plures/praxis';
 
 // Connect to cloud
-const relay = await connectRelay("https://praxis-relay.azurewebsites.net", {
-  appId: "task-app",
+const relay = await connectRelay('https://praxis-relay.azurewebsites.net', {
+  appId: 'task-app',
   authToken: process.env.GITHUB_TOKEN,
   autoSync: true,
-  syncInterval: 5000
+  syncInterval: 5000,
 });
 
 // Define facts and events
-const TaskCreated = defineFact<"TaskCreated", { id: string; title: string }>("TaskCreated");
-const CreateTask = defineEvent<"CREATE_TASK", { id: string; title: string }>("CREATE_TASK");
+const TaskCreated = defineFact<'TaskCreated', { id: string; title: string }>('TaskCreated');
+const CreateTask = defineEvent<'CREATE_TASK', { id: string; title: string }>('CREATE_TASK');
 
 // Create engine and handle events
 const engine = createPraxisEngine({
   initialContext: { tasks: [] },
-  registry
+  registry,
 });
 
 // Sync on state change
-engine.on("stateChange", async (state) => {
+engine.on('stateChange', async (state) => {
   await relay.sync({
-    type: "delta",
-    appId: "task-app",
+    type: 'delta',
+    appId: 'task-app',
     clock: {},
     facts: state.facts,
     events: [],
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 });
 ```

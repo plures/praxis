@@ -59,19 +59,19 @@ flowchart TB
         ShoppingCart --> CartItem
         CheckoutForm
     end
-    
+
     subgraph Logic
         AddToCart --> cartAddItem[cart.addItem]
         RemoveFromCart --> cartRemoveItem[cart.removeItem]
         Checkout --> cartCheckout[cart.checkout]
     end
-    
+
     subgraph Data
         Product[(Product)]
         Cart[(Cart)]
         Order[(Order)]
     end
-    
+
     cartAddItem --> Cart
     cartRemoveItem --> Cart
     cartCheckout --> Order

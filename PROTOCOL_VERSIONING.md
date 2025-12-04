@@ -15,6 +15,7 @@ The Praxis protocol follows semantic versioning (MAJOR.MINOR.PATCH):
 ### MAJOR Version
 
 Incremented for breaking changes to core protocol types or semantics:
+
 - Changes to required fields in `PraxisFact`, `PraxisEvent`, or `PraxisState`
 - Changes to the signature of `PraxisStepFn`
 - Changes to the semantics of how the protocol should be implemented
@@ -23,6 +24,7 @@ Incremented for breaking changes to core protocol types or semantics:
 ### MINOR Version
 
 Incremented for backward-compatible additions:
+
 - New optional fields added to existing types
 - New diagnostic kinds or configuration options
 - Enhancements that don't break existing implementations
@@ -30,6 +32,7 @@ Incremented for backward-compatible additions:
 ### PATCH Version
 
 Incremented for:
+
 - Documentation clarifications
 - Internal implementation improvements (in TypeScript)
 - Bug fixes that don't change the protocol surface
@@ -41,27 +44,32 @@ Incremented for:
 The following types are considered **stable** within a major version:
 
 #### PraxisFact
+
 ```typescript
 interface PraxisFact {
   tag: string;
   payload: unknown;
 }
 ```
+
 - `tag` will always be a string identifier
 - `payload` will always be JSON-serializable
 - Structure will not change in breaking ways
 
 #### PraxisEvent
+
 ```typescript
 interface PraxisEvent {
   tag: string;
   payload: unknown;
 }
 ```
+
 - Same guarantees as PraxisFact
 - Distinction from PraxisFact is semantic (events drive change)
 
 #### PraxisState
+
 ```typescript
 interface PraxisState {
   context: unknown;
@@ -70,12 +78,14 @@ interface PraxisState {
   protocolVersion?: string;
 }
 ```
+
 - `context` will always hold domain-specific data
 - `facts` will always be an array of PraxisFact
 - `meta` will always be optional metadata
 - `protocolVersion` (added in v1.0.0) indicates the protocol version
 
 #### PraxisStepFn
+
 ```typescript
 type PraxisStepFn = (
   state: PraxisState,
@@ -83,6 +93,7 @@ type PraxisStepFn = (
   config: PraxisStepConfig
 ) => PraxisStepResult;
 ```
+
 - Pure, deterministic function signature
 - Input/output types remain stable
 
@@ -91,6 +102,7 @@ type PraxisStepFn = (
 **Guarantee**: All protocol types will remain JSON-serializable.
 
 This means:
+
 - No functions, symbols, or other non-JSON types in protocol data
 - All data can be serialized via `JSON.stringify()`
 - All data can be transmitted over HTTP, files, or message queues
@@ -101,11 +113,13 @@ This means:
 **Guarantee**: Protocol changes will be coordinated across all official language implementations.
 
 Official implementations:
+
 - **TypeScript** (reference implementation) - Available now
 - **C#** - Planned
 - **PowerShell** - Planned
 
 When a new protocol version is released:
+
 1. TypeScript implementation is updated first
 2. Other language implementations follow within a release window
 3. Compatibility matrix is published showing which versions work together
@@ -133,31 +147,33 @@ For **MAJOR** version changes, we provide:
 Implementations should check and validate protocol versions:
 
 ### TypeScript Example
+
 ```typescript
-import { PRAXIS_PROTOCOL_VERSION } from "@plures/praxis";
+import { PRAXIS_PROTOCOL_VERSION } from '@plures/praxis';
 
 function validateProtocolVersion(state: PraxisState): boolean {
   if (!state.protocolVersion) {
     // Pre-1.0.0 state without version field
-    console.warn("State missing protocolVersion, assuming 1.0.0");
+    console.warn('State missing protocolVersion, assuming 1.0.0');
     return true;
   }
-  
+
   const [major] = state.protocolVersion.split('.');
   const [expectedMajor] = PRAXIS_PROTOCOL_VERSION.split('.');
-  
+
   if (major !== expectedMajor) {
     throw new Error(
       `Protocol version mismatch: state is ${state.protocolVersion}, ` +
-      `engine expects ${PRAXIS_PROTOCOL_VERSION}`
+        `engine expects ${PRAXIS_PROTOCOL_VERSION}`
     );
   }
-  
+
   return true;
 }
 ```
 
 ### C# Example (future)
+
 ```csharp
 public static void ValidateProtocolVersion(PraxisState state)
 {
@@ -166,10 +182,10 @@ public static void ValidateProtocolVersion(PraxisState state)
         Console.WriteLine("Warning: State missing ProtocolVersion");
         return;
     }
-    
+
     var stateMajor = state.ProtocolVersion.Split('.')[0];
     var engineMajor = PraxisProtocol.VERSION.Split('.')[0];
-    
+
     if (stateMajor != engineMajor)
     {
         throw new Exception(
@@ -181,22 +197,23 @@ public static void ValidateProtocolVersion(PraxisState state)
 ```
 
 ### PowerShell Example (future)
+
 ```powershell
 function Test-PraxisProtocolVersion {
     param([PSCustomObject]$State)
-    
+
     if (-not $State.protocolVersion) {
         Write-Warning "State missing protocolVersion"
         return $true
     }
-    
+
     $stateMajor = $State.protocolVersion.Split('.')[0]
     $engineMajor = $global:PRAXIS_PROTOCOL_VERSION.Split('.')[0]
-    
+
     if ($stateMajor -ne $engineMajor) {
         throw "Protocol version mismatch: state is $($State.protocolVersion), engine expects $global:PRAXIS_PROTOCOL_VERSION"
     }
-    
+
     return $true
 }
 ```
@@ -212,6 +229,7 @@ Language-specific implementations may add features beyond the core protocol, but
 ### Example: TypeScript-Specific Features
 
 The TypeScript implementation adds:
+
 - Type guards (`defineFact`, `defineEvent` return objects with `.is()` methods)
 - Fluent DSL for defining rules and constraints
 - Svelte integration
@@ -221,6 +239,7 @@ These are **not** part of the protocol and don't affect JSON serialization.
 ## Version History
 
 ### 1.0.0 (Current)
+
 - Initial stable protocol release
 - Core types: PraxisFact, PraxisEvent, PraxisState, PraxisStepFn
 - Added `protocolVersion` field to PraxisState
@@ -228,6 +247,7 @@ These are **not** part of the protocol and don't affect JSON serialization.
 - Cross-language compatibility design finalized
 
 ### 0.1.0 (Pre-release)
+
 - Initial implementation
 - Protocol types defined but not versioned
 - TypeScript-only
@@ -237,6 +257,7 @@ These are **not** part of the protocol and don't affect JSON serialization.
 ### Q: What if I need to change the protocol in my fork?
 
 If you need protocol changes for a fork:
+
 1. Change the protocol version to indicate incompatibility (e.g., "1.0.0-mycompany")
 2. Document your changes clearly
 3. Consider contributing the feature back to the main project
@@ -248,7 +269,7 @@ If you need protocol changes for a fork:
 ### Q: How do I know which protocol version I'm using?
 
 ```typescript
-import { PRAXIS_PROTOCOL_VERSION } from "@plures/praxis";
+import { PRAXIS_PROTOCOL_VERSION } from '@plures/praxis';
 console.log(`Protocol version: ${PRAXIS_PROTOCOL_VERSION}`);
 ```
 
@@ -259,6 +280,7 @@ State created before v1.0.0 won't have the `protocolVersion` field. Implementati
 ## Contributing
 
 Protocol changes require:
+
 1. RFC (Request for Comments) with rationale
 2. Impact analysis on all language implementations
 3. Approval from core maintainers

@@ -41,10 +41,7 @@ export interface FlowStep<E extends PraxisEvent = PraxisEvent> {
 /**
  * An actor maintains its own state and responds to events.
  */
-export interface Actor<
-  S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
-> {
+export interface Actor<S extends PraxisState = PraxisState, E extends PraxisEvent = PraxisEvent> {
   /** Unique identifier for the actor */
   id: string;
   /** Current state of the actor */
@@ -135,13 +132,8 @@ export function isFlowWaitingFor<E extends PraxisEvent = PraxisEvent>(
  */
 export function createActor<
   S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
->(
-  id: string,
-  initialState: S,
-  stepFunction: StepFunction<S, E>,
-  type?: string
-): Actor<S, E> {
+  E extends PraxisEvent = PraxisEvent,
+>(id: string, initialState: S, stepFunction: StepFunction<S, E>, type?: string): Actor<S, E> {
   return {
     id,
     state: initialState,
@@ -159,7 +151,7 @@ export function createActor<
  */
 export function processActorEvent<
   S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
+  E extends PraxisEvent = PraxisEvent,
 >(actor: Actor<S, E>, event: E): { actor: Actor<S, E>; result: StepResult<S> } {
   const result = actor.step(actor.state, event);
 
@@ -174,10 +166,7 @@ export function processActorEvent<
 /**
  * Actor system for managing multiple actors.
  */
-export class ActorSystem<
-  S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
-> {
+export class ActorSystem<S extends PraxisState = PraxisState, E extends PraxisEvent = PraxisEvent> {
   private actors: Map<string, Actor<S, E>> = new Map();
 
   /**
@@ -262,7 +251,7 @@ export class ActorSystem<
  */
 export function createActorSystem<
   S extends PraxisState = PraxisState,
-  E extends PraxisEvent = PraxisEvent
+  E extends PraxisEvent = PraxisEvent,
 >(): ActorSystem<S, E> {
   return new ActorSystem<S, E>();
 }

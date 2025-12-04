@@ -1,6 +1,6 @@
 /**
  * Praxis Generate Command
- * 
+ *
  * Generates code from Praxis schema files.
  */
 
@@ -36,50 +36,48 @@ export async function generate(options: GenerateOptions): Promise<void> {
     // Determine schema file path
     const schemaPath = options.schema || './praxis.schema.js';
     const resolvedSchemaPath = resolve(process.cwd(), schemaPath);
-    
+
     console.log(`Loading schema from: ${resolvedSchemaPath}`);
-    
+
     // Load the schema
     const loadResult = await loadSchemaFromFile(resolvedSchemaPath, {
       validate: true,
     });
-    
+
     if (loadResult.errors.length > 0) {
       console.error('❌ Failed to load schema:');
       loadResult.errors.forEach((error) => console.error(`  - ${error}`));
       process.exit(1);
     }
-    
+
     if (!loadResult.schema) {
       console.error('❌ No schema found');
       process.exit(1);
     }
-    
+
     // Validate schema for generation
     const generationValidation = validateForGeneration(loadResult.schema);
     if (!generationValidation.valid) {
       console.error('❌ Schema validation failed:');
-      generationValidation.errors.forEach((error) =>
-        console.error(`  - ${error.message}`)
-      );
+      generationValidation.errors.forEach((error) => console.error(`  - ${error.message}`));
       process.exit(1);
     }
-    
+
     console.log('✓ Schema loaded successfully');
-    
+
     // Normalize the schema
     console.log('Normalizing schema...');
     const normalizedSchema = normalizeSchema(loadResult.schema);
     console.log('✓ Schema normalized');
-    
+
     // Determine output directory
     const outputDir = options.output || './generated';
     const resolvedOutputDir = resolve(process.cwd(), outputDir);
-    
+
     // Generate based on target
     const target = options.target || 'all';
     let generatedFiles = 0;
-    
+
     if (target === 'all' || target === 'logic') {
       console.log('\nGenerating logic module...');
       const logicOutputDir = `${resolvedOutputDir}/logic`;
@@ -87,18 +85,15 @@ export async function generate(options: GenerateOptions): Promise<void> {
       generatedFiles += 5; // facts, events, rules, engine, index
       console.log(`✓ Logic module generated in ${logicOutputDir}`);
     }
-    
+
     if (target === 'all' || target === 'components') {
       console.log('\nGenerating components...');
       const componentsOutputDir = `${resolvedOutputDir}/components`;
-      const componentCount = await generateComponents(
-        normalizedSchema,
-        componentsOutputDir
-      );
+      const componentCount = await generateComponents(normalizedSchema, componentsOutputDir);
       generatedFiles += componentCount;
       console.log(`✓ ${componentCount} components generated in ${componentsOutputDir}`);
     }
-    
+
     if (target === 'all' || target === 'pluresdb') {
       console.log('\nGenerating PluresDB configuration...');
       const dbOutputDir = resolvedOutputDir;
@@ -106,9 +101,9 @@ export async function generate(options: GenerateOptions): Promise<void> {
       generatedFiles += 1;
       console.log(`✓ PluresDB config generated in ${dbOutputDir}`);
     }
-    
+
     console.log(`\n✅ Generation complete! ${generatedFiles} files generated.`);
-    
+
     if (options.watch) {
       console.log('\n👀 Watching for changes...');
       console.log('(Watch mode not yet implemented)');
@@ -130,13 +125,10 @@ export async function generate(options: GenerateOptions): Promise<void> {
 /**
  * Generate logic module
  */
-async function generateLogic(
-  schema: NormalizedSchema,
-  outputDir: string
-): Promise<void> {
+async function generateLogic(schema: NormalizedSchema, outputDir: string): Promise<void> {
   const generator = createLogicGenerator(outputDir);
   const files = generator.generateLogic(schema);
-  
+
   // Write files
   for (const file of files) {
     await ensureDir(dirname(file.path));
@@ -147,35 +139,32 @@ async function generateLogic(
 /**
  * Generate components
  */
-async function generateComponents(
-  schema: NormalizedSchema,
-  outputDir: string
-): Promise<number> {
+async function generateComponents(schema: NormalizedSchema, outputDir: string): Promise<number> {
   if (!schema.components || schema.components.length === 0) {
     console.log('  No components defined in schema');
     return 0;
   }
-  
+
   const generator = createComponentGenerator(outputDir, {
     typescript: true,
     includeTests: false,
     includeDocs: true,
   });
-  
+
   let fileCount = 0;
-  
+
   for (const component of schema.components) {
     // Find model if component references one
     const model = component.resolvedModel || undefined;
-    
+
     const result = generator.generateComponent(component, model);
-    
+
     if (!result.success) {
       console.error(`  ⚠️  Failed to generate ${component.name}:`);
       result.errors.forEach((error) => console.error(`    - ${error.message}`));
       continue;
     }
-    
+
     // Write files
     for (const file of result.files) {
       await ensureDir(dirname(file.path));
@@ -183,7 +172,7 @@ async function generateComponents(
       fileCount++;
     }
   }
-  
+
   return fileCount;
 }
 
@@ -200,9 +189,9 @@ async function generatePluresDB(
     enableSync: false,
     autoIndex: autoIndex || 'all',
   });
-  
+
   const files = generator.generateConfig(schema);
-  
+
   // Write files
   for (const file of files) {
     await ensureDir(dirname(file.path));

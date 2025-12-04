@@ -5,6 +5,7 @@ CodeCanvas is the visual IDE for the Praxis framework. It provides a graphical i
 ## Overview
 
 CodeCanvas enables:
+
 - **Visual Schema Design**: Drag-and-drop model and component design
 - **Logic Flow Editor**: Build rules and state machines visually
 - **Component Preview**: See generated components in real-time
@@ -36,6 +37,7 @@ praxis canvas --new
 ### 1. Schema Editor
 
 **Model Designer**:
+
 - Drag models onto canvas
 - Define fields with visual editor
 - Set relationships between models
@@ -43,6 +45,7 @@ praxis canvas --new
 - Preview generated PluresDB schema
 
 **Component Designer**:
+
 - Create components from templates
 - Bind components to models
 - Configure props and events
@@ -52,6 +55,7 @@ praxis canvas --new
 ### 2. Logic Flow Editor
 
 **Flow Canvas**:
+
 - Visual state machine designer
 - Connect facts, events, and rules
 - Define transitions with conditions
@@ -59,6 +63,7 @@ praxis canvas --new
 - Export to Praxis logic code
 
 **Rule Builder**:
+
 - Visual rule editor
 - Condition builder with drag-and-drop
 - Action designer
@@ -68,6 +73,7 @@ praxis canvas --new
 ### 3. Component Preview
 
 **Live Preview**:
+
 - Real-time component rendering
 - Interactive component testing
 - Props editor
@@ -75,6 +81,7 @@ praxis canvas --new
 - Responsive preview modes
 
 **Code Sync**:
+
 - Two-way sync with files
 - Live reload on changes
 - Conflict resolution
@@ -83,6 +90,7 @@ praxis canvas --new
 ### 4. Orchestration View
 
 **System Topology**:
+
 - Node visualization
 - Connection mapping
 - State distribution view
@@ -90,6 +98,7 @@ praxis canvas --new
 - Performance metrics
 
 **DSC Designer**:
+
 - Visual DSC configuration
 - Node role assignment
 - State sync configuration
@@ -98,6 +107,7 @@ praxis canvas --new
 ### 5. Documentation Browser
 
 **Interactive Docs**:
+
 - Schema documentation
 - API reference
 - Component catalog
@@ -143,11 +153,11 @@ export const config: CanvasConfig = {
   // Server settings
   port: 3000,
   host: 'localhost',
-  
+
   // Editor settings
   mode: 'edit', // 'edit' | 'view' | 'present'
   theme: 'dark', // 'light' | 'dark' | 'auto'
-  
+
   // Features
   features: {
     collaboration: true,
@@ -155,21 +165,21 @@ export const config: CanvasConfig = {
     versionHistory: true,
     aiAssist: false,
   },
-  
+
   // Preview settings
   preview: {
     autoRefresh: true,
     refreshInterval: 1000,
     iframe: true,
   },
-  
+
   // Code sync
   sync: {
     enabled: true,
     watchFiles: true,
     conflictResolution: 'ask', // 'ask' | 'canvas' | 'code'
   },
-  
+
   // Export settings
   export: {
     format: 'typescript',
@@ -263,6 +273,7 @@ code --install-extension plures.praxis-canvas
 ```
 
 Features:
+
 - Open Canvas from editor
 - Inline previews
 - Quick navigation
@@ -273,6 +284,7 @@ Features:
 ### Canvas won't start
 
 Check:
+
 - Port 3000 is available
 - Schema file path is correct
 - Dependencies are installed
@@ -280,6 +292,7 @@ Check:
 ### Changes not syncing
 
 Solutions:
+
 - Enable sync in config
 - Check file permissions
 - Restart Canvas with `--force-sync`
@@ -287,6 +300,7 @@ Solutions:
 ### Preview not updating
 
 Try:
+
 - Clear browser cache
 - Disable ad blockers
 - Check preview refresh settings
@@ -336,6 +350,7 @@ features: {
 ```
 
 AI can:
+
 - Suggest models from descriptions
 - Generate rules from natural language
 - Optimize logic flows
@@ -358,6 +373,7 @@ praxis export --source canvas --format typescript
 ### Export Diagrams
 
 Export visual diagrams:
+
 - PNG/SVG for documentation
 - Mermaid for markdown
 - DOT for Graphviz

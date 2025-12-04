@@ -64,12 +64,12 @@ Facts are typed propositions about your domain. They represent "what is true" af
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | Yes | Unique identifier |
-| `tag` | string | Yes | Fact tag (used in code) |
-| `description` | string | Yes | Human-readable description |
-| `payload` | object | Yes | JSON Schema for fact payload |
+| Field         | Type   | Required | Description                  |
+| ------------- | ------ | -------- | ---------------------------- |
+| `id`          | string | Yes      | Unique identifier            |
+| `tag`         | string | Yes      | Fact tag (used in code)      |
+| `description` | string | Yes      | Human-readable description   |
+| `payload`     | object | Yes      | JSON Schema for fact payload |
 
 ### Events
 
@@ -94,12 +94,12 @@ Events are things that happen in your application that drive state changes.
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | Yes | Unique identifier |
-| `tag` | string | Yes | Event tag (used in code) |
-| `description` | string | Yes | Human-readable description |
-| `payload` | object | Yes | JSON Schema for event payload |
+| Field         | Type   | Required | Description                   |
+| ------------- | ------ | -------- | ----------------------------- |
+| `id`          | string | Yes      | Unique identifier             |
+| `tag`         | string | Yes      | Event tag (used in code)      |
+| `description` | string | Yes      | Human-readable description    |
+| `payload`     | object | Yes      | JSON Schema for event payload |
 
 ### Rules
 
@@ -123,14 +123,14 @@ Rules are pure functions that produce facts from events and current state.
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | Yes | Unique identifier |
-| `name` | string | Yes | Rule name |
-| `description` | string | Yes | What the rule does |
-| `triggers` | string[] | No | Events that trigger this rule |
-| `then` | object | Yes | Rule implementation |
-| `priority` | number | No | Execution priority (higher = first) |
+| Field         | Type     | Required | Description                         |
+| ------------- | -------- | -------- | ----------------------------------- |
+| `id`          | string   | Yes      | Unique identifier                   |
+| `name`        | string   | Yes      | Rule name                           |
+| `description` | string   | Yes      | What the rule does                  |
+| `triggers`    | string[] | No       | Events that trigger this rule       |
+| `then`        | object   | Yes      | Rule implementation                 |
+| `priority`    | number   | No       | Execution priority (higher = first) |
 
 ### Constraints
 
@@ -154,14 +154,14 @@ Constraints are invariants that must always hold true.
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | Yes | Unique identifier |
-| `name` | string | Yes | Constraint name |
-| `description` | string | Yes | What the constraint ensures |
-| `check` | object | Yes | Constraint check implementation |
-| `errorMessage` | string | Yes | Error message when violated |
-| `severity` | string | Yes | `error` or `warning` |
+| Field          | Type   | Required | Description                     |
+| -------------- | ------ | -------- | ------------------------------- |
+| `id`           | string | Yes      | Unique identifier               |
+| `name`         | string | Yes      | Constraint name                 |
+| `description`  | string | Yes      | What the constraint ensures     |
+| `check`        | object | Yes      | Constraint check implementation |
+| `errorMessage` | string | Yes      | Error message when violated     |
+| `severity`     | string | Yes      | `error` or `warning`            |
 
 ### Models
 
@@ -179,11 +179,13 @@ Models define your data structures.
         { "name": "username", "type": "string", "description": "Username" },
         { "name": "email", "type": "string", "description": "Email address" },
         { "name": "createdAt", "type": "datetime", "description": "Creation time" },
-        { "name": "role", "type": { "enum": ["admin", "user", "guest"] }, "description": "User role" }
+        {
+          "name": "role",
+          "type": { "enum": ["admin", "user", "guest"] },
+          "description": "User role"
+        }
       ],
-      "indexes": [
-        { "name": "idx_email", "fields": ["email"], "unique": true }
-      ],
+      "indexes": [{ "name": "idx_email", "fields": ["email"], "unique": true }],
       "relationships": [
         { "name": "posts", "type": "one-to-many", "target": "Post", "foreignKey": "authorId" }
       ]
@@ -194,17 +196,17 @@ Models define your data structures.
 
 #### Field Types
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `string` | Text value | `"Hello"` |
-| `number` | Numeric value | `42` |
-| `boolean` | True/false | `true` |
-| `uuid` | UUID string | `"550e8400-..."` |
-| `datetime` | ISO 8601 date | `"2024-01-01T00:00:00Z"` |
-| `object` | Nested object | `{ key: value }` |
-| `{ array: { type } }` | Array of type | `[1, 2, 3]` |
-| `{ enum: [...] }` | Enumeration | `"active"` |
-| `{ reference: "Model" }` | Reference to another model | Foreign key |
+| Type                     | Description                | Example                  |
+| ------------------------ | -------------------------- | ------------------------ |
+| `string`                 | Text value                 | `"Hello"`                |
+| `number`                 | Numeric value              | `42`                     |
+| `boolean`                | True/false                 | `true`                   |
+| `uuid`                   | UUID string                | `"550e8400-..."`         |
+| `datetime`               | ISO 8601 date              | `"2024-01-01T00:00:00Z"` |
+| `object`                 | Nested object              | `{ key: value }`         |
+| `{ array: { type } }`    | Array of type              | `[1, 2, 3]`              |
+| `{ enum: [...] }`        | Enumeration                | `"active"`               |
+| `{ reference: "Model" }` | Reference to another model | Foreign key              |
 
 ### Components
 
@@ -220,8 +222,18 @@ Components define UI elements generated from the schema.
       "description": "Form for creating/editing users",
       "model": "User",
       "props": [
-        { "name": "user", "type": "User", "required": false, "description": "Existing user to edit" },
-        { "name": "onSubmit", "type": "function", "required": true, "description": "Submit handler" }
+        {
+          "name": "user",
+          "type": "User",
+          "required": false,
+          "description": "Existing user to edit"
+        },
+        {
+          "name": "onSubmit",
+          "type": "function",
+          "required": true,
+          "description": "Submit handler"
+        }
       ],
       "events": [
         { "name": "submit", "payload": "User", "description": "Form submitted" },
@@ -234,13 +246,13 @@ Components define UI elements generated from the schema.
 
 #### Component Types
 
-| Type | Description | Generated Features |
-|------|-------------|-------------------|
-| `form` | Input form | Validation, submit handling |
-| `display` | Display data | Data binding, formatting |
-| `list` | List of items | Pagination, filtering |
-| `editor` | Rich editor | Editing capabilities |
-| `composite` | Composed of others | Layout, composition |
+| Type        | Description        | Generated Features          |
+| ----------- | ------------------ | --------------------------- |
+| `form`      | Input form         | Validation, submit handling |
+| `display`   | Display data       | Data binding, formatting    |
+| `list`      | List of items      | Pagination, filtering       |
+| `editor`    | Rich editor        | Editing capabilities        |
+| `composite` | Composed of others | Layout, composition         |
 
 ### Flows
 
@@ -356,6 +368,7 @@ praxis validate --schema ./schema.psf.json
 ```
 
 Common validation errors:
+
 - Missing required fields
 - Invalid type definitions
 - Duplicate IDs
@@ -401,6 +414,7 @@ praxis generate --schema ./schema.psf.json --watch
 ```
 
 Generated outputs:
+
 - `facts.ts` - Fact type definitions and creators
 - `events.ts` - Event type definitions and creators
 - `rules.ts` - Rule implementations

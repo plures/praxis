@@ -24,6 +24,7 @@ npx praxis cloud init
 ```
 
 The wizard will:
+
 1. Authenticate with GitHub
 2. Configure the Azure endpoint
 3. Test the connection
@@ -32,24 +33,24 @@ The wizard will:
 ### 2. Use in Your Application
 
 ```typescript
-import { connectRelay } from "@plures/praxis/cloud";
+import { connectRelay } from '@plures/praxis/cloud';
 
 // Connect to cloud relay
-const relay = await connectRelay("https://praxis-relay.azurewebsites.net", {
-  appId: "my-app",
-  authToken: "your-github-token",
+const relay = await connectRelay('https://praxis-relay.azurewebsites.net', {
+  appId: 'my-app',
+  authToken: 'your-github-token',
   autoSync: true,
-  syncInterval: 5000
+  syncInterval: 5000,
 });
 
 // Sync data
 await relay.sync({
-  type: "delta",
-  appId: "my-app",
+  type: 'delta',
+  appId: 'my-app',
   clock: {},
-  facts: [{ tag: "TaskCreated", payload: { id: "1", title: "Buy milk" } }],
+  facts: [{ tag: 'TaskCreated', payload: { id: '1', title: 'Buy milk' } }],
   events: [],
-  timestamp: Date.now()
+  timestamp: Date.now(),
 });
 
 // Get usage metrics
@@ -75,6 +76,7 @@ npx praxis cloud init --endpoint https://praxis-relay.azurewebsites.net --app-id
 ```
 
 Options:
+
 - `-e, --endpoint <url>` - Azure Function App endpoint URL
 - `-a, --app-id <id>` - Application identifier
 - `--auto-sync` - Enable automatic synchronization
@@ -111,6 +113,7 @@ npx praxis cloud usage
 Connect to Praxis Cloud Relay.
 
 **Parameters:**
+
 - `endpoint: string` - Azure Function App endpoint URL
 - `options: CloudRelayConfig` - Configuration options
   - `appId: string` - Application identifier (required)
@@ -136,6 +139,7 @@ Disconnect from the relay service.
 Sync facts and events using CRDT protocol.
 
 **Parameters:**
+
 - `message.type` - "sync" | "delta" | "snapshot"
 - `message.appId` - Application identifier
 - `message.clock` - Vector clock for causality
@@ -148,6 +152,7 @@ Sync facts and events using CRDT protocol.
 Get usage metrics for the current billing period.
 
 **Returns:**
+
 - `syncCount` - Number of sync operations
 - `eventCount` - Number of events forwarded
 - `factCount` - Number of facts synced
@@ -160,6 +165,7 @@ Get usage metrics for the current billing period.
 Get service health status.
 
 **Returns:**
+
 - `status` - "healthy" | "degraded" | "unhealthy"
 - `services` - Status of individual services
   - `relay` - Relay service status
@@ -172,6 +178,7 @@ Get service health status.
 Get current connection status (synchronous).
 
 **Returns:**
+
 - `connected` - Connection state
 - `lastSync` - Last sync timestamp
 - `endpoint` - Endpoint URL
@@ -233,6 +240,7 @@ The relay exposes the following HTTP endpoints:
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -252,6 +260,7 @@ Health check endpoint.
 CRDT synchronization endpoint.
 
 **Request:**
+
 ```json
 {
   "type": "delta",
@@ -264,6 +273,7 @@ CRDT synchronization endpoint.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -277,6 +287,7 @@ CRDT synchronization endpoint.
 Usage metrics endpoint.
 
 **Response:**
+
 ```json
 {
   "appId": "my-app",
@@ -294,6 +305,7 @@ Usage metrics endpoint.
 Aggregated statistics endpoint.
 
 **Response:**
+
 ```json
 {
   "appId": "my-app",
@@ -312,9 +324,9 @@ Praxis Cloud uses GitHub OAuth for authentication.
 The CLI uses GitHub's device flow for authentication:
 
 ```typescript
-import { authenticateWithDeviceFlow } from "@plures/praxis/cloud";
+import { authenticateWithDeviceFlow } from '@plures/praxis/cloud';
 
-const result = await authenticateWithDeviceFlow("your-client-id");
+const result = await authenticateWithDeviceFlow('your-client-id');
 
 if (result.success) {
   console.log(`Authenticated as ${result.user.login}`);
@@ -327,12 +339,12 @@ if (result.success) {
 For web applications, use the standard OAuth flow:
 
 ```typescript
-import { createGitHubOAuth } from "@plures/praxis/cloud";
+import { createGitHubOAuth } from '@plures/praxis/cloud';
 
 const oauth = createGitHubOAuth({
-  clientId: "your-client-id",
-  clientSecret: "your-client-secret",
-  redirectUri: "http://localhost:3000/callback"
+  clientId: 'your-client-id',
+  clientSecret: 'your-client-secret',
+  redirectUri: 'http://localhost:3000/callback',
 });
 
 // Redirect user to GitHub
@@ -368,6 +380,7 @@ Praxis Cloud Base Tier includes:
 - **GitHub OAuth** - Unlimited authentications
 
 Additional usage is billed per:
+
 - Sync operations: $0.001 per sync
 - Events: $0.0001 per event
 - Storage: $0.10 per GB/month

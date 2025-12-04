@@ -12,7 +12,9 @@ Facts are typed propositions about your domain. They represent "what is true" or
 import { defineFact } from '@plures/praxis';
 
 // Define a fact type
-const UserLoggedIn = defineFact<'UserLoggedIn', { userId: string; timestamp: number }>('UserLoggedIn');
+const UserLoggedIn = defineFact<'UserLoggedIn', { userId: string; timestamp: number }>(
+  'UserLoggedIn'
+);
 
 // Create a fact instance
 const fact = UserLoggedIn.create({ userId: 'user-123', timestamp: Date.now() });
@@ -25,12 +27,12 @@ if (UserLoggedIn.is(someFact)) {
 
 #### Fact Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `tag` | string | Unique identifier for the fact type |
-| `payload` | object | Data associated with the fact |
-| `timestamp` | number | When the fact was created |
-| `metadata` | object | Optional additional metadata |
+| Property    | Type   | Description                         |
+| ----------- | ------ | ----------------------------------- |
+| `tag`       | string | Unique identifier for the fact type |
+| `payload`   | object | Data associated with the fact       |
+| `timestamp` | number | When the fact was created           |
+| `metadata`  | object | Optional additional metadata        |
 
 ### Events
 
@@ -62,39 +64,41 @@ const loginRule = defineRule<AuthContext>({
   impl: (state, events) => {
     const loginEvent = events.find(Login.is);
     if (!loginEvent) return [];
-    
+
     // Validate credentials (pure logic only)
-    const user = state.context.users.find(u => 
-      u.username === loginEvent.payload.username
-    );
-    
+    const user = state.context.users.find((u) => u.username === loginEvent.payload.username);
+
     if (user) {
       // Modify state (within the pure function)
       state.context.currentUser = user;
-      
+
       // Return facts to emit
-      return [UserLoggedIn.create({ 
-        userId: user.id, 
-        timestamp: Date.now() 
-      })];
+      return [
+        UserLoggedIn.create({
+          userId: user.id,
+          timestamp: Date.now(),
+        }),
+      ];
     }
-    
-    return [LoginFailed.create({ 
-      reason: 'Invalid credentials' 
-    })];
+
+    return [
+      LoginFailed.create({
+        reason: 'Invalid credentials',
+      }),
+    ];
   },
 });
 ```
 
 #### Rule Properties
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `id` | string | Yes | Unique rule identifier |
-| `description` | string | Yes | What the rule does |
-| `impl` | function | Yes | Pure function implementation |
-| `priority` | number | No | Execution order (higher = first) |
-| `triggers` | string[] | No | Event types that activate this rule |
+| Property      | Type     | Required | Description                         |
+| ------------- | -------- | -------- | ----------------------------------- |
+| `id`          | string   | Yes      | Unique rule identifier              |
+| `description` | string   | Yes      | What the rule does                  |
+| `impl`        | function | Yes      | Pure function implementation        |
+| `priority`    | number   | No       | Execution order (higher = first)    |
+| `triggers`    | string[] | No       | Event types that activate this rule |
 
 ### Constraints
 
@@ -114,13 +118,13 @@ const positiveBalance = defineConstraint<BankContext>({
 
 #### Constraint Properties
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `id` | string | Yes | Unique constraint identifier |
-| `description` | string | Yes | What the constraint ensures |
-| `check` | function | Yes | Returns true if valid |
-| `errorMessage` | string | Yes | Error when violated |
-| `severity` | string | Yes | `error` or `warning` |
+| Property       | Type     | Required | Description                  |
+| -------------- | -------- | -------- | ---------------------------- |
+| `id`           | string   | Yes      | Unique constraint identifier |
+| `description`  | string   | Yes      | What the constraint ensures  |
+| `check`        | function | Yes      | Returns true if valid        |
+| `errorMessage` | string   | Yes      | Error when violated          |
+| `severity`     | string   | Yes      | `error` or `warning`         |
 
 ## Creating an Engine
 
@@ -155,20 +159,20 @@ const engine = createPraxisEngine({
 const engine = createPraxisEngine({
   // Required: Initial application state
   initialContext: { count: 0 },
-  
+
   // Required: Registry with rules and constraints
   registry,
-  
+
   // Optional: Enable history for undo/redo
   enableHistory: true,
   maxHistorySize: 100,
-  
+
   // Optional: Custom reducer for state transitions
   reducer: (state, event) => {
     // Custom state transition logic
     return state;
   },
-  
+
   // Optional: Middleware
   middleware: [
     (state, events, next) => {
@@ -176,7 +180,7 @@ const engine = createPraxisEngine({
       const result = next(state, events);
       console.log('After:', result);
       return result;
-    }
+    },
   ],
 });
 ```
@@ -207,20 +211,20 @@ For more control, use the step function directly:
 ```typescript
 const result = engine.step([Login.create({ username: 'alice', password: 'secret' })]);
 
-console.log(result.state.context);  // Updated context
-console.log(result.state.facts);    // Emitted facts
-console.log(result.effects);        // Side effects to execute
-console.log(result.violations);     // Constraint violations
+console.log(result.state.context); // Updated context
+console.log(result.state.facts); // Emitted facts
+console.log(result.effects); // Side effects to execute
+console.log(result.violations); // Constraint violations
 ```
 
 ### Step Result
 
-| Property | Type | Description |
-|----------|------|-------------|
+| Property        | Type   | Description               |
+| --------------- | ------ | ------------------------- |
 | `state.context` | object | Updated application state |
-| `state.facts` | array | Facts emitted by rules |
-| `effects` | array | Side effects to execute |
-| `violations` | array | Constraint violations |
+| `state.facts`   | array  | Facts emitted by rules    |
+| `effects`       | array  | Side effects to execute   |
+| `violations`    | array  | Constraint violations     |
 
 ## State Management
 
@@ -233,9 +237,9 @@ const state1 = engine.getState();
 engine.dispatch([Increment.create({})]);
 const state2 = engine.getState();
 
-console.log(state1 === state2);  // false
-console.log(state1.context.count);  // 0
-console.log(state2.context.count);  // 1
+console.log(state1 === state2); // false
+console.log(state1.context.count); // 0
+console.log(state2.context.count); // 1
 ```
 
 ### Subscriptions
@@ -263,18 +267,18 @@ const engine = createPraxisEngine({
   enableHistory: true,
 });
 
-engine.dispatch([Increment.create({})]);  // count: 1
-engine.dispatch([Increment.create({})]);  // count: 2
+engine.dispatch([Increment.create({})]); // count: 1
+engine.dispatch([Increment.create({})]); // count: 2
 
-engine.undo();  // count: 1
-engine.redo();  // count: 2
+engine.undo(); // count: 1
+engine.redo(); // count: 2
 
 // Access history
 const snapshots = engine.getSnapshots();
-console.log(snapshots.length);  // 3 (initial + 2 changes)
+console.log(snapshots.length); // 3 (initial + 2 changes)
 
 // Go to specific snapshot
-engine.goToSnapshot(0);  // count: 0
+engine.goToSnapshot(0); // count: 0
 ```
 
 ## Rule Execution
@@ -318,7 +322,7 @@ Facts emitted by rules can trigger other rules:
 const loginRule = defineRule({
   id: 'auth.login',
   triggers: ['LOGIN'],
-  impl: (state, events) => [UserLoggedIn.create({ userId: '123' })]
+  impl: (state, events) => [UserLoggedIn.create({ userId: '123' })],
 });
 
 // Rule 2: UserLoggedIn triggers welcome notification
@@ -326,12 +330,12 @@ const welcomeRule = defineRule({
   id: 'notify.welcome',
   impl: (state, events) => {
     // This runs after loginRule because facts are processed
-    const loggedIn = state.facts.find(f => f.tag === 'UserLoggedIn');
+    const loggedIn = state.facts.find((f) => f.tag === 'UserLoggedIn');
     if (loggedIn) {
       return [ShowNotification.create({ message: 'Welcome!' })];
     }
     return [];
-  }
+  },
 });
 ```
 
@@ -358,14 +362,14 @@ if (result.violations.length > 0) {
 ```typescript
 const softConstraint = defineConstraint({
   id: 'warn.lowBalance',
-  severity: 'warning',  // Allows state change, logs warning
+  severity: 'warning', // Allows state change, logs warning
   check: (state) => state.context.balance > 100,
   errorMessage: 'Balance is getting low',
 });
 
 const hardConstraint = defineConstraint({
   id: 'error.overdraft',
-  severity: 'error',  // Prevents state change
+  severity: 'error', // Prevents state change
   check: (state) => state.context.balance >= 0,
   errorMessage: 'Insufficient funds',
 });
@@ -410,7 +414,7 @@ for (const fact of result.state.facts) {
 ```typescript
 // Get all registered rules
 const rules = registry.getRules();
-console.log(rules.map(r => r.id));
+console.log(rules.map((r) => r.id));
 
 // Get all constraints
 const constraints = registry.getConstraints();
@@ -447,12 +451,7 @@ For isolated stateful units:
 ```typescript
 import { createActor, createActorSystem } from '@plures/praxis';
 
-const counterActor = createActor(
-  'counter-1',
-  { count: 0 },
-  counterStepFunction,
-  'counter'
-);
+const counterActor = createActor('counter-1', { count: 0 }, counterStepFunction, 'counter');
 
 const system = createActorSystem();
 system.register(counterActor);
@@ -495,16 +494,16 @@ Rules should have no side effects:
 // ❌ Bad: Side effect in rule
 const badRule = defineRule({
   impl: (state, events) => {
-    fetch('/api/data');  // Side effect!
+    fetch('/api/data'); // Side effect!
     return [];
-  }
+  },
 });
 
 // ✅ Good: Return effect descriptor
 const goodRule = defineRule({
   impl: (state, events) => {
     return [FetchDataRequested.create({ url: '/api/data' })];
-  }
+  },
 });
 ```
 
@@ -534,7 +533,7 @@ const typedRule = defineRule<AppContext>({
     // TypeScript knows the shape of state.context
     const user = state.context.user;
     return [];
-  }
+  },
 });
 ```
 
@@ -549,14 +548,10 @@ describe('Login Rule', () => {
       initialContext: { users: [{ username: 'alice', id: '1' }] },
       registry,
     });
-    
-    const result = engine.step([
-      Login.create({ username: 'alice', password: 'valid' })
-    ]);
-    
-    expect(result.state.facts).toContainEqual(
-      expect.objectContaining({ tag: 'UserLoggedIn' })
-    );
+
+    const result = engine.step([Login.create({ username: 'alice', password: 'valid' })]);
+
+    expect(result.state.facts).toContainEqual(expect.objectContaining({ tag: 'UserLoggedIn' }));
   });
 });
 ```

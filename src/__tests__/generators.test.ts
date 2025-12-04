@@ -50,24 +50,24 @@ describe('Code Generators', () => {
     it('generates logic files', () => {
       const normalized = normalizeSchema(testSchema);
       const generator = createLogicGenerator('/tmp/test');
-      
+
       const files = generator.generateLogic(normalized);
-      
+
       expect(files).toHaveLength(5);
-      expect(files.map(f => f.type)).toContain('facts');
-      expect(files.map(f => f.type)).toContain('events');
-      expect(files.map(f => f.type)).toContain('rules');
-      expect(files.map(f => f.type)).toContain('engine');
-      expect(files.map(f => f.type)).toContain('index');
+      expect(files.map((f) => f.type)).toContain('facts');
+      expect(files.map((f) => f.type)).toContain('events');
+      expect(files.map((f) => f.type)).toContain('rules');
+      expect(files.map((f) => f.type)).toContain('engine');
+      expect(files.map((f) => f.type)).toContain('index');
     });
 
     it('generates facts with correct types', () => {
       const normalized = normalizeSchema(testSchema);
       const generator = createLogicGenerator('/tmp/test');
-      
+
       const files = generator.generateLogic(normalized);
-      const factsFile = files.find(f => f.type === 'facts');
-      
+      const factsFile = files.find((f) => f.type === 'facts');
+
       expect(factsFile).toBeDefined();
       expect(factsFile?.content).toContain('UserCreated');
       expect(factsFile?.content).toContain('defineFact');
@@ -77,10 +77,10 @@ describe('Code Generators', () => {
     it('generates events with correct types', () => {
       const normalized = normalizeSchema(testSchema);
       const generator = createLogicGenerator('/tmp/test');
-      
+
       const files = generator.generateLogic(normalized);
-      const eventsFile = files.find(f => f.type === 'events');
-      
+      const eventsFile = files.find((f) => f.type === 'events');
+
       expect(eventsFile).toBeDefined();
       expect(eventsFile?.content).toContain('CREATE_USER');
       expect(eventsFile?.content).toContain('defineEvent');
@@ -91,10 +91,10 @@ describe('Code Generators', () => {
     it('generates engine with model types', () => {
       const normalized = normalizeSchema(testSchema);
       const generator = createLogicGenerator('/tmp/test');
-      
+
       const files = generator.generateLogic(normalized);
-      const engineFile = files.find(f => f.type === 'engine');
-      
+      const engineFile = files.find((f) => f.type === 'engine');
+
       expect(engineFile).toBeDefined();
       expect(engineFile?.content).toContain('interface User');
       expect(engineFile?.content).toContain('id: string');
@@ -111,9 +111,9 @@ describe('Code Generators', () => {
         typescript: true,
         includeDocs: true,
       });
-      
+
       const result = generator.generateComponent(component, model);
-      
+
       expect(result.success).toBe(true);
       expect(result.files.length).toBeGreaterThan(0);
       expect(result.errors).toHaveLength(0);
@@ -123,10 +123,10 @@ describe('Code Generators', () => {
       const component = testSchema.components![0];
       const model = testSchema.models![0];
       const generator = createComponentGenerator('/tmp/test');
-      
+
       const result = generator.generateComponent(component, model);
-      const componentFile = result.files.find(f => f.type === 'component');
-      
+      const componentFile = result.files.find((f) => f.type === 'component');
+
       expect(componentFile).toBeDefined();
       expect(componentFile?.content).toContain('<form');
       expect(componentFile?.content).toContain('input');
@@ -141,10 +141,10 @@ describe('Code Generators', () => {
       const generator = createComponentGenerator('/tmp/test', {
         typescript: true,
       });
-      
+
       const result = generator.generateComponent(component, model);
-      const typesFile = result.files.find(f => f.type === 'types');
-      
+      const typesFile = result.files.find((f) => f.type === 'types');
+
       expect(typesFile).toBeDefined();
       expect(typesFile?.content).toContain('interface User');
     });
@@ -155,10 +155,10 @@ describe('Code Generators', () => {
       const generator = createComponentGenerator('/tmp/test', {
         includeDocs: true,
       });
-      
+
       const result = generator.generateComponent(component, model);
-      const docsFile = result.files.find(f => f.type === 'docs');
-      
+      const docsFile = result.files.find((f) => f.type === 'docs');
+
       expect(docsFile).toBeDefined();
       expect(docsFile?.content).toContain('# UserForm');
     });
@@ -168,9 +168,9 @@ describe('Code Generators', () => {
     it('generates PluresDB config', () => {
       const normalized = normalizeSchema(testSchema);
       const generator = createPluresDBGenerator('/tmp/test');
-      
+
       const files = generator.generateConfig(normalized);
-      
+
       expect(files).toHaveLength(1);
       expect(files[0].type).toBe('config');
     });
@@ -178,10 +178,10 @@ describe('Code Generators', () => {
     it('generates stores for models', () => {
       const normalized = normalizeSchema(testSchema);
       const generator = createPluresDBGenerator('/tmp/test');
-      
+
       const files = generator.generateConfig(normalized);
       const configFile = files[0];
-      
+
       expect(configFile.content).toContain('users:');
       expect(configFile.content).toContain("keyPath: 'id'");
       expect(configFile.content).toContain('indexes:');
@@ -192,10 +192,10 @@ describe('Code Generators', () => {
       const generator = createPluresDBGenerator('/tmp/test', {
         dbName: 'custom-db',
       });
-      
+
       const files = generator.generateConfig(normalized);
       const configFile = files[0];
-      
+
       expect(configFile.content).toContain("name: 'custom-db'");
     });
 
@@ -205,10 +205,10 @@ describe('Code Generators', () => {
         enableSync: true,
         syncEndpoint: 'ws://example.com/sync',
       });
-      
+
       const files = generator.generateConfig(normalized);
       const configFile = files[0];
-      
+
       expect(configFile.content).toContain('sync:');
       expect(configFile.content).toContain('enabled: true');
       expect(configFile.content).toContain('ws://example.com/sync');
@@ -219,10 +219,10 @@ describe('Code Generators', () => {
       const generator = createPluresDBGenerator('/tmp/test', {
         autoIndex: 'all',
       });
-      
+
       const files = generator.generateConfig(normalized);
       const configFile = files[0];
-      
+
       // Should include all string/number/date fields
       expect(configFile.content).toContain("indexes: ['name', 'email']");
       expect(configFile.content).toContain('auto-indexed by default');
@@ -234,9 +234,7 @@ describe('Code Generators', () => {
         models: [
           {
             ...testSchema.models![0],
-            indexes: [
-              { name: 'email_idx', fields: ['email'] },
-            ],
+            indexes: [{ name: 'email_idx', fields: ['email'] }],
           },
         ],
       };
@@ -244,10 +242,10 @@ describe('Code Generators', () => {
       const generator = createPluresDBGenerator('/tmp/test', {
         autoIndex: 'explicit',
       });
-      
+
       const files = generator.generateConfig(normalized);
       const configFile = files[0];
-      
+
       // Should only include explicitly defined indexes
       expect(configFile.content).toContain("indexes: ['email']");
       expect(configFile.content).toContain('explicitly defined in schema');
@@ -258,10 +256,10 @@ describe('Code Generators', () => {
       const generator = createPluresDBGenerator('/tmp/test', {
         autoIndex: 'none',
       });
-      
+
       const files = generator.generateConfig(normalized);
       const configFile = files[0];
-      
+
       // Should indicate auto-indexing is disabled in comment
       expect(configFile.content).toContain('Auto-indexing disabled');
       // Store config should not have indexes array (since none are auto-generated)

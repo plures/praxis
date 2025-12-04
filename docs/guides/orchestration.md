@@ -5,6 +5,7 @@ Praxis provides built-in support for orchestrating distributed systems using Des
 ## Overview
 
 Praxis orchestration enables:
+
 - **Multi-Node Coordination**: Manage distributed application instances
 - **State Synchronization**: Keep distributed state consistent
 - **Health Monitoring**: Automatic health checks and recovery
@@ -17,6 +18,7 @@ Praxis orchestration enables:
 ### Desired State Configuration (DSC)
 
 DSC defines the desired state of your distributed system:
+
 - Node configurations
 - Service dependencies
 - Resource allocation
@@ -26,6 +28,7 @@ DSC defines the desired state of your distributed system:
 ### Model Context Protocol (MCP)
 
 MCP enables:
+
 - Inter-node communication
 - State distribution
 - Event propagation
@@ -40,7 +43,7 @@ In your schema:
 ```typescript
 export const appSchema: PraxisSchema = {
   // ... other schema config
-  
+
   orchestration: {
     type: 'dsc',
     nodes: [
@@ -89,6 +92,7 @@ praxis orchestrate --config src/schemas/app.schema.ts
 ### Primary Node
 
 Main coordinator node:
+
 - Accepts write operations
 - Coordinates state distribution
 - Manages replica health
@@ -97,6 +101,7 @@ Main coordinator node:
 ### Replica Node
 
 Read-replica node:
+
 - Receives state updates from primary
 - Serves read operations
 - Can become primary on failover
@@ -105,6 +110,7 @@ Read-replica node:
 ### Worker Node
 
 Processing node:
+
 - Executes background jobs
 - Processes queued tasks
 - Reports status to primary
@@ -113,6 +119,7 @@ Processing node:
 ### Gateway Node
 
 Entry point node:
+
 - Load balancing
 - Request routing
 - Authentication
@@ -139,7 +146,7 @@ export const dscConfig: OrchestrationConfig = {
       gateway: 1,
     },
   },
-  
+
   // Node configuration
   nodeDefaults: {
     memory: '512MB',
@@ -147,7 +154,7 @@ export const dscConfig: OrchestrationConfig = {
     disk: '10GB',
     network: 'private',
   },
-  
+
   // State sync configuration
   sync: {
     protocol: 'websocket',
@@ -160,7 +167,7 @@ export const dscConfig: OrchestrationConfig = {
       customResolver: './resolvers/custom.ts',
     },
   },
-  
+
   // Health monitoring
   health: {
     checkInterval: 30000,
@@ -176,7 +183,7 @@ export const dscConfig: OrchestrationConfig = {
       slack: 'https://hooks.slack.com/...',
     },
   },
-  
+
   // Auto-scaling
   scaling: {
     enabled: true,
@@ -200,7 +207,7 @@ export const dscConfig: OrchestrationConfig = {
       maxNodes: 10,
     },
   },
-  
+
   // Service discovery
   discovery: {
     enabled: true,
@@ -208,7 +215,7 @@ export const dscConfig: OrchestrationConfig = {
     ttl: 60000,
     tags: ['praxis', 'production'],
   },
-  
+
   // Load balancing
   loadBalancing: {
     strategy: 'round-robin', // 'round-robin' | 'least-conn' | 'ip-hash'
@@ -223,16 +230,19 @@ export const dscConfig: OrchestrationConfig = {
 ### Sync Strategies
 
 **Last-Write-Wins**:
+
 ```typescript
-conflictResolution: 'last-write-wins'
+conflictResolution: 'last-write-wins';
 ```
 
 **Merge Strategy**:
+
 ```typescript
-conflictResolution: 'merge'
+conflictResolution: 'merge';
 ```
 
 **Custom Resolver**:
+
 ```typescript
 conflictResolution: {
   strategy: 'custom',
@@ -286,18 +296,18 @@ export const healthChecks = {
     // Check if node is alive
     return { status: 'ok' };
   },
-  
+
   readiness: async () => {
     // Check if node is ready to serve requests
     const dbReady = await checkDatabase();
     const cacheReady = await checkCache();
-    
+
     return {
       status: dbReady && cacheReady ? 'ok' : 'not-ready',
       details: { database: dbReady, cache: cacheReady },
     };
   },
-  
+
   metrics: async () => {
     // Return metrics
     return {
@@ -312,6 +322,7 @@ export const healthChecks = {
 ### Failure Detection
 
 Automatic failure detection:
+
 - Heartbeat monitoring
 - Health check failures
 - Network partition detection
@@ -320,6 +331,7 @@ Automatic failure detection:
 ### Recovery Actions
 
 Configured recovery actions:
+
 - **Restart**: Restart failed node
 - **Failover**: Promote replica to primary
 - **Scale**: Add new nodes
@@ -419,9 +431,7 @@ Events propagate across nodes:
 
 ```typescript
 // Define distributed event
-const UserLoginEvent = defineEvent<'USER_LOGIN', { userId: string }>(
-  'USER_LOGIN'
-);
+const UserLoginEvent = defineEvent<'USER_LOGIN', { userId: string }>('USER_LOGIN');
 
 // Dispatch on any node
 engine.step([UserLoginEvent.create({ userId: 'user123' })]);
@@ -495,23 +505,23 @@ spec:
         app: praxis-app
     spec:
       containers:
-      - name: praxis
-        image: my-praxis-app:latest
-        ports:
-        - containerPort: 8080
-        env:
-        - name: NODE_TYPE
-          value: "replica"
-        - name: PRIMARY_HOST
-          value: "praxis-primary"
-        livenessProbe:
-          httpGet:
-            path: /health/live
-            port: 8080
-        readinessProbe:
-          httpGet:
-            path: /health/ready
-            port: 8080
+        - name: praxis
+          image: my-praxis-app:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: NODE_TYPE
+              value: 'replica'
+            - name: PRIMARY_HOST
+              value: 'praxis-primary'
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
 ```
 
 ## Monitoring & Observability
@@ -519,6 +529,7 @@ spec:
 ### Metrics
 
 Collect cluster metrics:
+
 - Request rate per node
 - State sync latency
 - Health check status
@@ -563,6 +574,7 @@ orchestration: {
 ### Split Brain
 
 Detect and resolve split brain:
+
 ```bash
 praxis orchestrate diagnose split-brain
 praxis orchestrate resolve split-brain --strategy quorum
@@ -571,6 +583,7 @@ praxis orchestrate resolve split-brain --strategy quorum
 ### Network Partition
 
 Handle network partitions:
+
 ```typescript
 sync: {
   partitionTolerance: {
@@ -583,6 +596,7 @@ sync: {
 ### State Divergence
 
 Reconcile diverged state:
+
 ```bash
 praxis orchestrate reconcile --force
 ```

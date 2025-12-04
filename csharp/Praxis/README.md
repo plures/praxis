@@ -128,7 +128,7 @@ var addToCartRule = PraxisDsl.DefineRule<CartContext>(
             var payload = AddToCart.GetPayload(addEvent);
             // Create a new CartItem fact
             return [CartItem.Create(new CartItemPayload(
-                payload?.ProductId ?? "", 
+                payload?.ProductId ?? "",
                 payload?.Quantity ?? 0,
                 GetPrice(payload?.ProductId)))];
         }
@@ -147,8 +147,8 @@ var maxCartItems = PraxisDsl.DefineConstraint<CartContext>(
     impl: (state, context) =>
     {
         var itemCount = state.Facts.Count(f => f.Tag == "CartItem");
-        return itemCount <= 100 
-            ? ConstraintResult.Success 
+        return itemCount <= 100
+            ? ConstraintResult.Success
             : ConstraintResult.Failure($"Cart has {itemCount} items, maximum is 100");
     });
 ```

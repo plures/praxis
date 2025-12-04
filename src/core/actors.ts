@@ -1,20 +1,20 @@
 /**
  * Actors System
- * 
+ *
  * Actors are effectful units that:
  * - Observe Praxis logic state
  * - Perform side effects (network I/O, database operations, timers, etc.)
  * - Feed new events/facts back into the engine
- * 
+ *
  * Actors provide the bridge between pure logic and the effectful world.
  */
 
-import type { LogicEngine } from "./engine.js";
-import type { PraxisEvent, PraxisState } from "./protocol.js";
+import type { LogicEngine } from './engine.js';
+import type { PraxisEvent, PraxisState } from './protocol.js';
 
 /**
  * Actor interface
- * 
+ *
  * An actor observes state changes and can:
  * - React to state changes (onStateChange)
  * - Perform initialization (onStart)
@@ -38,7 +38,7 @@ export interface Actor<TContext = unknown> {
 
 /**
  * Actor manager
- * 
+ *
  * Manages the lifecycle of actors and coordinates their interaction with the engine.
  */
 export class ActorManager<TContext = unknown> {
@@ -85,7 +85,7 @@ export class ActorManager<TContext = unknown> {
       throw new Error(`Actor "${actorId}" is already started`);
     }
     if (!this.engine) {
-      throw new Error("Actor manager not attached to an engine");
+      throw new Error('Actor manager not attached to an engine');
     }
 
     this.activeActors.add(actorId);

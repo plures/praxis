@@ -1,6 +1,6 @@
 /**
  * Praxis Logic Engine
- * 
+ *
  * The logic engine manages state, processes events through rules,
  * checks constraints, and provides a strongly-typed API for application logic.
  */
@@ -12,9 +12,9 @@ import type {
   PraxisStepConfig,
   PraxisStepResult,
   PraxisDiagnostics,
-} from "./protocol.js";
-import { PRAXIS_PROTOCOL_VERSION } from "./protocol.js";
-import { PraxisRegistry } from "./rules.js";
+} from './protocol.js';
+import { PRAXIS_PROTOCOL_VERSION } from './protocol.js';
+import { PraxisRegistry } from './rules.js';
 
 /**
  * Options for creating a Praxis engine
@@ -32,7 +32,7 @@ export interface PraxisEngineOptions<TContext = unknown> {
 
 /**
  * The Praxis Logic Engine
- * 
+ *
  * Manages application logic through facts, events, rules, and constraints.
  * The engine is strongly typed and functional - all state updates are immutable.
  */
@@ -79,7 +79,7 @@ export class LogicEngine<TContext = unknown> {
   /**
    * Process events through the engine.
    * Applies all registered rules and checks all registered constraints.
-   * 
+   *
    * @param events Events to process
    * @returns Result with new state and diagnostics
    */
@@ -93,15 +93,12 @@ export class LogicEngine<TContext = unknown> {
 
   /**
    * Process events with specific rule and constraint configuration.
-   * 
+   *
    * @param events Events to process
    * @param config Step configuration
    * @returns Result with new state and diagnostics
    */
-  stepWithConfig(
-    events: PraxisEvent[],
-    config: PraxisStepConfig
-  ): PraxisStepResult {
+  stepWithConfig(events: PraxisEvent[], config: PraxisStepConfig): PraxisStepResult {
     const diagnostics: PraxisDiagnostics[] = [];
     let newState = { ...this.state };
 
@@ -111,7 +108,7 @@ export class LogicEngine<TContext = unknown> {
       const rule = this.registry.getRule(ruleId);
       if (!rule) {
         diagnostics.push({
-          kind: "rule-error",
+          kind: 'rule-error',
           message: `Rule "${ruleId}" not found in registry`,
           data: { ruleId },
         });
@@ -123,7 +120,7 @@ export class LogicEngine<TContext = unknown> {
         newFacts.push(...ruleFacts);
       } catch (error) {
         diagnostics.push({
-          kind: "rule-error",
+          kind: 'rule-error',
           message: `Error executing rule "${ruleId}": ${error instanceof Error ? error.message : String(error)}`,
           data: { ruleId, error },
         });
@@ -141,7 +138,7 @@ export class LogicEngine<TContext = unknown> {
       const constraint = this.registry.getConstraint(constraintId);
       if (!constraint) {
         diagnostics.push({
-          kind: "constraint-violation",
+          kind: 'constraint-violation',
           message: `Constraint "${constraintId}" not found in registry`,
           data: { constraintId },
         });
@@ -152,20 +149,20 @@ export class LogicEngine<TContext = unknown> {
         const result = constraint.impl(newState);
         if (result === false) {
           diagnostics.push({
-            kind: "constraint-violation",
+            kind: 'constraint-violation',
             message: `Constraint "${constraintId}" violated`,
             data: { constraintId, description: constraint.description },
           });
-        } else if (typeof result === "string") {
+        } else if (typeof result === 'string') {
           diagnostics.push({
-            kind: "constraint-violation",
+            kind: 'constraint-violation',
             message: result,
             data: { constraintId, description: constraint.description },
           });
         }
       } catch (error) {
         diagnostics.push({
-          kind: "constraint-violation",
+          kind: 'constraint-violation',
           message: `Error checking constraint "${constraintId}": ${error instanceof Error ? error.message : String(error)}`,
           data: { constraintId, error },
         });
@@ -184,7 +181,7 @@ export class LogicEngine<TContext = unknown> {
   /**
    * Update the context directly (for exceptional cases).
    * Generally, context should be updated through rules.
-   * 
+   *
    * @param updater Function that produces new context from old context
    */
   updateContext(updater: (context: TContext) => TContext): void {
@@ -197,7 +194,7 @@ export class LogicEngine<TContext = unknown> {
   /**
    * Add facts directly (for exceptional cases).
    * Generally, facts should be added through rules.
-   * 
+   *
    * @param facts Facts to add
    */
   addFacts(facts: PraxisFact[]): void {
@@ -232,7 +229,7 @@ export class LogicEngine<TContext = unknown> {
 
 /**
  * Create a new Praxis logic engine.
- * 
+ *
  * @param options Engine options
  * @returns New LogicEngine instance
  */

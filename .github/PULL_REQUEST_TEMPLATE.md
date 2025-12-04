@@ -5,6 +5,7 @@
 ## Related Issue
 
 <!-- Link to the issue this PR addresses -->
+
 Closes #
 
 ## Type of Change
@@ -23,9 +24,9 @@ Closes #
 
 <!-- List the specific changes made in this PR -->
 
-- 
-- 
-- 
+-
+-
+-
 
 ## Testing
 
@@ -36,6 +37,7 @@ Closes #
 - [ ] Manual testing completed
 
 **Test commands:**
+
 ```bash
 npm run build
 npm run typecheck
@@ -50,7 +52,6 @@ npm test
 - [ ] Migration guide added/updated
 
 **Details:**
-
 
 ## Documentation
 

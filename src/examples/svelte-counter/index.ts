@@ -1,6 +1,6 @@
 /**
  * Svelte Counter Example
- * 
+ *
  * Demonstrates Svelte v5 integration with a simple counter.
  * Shows how to connect Praxis logic to reactive Svelte stores.
  */
@@ -12,8 +12,8 @@ import {
   defineEvent,
   defineRule,
   findEvent,
-} from "../../index.js";
-import { createPraxisStore, createDerivedStore } from "../../integrations/svelte.js";
+} from '../../index.js';
+import { createPraxisStore, createDerivedStore } from '../../integrations/svelte.js';
 
 // Define the context type
 interface CounterContext {
@@ -22,23 +22,19 @@ interface CounterContext {
 }
 
 // Define facts
-const CountIncremented = defineFact<"CountIncremented", { amount: number }>(
-  "CountIncremented"
-);
-const CountDecremented = defineFact<"CountDecremented", { amount: number }>(
-  "CountDecremented"
-);
-const CountReset = defineFact<"CountReset", {}>("CountReset");
+const CountIncremented = defineFact<'CountIncremented', { amount: number }>('CountIncremented');
+const CountDecremented = defineFact<'CountDecremented', { amount: number }>('CountDecremented');
+const CountReset = defineFact<'CountReset', {}>('CountReset');
 
 // Define events
-const Increment = defineEvent<"INCREMENT", { amount?: number }>("INCREMENT");
-const Decrement = defineEvent<"DECREMENT", { amount?: number }>("DECREMENT");
-const Reset = defineEvent<"RESET", {}>("RESET");
+const Increment = defineEvent<'INCREMENT', { amount?: number }>('INCREMENT');
+const Decrement = defineEvent<'DECREMENT', { amount?: number }>('DECREMENT');
+const Reset = defineEvent<'RESET', {}>('RESET');
 
 // Define rules
 const incrementRule = defineRule<CounterContext>({
-  id: "counter.increment",
-  description: "Increment the counter",
+  id: 'counter.increment',
+  description: 'Increment the counter',
   impl: (state, events) => {
     const incrementEvent = findEvent(events, Increment);
     if (!incrementEvent) {
@@ -54,8 +50,8 @@ const incrementRule = defineRule<CounterContext>({
 });
 
 const decrementRule = defineRule<CounterContext>({
-  id: "counter.decrement",
-  description: "Decrement the counter",
+  id: 'counter.decrement',
+  description: 'Decrement the counter',
   impl: (state, events) => {
     const decrementEvent = findEvent(events, Decrement);
     if (!decrementEvent) {
@@ -71,8 +67,8 @@ const decrementRule = defineRule<CounterContext>({
 });
 
 const resetRule = defineRule<CounterContext>({
-  id: "counter.reset",
-  description: "Reset the counter",
+  id: 'counter.reset',
+  description: 'Reset the counter',
   impl: (state, events) => {
     const resetEvent = findEvent(events, Reset);
     if (!resetEvent) {
@@ -132,30 +128,30 @@ function createCounterStores() {
 
 // Example usage (non-Svelte demonstration)
 function runExample() {
-  console.log("=== Svelte Counter Example ===\n");
+  console.log('=== Svelte Counter Example ===\n');
 
   const { engine, countStore } = createCounterStores();
 
   // Subscribe to count changes
-  console.log("Subscribing to count changes...\n");
+  console.log('Subscribing to count changes...\n');
   const unsubscribe = countStore.subscribe((count) => {
     console.log(`Count changed: ${count}`);
   });
 
   // Dispatch some events
-  console.log("\nIncrementing by 1:");
+  console.log('\nIncrementing by 1:');
   engine.step([Increment.create({})]);
 
-  console.log("\nIncrementing by 5:");
+  console.log('\nIncrementing by 5:');
   engine.step([Increment.create({ amount: 5 })]);
 
-  console.log("\nDecrementing by 2:");
+  console.log('\nDecrementing by 2:');
   engine.step([Decrement.create({ amount: 2 })]);
 
-  console.log("\nResetting:");
+  console.log('\nResetting:');
   engine.step([Reset.create({})]);
 
-  console.log("\nContext:", engine.getContext());
+  console.log('\nContext:', engine.getContext());
 
   unsubscribe();
 }

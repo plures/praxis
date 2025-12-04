@@ -1,9 +1,9 @@
 /**
  * Svelte v5 Integration
- * 
+ *
  * Provides reactive bindings for Praxis logic engines in Svelte v5 applications.
  * Supports both traditional stores and modern Svelte 5 runes ($state, $derived, $effect).
- * 
+ *
  * Features:
  * - Store-based API for backward compatibility
  * - Runes-based composables for Svelte 5
@@ -12,8 +12,8 @@
  * - Automatic cleanup and subscription management
  */
 
-import type { LogicEngine } from "../core/engine.js";
-import type { PraxisEvent, PraxisState } from "../core/protocol.js";
+import type { LogicEngine } from '../core/engine.js';
+import type { PraxisEvent, PraxisState } from '../core/protocol.js';
 
 /**
  * Writable store interface (Svelte-compatible)
@@ -33,16 +33,16 @@ export interface Readable<T> {
 
 /**
  * Create a reactive Svelte store from a Praxis engine.
- * 
+ *
  * The store tracks the engine's state and provides methods to dispatch events.
- * 
+ *
  * @example
  * const engine = createPraxisEngine({ ... });
  * const store = createPraxisStore(engine);
- * 
+ *
  * // In Svelte component:
  * $: state = $store;
- * 
+ *
  * // Dispatch events:
  * store.dispatch([Login.create({ username: "alice", password: "secret" })]);
  */
@@ -76,11 +76,11 @@ export function createPraxisStore<TContext = unknown>(
 
 /**
  * Create a derived store that extracts the context from the engine state.
- * 
+ *
  * @example
  * const engine = createPraxisEngine({ ... });
  * const contextStore = createContextStore(engine);
- * 
+ *
  * // In Svelte component:
  * $: context = $contextStore;
  */
@@ -114,11 +114,11 @@ export function createContextStore<TContext = unknown>(
 
 /**
  * Create a derived store that extracts specific data from the context.
- * 
+ *
  * @example
  * const engine = createPraxisEngine<{ count: number }>({ ... });
  * const countStore = createDerivedStore(engine, (ctx) => ctx.count);
- * 
+ *
  * // In Svelte component:
  * $: count = $countStore;
  */
@@ -207,34 +207,34 @@ export interface PraxisEngineBinding<TContext = unknown> {
 
 /**
  * Create a reactive binding to a Praxis engine with Svelte 5 runes support.
- * 
+ *
  * This composable provides a runes-compatible API for integrating Praxis
  * with Svelte 5 components. The returned state is reactive and will
  * automatically update the component when the engine state changes.
- * 
+ *
  * Note: The history/snapshot feature tracks state snapshots but doesn't
  * restore the engine to previous states. When you navigate history (undo/redo),
  * you're viewing past snapshots, but new events are still applied to the
  * current engine state. For true undo/redo, use createHistoryEngine or
  * implement state restoration in your application logic.
- * 
+ *
  * @example
  * <script>
  *   import { usePraxisEngine } from '@plures/praxis/svelte';
  *   import { createMyEngine } from './my-engine';
- *   
+ *
  *   const engine = createMyEngine();
  *   const { context, dispatch, undo, canUndo } = usePraxisEngine(engine, {
  *     enableHistory: true
  *   });
  * </script>
- * 
+ *
  * <div>
  *   <p>Count: {context.count}</p>
  *   <button onclick={() => dispatch([Increment.create({})])}>+</button>
  *   <button onclick={() => undo()} disabled={!canUndo}>Undo</button>
  * </div>
- * 
+ *
  * @param engine The Praxis logic engine
  * @param options Configuration options
  * @returns Reactive binding with state, context, and control methods
@@ -277,7 +277,7 @@ export function usePraxisEngine<TContext = unknown>(
         state: currentState,
         events,
       });
-      
+
       // Limit history size
       if (snapshots.length > maxHistorySize) {
         snapshots.shift();
@@ -292,7 +292,7 @@ export function usePraxisEngine<TContext = unknown>(
       console.warn('History is not enabled for this engine');
       return;
     }
-    
+
     if (index < 0 || index >= snapshots.length) {
       console.warn(`Invalid snapshot index: ${index}`);
       return;
@@ -345,20 +345,20 @@ export function usePraxisEngine<TContext = unknown>(
 
 /**
  * Create a reactive derived value from engine context with Svelte 5 runes.
- * 
+ *
  * This composable extracts and tracks a specific value from the engine context.
  * The returned value is reactive and will update when the selected value changes.
- * 
+ *
  * @example
  * <script>
  *   import { usePraxisContext } from '@plures/praxis/svelte';
- *   
+ *
  *   const engine = createMyEngine();
  *   const count = usePraxisContext(engine, (ctx) => ctx.count);
  * </script>
- * 
+ *
  * <p>Count: {count}</p>
- * 
+ *
  * @param engine The Praxis logic engine
  * @param selector Function to extract value from context
  * @returns Reactive derived value
@@ -373,21 +373,21 @@ export function usePraxisContext<TContext = unknown, TDerived = unknown>(
 
 /**
  * Subscribe to engine state changes with automatic cleanup.
- * 
+ *
  * This composable sets up a subscription to engine state changes and
  * automatically cleans up when the component is destroyed.
- * 
+ *
  * @example
  * <script>
  *   import { usePraxisSubscription } from '@plures/praxis/svelte';
- *   
+ *
  *   const engine = createMyEngine();
- *   
+ *
  *   usePraxisSubscription(engine, (state) => {
  *     console.log('State changed:', state);
  *   });
  * </script>
- * 
+ *
  * @param engine The Praxis logic engine
  * @param callback Function to call when state changes
  */
@@ -543,20 +543,20 @@ export class HistoryStateManager<TContext = unknown> {
 
 /**
  * Create a Praxis engine with history tracking.
- * 
+ *
  * This utility wraps an engine with automatic history recording,
  * providing undo/redo functionality.
- * 
+ *
  * @example
  * const engine = createPraxisEngine({ ... });
  * const { dispatch, undo, redo, canUndo, canRedo } = createHistoryEngine(engine);
- * 
+ *
  * // Use normally
  * dispatch([Login.create({ username: "alice" })]);
- * 
+ *
  * // Undo the login
  * undo();
- * 
+ *
  * @param engine The base Praxis engine
  * @param options History configuration
  * @returns Enhanced engine with history methods

@@ -9,6 +9,7 @@ This tutorial walks you through building a local-first todo application with Plu
 ## What You'll Build
 
 A todo application that:
+
 - Stores todos locally with PluresDB
 - Works completely offline
 - Syncs automatically when connected
@@ -40,7 +41,7 @@ Create `src/schema.psf.json`:
   "id": "todo-app",
   "name": "Todo App",
   "description": "A local-first todo application with PluresDB",
-  
+
   "facts": [
     {
       "id": "fact_todo_created",
@@ -79,7 +80,7 @@ Create `src/schema.psf.json`:
       }
     }
   ],
-  
+
   "events": [
     {
       "id": "event_create_todo",
@@ -115,7 +116,7 @@ Create `src/schema.psf.json`:
       }
     }
   ],
-  
+
   "models": [
     {
       "id": "model_todo",
@@ -167,10 +168,7 @@ export const db = createPluresDB({
         createdAt: { type: 'datetime', default: () => new Date() },
         completedAt: { type: 'datetime', optional: true },
       },
-      indexes: [
-        { fields: ['completed'] },
-        { fields: ['createdAt'], sort: 'desc' },
-      ],
+      indexes: [{ fields: ['completed'] }, { fields: ['createdAt'], sort: 'desc' }],
     },
   ],
   sync: {
@@ -212,21 +210,19 @@ export const TodoCreated = defineFact<
   { id: string; title: string; createdAt: number }
 >('TodoCreated');
 
-export const TodoCompleted = defineFact<
-  'TodoCompleted',
-  { id: string; completedAt: number }
->('TodoCompleted');
+export const TodoCompleted = defineFact<'TodoCompleted', { id: string; completedAt: number }>(
+  'TodoCompleted'
+);
 
-export const TodoDeleted = defineFact<
-  'TodoDeleted',
-  { id: string }
->('TodoDeleted');
+export const TodoDeleted = defineFact<'TodoDeleted', { id: string }>('TodoDeleted');
 
 // Events
 export const CREATE_TODO = defineEvent<'CREATE_TODO', { title: string }>('CREATE_TODO');
 export const COMPLETE_TODO = defineEvent<'COMPLETE_TODO', { id: string }>('COMPLETE_TODO');
 export const DELETE_TODO = defineEvent<'DELETE_TODO', { id: string }>('DELETE_TODO');
-export const SET_FILTER = defineEvent<'SET_FILTER', { filter: 'all' | 'active' | 'completed' }>('SET_FILTER');
+export const SET_FILTER = defineEvent<'SET_FILTER', { filter: 'all' | 'active' | 'completed' }>(
+  'SET_FILTER'
+);
 
 // Rules
 const createTodoRule = defineRule<TodoContext>({
@@ -235,10 +231,10 @@ const createTodoRule = defineRule<TodoContext>({
   impl: async (state, events) => {
     const event = events.find(CREATE_TODO.is);
     if (!event) return [];
-    
+
     const now = Date.now();
     const id = crypto.randomUUID();
-    
+
     // Create in database
     const todo: Todo = {
       id,
@@ -246,12 +242,12 @@ const createTodoRule = defineRule<TodoContext>({
       completed: false,
       createdAt: new Date(now),
     };
-    
+
     await todos.insert(todo);
-    
+
     // Update local state
     state.context.todos.unshift(todo);
-    
+
     return [TodoCreated.create({ id, title: event.payload.title, createdAt: now })];
   },
 });
@@ -262,21 +258,21 @@ const completeTodoRule = defineRule<TodoContext>({
   impl: async (state, events) => {
     const event = events.find(COMPLETE_TODO.is);
     if (!event) return [];
-    
+
     const now = Date.now();
-    
+
     // Update in database
     await todos.updateById(event.payload.id, {
       $set: { completed: true, completedAt: new Date(now) },
     });
-    
+
     // Update local state
-    const todo = state.context.todos.find(t => t.id === event.payload.id);
+    const todo = state.context.todos.find((t) => t.id === event.payload.id);
     if (todo) {
       todo.completed = true;
       todo.completedAt = new Date(now);
     }
-    
+
     return [TodoCompleted.create({ id: event.payload.id, completedAt: now })];
   },
 });
@@ -287,13 +283,13 @@ const deleteTodoRule = defineRule<TodoContext>({
   impl: async (state, events) => {
     const event = events.find(DELETE_TODO.is);
     if (!event) return [];
-    
+
     // Delete from database
     await todos.deleteById(event.payload.id);
-    
+
     // Update local state
-    state.context.todos = state.context.todos.filter(t => t.id !== event.payload.id);
-    
+    state.context.todos = state.context.todos.filter((t) => t.id !== event.payload.id);
+
     return [TodoDeleted.create({ id: event.payload.id })];
   },
 });
@@ -304,7 +300,7 @@ const setFilterRule = defineRule<TodoContext>({
   impl: (state, events) => {
     const event = events.find(SET_FILTER.is);
     if (!event) return [];
-    
+
     state.context.filter = event.payload.filter;
     return [];
   },
@@ -321,7 +317,7 @@ registry.registerRule(setFilterRule);
 export async function createTodoEngine() {
   // Load existing todos from database
   const existingTodos = await todos.find({}, { sort: { createdAt: -1 } });
-  
+
   return createPraxisEngine({
     initialContext: {
       todos: existingTodos,
@@ -347,19 +343,19 @@ export function setupSyncHandlers(onStatusChange: (status: string) => void) {
   db.on('sync:start', () => {
     onStatusChange('syncing');
   });
-  
+
   db.on('sync:complete', () => {
     onStatusChange('online');
   });
-  
+
   db.on('sync:error', () => {
     onStatusChange('offline');
   });
-  
+
   db.on('online', () => {
     onStatusChange('online');
   });
-  
+
   db.on('offline', () => {
     onStatusChange('offline');
   });
@@ -386,27 +382,27 @@ import { setupSyncHandlers, syncNow, getPendingCount } from './db';
 
 async function main() {
   console.log('🚀 Starting Todo App with PluresDB\n');
-  
+
   // Create engine
   const engine = await createTodoEngine();
-  
+
   // Setup sync status updates
   setupSyncHandlers((status) => {
     console.log(`📡 Sync status: ${status}`);
   });
-  
+
   // Display current state
   function displayTodos() {
     const ctx = engine.getContext();
     console.log('\n📋 Todos:');
     console.log('─'.repeat(40));
-    
-    const filtered = ctx.todos.filter(todo => {
+
+    const filtered = ctx.todos.filter((todo) => {
       if (ctx.filter === 'active') return !todo.completed;
       if (ctx.filter === 'completed') return todo.completed;
       return true;
     });
-    
+
     if (filtered.length === 0) {
       console.log('  No todos');
     } else {
@@ -415,43 +411,43 @@ async function main() {
         console.log(`  ${i + 1}. ${checkbox} ${todo.title}`);
       });
     }
-    
+
     console.log('─'.repeat(40));
     console.log(`Filter: ${ctx.filter} | Pending sync: ${getPendingCount()}`);
     console.log('');
   }
-  
+
   // Show initial state
   displayTodos();
-  
+
   // Add some todos
   console.log('Adding todos...');
-  
+
   await engine.dispatch([CREATE_TODO.create({ title: 'Learn Praxis' })]);
   await engine.dispatch([CREATE_TODO.create({ title: 'Build with PluresDB' })]);
   await engine.dispatch([CREATE_TODO.create({ title: 'Deploy to production' })]);
-  
+
   displayTodos();
-  
+
   // Complete a todo
   const firstTodoId = engine.getContext().todos[0].id;
   console.log(`Completing: ${engine.getContext().todos[0].title}`);
   await engine.dispatch([COMPLETE_TODO.create({ id: firstTodoId })]);
-  
+
   displayTodos();
-  
+
   // Filter by active
   console.log('Filtering by active...');
   await engine.dispatch([SET_FILTER.create({ filter: 'active' })]);
-  
+
   displayTodos();
-  
+
   // Filter by completed
   console.log('Filtering by completed...');
   await engine.dispatch([SET_FILTER.create({ filter: 'completed' })]);
-  
+
   displayTodos();
-  
+
   // Trigger sync
   console.log('Syncing with server...');
   try {
@@ -460,7 +456,7 @@ async function main() {
   } catch (error) {
     console.log('⚠️ Sync failed (offline mode)');
   }
-  
+
   console.log('\n🎉 Done!');
 }
 
@@ -492,7 +488,7 @@ describe('Todo Engine', () => {
   describe('CREATE_TODO', () => {
     it('should create a new todo', async () => {
       await engine.dispatch([CREATE_TODO.create({ title: 'Test todo' })]);
-      
+
       const ctx = engine.getContext();
       expect(ctx.todos.length).toBe(1);
       expect(ctx.todos[0].title).toBe('Test todo');
@@ -501,10 +497,8 @@ describe('Todo Engine', () => {
 
     it('should emit TodoCreated fact', async () => {
       const result = await engine.step([CREATE_TODO.create({ title: 'Test' })]);
-      
-      expect(result.state.facts).toContainEqual(
-        expect.objectContaining({ tag: 'TodoCreated' })
-      );
+
+      expect(result.state.facts).toContainEqual(expect.objectContaining({ tag: 'TodoCreated' }));
     });
   });
 
@@ -512,9 +506,9 @@ describe('Todo Engine', () => {
     it('should mark todo as completed', async () => {
       await engine.dispatch([CREATE_TODO.create({ title: 'Test' })]);
       const todoId = engine.getContext().todos[0].id;
-      
+
       await engine.dispatch([COMPLETE_TODO.create({ id: todoId })]);
-      
+
       const todo = engine.getContext().todos[0];
       expect(todo.completed).toBe(true);
       expect(todo.completedAt).toBeDefined();
@@ -525,9 +519,9 @@ describe('Todo Engine', () => {
     it('should remove the todo', async () => {
       await engine.dispatch([CREATE_TODO.create({ title: 'Test' })]);
       const todoId = engine.getContext().todos[0].id;
-      
+
       await engine.dispatch([DELETE_TODO.create({ id: todoId })]);
-      
+
       expect(engine.getContext().todos.length).toBe(0);
     });
   });
@@ -535,7 +529,7 @@ describe('Todo Engine', () => {
   describe('SET_FILTER', () => {
     it('should update the filter', async () => {
       await engine.dispatch([SET_FILTER.create({ filter: 'completed' })]);
-      
+
       expect(engine.getContext().filter).toBe('completed');
     });
   });
@@ -572,10 +566,18 @@ todos.subscribe({}, (items) => {
 ### 4. Sync Status
 
 ```typescript
-db.on('sync:start', () => { /* ... */ });
-db.on('sync:complete', () => { /* ... */ });
-db.on('online', () => { /* ... */ });
-db.on('offline', () => { /* ... */ });
+db.on('sync:start', () => {
+  /* ... */
+});
+db.on('sync:complete', () => {
+  /* ... */
+});
+db.on('online', () => {
+  /* ... */
+});
+db.on('offline', () => {
+  /* ... */
+});
 ```
 
 ## Next Steps

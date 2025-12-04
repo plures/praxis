@@ -105,28 +105,33 @@ This document summarizes the initial implementation of the Praxis TypeScript lib
 ## Design Principles Implemented
 
 ✓ **Strong typing and functional programming**
-  - All core types are strongly typed
-  - Rules and constraints are pure functions
-  - Immutable state updates
+
+- All core types are strongly typed
+- Rules and constraints are pure functions
+- Immutable state updates
 
 ✓ **Logic-first architecture**
-  - User-facing API expressed in terms of facts, events, rules, constraints
-  - FSMs are an internal implementation detail
+
+- User-facing API expressed in terms of facts, events, rules, constraints
+- FSMs are an internal implementation detail
 
 ✓ **Language-agnostic core protocol**
-  - JSON-friendly types
-  - Pure, deterministic step function
-  - Designed for future C#, PowerShell support
+
+- JSON-friendly types
+- Pure, deterministic step function
+- Designed for future C#, PowerShell support
 
 ✓ **Provable, analyzable, testable**
-  - Pure functions easy to test
-  - Comprehensive test coverage
-  - Type-safe at compile time
+
+- Pure functions easy to test
+- Comprehensive test coverage
+- Type-safe at compile time
 
 ✓ **Ecosystem integration ready**
-  - Svelte v5 integration implemented
-  - PluresDB integration placeholder
-  - Extensible actor system
+
+- Svelte v5 integration implemented
+- PluresDB integration placeholder
+- Extensible actor system
 
 ## Build and Test Status
 
