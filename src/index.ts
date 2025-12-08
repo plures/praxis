@@ -74,6 +74,7 @@ export { PraxisRegistry } from './core/rules.js';
 // Engine
 export type { PraxisEngineOptions } from './core/engine.js';
 export { LogicEngine, createPraxisEngine } from './core/engine.js';
+export * from './core/reactive-engine.svelte.js';
 
 // Actors
 export type { Actor } from './core/actors.js';
