@@ -3,19 +3,35 @@
   "version": "1.0.3",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "type": "module",
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "main": "./dist/node/index.js",
+  "types": "./dist/node/index.d.ts",
   "bin": {
-    "praxis": "./dist/src/cli/index.js"
+    "praxis": "./dist/node/cli/index.js"
   },
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "node": {
+        "types": "./dist/node/index.d.ts",
+        "import": "./dist/node/index.js",
+        "require": "./dist/node/index.cjs"
+      },
+      "browser": {
+        "types": "./dist/browser/index.d.ts",
+        "import": "./dist/browser/index.js"
+      },
+      "default": "./dist/node/index.js"
     },
     "./svelte": {
-      "types": "./dist/src/integrations/svelte.d.ts",
-      "default": "./dist/src/integrations/svelte.js"
+      "node": {
+        "types": "./dist/node/integrations/svelte.d.ts",
+        "import": "./dist/node/integrations/svelte.js",
+        "require": "./dist/node/integrations/svelte.cjs"
+      },
+      "browser": {
+        "types": "./dist/browser/integrations/svelte.d.ts",
+        "import": "./dist/browser/integrations/svelte.js"
+      },
+      "default": "./dist/node/integrations/svelte.js"
     },
     "./schema": {
       "types": "./dist/core/schema-engine/types.d.ts",
@@ -46,7 +62,7 @@
     "src/components"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
@@ -79,7 +95,10 @@
     "@types/node": "^24.10.1",
     "@types/ws": "^8.18.1",
     "@vitest/ui": "^4.0.10",
+    "esbuild-svelte": "^0.9.4",
     "svelte": "^5.0.0",
+    "svelte-preprocess": "^6.0.3",
+    "tsup": "^8.5.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vite": "^5.0.0",
