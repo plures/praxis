@@ -4,6 +4,7 @@ import { loadSchemaFromYaml, loadSchemaFromJson } from '../core/schema/loader.js
 import {
   createTerminalAdapter,
   runTerminalCommand,
+  createMockExecutor,
   type TerminalExecutionResult,
 } from '../runtime/terminal-adapter.js';
 import type { PraxisSchema } from '../core/schema/types.js';
@@ -342,7 +343,11 @@ orchestration:
 
   describe('runTerminalCommand convenience function', () => {
     it('executes command using convenience function', async () => {
-      const result = await runTerminalCommand('test-node', 'ls -la');
+      const executor = createMockExecutor({
+        'ls -la': { output: 'mock listing', exitCode: 0 },
+      });
+
+      const result = await runTerminalCommand('test-node', 'ls -la', { executor });
 
       expect(result).toBeDefined();
       expect(result.command).toBe('ls -la');

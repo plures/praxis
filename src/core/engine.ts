@@ -31,6 +31,36 @@ export interface PraxisEngineOptions<TContext = unknown> {
 }
 
 /**
+ * Clone helper that avoids structuredClone failures on non-cloneable values
+ * (e.g., functions, timers). Falls back to a shallow copy when necessary.
+ */
+function safeClone<T>(value: T): T {
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+
+  // Prefer structuredClone for deep, data-safe copies when available
+  // (handles Map, Set, Date, etc.). Guard for environments that lack it.
+  if (typeof globalThis.structuredClone === 'function') {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return globalThis.structuredClone(value);
+    } catch {
+      // fall through to safer copies
+    }
+  }
+
+  if (Array.isArray(value)) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return [...(value as unknown as unknown[])] as unknown as T;
+  }
+
+  // Shallow copy as a safe fallback for objects containing functions or
+  // other non-structured-clone-able members.
+  return { ...(value as Record<string, unknown>) } as unknown as T;
+}
+
+/**
  * The Praxis Logic Engine
  *
  * Manages application logic through facts, events, rules, and constraints.
@@ -55,9 +85,9 @@ export class LogicEngine<TContext = unknown> {
    */
   getState(): Readonly<PraxisState & { context: TContext }> {
     return {
-      context: structuredClone(this.state.context),
+      context: safeClone(this.state.context),
       facts: [...this.state.facts],
-      meta: this.state.meta ? { ...this.state.meta } : undefined,
+      meta: this.state.meta ? safeClone(this.state.meta) : undefined,
       protocolVersion: this.state.protocolVersion,
     };
   }
@@ -66,7 +96,7 @@ export class LogicEngine<TContext = unknown> {
    * Get the current context
    */
   getContext(): TContext {
-    return structuredClone(this.state.context);
+    return safeClone(this.state.context);
   }
 
   /**

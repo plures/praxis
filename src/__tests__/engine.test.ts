@@ -134,4 +134,30 @@ describe('LogicEngine', () => {
     expect(engine.getContext().value).toBe(25);
     expect(result.state.facts).toHaveLength(2);
   });
+
+  it('should safely clone state when context contains non-structured-clone values', () => {
+    const registry = new PraxisRegistry<{ fn: () => number; timer: any; value: number }>();
+
+    // Context includes a function and a timer handle (non-structured-clone-able)
+    const timer = setTimeout(() => {}, 0);
+    const initialContext = {
+      fn: () => 42,
+      timer,
+      value: 1,
+    };
+
+    const engine = createPraxisEngine({
+      initialContext,
+      registry,
+    });
+
+    clearTimeout(timer);
+
+    expect(() => engine.getContext()).not.toThrow();
+    expect(() => engine.getState()).not.toThrow();
+
+    const ctx = engine.getContext();
+    expect(typeof ctx.fn).toBe('function');
+    expect(ctx.value).toBe(1);
+  });
 });

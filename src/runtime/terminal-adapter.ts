@@ -311,13 +311,14 @@ export function createTerminalAdapter(options: TerminalAdapterOptions): Terminal
 export async function runTerminalCommand(
   nodeId: string,
   command: string,
-  options?: { cwd?: string; env?: Record<string, string>; db?: PraxisDB }
+  options?: { cwd?: string; env?: Record<string, string>; db?: PraxisDB; executor?: CommandExecutor }
 ): Promise<TerminalExecutionResult> {
   const adapter = createTerminalAdapter({
     nodeId,
     cwd: options?.cwd,
     env: options?.env,
     db: options?.db,
+    executor: options?.executor,
   });
   return adapter.executeCommand(command);
 }
