@@ -90,7 +90,7 @@ jobs:
         run: deno task --help || echo "Deno tasks not yet configured"
       
       - name: Cache Deno dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/deno
           key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.lock') }}
