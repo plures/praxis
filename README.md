@@ -1,363 +1,56 @@
-# Praxis
-
-[![CI](https://github.com/plures/praxis/workflows/CI/badge.svg)](https://github.com/plures/praxis/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/plures/praxis/workflows/CodeQL/badge.svg)](https://github.com/plures/praxis/actions/workflows/codeql.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![npm version](https://img.shields.io/npm/v/@plures/praxis.svg)](https://www.npmjs.com/package/@plures/praxis)
-[![NuGet](https://img.shields.io/nuget/v/Plures.Praxis.svg)](https://www.nuget.org/packages/Plures.Praxis/)
-[![JSR](https://jsr.io/badges/@plures/praxis)](https://jsr.io/@plures/praxis)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
-[![Deno Compatible](https://img.shields.io/badge/deno-compatible-brightgreen)](https://deno.land/)
-
-**The Full Plures Application Framework**
-
----
-
-## 📊 Project Dashboard
-
-### Quick Links
-
-- 📖 [Documentation](./docs/) | [Getting Started](./GETTING_STARTED.md) | [Framework Guide](./FRAMEWORK.md)
-- 💬 [Discussions](https://github.com/plures/praxis/discussions) | [Issues](https://github.com/plures/praxis/issues)
-- 🚀 [Contributing](./CONTRIBUTING.md) | [Security Policy](./SECURITY.md)
-- 📋 [Changelog](./CHANGELOG.md) | [Roadmap](https://github.com/plures/praxis/issues?q=is%3Aissue+is%3Aopen+label%3Aroadmap)
-- 🔄 [Cross-Language Sync](./CROSS_LANGUAGE_SYNC.md) | [C# Documentation](./csharp/Praxis/README.md)
-
-### Project Status
-
-| Category               | Status                                    |
-| ---------------------- | ----------------------------------------- |
-| **CI/CD**              | ✅ Automated testing & builds             |
-| **Version**            | 1.0.2 (Stable)                            |
-| **Runtime Support**    | Node.js 18+, Deno (experimental), .NET 8+ |
-| **Package Registries** | npm ✅ / NuGet ✅ / JSR ✅                |
-| **Test Coverage**      | 327 TypeScript + 95 C# tests passing      |
-| **Documentation**      | 📚 Comprehensive guides available         |
-
-### Language Support
-
-| Language       | Package        | Registry | Status       |
-| -------------- | -------------- | -------- | ------------ |
-| **TypeScript** | @plures/praxis | npm      | ✅ Available |
-| **C#**         | Plures.Praxis  | NuGet    | ✅ Available |
-| **PowerShell** | Praxis.psm1    | GitHub   | ✅ Available |
-
-### Integration Status
-
-| Integration      | Status          | Notes                                        |
-| ---------------- | --------------- | -------------------------------------------- |
-| **Praxis Cloud** | ✅ Available    | Azure-hosted relay for sync & monetization   |
-| **PluresDB**     | ✅ Available    | Local-first reactive datastore with 32 tests |
-| **Unum**         | ✅ Available    | Identity & channels integration              |
-| **Svelte 5**     | ✅ Full Support | Runes API, stores, history, time-travel      |
-| **Tauri**        | ✅ Available    | Cross-platform desktop runtime               |
-| **CodeCanvas**   | ✅ Available    | Visual schema editor & FSM enforcement       |
-| **State-Docs**   | ✅ Available    | Documentation generation from schemas        |
-
----
-
-## Overview
-
-Praxis is not just a logic engine—it's a **complete framework** for building modern, local-first, distributed applications. It provides:
-
-- **Declarative Schemas**: Define your data models, logic, and components in a unified schema format (PSF)
-- **Logic/State Machines**: Pure, functional application logic with facts, events, rules, and constraints
-- **Component Generation**: Automatically generate Svelte components from schemas
-- **Local-First Data**: Integrated PluresDB for reactive, offline-capable data storage
-- **Documentation Generation**: Automatic documentation generation from schemas with Mermaid diagrams
-- **Visual Design**: CodeCanvas integration for visual schema and logic editing
-- **Real-Time Code ↔ Canvas Sync**: Bidirectional synchronization between code and visual editor
-- **Orchestration**: DSC/MCP support for distributed system coordination
-- **Cross-Platform Runtime**: Web, desktop, and mobile via Svelte + Tauri
-
-## 🚀 Praxis 1.0 Architecture
-
-Praxis 1.0 introduces a **schema-driven, modular architecture** where the Praxis Schema Format (PSF) serves as the single source of truth.
-
-### Praxis Schema Format (PSF)
-
-PSF is the canonical JSON/AST format that defines your entire application:
-
-```json
-{
-  "$version": "latest",
-  "id": "my-app",
-  "name": "My Application",
-  "facts": [...],
-  "events": [...],
-  "rules": [...],
-  "constraints": [...],
-  "models": [...],
-  "components": [...],
-  "flows": [...]
-}
-```
-
-From this schema, Praxis generates:
-
-- **TypeScript types** for facts, events, rules
-- **Svelte components** for UI
-- **Markdown documentation** with Mermaid diagrams
-- **Database schemas** for PluresDB
-- **Canvas visualization** for visual editing
-
-### Modular Folder Structure
-
-```
-/praxis
-├── core/                     # Core framework modules
-│   ├── schema-engine/        # PSF types, compiler, generator, validator
-│   ├── logic-engine/         # Rules, constraints, engine, PSF adapter
-│   ├── db-adapter/           # PluresDB sync engine
-│   └── codegen/              # Documentation and code generators
-├── ui/                       # UI modules
-│   ├── svelte-generator/     # PSF-aware Svelte component generation
-│   └── canvas/               # Visual canvas state and projection
-├── tools/                    # Developer tools
-│   ├── cli/                  # Command-line interface
-│   └── watcher/              # File watching and live sync
-├── extensions/               # Optional integrations
-│   ├── dsc/                  # DSC/MCP orchestration
-│   ├── azure/                # Azure integration
-│   └── devtools/             # Developer tools
-└── examples/                 # Example applications
-    ├── hero-shop/            # Full e-commerce example
-    └── todo/                 # Minimal todo example
-```
-
-### Framework Philosophy
-
-### Core Framework Components
-
-Praxis provides these integrated capabilities:
-
-- **Schema Engine** – PSF parser, compiler, generator, and validator
-- **Logic Engine** – Typed facts, events, rules, and constraints for application logic
-- **Component Factory** – Generate Svelte components from schemas with data bindings
-- **Data Layer** – PluresDB integration for reactive, local-first data storage
-- **State Machines** – Flows and scenarios for orchestrated behaviors
-- **Actors** – Effectful units for side effects and external system integration
-- **Terminal Nodes** – Execute commands and scripts within the Praxis framework
-- **Documentation** – Automatic documentation generation from schemas with Mermaid diagrams
-- **Visual IDE** – CodeCanvas integration for schema and logic editing
-- **Orchestration** – DSC/MCP support for distributed coordination
-- **CLI Tools** – Command-line interface for scaffolding and generation
-
-### Design Philosophy
-
-1. **Schema-Driven Development**
-   - Define once, generate everywhere (models, components, docs, orchestration)
-   - Single source of truth for your application structure
-   - Type-safe by default across all layers
-
-2. **Local-First Architecture**
-   - Offline-capable by default with PluresDB
-   - Sync when connected, work always
-   - Data ownership and privacy built-in
-
-3. **Strong typing and functional programming**
-   - Core abstractions are strongly typed: `Fact<Tag, Payload>`, `Event<Tag, Payload>`, `Rule<Context, InFact, OutFact>`
-   - Pure functions for testability and reasoning
-   - Immutable state updates
-
-4. **Visual and Code Workflows**
-   - CodeCanvas for visual schema and logic editing
-   - Full code-level control when needed
-   - Seamless transitions between visual and code
-
-5. **Cross-Platform and Cross-Language**
-   - TypeScript-first with C# and PowerShell support
-   - Web, desktop, mobile via Svelte + Tauri
-   - Language-agnostic core protocol for maximum portability
-
-## Framework Features
-
-### 🏗️ Full Application Framework
-
-- **Schema-Driven**: Define data models, logic, and UI in unified schemas
-- **Component Generation**: Auto-generate Svelte components from schemas
-- **CLI Tools**: `praxis create`, `praxis generate`, `praxis canvas` commands
-- **Templates**: Pre-built app templates (basic, fullstack, distributed)
-- **Integrated Stack**: PluresDB + Unum + ADP + State-Docs + Canvas
-
-### 🎨 Visual Development
-
-- **CodeCanvas Integration**: Visual schema and logic editor
-- **Component Preview**: See generated components in real-time
-- **Flow Visualization**: Visualize state machines and orchestration
-- **Interactive Docs**: Navigate documentation with State-Docs
-
-### 🔌 Ecosystem Integration
-
-- **PluresDB**: Local-first reactive data storage
-- **Unum**: Identity and channels for distributed systems
-- **ADP**: Architectural guardrails and decision tracking
-- **State-Docs**: Living documentation generation
-- **Svelte 5**: Full runes support with history and time-travel
-- **Tauri**: Cross-platform runtime (web/desktop/mobile)
-
-### ⚡ Svelte 5 Integration
-
-- **Runes API**: Modern `$state`, `$derived`, `$effect` support
-- **History States**: Built-in undo/redo and time-travel debugging
-- **Store API**: Backward-compatible stores for Svelte 4/5
-- **Type Safety**: Full TypeScript support with composables
-- **Zero Config**: Works out of the box with Svelte 5
-
-## Logic Engine Features
-
-- 🎯 **Logic-First Design**: Build applications around facts, events, rules, and constraints
-- 🔄 **Pure Functional Core**: State transitions via pure `step` functions
-- 📝 **Fluent DSL**: Intuitive API for defining rules and constraints
-- 🗂️ **Registry System**: Centralized management of rules and constraints
-- 🌊 **Flows & Actors**: Orchestrate complex state transitions
-- 📦 **JSON-Friendly**: All types are serializable for cross-platform use
-- 🔒 **Type-Safe**: Full TypeScript support with strict typing
-- 🔍 **Introspection**: Generate schemas, graphs, and visualizations of your logic
-- 🌐 **Cross-Language**: C#, PowerShell, and TypeScript implementations with protocol versioning
-- 📊 **Comprehensive Testing**: 327 TypeScript and 95 C# tests covering all features
-- 🎭 **Hero Example**: Full e-commerce demo with auth, cart, features, and actors
-
-## Installation
-
-### npm (Node.js)
-
-```bash
-npm install @plures/praxis
-```
-
-### NuGet (.NET / C#)
-
-```bash
-dotnet add package Plures.Praxis
-```
-
-Or add to your `.csproj`:
-
-```xml
-<PackageReference Include="Plures.Praxis" Version="0.2.1" />
-```
-
-See [C# Documentation](./csharp/Praxis/README.md) for detailed usage.
-
-### JSR (Deno)
-
-```bash
-# Coming soon - JSR publishing in progress
-deno add @plures/praxis
-```
-
-For now, you can use Praxis with Deno via import maps:
-
-```typescript
-// import_map.json
-{
-  "imports": {
-    "@plures/praxis": "npm:@plures/praxis@^0.2.1"
-  }
-}
-```
-
-### From Source
-
-```bash
-# Clone the repository
-git clone https://github.com/plures/praxis.git
-cd praxis
-
-# TypeScript
-npm install
-npm run build
-npm test
-
-# C#
-cd csharp
 dotnet build
 dotnet test
-```
+# Praxis 1.1.0
 
-## Quick Start
+**Typed, visual-first application logic for Svelte, Node, and the browser.**
 
-### Using the Praxis CLI
+[![npm version](https://img.shields.io/npm/v/@plures/praxis.svg)](https://www.npmjs.com/package/@plures/praxis)
+[![JSR](https://jsr.io/badges/@plures/praxis)](https://jsr.io/@plures/praxis)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org/)
+[![Deno Compatible](https://img.shields.io/badge/deno-compatible-brightgreen)](https://deno.land/)
 
-The Praxis CLI provides commands for creating and managing applications.
+Praxis is a schema-driven, rule-based engine with first-class Svelte 5 integration, component generation, and optional cloud sync. Version **1.1.0** delivers a unified ESM/CJS build, curated subpath exports, Svelte runes support, and a slimmer, publish-ready package for npm and JSR.
 
-```bash
-# Install Praxis globally
-npm install -g @plures/praxis
+---
 
-# Create a new application
-praxis create app my-app
-cd my-app
-npm install
+## What’s new in 1.1.0
+- **Unified builds & exports**: `./`, `./svelte`, `./schema`, `./component`, `./cloud`, `./components`, and CLI all ship with ESM, CJS, and type definitions.
+- **Svelte 5 runes native**: Runes-friendly stores and helpers; server+client builds for integrations.
+- **Logic engine refinements**: Typed registry, step diagnostics, and trace-friendly rule execution.
+- **Cloud relay & local-first**: Polished cloud connector alongside PluresDB-first workflows.
+- **Publish-ready**: npm public access + JSR exports aligned to source.
 
-# Generate code from schemas
-praxis generate --schema src/schemas/app.schema.ts
+## Capabilities at a glance
+- **Logic Engine**: Facts, events, rules, constraints, registry, introspection, and reactive engine variant.
+- **Schema & Codegen**: PSF-style schema types plus component generator for Svelte UIs.
+- **Svelte Integration**: Typed helpers, runes-ready builds, and Svelte component typings.
+- **Local-First Data**: PluresDB integrations for offline-first, reactive state.
+- **Cloud Relay**: Optional sync layer (GitHub-auth friendly) for distributed teams.
+- **CLI**: Scaffolding, generation, canvas helpers, and cloud commands.
 
-# Open CodeCanvas for visual editing
-praxis canvas src/schemas/app.schema.ts
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-```
-
-Available CLI commands:
-
-- `praxis login` - Authenticate with GitHub (device flow or token)
-- `praxis logout` - Log out from Praxis Cloud
-- `praxis whoami` - Show current authenticated user
-- `praxis create app [name]` - Create new application
-- `praxis create component [name]` - Create new component
-- `praxis generate` - Generate code from schemas
-- `praxis canvas [schema]` - Open visual editor
-- `praxis orchestrate` - Manage distributed systems
-- `praxis cloud init` - Connect to Praxis Cloud
-- `praxis cloud status` - Check cloud connection
-- `praxis cloud sync` - Manually sync to cloud
-- `praxis cloud usage` - View cloud usage metrics
-- `praxis dev` - Start development server
-- `praxis build` - Build for production
-
-See [docs/guides/getting-started.md](./docs/guides/getting-started.md) for detailed instructions.
-
-### Praxis Cloud
-
-Connect your application to Praxis Cloud for automatic synchronization with GitHub-native authentication and billing:
+## Install
+Node 18+ recommended.
 
 ```bash
-# Authenticate with GitHub
-npx praxis login
+# npm
+npm install @plures/praxis
 
-# Initialize cloud connection
-npx praxis cloud init
-
-# In your code
-import { connectRelay } from "@plures/praxis/cloud";
-
-const relay = await connectRelay("https://praxis-relay.azurewebsites.net", {
-  appId: "my-app",
-  authToken: process.env.GITHUB_TOKEN,
-  autoSync: true
-});
-
-// Sync automatically handles CRDT merge
-await relay.sync({
-  type: "delta",
-  appId: "my-app",
-  clock: {},
-  facts: [...],
-  timestamp: Date.now()
-});
+# pnpm
+pnpm add @plures/praxis
 ```
 
-See [src/cloud/README.md](./src/cloud/README.md) and [examples/cloud-sync](./examples/cloud-sync) for details.
+JSR (Deno):
+```bash
+const result = engine.step([Login.create({ username: 'alice' })]);
+# or via import map pointing to npm:
+# {
+#   "imports": { "@plures/praxis": "npm:@plures/praxis@^1.1.0" }
+# }
+```
 
-### Basic Example (Logic Engine)
-
-```typescript
+## Quick start (logic engine)
+```ts
 import {
   createPraxisEngine,
   PraxisRegistry,
@@ -366,40 +59,100 @@ import {
   defineRule,
 } from '@plures/praxis';
 
-// Define the context type
-interface AuthContext {
-  currentUser: string | null;
-}
-
-// Define facts and events
 const UserLoggedIn = defineFact<'UserLoggedIn', { userId: string }>('UserLoggedIn');
 const Login = defineEvent<'LOGIN', { username: string }>('LOGIN');
 
-// Define rules
-const loginRule = defineRule<AuthContext>({
+const loginRule = defineRule<{ currentUser: string | null }>({
   id: 'auth.login',
-  description: 'Process login event',
+  description: 'Authenticate and emit fact',
   impl: (state, events) => {
-    const loginEvent = events.find(Login.is);
-    if (loginEvent) {
-      state.context.currentUser = loginEvent.payload.username;
-      return [UserLoggedIn.create({ userId: loginEvent.payload.username })];
-    }
-    return [];
+    const evt = events.find(Login.is);
+    if (!evt) return [];
+    state.context.currentUser = evt.payload.username;
+    return [UserLoggedIn.create({ userId: evt.payload.username })];
   },
 });
 
-// Create engine
-const registry = new PraxisRegistry<AuthContext>();
+const registry = new PraxisRegistry();
 registry.registerRule(loginRule);
 
-const engine = createPraxisEngine({
-  initialContext: { currentUser: null },
-  registry,
+const engine = createPraxisEngine({ initialContext: { currentUser: null }, registry });
+engine.step([Login.create({ username: 'alex' })]);
+```
+
+## Svelte integration (runes-ready)
+```svelte
+<script lang="ts">
+  import { createReactiveEngine, defineEvent, defineRule, PraxisRegistry } from '@plures/praxis/svelte';
+
+  const Increment = defineEvent<'INCREMENT', { amount: number }>('INCREMENT');
+  const counterRule = defineRule<{ count: number }>({
+    id: 'counter.increment',
+    description: 'Add to count',
+    impl: (state, events) => {
+      const evt = events.find(Increment.is);
+      if (evt) state.context.count += evt.payload.amount;
+      return [];
+    },
+  });
+
+  const registry = new PraxisRegistry();
+  registry.registerRule(counterRule);
+
+  const engine = createReactiveEngine({ initialContext: { count: 0 }, registry });
+  const count = engine.$derived((s) => s.context.count);
+
+  function addOne() {
+    engine.step([Increment.create({ amount: 1 })]);
+  }
+</script>
+
+<button on:click={addOne}>Count is {$count}</button>
+```
+
+## Cloud relay (optional)
+```ts
+import { connectRelay } from '@plures/praxis/cloud';
+
+const relay = await connectRelay('https://my-relay.example.com', {
+  appId: 'my-app',
+  authToken: process.env.GITHUB_TOKEN,
+  autoSync: true,
 });
 
-// Dispatch events
-const result = engine.step([Login.create({ username: 'alice' })]);
+await relay.sync({
+  type: 'delta',
+  appId: 'my-app',
+  clock: {},
+  facts: [],
+  timestamp: Date.now(),
+});
+```
+
+## CLI (npx-friendly)
+```bash
+npx praxis --help
+npx praxis create app my-app
+npx praxis generate --schema src/schemas/app.schema.ts
+npx praxis canvas src/schemas/app.schema.ts
+```
+
+## Exports map
+- `@plures/praxis` → main engine (ESM/CJS/types)
+- `@plures/praxis/svelte` → Svelte 5 integrations
+- `@plures/praxis/schema` → Schema types
+- `@plures/praxis/component` → Component generator
+- `@plures/praxis/cloud` → Cloud relay APIs
+- `@plures/praxis/components` → TS props for Svelte components (e.g., TerminalNode)
+- `praxis` (bin) → CLI entrypoint
+
+## Documentation
+- [Getting Started](./GETTING_STARTED.md)
+- [Framework Guide](./FRAMEWORK.md)
+- [Examples](./examples/)
+
+## Contributing
+PRs and discussions welcome. Please see [CONTRIBUTING.md](./CONTRIBUTING.md) and [SECURITY.md](./SECURITY.md).
 console.log(result.state.facts); // [{ tag: "UserLoggedIn", payload: { userId: "alice" } }]
 console.log(engine.getContext()); // { currentUser: "alice" }
 ```
