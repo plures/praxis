@@ -5,7 +5,15 @@ export default defineConfig([
   // Node.js Build (Server-side Svelte compilation)
   {
     name: 'node',
-    entry: ['src/index.ts', 'src/integrations/svelte.ts'],
+    entry: {
+      index: 'src/index.ts',
+      'integrations/svelte': 'src/integrations/svelte.ts',
+      schema: 'src/core/schema/types.ts',
+      component: 'src/core/component/generator.ts',
+      'cloud/index': 'src/cloud/index.ts',
+      'components/index': 'src/components/index.ts',
+      'cli/index': 'src/cli/index.ts',
+    },
     outDir: 'dist/node',
     format: ['esm', 'cjs'],
     dts: true,

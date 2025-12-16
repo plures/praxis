@@ -34,20 +34,29 @@
       "default": "./dist/node/integrations/svelte.js"
     },
     "./schema": {
-      "types": "./dist/core/schema-engine/types.d.ts",
-      "default": "./dist/core/schema-engine/types.js"
+      "types": "./dist/node/schema.d.ts",
+      "import": "./dist/node/schema.js",
+      "require": "./dist/node/schema.cjs",
+      "default": "./dist/node/schema.js"
     },
     "./component": {
-      "types": "./dist/ui/svelte-generator/index.d.ts",
-      "default": "./dist/ui/svelte-generator/index.js"
+      "types": "./dist/node/component.d.ts",
+      "import": "./dist/node/component.js",
+      "require": "./dist/node/component.cjs",
+      "default": "./dist/node/component.js"
     },
     "./cloud": {
-      "types": "./dist/src/cloud/index.d.ts",
-      "default": "./dist/src/cloud/index.js"
+      "types": "./dist/node/cloud/index.d.ts",
+      "import": "./dist/node/cloud/index.js",
+      "require": "./dist/node/cloud/index.cjs",
+      "default": "./dist/node/cloud/index.js"
     },
     "./components": {
-      "types": "./dist/src/components/index.d.ts",
-      "svelte": "./src/components/TerminalNode.svelte"
+      "types": "./dist/node/components/index.d.ts",
+      "svelte": "./src/components/TerminalNode.svelte",
+      "import": "./dist/node/components/index.js",
+      "require": "./dist/node/components/index.cjs",
+      "default": "./dist/node/components/index.js"
     }
   },
   "files": [
@@ -59,7 +68,8 @@
     "docs",
     "README.md",
     "FRAMEWORK.md",
-    "src/components"
+    "src/components",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
@@ -115,5 +125,8 @@
     "svelte": {
       "optional": true
     }
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
