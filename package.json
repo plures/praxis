@@ -1,6 +1,6 @@
 {
   "name": "@plures/praxis",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "type": "module",
   "main": "./dist/node/index.js",
