@@ -15,7 +15,7 @@ export class ReactiveLogicEngine<TContext extends object> {
     // The single source of truth, reactive by default
     // We use $state.raw for things that shouldn't be deeply reactive if needed,
     // but for context we usually want deep reactivity.
-    state = $state<{
+    state: { context: TContext; facts: any[]; meta: Record<string, unknown> } = $state<{
         context: TContext;
         facts: any[];
         meta: Record<string, unknown>;
@@ -35,14 +35,14 @@ export class ReactiveLogicEngine<TContext extends object> {
      * Access the reactive context directly.
      * Consumers can use this in $derived() or $effect().
      */
-    get context() {
+    get context(): TContext {
         return this.state.context;
     }
 
     /**
      * Access the reactive facts list.
      */
-    get facts() {
+    get facts(): any[] {
         return this.state.facts;
     }
 
@@ -52,14 +52,14 @@ export class ReactiveLogicEngine<TContext extends object> {
      * 
      * @param mutator A function that receives the state and modifies it.
      */
-    apply(mutator: (state: { context: TContext; facts: any[]; meta: Record<string, unknown> }) => void) {
+    apply(mutator: (state: { context: TContext; facts: any[]; meta: Record<string, unknown> }) => void): void {
         mutator(this.state);
     }
 
     /**
      * Access the reactive meta.
      */
-    get meta() {
+    get meta(): Record<string, unknown> {
         return this.state.meta;
     }
 }
