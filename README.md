@@ -10,11 +10,11 @@ dotnet test
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org/)
 [![Deno Compatible](https://img.shields.io/badge/deno-compatible-brightgreen)](https://deno.land/)
 
-Praxis is a schema-driven, rule-based engine with first-class Svelte 5 integration, component generation, and optional cloud sync. Version **1.1.0** delivers a unified ESM/CJS build, curated subpath exports, Svelte runes support, and a slimmer, publish-ready package for npm and JSR.
+Praxis is a schema-driven, rule-based engine with first-class Svelte 5 integration, component generation, and optional cloud sync. Version **1.1.2** delivers a unified ESM/CJS build, curated subpath exports, Svelte runes support, and a slimmer, publish-ready package for npm and JSR.
 
 ---
 
-## What’s new in 1.1.0
+## What’s new in 1.1.2
 - **Unified builds & exports**: `./`, `./svelte`, `./schema`, `./component`, `./cloud`, `./components`, and CLI all ship with ESM, CJS, and type definitions.
 - **Svelte 5 runes native**: Runes-friendly stores and helpers; server+client builds for integrations.
 - **Logic engine refinements**: Typed registry, step diagnostics, and trace-friendly rule execution.
@@ -45,7 +45,7 @@ JSR (Deno):
 const result = engine.step([Login.create({ username: 'alice' })]);
 # or via import map pointing to npm:
 # {
-#   "imports": { "@plures/praxis": "npm:@plures/praxis@^1.1.0" }
+#   "imports": { "@plures/praxis": "npm:@plures/praxis@^1.1.2" }
 # }
 ```
 
