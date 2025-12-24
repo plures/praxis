@@ -1,11 +1,9 @@
 /**
  * Praxis Reactive Logic Engine
  * 
- * A Svelte 5 native implementation of the Praxis Logic Engine.
- * Uses Runes ($state, $derived, $effect) for fine-grained reactivity.
+ * A minimal TypeScript implementation of the Praxis Logic Engine.
+ * This variant avoids Svelte-specific reactivity primitives to remain framework-agnostic.
  */
-import { $state, $derived, $effect } from 'svelte'; 
-console.log("Reactive Engine Loaded");
 
 export interface ReactiveEngineOptions<TContext> {
     initialContext: TContext;
@@ -14,18 +12,11 @@ export interface ReactiveEngineOptions<TContext> {
 }
 
 export class ReactiveLogicEngine<TContext extends object> {
-    // The single source of truth, reactive by default
-    // We use $state.raw for things that shouldn't be deeply reactive if needed,
-    // but for context we usually want deep reactivity.
-    state = $state<{
-        context: TContext;
-        facts: any[];
-        meta: Record<string, unknown>;
-    }>({
+    state: { context: TContext; facts: any[]; meta: Record<string, unknown> } = {
         context: {} as TContext,
         facts: [],
         meta: {}
-    });
+    };
 
     constructor(options: ReactiveEngineOptions<TContext>) {
         this.state.context = options.initialContext;
@@ -34,15 +25,15 @@ export class ReactiveLogicEngine<TContext extends object> {
     }
 
     /**
-     * Access the reactive context directly.
-     * Consumers can use this in $derived() or $effect().
+     * Access the context directly.
+     * Framework-specific wrappers (e.g., Svelte runes) can build on top of this value.
      */
     get context() {
         return this.state.context;
     }
 
     /**
-     * Access the reactive facts list.
+     * Access the facts list.
      */
     get facts() {
         return this.state.facts;
@@ -59,7 +50,7 @@ export class ReactiveLogicEngine<TContext extends object> {
     }
 
     /**
-     * Access the reactive meta.
+     * Access the metadata.
      */
     get meta() {
         return this.state.meta;
