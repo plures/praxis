@@ -1,6 +1,6 @@
 dotnet build
 dotnet test
-# Praxis 1.1.0
+# Praxis 1.1.2
 
 **Typed, visual-first application logic for Svelte, Node, and the browser.**
 
