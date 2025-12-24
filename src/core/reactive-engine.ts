@@ -4,7 +4,7 @@
  * A Svelte 5 native implementation of the Praxis Logic Engine.
  * Uses Runes ($state, $derived, $effect) for fine-grained reactivity.
  */
-
+import { $state, $derived, $effect } from 'svelte'; 
 console.log("Reactive Engine Loaded");
 
 export interface ReactiveEngineOptions<TContext> {
