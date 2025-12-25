@@ -1,8 +1,9 @@
 /**
  * Praxis Reactive Logic Engine
  * 
- * A Svelte 5 native implementation of the Praxis Logic Engine.
- * Uses Runes ($state, $derived, $effect) for fine-grained reactivity.
+ * A platform-agnostic implementation of the Praxis Logic Engine.
+ * This version maintains the same API as the Svelte implementation but without
+ * Svelte-specific dependencies, making it usable in any JavaScript/TypeScript environment.
  */
 
 export interface ReactiveEngineOptions<TContext> {
@@ -12,18 +13,14 @@ export interface ReactiveEngineOptions<TContext> {
 }
 
 export class ReactiveLogicEngine<TContext extends object> {
-    // The single source of truth, reactive by default
-    // We use $state.raw for things that shouldn't be deeply reactive if needed,
-    // but for context we usually want deep reactivity.
-    state: { context: TContext; facts: any[]; meta: Record<string, unknown> } = $state<{
-        context: TContext;
-        facts: any[];
-        meta: Record<string, unknown>;
-    }>({
+    // The single source of truth
+    // State is a plain field, accessible for platform-agnostic extensions
+    // (e.g., custom reactivity, proxies, etc.)
+    state: { context: TContext; facts: any[]; meta: Record<string, unknown> } = {
         context: {} as TContext,
         facts: [],
         meta: {}
-    });
+    };
 
     constructor(options: ReactiveEngineOptions<TContext>) {
         this.state.context = options.initialContext;
@@ -32,15 +29,15 @@ export class ReactiveLogicEngine<TContext extends object> {
     }
 
     /**
-     * Access the reactive context directly.
-     * Consumers can use this in $derived() or $effect().
+     * Access the context directly.
+     * Framework-specific wrappers (e.g., Svelte runes) can build on top of this value.
      */
     get context(): TContext {
         return this.state.context;
     }
 
     /**
-     * Access the reactive facts list.
+     * Access the facts list.
      */
     get facts(): any[] {
         return this.state.facts;
@@ -57,7 +54,7 @@ export class ReactiveLogicEngine<TContext extends object> {
     }
 
     /**
-     * Access the reactive meta.
+     * Access the metadata.
      */
     get meta(): Record<string, unknown> {
         return this.state.meta;
