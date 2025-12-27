@@ -7,6 +7,7 @@
  * Features:
  * - Store-based API for backward compatibility
  * - Runes-based composables for Svelte 5
+ * - createReactiveEngine for easy reactive engine setup
  * - Snapshot support for time-travel debugging
  * - History state pattern implementation
  * - Automatic cleanup and subscription management
@@ -14,6 +15,13 @@
 
 import type { LogicEngine } from '../core/engine.js';
 import type { PraxisEvent, PraxisState } from '../core/protocol.js';
+
+// Re-export the Svelte 5 reactive engine
+export {
+  ReactiveLogicEngine,
+  createReactiveEngine,
+  type ReactiveEngineOptions,
+} from '../core/reactive-engine.svelte.js';
 
 /**
  * Writable store interface (Svelte-compatible)

@@ -17,12 +17,13 @@ Praxis is a schema-driven, rule-based engine with first-class Svelte 5 integrati
 ## What’s new in 1.1.2
 - **Unified builds & exports**: `./`, `./svelte`, `./schema`, `./component`, `./cloud`, `./components`, and CLI all ship with ESM, CJS, and type definitions.
 - **Svelte 5 runes native**: Runes-friendly stores and helpers; server+client builds for integrations.
+- **Framework-agnostic reactivity**: Proxy-based reactive engine for use without Svelte, enabling reactive state management in Node.js, browsers, and any JavaScript environment.
 - **Logic engine refinements**: Typed registry, step diagnostics, and trace-friendly rule execution.
 - **Cloud relay & local-first**: Polished cloud connector alongside PluresDB-first workflows.
 - **Publish-ready**: npm public access + JSR exports aligned to source.
 
 ## Capabilities at a glance
-- **Logic Engine**: Facts, events, rules, constraints, registry, introspection, and reactive engine variant.
+- **Logic Engine**: Facts, events, rules, constraints, registry, introspection, and reactive engine variants (Svelte 5 + framework-agnostic).
 - **Schema & Codegen**: PSF-style schema types plus component generator for Svelte UIs.
 - **Svelte Integration**: Typed helpers, runes-ready builds, and Svelte component typings.
 - **Local-First Data**: PluresDB integrations for offline-first, reactive state.
@@ -100,15 +101,46 @@ engine.step([Login.create({ username: 'alex' })]);
   registry.registerRule(counterRule);
 
   const engine = createReactiveEngine({ initialContext: { count: 0 }, registry });
-  const count = engine.$derived((s) => s.context.count);
+  
+  // Use Svelte's $derived with the reactive engine state
+  const count = $derived(engine.context.count);
 
   function addOne() {
     engine.step([Increment.create({ amount: 1 })]);
   }
 </script>
 
-<button on:click={addOne}>Count is {$count}</button>
+<button on:click={addOne}>Count is {count}</button>
 ```
+
+## Framework-agnostic reactive engine
+For non-Svelte environments, use the framework-agnostic reactive engine with Proxy-based reactivity:
+
+```typescript
+import { createFrameworkAgnosticReactiveEngine } from '@plures/praxis';
+
+const engine = createFrameworkAgnosticReactiveEngine({
+  initialContext: { count: 0 },
+});
+
+// Subscribe to state changes
+engine.subscribe((state) => {
+  console.log('Count:', state.context.count);
+});
+
+// Create derived/computed values
+const doubled = engine.$derived((state) => state.context.count * 2);
+doubled.subscribe((value) => {
+  console.log('Doubled:', value);
+});
+
+// Apply mutations (batched for performance)
+engine.apply((state) => {
+  state.context.count += 1;
+});
+```
+
+See the [reactive counter example](./examples/reactive-counter/README.md) for a complete demonstration.
 
 ## Cloud relay (optional)
 ```ts
