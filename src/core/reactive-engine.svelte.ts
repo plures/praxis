@@ -9,6 +9,11 @@ import { PraxisRegistry } from '../core/rules.js';
 import type { PraxisEvent } from '../core/protocol.js';
 import { LogicEngine, createPraxisEngine } from '../core/engine.js';
 
+// Type declaration for Svelte 5 $state rune
+// This is needed for TypeScript compilation; the actual implementation
+// is provided by the Svelte compiler when processing .svelte.ts files
+declare function $state<T>(initial: T): T;
+
 export interface ReactiveEngineOptions<TContext> {
     initialContext: TContext;
     initialFacts?: any[];
