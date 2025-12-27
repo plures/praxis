@@ -151,7 +151,7 @@ export class ReactiveLogicEngine<TContext extends object> {
     /**
      * Get the full state object
      */
-    get state() {
+    get state(): { context: TContext; facts: any[]; meta: Record<string, unknown> } {
         return {
             context: this._contextProxy,
             facts: this._factsProxy,

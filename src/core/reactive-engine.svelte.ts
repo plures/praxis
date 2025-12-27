@@ -27,7 +27,7 @@ export interface ReactiveEngineOptions<TContext> {
  */
 export class ReactiveLogicEngine<TContext extends object> {
     // Use Svelte's $state rune for automatic reactivity
-    state = $state({
+    state: { context: TContext; facts: any[]; meta: Record<string, unknown> } = $state({
         context: {} as TContext,
         facts: [] as any[],
         meta: {} as Record<string, unknown>
