@@ -115,3 +115,120 @@ export class InMemoryPraxisDB implements PraxisDB {
 export function createInMemoryDB(): InMemoryPraxisDB {
   return new InMemoryPraxisDB();
 }
+
+/**
+ * PluresDB-backed implementation of PraxisDB
+ *
+ * Wraps the official PluresDB package from NPM to provide
+ * the PraxisDB interface for production use.
+ */
+export class PluresDBPraxisAdapter implements PraxisDB {
+  private db: any;
+  private watchers = new Map<string, Set<(val: unknown) => void>>();
+  private pollIntervals = new Map<string, NodeJS.Timeout>();
+
+  constructor(db: any) {
+    this.db = db;
+  }
+
+  async get<T>(key: string): Promise<T | undefined> {
+    try {
+      const value = await this.db.get(key);
+      return value as T | undefined;
+    } catch (error) {
+      // PluresDB returns undefined/null for missing keys
+      return undefined;
+    }
+  }
+
+  async set<T>(key: string, value: T): Promise<void> {
+    await this.db.put(key, value);
+
+    // Notify watchers
+    const keyWatchers = this.watchers.get(key);
+    if (keyWatchers) {
+      for (const callback of keyWatchers) {
+        callback(value);
+      }
+    }
+  }
+
+  watch<T>(key: string, callback: (val: T) => void): UnsubscribeFn {
+    if (!this.watchers.has(key)) {
+      this.watchers.set(key, new Set());
+    }
+
+    const watchers = this.watchers.get(key)!;
+    const wrappedCallback = (val: unknown) => callback(val as T);
+    watchers.add(wrappedCallback);
+
+    // Set up polling for this key if not already set up
+    if (!this.pollIntervals.has(key)) {
+      const interval = setInterval(async () => {
+        try {
+          const value = await this.db.get(key);
+          const currentWatchers = this.watchers.get(key);
+          if (currentWatchers) {
+            for (const cb of currentWatchers) {
+              cb(value);
+            }
+          }
+        } catch (error) {
+          // Ignore errors in polling
+        }
+      }, 1000); // Poll every second
+
+      this.pollIntervals.set(key, interval);
+    }
+
+    // Return unsubscribe function
+    return () => {
+      watchers.delete(wrappedCallback);
+      if (watchers.size === 0) {
+        this.watchers.delete(key);
+        // Clean up polling interval
+        const interval = this.pollIntervals.get(key);
+        if (interval) {
+          clearInterval(interval);
+          this.pollIntervals.delete(key);
+        }
+      }
+    };
+  }
+
+  /**
+   * Clean up all resources
+   */
+  dispose(): void {
+    // Clear all polling intervals
+    for (const interval of this.pollIntervals.values()) {
+      clearInterval(interval);
+    }
+    this.pollIntervals.clear();
+    this.watchers.clear();
+  }
+}
+
+/**
+ * Create a PluresDB-backed PraxisDB instance
+ *
+ * Wraps the official PluresDB package from NPM.
+ *
+ * @param db PluresDB instance (PluresNode or SQLiteCompatibleAPI)
+ * @returns PluresDBPraxisAdapter instance
+ *
+ * @example
+ * ```typescript
+ * import { PluresNode } from 'pluresdb';
+ * import { createPluresDB } from '@plures/praxis';
+ *
+ * const pluresdb = new PluresNode({ autoStart: true });
+ * const db = createPluresDB(pluresdb);
+ *
+ * await db.set('user:1', { name: 'Alice' });
+ * const user = await db.get('user:1');
+ * ```
+ */
+export function createPluresDB(db: any): PluresDBPraxisAdapter {
+  return new PluresDBPraxisAdapter(db);
+}

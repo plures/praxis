@@ -5,9 +5,9 @@
  * It provides the core adapter layer, store, and schema registry.
  */
 
-// Adapter - Core interface and in-memory implementation
+// Adapter - Core interface and implementations (in-memory + PluresDB)
 export type { PraxisDB, UnsubscribeFn } from './adapter.js';
-export { InMemoryPraxisDB, createInMemoryDB } from './adapter.js';
+export { InMemoryPraxisDB, createInMemoryDB, PluresDBPraxisAdapter, createPluresDB } from './adapter.js';
 
 // Store - Manages facts, events, and reactive updates
 export type { EventStreamEntry, PraxisDBStoreOptions, RuleErrorHandler } from './store.js';

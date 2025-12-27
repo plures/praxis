@@ -175,6 +175,8 @@ export type {
 export {
   InMemoryPraxisDB,
   createInMemoryDB,
+  PluresDBPraxisAdapter,
+  createPluresDB,
   PraxisDBStore,
   createPraxisDBStore,
   PRAXIS_PATHS,

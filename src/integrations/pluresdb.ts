@@ -17,7 +17,7 @@ import { PraxisDBStore, createPraxisDBStore } from '../core/pluresdb/store.js';
 
 // Re-export core pluresdb types and implementations
 // Note: Using explicit exports to avoid circular dependency issues
-export { InMemoryPraxisDB, createInMemoryDB } from '../core/pluresdb/adapter.js';
+export { InMemoryPraxisDB, createInMemoryDB, PluresDBPraxisAdapter, createPluresDB } from '../core/pluresdb/adapter.js';
 export type { PraxisDB, UnsubscribeFn } from '../core/pluresdb/adapter.js';
 export {
   PraxisDBStore,
