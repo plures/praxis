@@ -1,6 +1,6 @@
 {
   "name": "@plures/praxis",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "license": "MIT",
   "exports": {
