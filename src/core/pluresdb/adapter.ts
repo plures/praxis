@@ -143,7 +143,7 @@ export interface PluresDBAdapterConfig {
 export class PluresDBPraxisAdapter implements PraxisDB {
   private db: PluresDBInstance;
   private watchers = new Map<string, Set<(val: unknown) => void>>();
-  private pollIntervals = new Map<string, NodeJS.Timeout>();
+  private pollIntervals = new Map<string, ReturnType<typeof setInterval>>();
   private lastValues = new Map<string, unknown>();
   private pollInterval: number;
 
