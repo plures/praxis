@@ -43,6 +43,9 @@ export class ReactiveLogicEngine<TContext extends object> {
     private _batchDepth = 0;
     private _pendingNotification = false;
     private _proxyCache = new WeakMap<object, any>();
+    
+    // Array methods that mutate the array
+    private static readonly ARRAY_MUTATORS = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'];
 
     constructor(options: ReactiveEngineOptions<TContext>) {
         // Initialize raw state
@@ -82,8 +85,7 @@ export class ReactiveLogicEngine<TContext extends object> {
                 
                 // Bind array methods to notify on mutations
                 if (Array.isArray(obj) && typeof value === 'function') {
-                    const arrayMutators = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'];
-                    if (arrayMutators.includes(prop as string)) {
+                    if (ReactiveLogicEngine.ARRAY_MUTATORS.includes(prop as string)) {
                         return function(...args: any[]) {
                             const result = (value as Function).apply(obj, args);
                             self._notify();

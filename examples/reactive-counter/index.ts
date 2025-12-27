@@ -94,6 +94,17 @@ registry.registerRule(
 // 3. Create the reactive engine
 // ============================================================================
 
+// NOTE: This example demonstrates the reactive engine's state management
+// capabilities directly using engine.apply(). For a complete example that
+// integrates with the Praxis LogicEngine and uses the rules defined above,
+// you would create a LogicEngine with the registry and then wrap it:
+//
+// const logicEngine = createPraxisEngine({ initialContext, registry });
+// const reactiveWrapper = createFrameworkAgnosticReactiveEngine({ initialContext });
+//
+// This example focuses on showing the reactive features (subscriptions,
+// derived values, batching) in isolation.
+
 const engine = createFrameworkAgnosticReactiveEngine<CounterContext>({
   initialContext: {
     count: 0,
