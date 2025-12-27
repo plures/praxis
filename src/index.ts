@@ -76,6 +76,14 @@ export type { PraxisEngineOptions } from './core/engine.js';
 export { LogicEngine, createPraxisEngine } from './core/engine.js';
 export * from './core/reactive-engine.svelte.js';
 
+// Framework-agnostic Reactive Engine
+export {
+  ReactiveLogicEngine as FrameworkAgnosticReactiveEngine,
+  createReactiveEngine as createFrameworkAgnosticReactiveEngine,
+  type ReactiveEngineOptions as FrameworkAgnosticReactiveEngineOptions,
+  type StateChangeCallback,
+} from './core/reactive-engine.js';
+
 // Actors
 export type { Actor } from './core/actors.js';
 export { ActorManager, createTimerActor } from './core/actors.js';
