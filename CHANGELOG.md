@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **PluresDB from NPM**: Added `PluresDBPraxisAdapter` to wrap the official PluresDB package from NPM
+  - New `createPluresDB()` function to create a Praxis-compatible adapter for PluresDB
+  - PluresDB is now a direct dependency (version 1.0.1)
+  - Added comprehensive documentation in `src/core/pluresdb/README.md`
+  - Added PluresDB usage examples in main README.md
+
+### Changed
+
+- **PluresDB Integration**: Praxis now uses the official PluresDB package from NPM instead of only a local implementation
+  - Existing `InMemoryPraxisDB` is still available for development and testing
+  - PluresDB adapter provides the same `PraxisDB` interface for seamless integration
+  - Updated import_map.json to include PluresDB from npm
+  - All existing tests continue to pass with the enhanced integration
+
 ## [1.0.0] - 2025-11-25
 
 ### Added

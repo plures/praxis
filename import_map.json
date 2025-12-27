@@ -1,5 +1,6 @@
 {
   "imports": {
-    "commander": "npm:commander@^14.0.2"
+    "commander": "npm:commander@^14.0.2",
+    "pluresdb": "npm:pluresdb@^1.0.1"
   }
 }

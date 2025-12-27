@@ -110,6 +110,8 @@ export {
 export type {
   PraxisDB,
   UnsubscribeFn,
+  PluresDBInstance,
+  PluresDBAdapterConfig,
   EventStreamEntry,
   PraxisDBStoreOptions,
   StoredSchema,
@@ -121,6 +123,8 @@ export type {
 export {
   InMemoryPraxisDB,
   createInMemoryDB,
+  PluresDBPraxisAdapter,
+  createPluresDB,
   PraxisDBStore,
   createPraxisDBStore,
   PRAXIS_PATHS,
