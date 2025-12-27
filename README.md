@@ -1,6 +1,6 @@
 dotnet build
 dotnet test
-# Praxis 1.1.2
+# Praxis
 
 **Typed, visual-first application logic for Svelte, Node, and the browser.**
 
@@ -10,11 +10,11 @@ dotnet test
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org/)
 [![Deno Compatible](https://img.shields.io/badge/deno-compatible-brightgreen)](https://deno.land/)
 
-Praxis is a schema-driven, rule-based engine with first-class Svelte 5 integration, component generation, and optional cloud sync. Version **1.1.2** delivers a unified ESM/CJS build, curated subpath exports, Svelte runes support, and a slimmer, publish-ready package for npm and JSR.
+Praxis is a schema-driven, rule-based engine with first-class Svelte 5 integration, component generation, and optional cloud sync. The library delivers a unified ESM/CJS build, curated subpath exports, Svelte runes support, and a slimmer, publish-ready package for npm and JSR.
 
 ---
 
-## What’s new in 1.1.2
+## What’s new
 - **Unified builds & exports**: `./`, `./svelte`, `./schema`, `./component`, `./cloud`, `./components`, and CLI all ship with ESM, CJS, and type definitions.
 - **Svelte 5 runes native**: Runes-friendly stores and helpers; server+client builds for integrations.
 - **Framework-agnostic reactivity**: Proxy-based reactive engine for use without Svelte, enabling reactive state management in Node.js, browsers, and any JavaScript environment.
