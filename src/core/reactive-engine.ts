@@ -42,6 +42,7 @@ export class ReactiveLogicEngine<TContext extends object> {
     private _metaProxy: Record<string, unknown>;
     private _batchDepth = 0;
     private _pendingNotification = false;
+    private _proxyCache = new WeakMap<object, any>();
 
     constructor(options: ReactiveEngineOptions<TContext>) {
         // Initialize raw state
@@ -58,9 +59,16 @@ export class ReactiveLogicEngine<TContext extends object> {
     }
 
     /**
-     * Create a reactive proxy that notifies subscribers on changes
+     * Create a reactive proxy that notifies subscribers on changes.
+     * Uses a WeakMap cache to avoid creating multiple proxies for the same object.
      */
     private _createReactiveProxy<T extends object>(target: T): T {
+        // Check cache first
+        const cached = this._proxyCache.get(target);
+        if (cached) {
+            return cached;
+        }
+        
         const self = this;
         
         const handler: ProxyHandler<T> = {
@@ -104,7 +112,12 @@ export class ReactiveLogicEngine<TContext extends object> {
             },
         };
         
-        return new Proxy(target, handler);
+        const proxy = new Proxy(target, handler);
+        
+        // Cache the proxy
+        this._proxyCache.set(target, proxy);
+        
+        return proxy;
     }
 
     /**
@@ -117,10 +130,11 @@ export class ReactiveLogicEngine<TContext extends object> {
             return;
         }
         
+        // Pass proxy versions to subscribers so they can't bypass reactivity
         const currentState = {
-            context: this._state.context,
-            facts: this._state.facts,
-            meta: this._state.meta,
+            context: this._contextProxy,
+            facts: this._factsProxy,
+            meta: this._metaProxy,
         };
         
         this._subscribers.forEach((callback) => {
@@ -201,12 +215,12 @@ export class ReactiveLogicEngine<TContext extends object> {
     subscribe(callback: StateChangeCallback<TContext>): UnsubscribeFn {
         this._subscribers.add(callback);
         
-        // Immediately call with current state
+        // Immediately call with current state (using proxy versions)
         try {
             callback({
-                context: this._state.context,
-                facts: this._state.facts,
-                meta: this._state.meta,
+                context: this._contextProxy,
+                facts: this._factsProxy,
+                meta: this._metaProxy,
             });
         } catch (error) {
             console.error('Error in reactive engine subscriber:', error);
