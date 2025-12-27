@@ -117,18 +117,45 @@ export function createInMemoryDB(): InMemoryPraxisDB {
 }
 
 /**
+ * PluresDB instance type - represents either PluresNode or SQLiteCompatibleAPI
+ */
+export type PluresDBInstance = {
+  get(key: string): Promise<any>;
+  put(key: string, value: any): Promise<void>;
+};
+
+/**
+ * Configuration options for PluresDBPraxisAdapter
+ */
+export interface PluresDBAdapterConfig {
+  /** PluresDB instance */
+  db: PluresDBInstance;
+  /** Polling interval in milliseconds for watch functionality (default: 1000ms) */
+  pollInterval?: number;
+}
+
+/**
  * PluresDB-backed implementation of PraxisDB
  *
  * Wraps the official PluresDB package from NPM to provide
  * the PraxisDB interface for production use.
  */
 export class PluresDBPraxisAdapter implements PraxisDB {
-  private db: any;
+  private db: PluresDBInstance;
   private watchers = new Map<string, Set<(val: unknown) => void>>();
   private pollIntervals = new Map<string, NodeJS.Timeout>();
+  private lastValues = new Map<string, unknown>();
+  private pollInterval: number;
 
-  constructor(db: any) {
-    this.db = db;
+  constructor(config: PluresDBAdapterConfig | PluresDBInstance) {
+    // Support both old API (direct db instance) and new config API
+    if ('get' in config && 'put' in config) {
+      this.db = config;
+      this.pollInterval = 1000;
+    } else {
+      this.db = config.db;
+      this.pollInterval = config.pollInterval ?? 1000;
+    }
   }
 
   async get<T>(key: string): Promise<T | undefined> {
@@ -143,6 +170,9 @@ export class PluresDBPraxisAdapter implements PraxisDB {
 
   async set<T>(key: string, value: T): Promise<void> {
     await this.db.put(key, value);
+
+    // Update last known value
+    this.lastValues.set(key, value);
 
     // Notify watchers
     const keyWatchers = this.watchers.get(key);
@@ -167,16 +197,22 @@ export class PluresDBPraxisAdapter implements PraxisDB {
       const interval = setInterval(async () => {
         try {
           const value = await this.db.get(key);
-          const currentWatchers = this.watchers.get(key);
-          if (currentWatchers) {
-            for (const cb of currentWatchers) {
-              cb(value);
+          const lastValue = this.lastValues.get(key);
+          
+          // Only notify if value has actually changed
+          if (JSON.stringify(value) !== JSON.stringify(lastValue)) {
+            this.lastValues.set(key, value);
+            const currentWatchers = this.watchers.get(key);
+            if (currentWatchers) {
+              for (const cb of currentWatchers) {
+                cb(value);
+              }
             }
           }
         } catch (error) {
           // Ignore errors in polling
         }
-      }, 1000); // Poll every second
+      }, this.pollInterval);
 
       this.pollIntervals.set(key, interval);
     }
@@ -192,6 +228,8 @@ export class PluresDBPraxisAdapter implements PraxisDB {
           clearInterval(interval);
           this.pollIntervals.delete(key);
         }
+        // Clean up last value cache
+        this.lastValues.delete(key);
       }
     };
   }
@@ -206,6 +244,7 @@ export class PluresDBPraxisAdapter implements PraxisDB {
     }
     this.pollIntervals.clear();
     this.watchers.clear();
+    this.lastValues.clear();
   }
 }
 
@@ -214,7 +253,7 @@ export class PluresDBPraxisAdapter implements PraxisDB {
  *
  * Wraps the official PluresDB package from NPM.
  *
- * @param db PluresDB instance (PluresNode or SQLiteCompatibleAPI)
+ * @param config PluresDB instance or configuration object
  * @returns PluresDBPraxisAdapter instance
  *
  * @example
@@ -228,7 +267,16 @@ export class PluresDBPraxisAdapter implements PraxisDB {
  * await db.set('user:1', { name: 'Alice' });
  * const user = await db.get('user:1');
  * ```
+ *
+ * @example
+ * ```typescript
+ * // With custom polling interval
+ * const db = createPluresDB({
+ *   db: pluresdb,
+ *   pollInterval: 500, // Poll every 500ms
+ * });
+ * ```
  */
-export function createPluresDB(db: any): PluresDBPraxisAdapter {
-  return new PluresDBPraxisAdapter(db);
+export function createPluresDB(config: PluresDBAdapterConfig | PluresDBInstance): PluresDBPraxisAdapter {
+  return new PluresDBPraxisAdapter(config);
 }

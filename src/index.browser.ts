@@ -110,6 +110,8 @@ export {
 export type {
   PraxisDB,
   UnsubscribeFn,
+  PluresDBInstance,
+  PluresDBAdapterConfig,
   EventStreamEntry,
   PraxisDBStoreOptions,
   StoredSchema,

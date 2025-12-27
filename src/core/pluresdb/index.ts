@@ -6,7 +6,7 @@
  */
 
 // Adapter - Core interface and implementations (in-memory + PluresDB)
-export type { PraxisDB, UnsubscribeFn } from './adapter.js';
+export type { PraxisDB, UnsubscribeFn, PluresDBInstance, PluresDBAdapterConfig } from './adapter.js';
 export { InMemoryPraxisDB, createInMemoryDB, PluresDBPraxisAdapter, createPluresDB } from './adapter.js';
 
 // Store - Manages facts, events, and reactive updates

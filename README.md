@@ -161,6 +161,35 @@ await relay.sync({
 });
 ```
 
+## PluresDB integration
+```ts
+import { PluresNode } from 'pluresdb';
+import { createPluresDB, createPraxisDBStore } from '@plures/praxis';
+import { PraxisRegistry } from '@plures/praxis';
+
+// Initialize the official PluresDB from npm
+const pluresdb = new PluresNode({
+  config: {
+    port: 34567,
+    dataDir: './data',
+  },
+  autoStart: true,
+});
+
+// Wrap it with the Praxis adapter
+const db = createPluresDB(pluresdb);
+
+// Use with Praxis store for local-first reactive data
+const registry = new PraxisRegistry();
+const store = createPraxisDBStore(db, registry);
+
+// Or use in-memory database for development/testing
+import { createInMemoryDB } from '@plures/praxis';
+const devDb = createInMemoryDB();
+```
+
+> **Note:** Praxis now uses the official [PluresDB package from NPM](https://www.npmjs.com/package/pluresdb), which provides P2P sync, CRDT conflict resolution, SQLite compatibility, and more. The `createPluresDB()` function wraps PluresDB to provide the `PraxisDB` interface used by Praxis.
+
 ## CLI (npx-friendly)
 ```bash
 npx praxis --help
