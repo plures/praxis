@@ -1,0 +1,8 @@
+graph TD
+    model-0[Counter]
+    model-1[Message]
+    component-2(CounterDisplay)
+    component-3(MessageList)
+
+    component-2 -->|uses| model-0
+    component-3 -->|uses| model-1

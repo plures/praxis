@@ -16,8 +16,9 @@ import {
   defineRule,
   defineFact,
   canvasToMermaid,
-} from '@plures/praxis';
-import { writeFile } from 'fs/promises';
+} from '../../dist/node/index.js';
+import { writeFile, mkdir } from 'fs/promises';
+import { dirname } from 'path';
 
 // Define events
 const Increment = defineEvent('INCREMENT', { amount: 1 });
@@ -198,6 +199,8 @@ async function main() {
 
     // Write docs to filesystem
     for (const doc of docs) {
+      const dir = dirname(doc.path);
+      await mkdir(dir, { recursive: true });
       await writeFile(doc.path, doc.content);
     }
     console.log('✓ Documentation written to ./docs\n');
