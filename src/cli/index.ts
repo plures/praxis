@@ -91,6 +91,27 @@ program
   });
 
 program
+  .command('docs [schema]')
+  .description('Generate documentation from schemas or registries')
+  .option('-o, --output <dir>', 'Output directory', './docs')
+  .option('--title <title>', 'Documentation title')
+  .option('--format <format>', 'Diagram format (mermaid, dot)', 'mermaid')
+  .option('--no-toc', 'Disable table of contents')
+  .option('--no-timestamp', 'Disable timestamp')
+  .option('--from-registry', 'Generate from registry instead of schema')
+  .option('--header <content>', 'Custom header content')
+  .option('--footer <content>', 'Custom footer content')
+  .action(async (schema, options) => {
+    try {
+      const { docs } = await import('./commands/docs.js');
+      await docs(schema, options);
+    } catch (error) {
+      console.error('Error generating documentation:', error);
+      process.exit(1);
+    }
+  });
+
+program
   .command('canvas [schema]')
   .description('Open CodeCanvas for visual editing')
   .option('-p, --port <port>', 'Port for Canvas server', '3000')
