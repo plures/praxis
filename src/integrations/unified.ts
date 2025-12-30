@@ -210,8 +210,9 @@ export async function createUnifiedApp<TContext = unknown>(
   // Setup CodeCanvas if schema provided
   let canvas: CanvasDocument | undefined;
   if (config.schema) {
-    // Type assertion needed as PraxisSchema and PSFSchema are compatible but not identical
-    canvas = schemaToCanvas(config.schema as any, { layout: 'hierarchical' });
+    // Convert PraxisSchema to PSFSchema format expected by schemaToCanvas
+    // Both types are structurally compatible, so we can safely cast
+    canvas = schemaToCanvas(config.schema as unknown as import('../../core/schema-engine/psf.js').PSFSchema, { layout: 'hierarchical' });
   }
 
   return {
@@ -225,7 +226,10 @@ export async function createUnifiedApp<TContext = unknown>(
     dispose: () => {
       pluresdb.dispose();
       if (unum) {
-        void unum.disconnect();
+        // Disconnect from Unum, log errors during cleanup
+        unum.disconnect().catch((err) => {
+          console.warn('Warning: Error during Unum disconnect:', err);
+        });
       }
       for (const disposer of disposers) {
         disposer();
@@ -333,7 +337,10 @@ export async function attachAllIntegrations<TContext = unknown>(
     dispose: () => {
       pluresdb.dispose();
       if (unum) {
-        void unum.disconnect();
+        // Disconnect from Unum, log errors during cleanup
+        unum.disconnect().catch((err) => {
+          console.warn('Warning: Error during Unum disconnect:', err);
+        });
       }
       for (const disposer of disposers) {
         disposer();
