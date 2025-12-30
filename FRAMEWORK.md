@@ -143,28 +143,104 @@ PluresDB provides the data storage and synchronization layer.
 - Logic engine fact/event storage
 - Component data binding
 - Distributed state management
+- CRDT-based synchronization
+- Event sourcing and replay
 
-### 5. Visual IDE (CodeCanvas Integration)
+**Status**: ✅ Fully implemented with comprehensive test coverage
 
-CodeCanvas provides visual development capabilities.
+### 5. Identity & Channels (Unum Integration)
+
+Unum provides identity management and channel-based communication for distributed systems.
 
 **Features:**
 
-- Visual schema editor
-- Logic flow designer
-- Component preview
-- Orchestrator visualization
-- Documentation navigation
+- Identity creation and management
+- Channel-based messaging
+- Event and fact broadcasting
+- Member management
+- Real-time synchronization with PluresDB
+
+**Use Cases:**
+
+- Multi-user collaboration
+- Distributed event streaming
+- Node-to-node communication
+- Identity-based access control
+- Real-time state synchronization
+
+**Integration Points:**
+
+- Praxis event broadcasting to channels
+- Fact synchronization across nodes
+- PluresDB backend for persistence
+- Engine attachment for automatic distribution
+
+**Status**: ✅ Fully implemented with comprehensive API
+
+### 6. Documentation (State-Docs Integration)
+
+State-Docs generates living documentation from Praxis schemas and logic definitions.
+
+**Features:**
+
+- Auto-generated Markdown documentation
+- Mermaid and DOT diagram generation
+- Model and component catalogs
+- Logic flow visualization
+- Event → Rule → Fact diagrams
+- Customizable templates
+
+**Use Cases:**
+
+- API documentation
+- Architecture diagrams
+- Onboarding documentation
+- Design reviews
+- GitHub Pages integration
+
+**Integration Points:**
+
+- Schema documentation generation
+- Registry introspection
+- Automatic ToC and index generation
+- Diagram export (Mermaid, DOT)
+
+**Status**: ✅ Fully implemented with CLI support (`praxis docs`)
+
+### 7. Visual IDE (CodeCanvas Integration)
+
+CodeCanvas provides visual development capabilities for schemas and logic flows.
+
+**Features:**
+
+- Visual schema editor with node-based UI
+- Schema ↔ Canvas bi-directional sync
+- Mermaid and YAML export
+- Obsidian Canvas compatibility
+- FSM visualization
+- Guardian pre-commit validation
+- Activity lifecycle tracking
 
 **Use Cases:**
 
 - Design schemas visually
-- Build logic flows with drag-and-drop
-- Preview generated components
-- Visualize distributed orchestration
-- Navigate living documentation
+- Build logic flows with visual tools
+- Export schemas to diagrams
+- Integrate with Obsidian workflows
+- Visualize state machines
+- Enforce development lifecycle
 
-### 6. Orchestration (DSC/MCP Support)
+**Integration Points:**
+
+- Schema conversion (`schemaToCanvas`)
+- Canvas export (YAML, Mermaid, JSON)
+- Visual editor API
+- FSM lifecycle management
+- Guardian validation hooks
+
+**Status**: ✅ Fully implemented with CLI support (`praxis canvas`)
+
+### 8. Orchestration (DSC/MCP Support)
 
 Support for distributed system coordination.
 
@@ -213,17 +289,32 @@ Generate code from schemas.
 
 Options:
 
-- `--target`: Generation target (components, models, docs, all)
+- `--target`: Generation target (components, models, pluresdb, docs, all)
 - `--watch`: Watch for schema changes
+- `--auto-index`: Auto-indexing strategy for PluresDB
 
-#### `praxis canvas [schema]`
+#### `praxis docs [schema]`
 
-Open CodeCanvas for visual editing.
+Generate documentation from schemas or registries.
 
 Options:
 
-- `--port`: Port for Canvas server
+- `--output`: Output directory (default: ./docs)
+- `--title`: Documentation title
+- `--format`: Diagram format (mermaid, dot)
+- `--no-toc`: Disable table of contents
+- `--from-registry`: Generate from registry instead of schema
+
+#### `praxis canvas [schema]`
+
+Open CodeCanvas for visual editing or export schemas to canvas formats.
+
+Options:
+
+- `--port`: Port for Canvas server (default: 3000)
 - `--mode`: Mode (edit, view, present)
+- `--export`: Export format (yaml, mermaid, json)
+- `--output`: Output file for export
 
 #### `praxis orchestrate`
 

@@ -10,7 +10,16 @@ dotnet test
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org/)
 [![Deno Compatible](https://img.shields.io/badge/deno-compatible-brightgreen)](https://deno.land/)
 
-Praxis is a schema-driven, rule-based engine with first-class Svelte 5 integration, component generation, and optional cloud sync. The library delivers a unified ESM/CJS build, curated subpath exports, Svelte runes support, and a slimmer, publish-ready package for npm and JSR.
+Praxis is **the unified solution for declarative application development**, combining:
+
+- **Logic Modeling**: Typed facts, events, rules, and constraints for domain logic
+- **Component Auto-Generation**: Svelte 5 components generated from schemas  
+- **Data Persistence**: PluresDB for local-first, reactive data storage
+- **Documentation**: Auto-generated docs with State-Docs and visual diagrams
+- **Visual Editing**: CodeCanvas for schema design and FSM visualization
+- **Distributed Systems**: Unum for identity and multi-node communication
+
+The library delivers a unified ESM/CJS build, curated subpath exports, Svelte runes support, and a slimmer, publish-ready package for npm and JSR.
 
 ---
 
@@ -26,9 +35,12 @@ Praxis is a schema-driven, rule-based engine with first-class Svelte 5 integrati
 - **Logic Engine**: Facts, events, rules, constraints, registry, introspection, and reactive engine variants (Svelte 5 + framework-agnostic).
 - **Schema & Codegen**: PSF-style schema types plus component generator for Svelte UIs.
 - **Svelte Integration**: Typed helpers, runes-ready builds, and Svelte component typings.
-- **Local-First Data**: PluresDB integrations for offline-first, reactive state.
+- **Local-First Data**: PluresDB integration for offline-first, reactive state with full persistence.
+- **Distributed Systems**: Unum integration for identity management and multi-node channels.
+- **Documentation**: State-Docs integration for auto-generated Markdown docs and Mermaid diagrams.
+- **Visual Editing**: CodeCanvas integration for visual schema design and FSM visualization.
 - **Cloud Relay**: Optional sync layer (GitHub-auth friendly) for distributed teams.
-- **CLI**: Scaffolding, generation, canvas helpers, and cloud commands.
+- **CLI**: Scaffolding, generation, canvas helpers, docs generation, and cloud commands.
 
 ## Install
 Node 18+ recommended.
@@ -79,6 +91,64 @@ registry.registerRule(loginRule);
 
 const engine = createPraxisEngine({ initialContext: { currentUser: null }, registry });
 engine.step([Login.create({ username: 'alex' })]);
+```
+
+## Unified workflow example
+
+See all Praxis integrations working together - from schema definition to persistence, documentation, and distributed communication:
+
+```ts
+import {
+  createPraxisEngine,
+  PraxisRegistry,
+  defineRule,
+  createInMemoryDB,
+  createPluresDBAdapter,
+  createUnumAdapter,
+  createStateDocsGenerator,
+  schemaToCanvas,
+} from '@plures/praxis';
+
+// 1. Define logic with Praxis engine
+const registry = new PraxisRegistry();
+registry.registerRule(/* your rules */);
+const engine = createPraxisEngine({ initialContext: {}, registry });
+
+// 2. Add PluresDB for local-first persistence
+const db = createInMemoryDB();
+const pluresAdapter = createPluresDBAdapter({ db, registry });
+pluresAdapter.attachEngine(engine);
+
+// 3. Add Unum for distributed communication
+const unum = await createUnumAdapter({
+  db,
+  identity: { name: 'node-1' },
+  realtime: true,
+});
+const channel = await unum.createChannel('app-sync');
+
+// Subscribe to distribute events across nodes
+unum.subscribeToEvents(channel.id, (event) => {
+  engine.step([event]);
+});
+
+// 4. Generate documentation with State-Docs
+const docsGenerator = createStateDocsGenerator({
+  projectTitle: 'My App',
+  target: './docs',
+});
+const docs = docsGenerator.generateFromModule(registry.module);
+
+// 5. Export schema to CodeCanvas for visual editing
+const canvas = schemaToCanvas(mySchema);
+// Canvas can be edited visually and converted back to schema
+
+// Now you have:
+// ✅ Logic engine running
+// ✅ Auto-persisting to PluresDB
+// ✅ Distributing events across nodes via Unum
+// ✅ Auto-generated documentation
+// ✅ Visual schema representation
 ```
 
 ## Svelte integration (runes-ready)
@@ -652,32 +722,55 @@ adapter.subscribeToEvents((events) => {
 
 ### Unum Integration
 
-Identity and channels for distributed systems.
+Identity and channels for distributed systems. **Now fully implemented** with comprehensive channel and identity management.
 
 ```typescript
-import { createUnumIdentity, createChannel } from '@plures/unum';
+import {
+  createUnumAdapter,
+  attachUnumToEngine,
+} from '@plures/praxis';
 
-// Create identity
-const identity = await createUnumIdentity({
-  name: 'my-app-node',
-  keys: await generateKeys(),
+// Create Unum adapter with identity
+const unum = await createUnumAdapter({
+  db: pluresDB,
+  identity: {
+    name: 'my-app-node',
+    metadata: { role: 'coordinator' },
+  },
+  realtime: true,
 });
 
-// Create channel for messaging
-const channel = await createChannel({
-  name: 'app-events',
-  participants: [identity.id],
+// Create a channel for messaging
+const channel = await unum.createChannel('app-events', ['member-1', 'member-2']);
+
+// Broadcast Praxis events to channel
+await unum.broadcastEvent(channel.id, {
+  tag: 'USER_JOINED',
+  payload: { userId: 'alice' },
 });
 
-// Integrate with Praxis actors
-const unumActor = createActor('unum-bridge', identity, async (event) => {
-  // Bridge Praxis events to Unum channels
-  await channel.publish(event);
+// Subscribe to events from channel
+const unsubscribe = unum.subscribeToEvents(channel.id, (event) => {
+  console.log('Received event:', event);
+  // Feed into local Praxis engine
+  engine.step([event]);
 });
+
+// Attach to engine for automatic event broadcasting
+attachUnumToEngine(engine, unum, channel.id);
 ```
 
-**Status**: Planned  
-**Use Cases**: Distributed messaging, identity management, authentication
+**Features:**
+
+- **Identity Management**: Create and manage user/node identities
+- **Channel Communication**: Real-time messaging between distributed nodes
+- **Event Broadcasting**: Share Praxis events across channels
+- **Fact Synchronization**: Distribute facts to connected participants
+- **PluresDB Integration**: Persists identities and messages
+
+**Status**: ✅ Available (`src/integrations/unum.ts`)  
+**Tests**: Comprehensive integration tests  
+**Use Cases**: Distributed messaging, identity management, multi-user collaboration
 
 ### ADP Integration
 
@@ -712,48 +805,116 @@ adp.enforce({
 
 ### State-Docs Integration
 
-Living documentation generated from Praxis schemas.
+Living documentation generated from Praxis schemas. **Now fully implemented** with Markdown and Mermaid diagram generation.
 
 ```typescript
-import { generateStateDocs } from '@plures/state-docs';
+import {
+  createStateDocsGenerator,
+  generateDocs,
+} from '@plures/praxis';
 
-// Generate documentation from schema
-const docs = await generateStateDocs({
-  schema: appSchema,
-  logic: logicDefinitions,
-  components: componentDefinitions,
-  output: './docs',
-  format: 'markdown', // or 'html', 'pdf'
+// Create generator
+const generator = createStateDocsGenerator({
+  projectTitle: 'My Praxis App',
+  target: './docs',
+  visualization: {
+    format: 'mermaid',
+    theme: 'default',
+  },
+  template: {
+    toc: true,
+    timestamp: true,
+  },
 });
 
-// Documentation includes:
-// - Data model diagrams
-// - Logic flow diagrams
-// - Component catalog
-// - API reference
-// - Usage examples
+// Generate docs from schema
+const docs = generator.generateFromSchema(appSchema);
+
+// Or from registry
+const registryDocs = generator.generateFromModule(myModule);
+
+// Write generated docs
+for (const doc of docs) {
+  await writeFile(doc.path, doc.content);
+}
+
+// Quick helper
+const allDocs = generateDocs(appSchema, {
+  projectTitle: 'My App',
+  target: './docs',
+});
 ```
 
-**Status**: Planned  
-**Documentation**: See examples for State-Docs integration patterns
+**Features:**
+
+- **Schema Documentation**: Auto-generate docs from Praxis schemas
+- **Mermaid Diagrams**: Visual state machine and flow diagrams
+- **Markdown Output**: GitHub-ready documentation
+- **Model & Component Docs**: Detailed API documentation
+- **Logic Flow Visualization**: Event → Rule → Fact diagrams
+- **Table of Contents**: Automatic ToC generation
+
+**Status**: ✅ Available (`src/integrations/state-docs.ts`)  
+**CLI**: Use `praxis generate` with `--docs` flag (coming soon)  
+**Documentation**: Auto-generates README, models.md, logic diagrams
 
 ### CodeCanvas Integration
 
-Visual IDE for schema and logic editing.
+Visual IDE for schema and logic editing. **Now fully implemented** with schema visualization and canvas export.
 
-```bash
-# Open Canvas for visual editing
-praxis canvas src/schemas/app.schema.ts
+```typescript
+import {
+  schemaToCanvas,
+  canvasToSchema,
+  canvasToMermaid,
+  createCanvasEditor,
+} from '@plures/praxis';
 
-# Features:
-# - Visual schema design
-# - Logic flow editor
-# - Component preview
-# - Real-time collaboration
-# - Export to code
+// Convert schema to canvas document
+const canvas = schemaToCanvas(mySchema, {
+  layout: 'hierarchical',
+});
+
+// Export to YAML (Obsidian Canvas compatible)
+const yaml = canvasToYaml(canvas);
+await writeFile('./schema.canvas.yaml', yaml);
+
+// Export to Mermaid diagram
+const mermaid = canvasToMermaid(canvas);
+
+// Create canvas editor instance
+const editor = createCanvasEditor({
+  schema: mySchema,
+  enableFSM: true,
+  layout: 'hierarchical',
+});
+
+// Add nodes programmatically
+editor.addNode({
+  type: 'model',
+  label: 'User',
+  x: 100,
+  y: 100,
+  width: 150,
+  height: 60,
+  data: userModel,
+});
+
+// Convert back to schema
+const updatedSchema = editor.toSchema();
 ```
 
-**Status**: Planned  
+**Features:**
+
+- **Visual Schema Design**: Node-based schema editor
+- **Canvas Export**: YAML and Mermaid diagram formats
+- **Obsidian Compatible**: Works with Obsidian Canvas format
+- **FSM Visualization**: State machine and flow diagrams
+- **Bi-directional Sync**: Canvas ↔ Schema round-tripping
+- **Guardian Validation**: Pre-commit lifecycle checks
+
+**Status**: ✅ Available (`src/integrations/code-canvas.ts`)  
+**CLI**: Use `praxis canvas` commands (coming soon)  
 **Documentation**: [docs/guides/canvas.md](./docs/guides/canvas.md)
 
 ### Svelte + Tauri Runtime

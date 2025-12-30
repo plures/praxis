@@ -268,3 +268,7 @@ export {
   attachTauriToEngine,
   generateTauriConfig,
 } from './integrations/tauri.js';
+
+// Unified Integration Helpers
+export type { UnifiedAppConfig, UnifiedApp } from './integrations/unified.js';
+export { createUnifiedApp, attachAllIntegrations } from './integrations/unified.js';
