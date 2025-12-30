@@ -1,5 +1,5 @@
 {
-  "name": "praxis",
+  "name": "@plures/praxis",
   "version": "1.2.0",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "type": "module",
