@@ -1,5 +1,3 @@
-dotnet build
-dotnet test
 # Praxis
 
 **Typed, visual-first application logic for Svelte, Node, and the browser.**
@@ -10,37 +8,10 @@ dotnet test
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org/)
 [![Deno Compatible](https://img.shields.io/badge/deno-compatible-brightgreen)](https://deno.land/)
 
-Praxis is **the unified solution for declarative application development**, combining:
+Praxis is a unified solution for declarative application development. The framework combines typed logic modeling (facts, events, rules, constraints), component generation (Svelte 5), and local-first data persistence (PluresDB). It includes visual tools (CodeCanvas, State-Docs), distributed system support (Unum), optional cloud relay, and a CLI for scaffolding and generation.
 
-- **Logic Modeling**: Typed facts, events, rules, and constraints for domain logic
-- **Component Auto-Generation**: Svelte 5 components generated from schemas  
-- **Data Persistence**: PluresDB for local-first, reactive data storage
-- **Documentation**: Auto-generated docs with State-Docs and visual diagrams
-- **Visual Editing**: CodeCanvas for schema design and FSM visualization
-- **Distributed Systems**: Unum for identity and multi-node communication
+The library delivers unified ESM/CJS builds with curated subpath exports (`./`, `./svelte`, `./schema`, `./component`, `./cloud`, `./components`), Svelte 5 runes support, and publish-ready packages for npm and JSR.
 
-The library delivers a unified ESM/CJS build, curated subpath exports, Svelte runes support, and a slimmer, publish-ready package for npm and JSR.
-
----
-
-## What’s new
-- **Unified builds & exports**: `./`, `./svelte`, `./schema`, `./component`, `./cloud`, `./components`, and CLI all ship with ESM, CJS, and type definitions.
-- **Svelte 5 runes native**: Runes-friendly stores and helpers; server+client builds for integrations.
-- **Framework-agnostic reactivity**: Proxy-based reactive engine for use without Svelte, enabling reactive state management in Node.js, browsers, and any JavaScript environment.
-- **Logic engine refinements**: Typed registry, step diagnostics, and trace-friendly rule execution.
-- **Cloud relay & local-first**: Polished cloud connector alongside PluresDB-first workflows.
-- **Publish-ready**: npm public access + JSR exports aligned to source.
-
-## Capabilities at a glance
-- **Logic Engine**: Facts, events, rules, constraints, registry, introspection, and reactive engine variants (Svelte 5 + framework-agnostic).
-- **Schema & Codegen**: PSF-style schema types plus component generator for Svelte UIs.
-- **Svelte Integration**: Typed helpers, runes-ready builds, and Svelte component typings.
-- **Local-First Data**: PluresDB integration for offline-first, reactive state with full persistence.
-- **Distributed Systems**: Unum integration for identity management and multi-node channels.
-- **Documentation**: State-Docs integration for auto-generated Markdown docs and Mermaid diagrams.
-- **Visual Editing**: CodeCanvas integration for visual schema design and FSM visualization.
-- **Cloud Relay**: Optional sync layer (GitHub-auth friendly) for distributed teams.
-- **CLI**: Scaffolding, generation, canvas helpers, docs generation, and cloud commands.
 
 ## Install
 Node 18+ recommended.
@@ -55,7 +26,7 @@ pnpm add @plures/praxis
 
 JSR (Deno):
 ```bash
-const result = engine.step([Login.create({ username: 'alice' })]);
+deno add @plures/praxis
 # or via import map pointing to npm:
 # {
 #   "imports": { "@plures/praxis": "npm:@plures/praxis@^1.1.2" }
@@ -538,7 +509,7 @@ Demonstrates the terminal node feature for command execution:
 - Terminal adapter creation and configuration
 - Command execution and history tracking
 - YAML schema loading with terminal nodes
-- PluresDB binding configuration (ready for integration)
+- PluresDB binding configuration
 - Both text and widget input modes
 
 ```bash
@@ -673,7 +644,7 @@ Praxis integrates with the full Plures ecosystem:
 
 ### PluresDB Integration
 
-Local-first reactive datastore for offline-capable applications. **Now fully implemented** with 32 tests covering all features.
+Local-first reactive datastore for offline-capable applications. Fully implemented with 32 tests covering all features.
 
 ```typescript
 import {
@@ -722,7 +693,7 @@ adapter.subscribeToEvents((events) => {
 
 ### Unum Integration
 
-Identity and channels for distributed systems. **Now fully implemented** with comprehensive channel and identity management.
+Identity and channels for distributed systems. Fully implemented with comprehensive channel and identity management.
 
 ```typescript
 import {
@@ -772,40 +743,10 @@ attachUnumToEngine(engine, unum, channel.id);
 **Tests**: Comprehensive integration tests  
 **Use Cases**: Distributed messaging, identity management, multi-user collaboration
 
-### ADP Integration
-
-Architectural Decision Protocol for guardrails and governance.
-
-```typescript
-import { createADP } from '@plures/adp';
-
-// Track architectural decisions from schemas
-const adp = createADP({
-  source: 'praxis-schema',
-  decisions: [
-    {
-      id: 'ADR-001',
-      title: 'Use PluresDB for local-first storage',
-      context: 'Need offline-capable data storage',
-      decision: 'Adopt PluresDB',
-      consequences: ['Offline support', 'Sync complexity'],
-    },
-  ],
-});
-
-// Enforce guardrails
-adp.enforce({
-  rule: 'no-direct-database-access',
-  check: (code) => !code.includes('direct-sql'),
-});
-```
-
-**Status**: Planned  
-**Use Cases**: Architecture documentation, compliance checking, guardrails
 
 ### State-Docs Integration
 
-Living documentation generated from Praxis schemas. **Now fully implemented** with Markdown and Mermaid diagram generation.
+Living documentation generated from Praxis schemas. Fully implemented with Markdown and Mermaid diagram generation.
 
 ```typescript
 import {
@@ -855,12 +796,11 @@ const allDocs = generateDocs(appSchema, {
 - **Table of Contents**: Automatic ToC generation
 
 **Status**: ✅ Available (`src/integrations/state-docs.ts`)  
-**CLI**: Use `praxis generate` with `--docs` flag (coming soon)  
 **Documentation**: Auto-generates README, models.md, logic diagrams
 
 ### CodeCanvas Integration
 
-Visual IDE for schema and logic editing. **Now fully implemented** with schema visualization and canvas export.
+Visual IDE for schema and logic editing. Fully implemented with schema visualization and canvas export.
 
 ```typescript
 import {
@@ -914,15 +854,13 @@ const updatedSchema = editor.toSchema();
 - **Guardian Validation**: Pre-commit lifecycle checks
 
 **Status**: ✅ Available (`src/integrations/code-canvas.ts`)  
-**CLI**: Use `praxis canvas` commands (coming soon)  
 **Documentation**: [docs/guides/canvas.md](./docs/guides/canvas.md)
 
-### Svelte + Tauri Runtime
+### Svelte Integration
 
-Cross-platform runtime for web, desktop, and mobile.
+Svelte v5 integration with reactive stores.
 
 ```typescript
-// Svelte v5 integration (available now)
 import { createPraxisStore } from '@plures/praxis/svelte';
 
 const stateStore = createPraxisStore(engine);
@@ -930,14 +868,7 @@ const userStore = createDerivedStore(engine, (ctx) => ctx.currentUser);
 
 // In Svelte component:
 // $: currentUser = $userStore;
-
-// Desktop app with Tauri
-npm run tauri:dev    // Development
-npm run tauri:build  // Production
 ```
-
-**Status**: Svelte integration available, Tauri templates planned  
-**Platform Support**: Web (now), Desktop (planned), Mobile (future)
 
 ## Cross-Language Usage
 
@@ -1012,23 +943,6 @@ Console.WriteLine($"Facts: {result.State.Facts.Count}"); // Facts: 1
 
 See [csharp/Praxis/README.md](./csharp/Praxis/README.md) for complete documentation.
 
-## Roadmap
-
-### Current Focus
-
-- Full CodeCanvas integration
-- Enhanced Unum identity support
-- Advanced State-Docs generation
-- Multi-language schema support
-- Real PluresDB sync with CRDT/offline-first capabilities
-
-### Long Term
-
-- Mobile templates (iOS, Android)
-- Enterprise features
-- Advanced orchestration
-- Performance optimizations
-- Plugin ecosystem
 
 ## Cross-Language Support
 
