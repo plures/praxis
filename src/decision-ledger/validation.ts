@@ -286,6 +286,18 @@ export function formatValidationReportSARIF(report: ValidationReport): string {
                   text: 'Contract missing invariants',
                 },
               },
+              {
+                id: 'decision-ledger/tests',
+                shortDescription: {
+                  text: 'Contract missing tests',
+                },
+              },
+              {
+                id: 'decision-ledger/spec',
+                shortDescription: {
+                  text: 'Contract missing spec',
+                },
+              },
             ],
           },
         },
