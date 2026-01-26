@@ -40,8 +40,6 @@ export function validateContracts<TContext = unknown>(
   options: ValidateOptions = {}
 ): ValidationReport {
   const {
-    strict = false,
-    missingSeverity = strict ? 'error' : 'warning',
     incompleteSeverity = 'warning',
     requiredFields = ['behavior', 'examples'],
   } = options;
@@ -56,12 +54,6 @@ export function validateContracts<TContext = unknown>(
 
     if (!contract) {
       missing.push(rule.id);
-      incomplete.push({
-        ruleId: rule.id,
-        missing: ['contract'],
-        severity: missingSeverity,
-        message: `Rule '${rule.id}' has no contract`,
-      });
       continue;
     }
 
@@ -85,12 +77,6 @@ export function validateContracts<TContext = unknown>(
 
     if (!contract) {
       missing.push(constraint.id);
-      incomplete.push({
-        ruleId: constraint.id,
-        missing: ['contract'],
-        severity: missingSeverity,
-        message: `Constraint '${constraint.id}' has no contract`,
-      });
       continue;
     }
 

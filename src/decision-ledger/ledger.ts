@@ -80,22 +80,25 @@ export class BehaviorLedger {
   }
 
   /**
-   * Get all entries (in order of append).
+   * Get all entries (in order of append) with current status.
    *
-   * @returns Array of all entries
+   * @returns Array of all entries with current status from the map
    */
   getAllEntries(): LedgerEntry[] {
-    return [...this.entries];
+    // Return entries with current status from the map
+    return this.entries.map((entry) => this.entryMap.get(entry.id)!);
   }
 
   /**
    * Get entries for a specific rule ID.
    *
    * @param ruleId The rule ID
-   * @returns Array of entries for this rule
+   * @returns Array of entries for this rule with current status
    */
   getEntriesForRule(ruleId: string): LedgerEntry[] {
-    return this.entries.filter((entry) => entry.contract.ruleId === ruleId);
+    return this.entries
+      .map((entry) => this.entryMap.get(entry.id)!)
+      .filter((entry) => entry.contract.ruleId === ruleId);
   }
 
   /**
@@ -125,11 +128,13 @@ export class BehaviorLedger {
     const assumptions = new Map<string, Assumption>();
 
     for (const entry of this.entries) {
-      if (entry.status !== 'active') {
+      // Get current status from map
+      const currentEntry = this.entryMap.get(entry.id)!;
+      if (currentEntry.status !== 'active') {
         continue;
       }
 
-      for (const assumption of entry.contract.assumptions || []) {
+      for (const assumption of currentEntry.contract.assumptions || []) {
         if (assumption.status === 'active') {
           assumptions.set(assumption.id, assumption);
         }
@@ -149,11 +154,13 @@ export class BehaviorLedger {
     const assumptions: Assumption[] = [];
 
     for (const entry of this.entries) {
-      if (entry.status !== 'active') {
+      // Get current status from map
+      const currentEntry = this.entryMap.get(entry.id)!;
+      if (currentEntry.status !== 'active') {
         continue;
       }
 
-      for (const assumption of entry.contract.assumptions || []) {
+      for (const assumption of currentEntry.contract.assumptions || []) {
         if (assumption.status === 'active' && assumption.impacts.includes(impactType)) {
           assumptions.push(assumption);
         }
@@ -173,10 +180,12 @@ export class BehaviorLedger {
     deprecatedEntries: number;
     uniqueRules: number;
   } {
-    const active = this.entries.filter((e) => e.status === 'active').length;
-    const superseded = this.entries.filter((e) => e.status === 'superseded').length;
-    const deprecated = this.entries.filter((e) => e.status === 'deprecated').length;
-    const uniqueRules = new Set(this.entries.map((e) => e.contract.ruleId)).size;
+    // Get current status from map for all entries
+    const currentEntries = this.entries.map((e) => this.entryMap.get(e.id)!);
+    const active = currentEntries.filter((e) => e.status === 'active').length;
+    const superseded = currentEntries.filter((e) => e.status === 'superseded').length;
+    const deprecated = currentEntries.filter((e) => e.status === 'deprecated').length;
+    const uniqueRules = new Set(currentEntries.map((e) => e.contract.ruleId)).size;
 
     return {
       totalEntries: this.entries.length,
@@ -190,13 +199,14 @@ export class BehaviorLedger {
   /**
    * Export ledger as JSON.
    *
-   * @returns JSON string
+   * @returns JSON string with current entry status
    */
   toJSON(): string {
     return JSON.stringify(
       {
         version: '1.0.0',
-        entries: this.entries,
+        // Export entries with current status from the map
+        entries: this.entries.map((entry) => this.entryMap.get(entry.id)!),
         stats: this.getStats(),
       },
       null,
@@ -206,6 +216,10 @@ export class BehaviorLedger {
 
   /**
    * Import ledger from JSON.
+   * 
+   * Note: The JSON must contain entries in the order they were originally appended.
+   * If a superseding entry appears before the entry it supersedes, the superseding
+   * logic will not work correctly. The toJSON method preserves this order.
    *
    * @param json The JSON string
    * @returns A new BehaviorLedger instance

@@ -8,7 +8,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { PraxisRegistry } from '../core/rules.js';
-import { defineRule, defineConstraint } from '../dsl/index.js';
+import { defineRule } from '../dsl/index.js';
 import {
   defineContract,
   getContract,
@@ -149,9 +149,8 @@ describe('Decision Ledger', () => {
       expect(report.complete[0].ruleId).toBe('auth.login');
       expect(report.missing).toHaveLength(1);
       expect(report.missing).toContain('cart.addItem');
-      expect(report.incomplete).toHaveLength(1);
-      expect(report.incomplete[0].ruleId).toBe('cart.addItem');
-      expect(report.incomplete[0].missing).toContain('contract');
+      // Rules without contracts only appear in missing array, not incomplete
+      expect(report.incomplete).toHaveLength(0);
     });
 
     it('should validate contract completeness', () => {
@@ -222,8 +221,10 @@ describe('Decision Ledger', () => {
 
       const report = validateContracts(registry, { strict: true });
 
-      expect(report.incomplete).toHaveLength(1);
-      expect(report.incomplete[0].severity).toBe('error');
+      // Rules without contracts only appear in missing array, not incomplete
+      expect(report.missing).toHaveLength(1);
+      expect(report.missing).toContain('missing.contract');
+      expect(report.incomplete).toHaveLength(0);
     });
   });
 

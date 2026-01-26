@@ -49,7 +49,7 @@ define
         ]
         /\ acknowledged \in SUBSET [ruleId: RuleIds, justification: STRING]
 
-    \* Ledger is append-only (monotonic growth)
+    \* Ledger is append-only (monotonic growth and immutability)
     LedgerAppendOnly ==
         /\ Len(ledger') >= Len(ledger)
         /\ \A i \in 1..Len(ledger) :

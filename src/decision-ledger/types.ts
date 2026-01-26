@@ -142,6 +142,17 @@ export function defineContract(options: DefineContractOptions): Contract {
     throw new Error('Contract must have at least one example');
   }
 
+  // Validate assumption confidence values are in range [0.0, 1.0]
+  if (options.assumptions) {
+    for (const assumption of options.assumptions) {
+      if (assumption.confidence < 0.0 || assumption.confidence > 1.0) {
+        throw new Error(
+          `Assumption '${assumption.id}' has invalid confidence value ${assumption.confidence}. Must be between 0.0 and 1.0`
+        );
+      }
+    }
+  }
+
   return {
     ruleId: options.ruleId,
     behavior: options.behavior,
@@ -176,6 +187,14 @@ export type Severity = 'warning' | 'error' | 'info';
 
 /**
  * Types of missing contract artifacts.
+ */
+/**
+ * Types of artifacts that can be missing from a contract.
+ * 
+ * Note: 'tests' and 'spec' are included in this type for future extensibility
+ * and SARIF reporting compatibility, but are not currently validated by the
+ * validateContract function. To check for these, implement custom validation
+ * logic that scans for test files or spec files in your codebase.
  */
 export type MissingArtifact = 'behavior' | 'examples' | 'invariants' | 'tests' | 'spec' | 'contract';
 

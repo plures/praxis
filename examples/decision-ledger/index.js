@@ -7,7 +7,6 @@
 import {
   PraxisRegistry,
   defineRule,
-  defineConstraint,
   defineContract,
   validateContracts,
   formatValidationReport,
