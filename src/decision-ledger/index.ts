@@ -1,0 +1,45 @@
+/**
+ * Decision Ledger - Main Entry Point
+ *
+ * Contract-based validation and documentation for Praxis rules and constraints.
+ */
+
+export {
+  type Assumption,
+  type Reference,
+  type Example,
+  type Contract,
+  type DefineContractOptions,
+  type Severity,
+  type MissingArtifact,
+  type ContractGap,
+  type ValidationReport,
+  defineContract,
+  getContract,
+  isContract,
+} from './types.js';
+
+export {
+  ContractMissing,
+  ContractValidated,
+  AcknowledgeContractGap,
+  ValidateContracts,
+  ContractGapAcknowledged,
+  ContractAdded,
+  ContractUpdated,
+} from './facts-events.js';
+
+export {
+  type ValidateOptions,
+  validateContracts,
+  formatValidationReport,
+  formatValidationReportJSON,
+  formatValidationReportSARIF,
+} from './validation.js';
+
+export {
+  type LedgerEntry,
+  type LedgerEntryStatus,
+  BehaviorLedger,
+  createBehaviorLedger,
+} from './ledger.js';

@@ -254,4 +254,21 @@ program
     }
   });
 
+// Validate command (Decision Ledger)
+program
+  .command('validate')
+  .description('Validate contract coverage for rules and constraints')
+  .option('--output <format>', 'Output format (console, json, sarif)', 'console')
+  .option('--strict', 'Exit with error if contracts are missing', false)
+  .option('--registry <path>', 'Path to registry module')
+  .action(async (options) => {
+    try {
+      const { validateCommand } = await import('./commands/validate.js');
+      await validateCommand(options);
+    } catch (error) {
+      console.error('Error validating contracts:', error);
+      process.exit(1);
+    }
+  });
+
 program.parse();
