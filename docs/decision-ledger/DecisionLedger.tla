@@ -51,9 +51,10 @@ define
 
     \* Ledger is append-only (monotonic growth)
     LedgerAppendOnly ==
-        \A i \in 1..Len(ledger) :
-            \* Once an entry is in the ledger, it never changes
-            ledger' = <<>> \/ SubSeq(ledger, 1, i) = SubSeq(ledger', 1, Min({i, Len(ledger')}))
+        /\ Len(ledger') >= Len(ledger)
+        /\ \A i \in 1..Len(ledger) :
+            \* Once an entry is in the ledger, it never changes in any field
+            ledger'[i] = ledger[i]
 
     \* No duplicate ledger entry IDs
     LedgerUnique ==
