@@ -121,6 +121,40 @@ export type {
   DefineModuleOptions,
 } from './dsl/index.js';
 
+// Decision Ledger (Contract-based validation)
+export {
+  defineContract,
+  getContract,
+  isContract,
+  validateContracts,
+  formatValidationReport,
+  formatValidationReportJSON,
+  formatValidationReportSARIF,
+  ContractMissing,
+  ContractValidated,
+  AcknowledgeContractGap,
+  ValidateContracts,
+  ContractGapAcknowledged,
+  ContractAdded,
+  ContractUpdated,
+  BehaviorLedger,
+  createBehaviorLedger,
+} from './decision-ledger/index.js';
+export type {
+  Assumption,
+  Reference,
+  Example,
+  Contract,
+  DefineContractOptions,
+  Severity,
+  MissingArtifact,
+  ContractGap,
+  ValidationReport,
+  ValidateOptions,
+  LedgerEntry,
+  LedgerEntryStatus,
+} from './decision-ledger/index.js';
+
 // Terminal Node Runtime
 export type {
   TerminalExecutionResult,
