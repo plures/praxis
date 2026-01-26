@@ -58,5 +58,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      # NPM publishing is handled by the publish.yml workflow
-      # which is triggered when the release is published
+  publish:
+    name: Publish artifacts
+    needs: release
+    uses: ./.github/workflows/publish.yml
+    secrets: inherit
