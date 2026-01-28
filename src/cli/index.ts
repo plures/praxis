@@ -265,6 +265,8 @@ program
   .option('--spec', 'Check for specs for each rule/constraint', true)
   .option('--emit-facts', 'Emit ContractMissing facts JSON payload', false)
   .option('--gap-output <file>', 'Write contract-gap payload to file')
+  .option('--ledger <dir>', 'Write logic ledger snapshots to directory')
+  .option('--author <name>', 'Author name for ledger entries', 'system')
   .action(async (options) => {
     try {
       const { validateCommand } = await import('./commands/validate.js');
