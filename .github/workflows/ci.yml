@@ -40,6 +40,15 @@ jobs:
       
       - name: Run tests
         run: npm test
+
+      - name: Decision ledger scan
+        run: npm run scan:rules
+
+      - name: Upload contract index
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-index
+          path: docs/decision-ledger/contract-index.json
   
   test-csharp:
     name: Test C# on .NET 8
