@@ -239,6 +239,67 @@ npx praxis generate --schema src/schemas/app.schema.ts
 npx praxis canvas src/schemas/app.schema.ts
 ```
 
+## Decision Ledger (Behavior Contracts)
+
+Document, validate, and track the evolution of your rules and constraints with explicit behavioral contracts.
+
+```typescript
+import { defineContract, defineRule } from '@plures/praxis';
+
+// Define a contract with explicit behavior, examples, and invariants
+const loginContract = defineContract({
+  ruleId: 'auth.login',
+  behavior: 'Process login events and create user session facts',
+  examples: [
+    {
+      given: 'User provides valid credentials',
+      when: 'LOGIN event is received',
+      then: 'UserSessionCreated fact is emitted'
+    }
+  ],
+  invariants: ['Session must have unique ID'],
+  assumptions: [
+    {
+      id: 'assume-unique-username',
+      statement: 'Usernames are unique across the system',
+      confidence: 0.9,
+      justification: 'Standard authentication practice',
+      impacts: ['spec', 'tests', 'code'],
+      status: 'active'
+    }
+  ]
+});
+
+// Attach contract to rule
+const loginRule = defineRule({
+  id: 'auth.login',
+  description: 'Process login events',
+  impl: (state, events) => { /* ... */ },
+  contract: loginContract
+});
+```
+
+**Validate contracts in CI/CD:**
+```bash
+# Validate all contracts
+npx praxis validate --strict
+
+# Generate SARIF for GitHub Actions
+npx praxis validate --output sarif > results.sarif
+
+# Reverse engineer contracts from existing code
+npx praxis reverse --interactive
+```
+
+**Key features:**
+- ✅ Explicit behavior documentation with Given/When/Then examples
+- ✅ Assumption tracking with confidence levels
+- ✅ Immutable ledger for change history
+- ✅ Build-time validation and CI/CD integration
+- ✅ Auto-generation from existing code
+
+See [src/decision-ledger/README.md](./src/decision-ledger/README.md) for complete documentation.
+
 ## Exports map
 - `@plures/praxis` → main engine (ESM/CJS/types)
 - `@plures/praxis/svelte` → Svelte 5 integrations
@@ -251,6 +312,7 @@ npx praxis canvas src/schemas/app.schema.ts
 ## Documentation
 - [Getting Started](./GETTING_STARTED.md)
 - [Framework Guide](./FRAMEWORK.md)
+- [Decision Ledger Guide](./src/decision-ledger/README.md)
 - [Examples](./examples/)
 
 ## Decision Ledger
@@ -576,6 +638,27 @@ See [examples/simple-app/README.md](./examples/simple-app/README.md)
 Demonstrates real-time synchronization with Praxis Cloud relay service.
 
 See [examples/cloud-sync/README.md](./examples/cloud-sync/README.md)
+
+### 13. Decision Ledger (`examples/decision-ledger`)
+
+Demonstrates behavior contracts for rules and constraints with validation and immutable ledger tracking.
+
+Features:
+- Contract definition with behavior, examples, and invariants
+- Assumption tracking with confidence levels
+- Validation and reporting (console, JSON, SARIF)
+- Immutable logic ledger for change history
+- CLI integration for CI/CD pipelines
+
+```bash
+npm run build
+node examples/decision-ledger/index.js
+
+# Validate contracts
+npx praxis validate --registry examples/sample-registry.js
+```
+
+See [examples/decision-ledger/README.md](./examples/decision-ledger/README.md)
 
 ## API Reference
 

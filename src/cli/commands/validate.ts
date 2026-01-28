@@ -11,8 +11,8 @@ import {
   formatValidationReportJSON,
   formatValidationReportSARIF,
   writeLogicLedgerEntry,
-  type MissingArtifact,
   type ArtifactIndex,
+  type Contract,
 } from '../../decision-ledger/index.js';
 import { ContractMissing } from '../../decision-ledger/index.js';
 import type { PraxisEvent, PraxisFact } from '../../core/protocol.js';
@@ -58,7 +58,7 @@ export async function validateCommand(options: ValidateOptions): Promise<void> {
   if (options.emitFacts) {
     const facts = gapsToFacts(report.incomplete);
     const events = gapsToEvents(report.incomplete);
-    emitGapArtifacts({ facts, events, gapOutput: options.gapOutput });
+    await emitGapArtifacts({ facts, events, gapOutput: options.gapOutput });
   }
 
   if (options.ledger) {
@@ -96,13 +96,15 @@ export async function validateCommand(options: ValidateOptions): Promise<void> {
     }
   }
 
-  // Exit with success
-  if (report.incomplete.length === 0 && report.missing.length === 0) {
-    console.log('\n✅ All contracts validated successfully!');
-  } else {
-    const warningCount = report.incomplete.filter((gap: ContractGap) => gap.severity === 'warning').length;
-    if (warningCount > 0) {
-      console.log(`\n⚠️  ${warningCount} warning(s) found`);
+  // Exit with success (only show messages in console mode)
+  if (outputFormat === 'console') {
+    if (report.incomplete.length === 0 && report.missing.length === 0) {
+      console.log('\n✅ All contracts validated successfully!');
+    } else {
+      const warningCount = report.incomplete.filter((gap: ContractGap) => gap.severity === 'warning').length;
+      if (warningCount > 0) {
+        console.log(`\n⚠️  ${warningCount} warning(s) found`);
+      }
     }
   }
 }
@@ -186,11 +188,11 @@ async function writeLedgerSnapshots(
   options: { rootDir: string; author: string; artifactIndex?: ArtifactIndex }
 ): Promise<void> {
   const { rootDir, author, artifactIndex } = options;
-  const allDescriptors = registry.getAllRules().concat(registry.getAllConstraints());
-
-  for (const descriptor of allDescriptors) {
+  
+  // Process rules and constraints separately to avoid type issues
+  const processDescriptor = async (descriptor: { contract?: Contract; meta?: Record<string, unknown> } & { id: string }) => {
     if (!descriptor.contract && !descriptor.meta?.contract) {
-      continue;
+      return;
     }
     const contract = descriptor.contract ?? (descriptor.meta?.contract as any);
     await writeLogicLedgerEntry(contract, {
@@ -199,6 +201,16 @@ async function writeLedgerSnapshots(
       testsPresent: artifactIndex?.tests?.has(contract.ruleId) ?? false,
       specPresent: artifactIndex?.spec?.has(contract.ruleId) ?? false,
     });
+  };
+
+  // Process all rules
+  for (const descriptor of registry.getAllRules()) {
+    await processDescriptor(descriptor);
+  }
+  
+  // Process all constraints
+  for (const descriptor of registry.getAllConstraints()) {
+    await processDescriptor(descriptor);
   }
 }
 
@@ -238,14 +250,14 @@ function gapsToEvents(_gaps: ContractGap[]): PraxisEvent[] {
   return [];
 }
 
-function emitGapArtifacts(payload: {
+async function emitGapArtifacts(payload: {
   facts: PraxisFact[];
   events: PraxisEvent[];
   gapOutput?: string;
-}): void {
+}): Promise<void> {
   if (payload.gapOutput) {
-    const fs = require('node:fs');
-    fs.writeFileSync(payload.gapOutput, JSON.stringify(payload, null, 2));
+    const fs = await import('node:fs/promises');
+    await fs.writeFile(payload.gapOutput, JSON.stringify(payload, null, 2));
   } else {
     console.log(JSON.stringify(payload, null, 2));
   }
