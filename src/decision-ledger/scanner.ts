@@ -117,6 +117,16 @@ export async function scanRepository(
 
   for (const file of implFiles) {
     filesScanned++;
+    
+    // Check file size to avoid memory issues with large files
+    const stats = await fs.stat(file);
+    const maxFileSize = 10 * 1024 * 1024; // 10 MB limit
+    
+    if (stats.size > maxFileSize) {
+      scanWarnings.push(`Skipping large file (${(stats.size / 1024 / 1024).toFixed(2)} MB): ${file}`);
+      continue;
+    }
+    
     const content = await fs.readFile(file, 'utf-8');
     
     // Look for defineRule and defineConstraint patterns
@@ -141,6 +151,16 @@ export async function scanRepository(
 
     for (const testFile of testFileList) {
       filesScanned++;
+      
+      // Check file size to avoid memory issues
+      const stats = await fs.stat(testFile);
+      const maxFileSize = 10 * 1024 * 1024; // 10 MB limit
+      
+      if (stats.size > maxFileSize) {
+        scanWarnings.push(`Skipping large test file (${(stats.size / 1024 / 1024).toFixed(2)} MB): ${testFile}`);
+        continue;
+      }
+      
       const content = await fs.readFile(testFile, 'utf-8');
       const mappings = await mapTestsToRules(testFile, content, rules);
       
@@ -167,6 +187,16 @@ export async function scanRepository(
 
     for (const specFile of specFileList) {
       filesScanned++;
+      
+      // Check file size to avoid memory issues
+      const stats = await fs.stat(specFile);
+      const maxFileSize = 10 * 1024 * 1024; // 10 MB limit
+      
+      if (stats.size > maxFileSize) {
+        scanWarnings.push(`Skipping large spec file (${(stats.size / 1024 / 1024).toFixed(2)} MB): ${specFile}`);
+        continue;
+      }
+      
       const content = await fs.readFile(specFile, 'utf-8');
       const mappings = await mapSpecsToRules(specFile, content, rules);
       
