@@ -393,6 +393,7 @@ function shouldInclude(relativePath: string, patterns: string[]): boolean {
  */
 function globToRegex(pattern: string): RegExp {
   let regexPattern = pattern
+    .replace(/\\/g, '\\\\')
     .replace(/\./g, '\\.')
     .replace(/\*\*/g, '___DOUBLESTAR___')
     .replace(/\*/g, '[^/]*')
