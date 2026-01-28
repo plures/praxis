@@ -2,7 +2,7 @@ import * as ts from 'typescript';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { statSync } from 'node:fs';
-import { analyzeRuleFile, type RuleAnalysis } from '../ast-analyzer/src/ast-analyzer.ts';
+import { analyzeRuleFile, analyzeRuleSource, type RuleAnalysis } from '../ast-analyzer/src/ast-analyzer.ts';
 
 type DefinitionKind = 'rule' | 'constraint';
 
@@ -143,7 +143,7 @@ async function walk(dir: string, files: string[]): Promise<void> {
 async function analyzeFile(filePath: string, rootDir: string): Promise<ContractIndexEntry[]> {
   const content = await fs.readFile(filePath, 'utf-8');
   const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
-  const analysis = safeAnalyzeRules(filePath);
+  const analysis = safeAnalyzeRules(filePath, sourceFile, content);
   const analysisById = new Map(analysis.map((item) => [item.ruleId, item]));
 
   const entries: ContractIndexEntry[] = [];
@@ -187,8 +187,15 @@ async function analyzeFile(filePath: string, rootDir: string): Promise<ContractI
   return entries;
 }
 
-function safeAnalyzeRules(filePath: string): RuleAnalysis[] {
+function safeAnalyzeRules(
+  filePath: string,
+  sourceFile?: ts.SourceFile,
+  content?: string
+): RuleAnalysis[] {
   try {
+    if (sourceFile && content !== undefined) {
+      return analyzeRuleSource(sourceFile, content);
+    }
     return analyzeRuleFile(filePath);
   } catch {
     return [];

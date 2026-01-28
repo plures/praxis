@@ -11,7 +11,10 @@ export interface RuleAnalysis {
 export function analyzeRuleFile(filePath: string): RuleAnalysis[] {
   const fileContent = fs.readFileSync(filePath, 'utf-8');
   const sourceFile = ts.createSourceFile(filePath, fileContent, ts.ScriptTarget.Latest, true);
+  return analyzeRuleSource(sourceFile, fileContent);
+}
 
+export function analyzeRuleSource(sourceFile: ts.SourceFile, fileContent: string): RuleAnalysis[] {
   const results: RuleAnalysis[] = [];
 
   function visit(node: ts.Node) {
