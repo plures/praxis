@@ -77,7 +77,6 @@ export async function scanRepository(
   const { rootDir, scanTests = true, scanSpecs = true, maxDepth = 10 } = options;
 
   // Validate and normalize root directory
-  const path = await import('node:path');
   const normalizedRoot = path.resolve(rootDir);
   
   // Check if directory exists
@@ -210,8 +209,8 @@ async function extractRulesFromFile(
     const ruleConfig = match[1];
     
     // Extract id and description
-    const idMatch = /id:\s*['"]([^'"]+)['"]/g.exec(ruleConfig);
-    const descMatch = /description:\s*['"]([^'"]+)['"]/g.exec(ruleConfig);
+    const idMatch = /id:\s*['"]([^'"]+)['"]/.exec(ruleConfig);
+    const descMatch = /description:\s*['"]([^'"]+)['"]/.exec(ruleConfig);
     
     if (idMatch) {
       const id = idMatch[1];
@@ -249,8 +248,8 @@ async function extractConstraintsFromFile(
     const constraintConfig = match[1];
     
     // Extract id and description
-    const idMatch = /id:\s*['"]([^'"]+)['"]/g.exec(constraintConfig);
-    const descMatch = /description:\s*['"]([^'"]+)['"]/g.exec(constraintConfig);
+    const idMatch = /id:\s*['"]([^'"]+)['"]/.exec(constraintConfig);
+    const descMatch = /description:\s*['"]([^'"]+)['"]/.exec(constraintConfig);
     
     if (idMatch) {
       const id = idMatch[1];
@@ -429,13 +428,13 @@ export async function inferContractFromFile(
  */
 function inferBehavior(content: string, ruleId: string): string {
   // Look for JSDoc comments or description strings
-  const jsdocMatch = /\/\*\*\s*\n\s*\*\s*([^\n]+)/g.exec(content);
+  const jsdocMatch = /\/\*\*\s*\n\s*\*\s*([^\n]+)/.exec(content);
   if (jsdocMatch) {
     return jsdocMatch[1].trim();
   }
   
   // Look for description in defineRule
-  const descMatch = /description:\s*['"]([^'"]+)['"]/g.exec(content);
+  const descMatch = /description:\s*['"]([^'"]+)['"]/.exec(content);
   if (descMatch) {
     return descMatch[1];
   }

@@ -11,7 +11,6 @@ import {
   formatValidationReportJSON,
   formatValidationReportSARIF,
   writeLogicLedgerEntry,
-  type MissingArtifact,
   type ArtifactIndex,
 } from '../../decision-ledger/index.js';
 import { ContractMissing } from '../../decision-ledger/index.js';

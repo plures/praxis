@@ -251,7 +251,14 @@ async function generateWithHeuristics(
       when: `${descriptor.id} is triggered`,
       then: `Expected outcome is produced`,
     });
-    warnings.push('No test files found - using default example');
+    
+    if (!options.generateExamples) {
+      warnings.push('Example generation disabled - using default example');
+    } else if (!testFiles || testFiles.length === 0) {
+      warnings.push('No test files provided - using default example');
+    } else {
+      warnings.push('No examples could be extracted from provided test files - using default example');
+    }
   }
 
   // Add references to spec files
@@ -312,11 +319,13 @@ async function extractExamplesFromTests(
   const examples: Example[] = [];
 
   // Look for test descriptions that might indicate Given/When/Then
-  const testPattern = /(?:it|test)\s*\(\s*['"]([^'"]+)['"]/g;
+  // Improved pattern to handle escaped quotes and template literals
+  const testPattern =
+    /(?:it|test)\s*\(\s*(?:'((?:\\'|[^'])*)'|"((?:\\"|[^"])*)"|`((?:\\`|[\s\S])*?)`)/g;
   let match;
 
   while ((match = testPattern.exec(content)) !== null) {
-    const description = match[1];
+    const description = match[1] ?? match[2] ?? match[3] ?? '';
     
     // Try to parse as Given/When/Then
     if (description.includes('when') || description.includes('should')) {
@@ -331,8 +340,8 @@ async function extractExamplesFromTests(
  * Parse a test description into a Given/When/Then example.
  */
 function parseTestDescription(description: string): Example {
-  // Simple heuristic parsing
-  const parts = description.split(/when|should/i);
+  // Simple heuristic parsing with word boundaries
+  const parts = description.split(/\b(?:when|should)\b/i);
   
   if (parts.length >= 2) {
     return {

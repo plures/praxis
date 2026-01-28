@@ -31,7 +31,7 @@ interface ReverseOptions {
   /** Author name for ledger entries */
   author?: string;
   /** Output format */
-  format?: 'json' | 'console' | 'yaml';
+  format?: 'json' | 'yaml';
 }
 
 /**
@@ -48,7 +48,7 @@ export async function reverseCommand(options: ReverseOptions): Promise<void> {
   const confidenceThreshold = parseFloat(options.confidence || '0.7');
   const limit = options.limit ? parseInt(options.limit, 10) : undefined;
   const author = options.author || 'reverse-engineer';
-  const format = options.format || 'console';
+  const format = options.format || 'json';
 
   console.log('🔍 Scanning repository for rules and constraints...');
   console.log(`   Directory: ${rootDir}`);
@@ -262,7 +262,7 @@ export async function reverseCommand(options: ReverseOptions): Promise<void> {
 async function writeContractToFile(
   contract: any,
   outputDir: string,
-  format: 'json' | 'console' | 'yaml'
+  format: 'json' | 'yaml'
 ): Promise<void> {
   const fs = await import('node:fs/promises');
   const path = await import('node:path');
@@ -282,7 +282,6 @@ async function writeContractToFile(
     const yaml = await import('js-yaml');
     content = yaml.dump(contract);
   } else {
-    // Default to JSON for both 'json' and 'console' formats
     content = JSON.stringify(contract, null, 2);
   }
 
