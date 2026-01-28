@@ -36,7 +36,23 @@ jobs:
       
       - name: Get version from tag
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            # Triggered by tag push
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            # Triggered by workflow_dispatch or other means
+            # Get the most recent tag
+            TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              VERSION="${TAG#v}"
+            else
+              echo "Error: Could not determine version from tag"
+              exit 1
+            fi
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
       
       - name: Generate changelog
         id: changelog
