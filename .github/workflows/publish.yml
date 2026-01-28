@@ -1,4 +1,4 @@
-name: Publish to JSR and NPM
+name: Publish to All Repositories
 
 on:
   workflow_call:
@@ -52,3 +52,61 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-nuget:
+    name: Publish to NuGet
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    defaults:
+      run:
+        working-directory: csharp
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+      
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+      
+      - name: Get version from tag
+        id: get_version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "Detected version: $VERSION"
+          else
+            VERSION=$(grep '<Version>' Praxis/Praxis.csproj | sed -E 's/.*<Version>([^<]+)<\/Version>.*/\1/')
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "Using version from csproj: $VERSION"
+          fi
+      
+      - name: Update version in csproj
+        run: |
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          sed -i "s/<Version>[^<]*<\/Version>/<Version>$VERSION<\/Version>/" Praxis/Praxis.csproj
+          cat Praxis/Praxis.csproj | grep Version
+      
+      - name: Pack NuGet package
+        run: dotnet pack Praxis/Praxis.csproj --configuration Release --no-build --output ./nupkg
+      
+      - name: Publish to NuGet
+        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
