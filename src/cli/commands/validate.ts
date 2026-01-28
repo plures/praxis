@@ -96,13 +96,15 @@ export async function validateCommand(options: ValidateOptions): Promise<void> {
     }
   }
 
-  // Exit with success
-  if (report.incomplete.length === 0 && report.missing.length === 0) {
-    console.log('\n✅ All contracts validated successfully!');
-  } else {
-    const warningCount = report.incomplete.filter((gap: ContractGap) => gap.severity === 'warning').length;
-    if (warningCount > 0) {
-      console.log(`\n⚠️  ${warningCount} warning(s) found`);
+  // Exit with success (only show messages in console mode)
+  if (outputFormat === 'console') {
+    if (report.incomplete.length === 0 && report.missing.length === 0) {
+      console.log('\n✅ All contracts validated successfully!');
+    } else {
+      const warningCount = report.incomplete.filter((gap: ContractGap) => gap.severity === 'warning').length;
+      if (warningCount > 0) {
+        console.log(`\n⚠️  ${warningCount} warning(s) found`);
+      }
     }
   }
 }
