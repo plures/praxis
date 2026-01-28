@@ -44,6 +44,16 @@ npm run typecheck
 npm test
 ```
 
+## Decision Ledger (Dogfood)
+
+<!-- Required when rules/constraints change -->
+
+- [ ] Contracts added/updated for any rule/constraint changes
+- [ ] Tests cover all Given/When/Then examples and invariants
+- [ ] `npm run scan:rules` executed and contract index updated
+- [ ] `npm run validate:contracts` executed (attach summary in notes)
+- [ ] Behavior Ledger updated if behavior changed
+
 ## Breaking Changes
 
 <!-- If this is a breaking change, describe what breaks and the migration path -->

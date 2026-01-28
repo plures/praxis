@@ -77,7 +77,10 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "typecheck": "tsc --noEmit",
-    "cli": "node ./dist/src/cli/index.js"
+    "cli": "node ./dist/src/cli/index.js",
+    "scan:rules": "tsx tools/decision-ledger/scan-rules.ts",
+    "validate:contracts": "node ./dist/node/cli/index.js validate --output console",
+    "validate:contracts:sarif": "node ./dist/node/cli/index.js validate --output sarif"
   },
   "keywords": [
     "praxis",

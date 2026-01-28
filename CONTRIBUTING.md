@@ -114,6 +114,23 @@ npm run test:ui     # UI mode
 deno task test
 ```
 
+## Decision Ledger Dogfooding
+
+Praxis dogfoods its Decision Ledger. If your change adds or modifies any rule or constraint:
+
+1. **Add/Update Contract** via `defineContract()` and attach it to `meta.contract`.
+2. **Add Tests** that cover every Given/When/Then example and invariant.
+3. **Update Behavior Docs** if canonical behavior changes.
+4. **Run dogfood checks**:
+
+```bash
+npm run scan:rules
+npm run build
+npm run validate:contracts
+```
+
+See `docs/decision-ledger/DOGFOODING.md` for full guidance.
+
 ## Pull Request Process
 
 1. Update the README.md with details of changes to the interface, if applicable.

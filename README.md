@@ -315,6 +315,13 @@ See [src/decision-ledger/README.md](./src/decision-ledger/README.md) for complet
 - [Decision Ledger Guide](./src/decision-ledger/README.md)
 - [Examples](./examples/)
 
+## Decision Ledger
+
+Praxis dogfoods its Decision Ledger to keep rule/constraint behavior explicit and enforceable.
+
+- [Behavior Ledger](./docs/decision-ledger/BEHAVIOR_LEDGER.md)
+- [Dogfooding Guide](./docs/decision-ledger/DOGFOODING.md)
+
 ## Contributing
 PRs and discussions welcome. Please see [CONTRIBUTING.md](./CONTRIBUTING.md) and [SECURITY.md](./SECURITY.md).
 console.log(result.state.facts); // [{ tag: "UserLoggedIn", payload: { userId: "alice" } }]
