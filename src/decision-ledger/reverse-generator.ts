@@ -279,15 +279,22 @@ async function generateWithHeuristics(
   });
 
   // Calculate confidence based on what we found
+  // Use a normalized approach to avoid exceeding cap
   let confidence = 0.5; // Base confidence for heuristic
-  if (sourceFile) confidence += 0.1;
-  if (testFiles.length > 0) confidence += 0.2;
-  if (specFiles.length > 0) confidence += 0.1;
-  if (examples.length > 1) confidence += 0.1;
+  const bonuses = [];
+  
+  if (sourceFile) bonuses.push(0.1);
+  if (testFiles.length > 0) bonuses.push(0.2);
+  if (specFiles.length > 0) bonuses.push(0.1);
+  if (examples.length > 1) bonuses.push(0.1);
+  
+  // Sum bonuses but cap total at 0.4 (to reach 0.9 with 0.5 base)
+  const totalBonus = Math.min(bonuses.reduce((sum, b) => sum + b, 0), 0.4);
+  confidence = confidence + totalBonus;
 
   return {
     contract,
-    confidence: Math.min(confidence, 0.9), // Cap at 0.9 for heuristic
+    confidence,
     method: 'heuristic',
     warnings,
   };

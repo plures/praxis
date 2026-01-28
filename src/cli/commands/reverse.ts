@@ -72,6 +72,13 @@ export async function reverseCommand(options: ReverseOptions): Promise<void> {
   console.log(`   Constraints found: ${scanResult.constraints.length}`);
   console.log(`   Test files: ${scanResult.testFiles.size} mapped`);
   console.log(`   Spec files: ${scanResult.specFiles.size} mapped`);
+  if (scanResult.warnings.length > 0) {
+    console.log(`   ⚠️  Warnings: ${scanResult.warnings.length}`);
+    scanResult.warnings.slice(0, 5).forEach(w => console.log(`      - ${w}`));
+    if (scanResult.warnings.length > 5) {
+      console.log(`      ... and ${scanResult.warnings.length - 5} more`);
+    }
+  }
   console.log('');
 
   // Register discovered rules and constraints
@@ -122,17 +129,19 @@ export async function reverseCommand(options: ReverseOptions): Promise<void> {
         output: process.stdout,
       });
 
-      const answer = await new Promise<string>((resolve) => {
-        rl.question(`   Generate contract for ${descriptor.id}? (y/n) `, resolve);
-      });
+      try {
+        const answer = await new Promise<string>((resolve) => {
+          rl.question(`   Generate contract for ${descriptor.id}? (y/n) `, resolve);
+        });
 
-      rl.close();
-
-      if (answer.toLowerCase() !== 'y') {
-        console.log('   ⏭️  Skipped');
-        console.log('');
-        skipped++;
-        continue;
+        if (answer.toLowerCase() !== 'y') {
+          console.log('   ⏭️  Skipped');
+          console.log('');
+          skipped++;
+          continue;
+        }
+      } finally {
+        rl.close();
       }
     }
 
@@ -218,10 +227,13 @@ export async function reverseCommand(options: ReverseOptions): Promise<void> {
   console.log('');
 
   // Show statistics
+  const successfulResults = results.filter((r) => r.success);
   const avgConfidence =
-    results.filter((r) => r.success).reduce((sum, r) => sum + r.confidence, 0) /
-    Math.max(results.filter((r) => r.success).length, 1);
-  console.log(`Average confidence: ${avgConfidence.toFixed(2)}`);
+    successfulResults.length > 0
+      ? successfulResults.reduce((sum, r) => sum + r.confidence, 0) / successfulResults.length
+      : 0;
+  
+  console.log(`Average confidence: ${avgConfidence > 0 ? avgConfidence.toFixed(2) : 'N/A'}`);
   
   const methodCounts = results.reduce((acc, r) => {
     acc[r.method] = (acc[r.method] || 0) + 1;
@@ -254,10 +266,14 @@ async function writeContractToFile(
 ): Promise<void> {
   const fs = await import('node:fs/promises');
   const path = await import('node:path');
+  const crypto = await import('node:crypto');
 
   await fs.mkdir(outputDir, { recursive: true });
 
-  const fileName = `${contract.ruleId.replace(/[^a-zA-Z0-9_-]/g, '_')}.${format === 'yaml' ? 'yaml' : 'json'}`;
+  // Use hash to ensure unique filenames while keeping them readable
+  const hash = crypto.createHash('md5').update(contract.ruleId).digest('hex').slice(0, 6);
+  const sanitized = contract.ruleId.replace(/[^a-zA-Z0-9_-]/g, '-');
+  const fileName = `${sanitized}-${hash}.${format === 'yaml' ? 'yaml' : 'json'}`;
   const filePath = path.join(outputDir, fileName);
 
   let content: string;
@@ -266,6 +282,7 @@ async function writeContractToFile(
     const yaml = await import('js-yaml');
     content = yaml.dump(contract);
   } else {
+    // Default to JSON for both 'json' and 'console' formats
     content = JSON.stringify(contract, null, 2);
   }
 

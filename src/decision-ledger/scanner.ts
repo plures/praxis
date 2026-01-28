@@ -40,6 +40,8 @@ export interface ScanResult {
   testFiles: Map<string, string[]>;
   /** Mapping of rule IDs to spec file paths */
   specFiles: Map<string, string[]>;
+  /** Warnings encountered during scanning */
+  warnings: string[];
   /** Total files scanned */
   filesScanned: number;
   /** Scan duration in milliseconds */
@@ -74,26 +76,45 @@ export async function scanRepository(
   const startTime = Date.now();
   const { rootDir, scanTests = true, scanSpecs = true, maxDepth = 10 } = options;
 
+  // Validate and normalize root directory
+  const path = await import('node:path');
+  const normalizedRoot = path.resolve(rootDir);
+  
+  // Check if directory exists
+  try {
+    const stats = await fs.stat(normalizedRoot);
+    if (!stats.isDirectory()) {
+      throw new Error(`Path is not a directory: ${normalizedRoot}`);
+    }
+  } catch (error) {
+    throw new Error(`Invalid root directory: ${normalizedRoot} - ${error instanceof Error ? error.message : String(error)}`);
+  }
+
   const rules: RuleDescriptor[] = [];
   const constraints: ConstraintDescriptor[] = [];
   const testFiles = new Map<string, string[]>();
   const specFiles = new Map<string, string[]>();
+  const scanWarnings: string[] = [];
   let filesScanned = 0;
 
   // Scan for implementation files
-  const implFiles = await findFiles(rootDir, {
-    include: options.include || ['**/*.ts', '**/*.js'],
-    exclude: options.exclude || [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/*.test.ts',
-      '**/*.test.js',
-      '**/*.spec.ts',
-      '**/*.spec.js',
-    ],
-    maxDepth,
-  });
+  const implFiles = await findFiles(
+    normalizedRoot,
+    {
+      include: options.include || ['**/*.ts', '**/*.js'],
+      exclude: options.exclude || [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/build/**',
+        '**/*.test.ts',
+        '**/*.test.js',
+        '**/*.spec.ts',
+        '**/*.spec.js',
+      ],
+      maxDepth,
+    },
+    scanWarnings
+  );
 
   for (const file of implFiles) {
     filesScanned++;
@@ -109,11 +130,15 @@ export async function scanRepository(
 
   // Scan for test files if requested
   if (scanTests) {
-    const testFileList = await findFiles(rootDir, {
-      include: ['**/*.test.ts', '**/*.test.js', '**/*.spec.ts', '**/*.spec.js'],
-      exclude: ['**/node_modules/**', '**/dist/**', '**/build/**'],
-      maxDepth,
-    });
+    const testFileList = await findFiles(
+      normalizedRoot,
+      {
+        include: ['**/*.test.ts', '**/*.test.js', '**/*.spec.ts', '**/*.spec.js'],
+        exclude: ['**/node_modules/**', '**/dist/**', '**/build/**'],
+        maxDepth,
+      },
+      scanWarnings
+    );
 
     for (const testFile of testFileList) {
       filesScanned++;
@@ -131,11 +156,15 @@ export async function scanRepository(
 
   // Scan for spec files if requested
   if (scanSpecs) {
-    const specFileList = await findFiles(rootDir, {
-      include: ['**/*.tla', '**/*.md', '**/spec/**/*.ts'],
-      exclude: ['**/node_modules/**', '**/dist/**', '**/build/**'],
-      maxDepth,
-    });
+    const specFileList = await findFiles(
+      normalizedRoot,
+      {
+        include: ['**/*.tla', '**/*.md', '**/spec/**/*.ts'],
+        exclude: ['**/node_modules/**', '**/dist/**', '**/build/**'],
+        maxDepth,
+      },
+      scanWarnings
+    );
 
     for (const specFile of specFileList) {
       filesScanned++;
@@ -158,6 +187,7 @@ export async function scanRepository(
     constraints,
     testFiles,
     specFiles,
+    warnings: scanWarnings,
     filesScanned,
     duration,
   };
@@ -290,7 +320,8 @@ async function findFiles(
     include: string[];
     exclude: string[];
     maxDepth: number;
-  }
+  },
+  warnings: string[]
 ): Promise<string[]> {
   const files: string[] = [];
   
@@ -321,7 +352,15 @@ async function findFiles(
         }
       }
     } catch (error) {
-      // Ignore permission errors and continue
+      // Log permission errors but continue scanning
+      if (error instanceof Error && 'code' in error) {
+        const nodeError = error as NodeJS.ErrnoException;
+        if (nodeError.code === 'EACCES' || nodeError.code === 'EPERM') {
+          warnings.push(`Permission denied: ${dir}`);
+        } else {
+          warnings.push(`Error scanning ${dir}: ${error.message}`);
+        }
+      }
     }
   }
 
