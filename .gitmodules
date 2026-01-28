@@ -1,0 +1,4 @@
+[submodule ".github/behavior-ledger-github-cicd"]
+	path = .github/behavior-ledger-github-cicd
+	url = https://github.com/plures/behavior-ledger-github-cicd.git
+	branch = main
