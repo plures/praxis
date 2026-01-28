@@ -33,6 +33,7 @@ export {
 
 export {
   type ValidateOptions,
+  type ArtifactIndex,
   validateContracts,
   formatValidationReport,
   formatValidationReportJSON,
