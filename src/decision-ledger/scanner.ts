@@ -194,6 +194,12 @@ export async function scanRepository(
 
 /**
  * Extract rules from a file's content.
+ * 
+ * NOTE: This uses a simple regex-based approach with known limitations:
+ * - Will not correctly parse defineRule calls with nested objects or functions
+ *   containing closing braces (e.g., `impl: (x) => { return []; }`)
+ * - For production use, consider upgrading to AST-based parsing using
+ *   @babel/parser or TypeScript compiler API for more robust code analysis
  */
 async function extractRulesFromFile(
   filePath: string,
@@ -202,6 +208,7 @@ async function extractRulesFromFile(
   const rules: RuleDescriptor[] = [];
   
   // Pattern to match defineRule calls
+  // LIMITATION: This simple pattern fails with nested braces
   const defineRulePattern = /defineRule\s*\(\s*\{([^}]+)\}\s*\)/g;
   let match;
 
@@ -233,6 +240,12 @@ async function extractRulesFromFile(
 
 /**
  * Extract constraints from a file's content.
+ * 
+ * NOTE: This uses a simple regex-based approach with known limitations:
+ * - Will not correctly parse defineConstraint calls with nested objects or functions
+ *   containing closing braces (e.g., `impl: (state) => { return true; }`)
+ * - For production use, consider upgrading to AST-based parsing using
+ *   @babel/parser or TypeScript compiler API for more robust code analysis
  */
 async function extractConstraintsFromFile(
   filePath: string,
@@ -241,6 +254,7 @@ async function extractConstraintsFromFile(
   const constraints: ConstraintDescriptor[] = [];
   
   // Pattern to match defineConstraint calls
+  // LIMITATION: This simple pattern fails with nested braces
   const defineConstraintPattern = /defineConstraint\s*\(\s*\{([^}]+)\}\s*\)/g;
   let match;
 

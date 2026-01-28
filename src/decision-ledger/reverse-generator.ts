@@ -320,8 +320,9 @@ async function extractExamplesFromTests(
 
   // Look for test descriptions that might indicate Given/When/Then
   // Improved pattern to handle escaped quotes and template literals
+  // Using simpler pattern for template literals to avoid expensive matching on large files
   const testPattern =
-    /(?:it|test)\s*\(\s*(?:'((?:\\'|[^'])*)'|"((?:\\"|[^"])*)"|`((?:\\`|[\s\S])*?)`)/g;
+    /(?:it|test)\s*\(\s*(?:'((?:\\'|[^'])*)'|"((?:\\"|[^"])*)"|`((?:\\`|[^`])*?)`)/g;
   let match;
 
   while ((match = testPattern.exec(content)) !== null) {
