@@ -35,10 +35,12 @@ jobs:
         run: npm test
       
       - name: Get version from tag
+        if: startsWith(github.ref, 'refs/tags/')
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
       
       - name: Generate changelog
+        if: startsWith(github.ref, 'refs/tags/')
         id: changelog
         run: |
           if [ -f CHANGELOG.md ]; then
