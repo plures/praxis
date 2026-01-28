@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*.*.*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g., v1.2.3)'
+        required: true
+        type: string
 
 jobs:
   release:
@@ -14,9 +19,23 @@ jobs:
       contents: write
       
     steps:
+      - name: Determine tag
+        id: determine_tag
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            # Triggered by tag push
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            # Triggered by workflow_dispatch
+            TAG="${{ inputs.tag }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Using tag: $TAG"
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
+          ref: ${{ steps.determine_tag.outputs.tag }}
           fetch-depth: 0
       
       - name: Setup Node.js
@@ -37,19 +56,12 @@ jobs:
       - name: Get version from tag
         id: get_version
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            # Triggered by tag push
-            VERSION="${GITHUB_REF#refs/tags/v}"
+          TAG="${{ steps.determine_tag.outputs.tag }}"
+          # Remove 'v' prefix if present
+          if [[ "$TAG" =~ ^v(.+)$ ]]; then
+            VERSION="${BASH_REMATCH[1]}"
           else
-            # Triggered by workflow_dispatch or other means
-            # Get the most recent tag
-            TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-            if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              VERSION="${TAG#v}"
-            else
-              echo "Error: Could not determine version from tag"
-              exit 1
-            fi
+            VERSION="$TAG"
           fi
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION"
