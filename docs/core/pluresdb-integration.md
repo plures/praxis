@@ -50,28 +50,28 @@ npm install @plures/praxis
 
 ### Configuration
 
-Configure PluresDB in your application:
+You can choose network-only (previous default) or the new local-first unified API (auto-detects WASM/Tauri/IPC/network).
+
+**Network (unchanged):**
 
 ```typescript
 import { createPluresDB } from '@plures/praxis';
+import { PluresNode } from '@plures/pluresdb';
 
-const db = createPluresDB({
-  // Database name (stored in IndexedDB)
-  name: 'my-app-db',
+const db = createPluresDB(new PluresNode({ autoStart: true }));
+```
 
-  // Schema version (increment to migrate)
-  version: 1,
+**Local-first (auto-detect):**
 
-  // Collections to create
-  collections: ['users', 'posts', 'comments'],
+```typescript
+import { createPraxisLocalFirst } from '@plures/praxis';
 
-  // Sync configuration (optional)
-  sync: {
-    enabled: true,
-    endpoint: 'https://your-sync-server.com',
-    interval: 5000, // ms
-  },
-});
+// Auto mode picks the best backend (WASM in browser, Tauri/IPC on desktop, network fallback)
+const db = await createPraxisLocalFirst({ mode: 'auto' });
+
+// Optional: override
+// const db = await createPraxisLocalFirst({ mode: 'wasm', dbName: 'my-app' });
+// const db = await createPraxisLocalFirst({ mode: 'ipc', channelName: 'my-channel' });
 ```
 
 ### From Schema

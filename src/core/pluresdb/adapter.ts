@@ -5,6 +5,8 @@
  * This module defines the core interface and an in-memory implementation.
  */
 
+import type { LocalFirstOptions, PluresDBLocalFirst } from '@plures/pluresdb/local-first';
+
 /**
  * Function to unsubscribe from a watch
  */
@@ -121,7 +123,10 @@ export function createInMemoryDB(): InMemoryPraxisDB {
  */
 export type PluresDBInstance = {
   get(key: string): Promise<any>;
-  put(key: string, value: any): Promise<void>;
+  put(key: string, value: any): Promise<any>;
+  delete?(key: string): Promise<void>;
+  list?(): Promise<any[]>;
+  close?(): Promise<void>;
 };
 
 /**
@@ -258,7 +263,7 @@ export class PluresDBPraxisAdapter implements PraxisDB {
  *
  * @example
  * ```typescript
- * import { PluresNode } from 'pluresdb';
+ * import { PluresNode } from '@plures/pluresdb';
  * import { createPluresDB } from '@plures/praxis';
  *
  * const pluresdb = new PluresNode({ autoStart: true });
@@ -279,4 +284,42 @@ export class PluresDBPraxisAdapter implements PraxisDB {
  */
 export function createPluresDB(config: PluresDBAdapterConfig | PluresDBInstance): PluresDBPraxisAdapter {
   return new PluresDBPraxisAdapter(config);
+}
+
+/**
+ * Options for creating a local-first PluresDB adapter using the unified API
+ */
+export interface PraxisLocalFirstOptions extends LocalFirstOptions {
+  /** Optional polling interval override for watch semantics (ms). Defaults to 1000ms. */
+  pollInterval?: number;
+}
+
+/**
+ * Create a PraxisDB adapter backed by PluresDB's unified local-first API.
+ *
+ * This will auto-detect the best backend (WASM/Tauri/IPC/network) unless a mode is provided.
+ * Uses dynamic import to avoid bundling the local-first module in environments that don't need it.
+ *
+ * @example
+ * ```typescript
+ * const db = await createPraxisLocalFirst({ mode: 'auto' });
+ * await db.set('/_praxis/facts/user/1', { id: '1', name: 'Alice' });
+ * ```
+ */
+export async function createPraxisLocalFirst(
+  options: PraxisLocalFirstOptions = {}
+): Promise<PluresDBPraxisAdapter> {
+  const { pollInterval, ...localOptions } = options;
+
+  const mod = await import('@plures/pluresdb/local-first');
+  const LocalFirstCtor =
+    (mod as { PluresDBLocalFirst?: new (opts?: LocalFirstOptions) => PluresDBLocalFirst }).PluresDBLocalFirst ??
+    (mod as { default?: new (opts?: LocalFirstOptions) => PluresDBLocalFirst }).default;
+
+  if (!LocalFirstCtor) {
+    throw new Error('Failed to load PluresDBLocalFirst from @plures/pluresdb/local-first');
+  }
+
+  const db = new LocalFirstCtor(localOptions as LocalFirstOptions);
+  return new PluresDBPraxisAdapter({ db, pollInterval });
 }

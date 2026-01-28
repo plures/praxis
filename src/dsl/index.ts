@@ -13,6 +13,7 @@ import type {
   RuleFn,
   ConstraintFn,
 } from '../core/rules.js';
+import type { Contract } from '../decision-ledger/types.js';
 
 /**
  * Strongly typed fact definition
@@ -84,6 +85,7 @@ export interface DefineRuleOptions<TContext = unknown> {
   id: string;
   description: string;
   impl: RuleFn<TContext>;
+  contract?: Contract;
   meta?: Record<string, unknown>;
 }
 
@@ -106,11 +108,15 @@ export interface DefineRuleOptions<TContext = unknown> {
 export function defineRule<TContext = unknown>(
   options: DefineRuleOptions<TContext>
 ): RuleDescriptor<TContext> {
+  const contract = options.contract ?? (options.meta?.contract as Contract | undefined);
+  const meta = contract ? { ...(options.meta ?? {}), contract } : options.meta;
+
   return {
     id: options.id,
     description: options.description,
     impl: options.impl,
-    meta: options.meta,
+    contract,
+    meta,
   };
 }
 
@@ -121,6 +127,7 @@ export interface DefineConstraintOptions<TContext = unknown> {
   id: string;
   description: string;
   impl: ConstraintFn<TContext>;
+  contract?: Contract;
   meta?: Record<string, unknown>;
 }
 
@@ -140,11 +147,15 @@ export interface DefineConstraintOptions<TContext = unknown> {
 export function defineConstraint<TContext = unknown>(
   options: DefineConstraintOptions<TContext>
 ): ConstraintDescriptor<TContext> {
+  const contract = options.contract ?? (options.meta?.contract as Contract | undefined);
+  const meta = contract ? { ...(options.meta ?? {}), contract } : options.meta;
+
   return {
     id: options.id,
     description: options.description,
     impl: options.impl,
-    meta: options.meta,
+    contract,
+    meta,
   };
 }
 

@@ -261,6 +261,10 @@ program
   .option('--output <format>', 'Output format (console, json, sarif)', 'console')
   .option('--strict', 'Exit with error if contracts are missing', false)
   .option('--registry <path>', 'Path to registry module')
+  .option('--tests', 'Check for tests for each rule/constraint', true)
+  .option('--spec', 'Check for specs for each rule/constraint', true)
+  .option('--emit-facts', 'Emit ContractMissing facts JSON payload', false)
+  .option('--gap-output <file>', 'Write contract-gap payload to file')
   .action(async (options) => {
     try {
       const { validateCommand } = await import('./commands/validate.js');

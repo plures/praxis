@@ -181,6 +181,24 @@ export function getContract(meta?: Record<string, unknown>): Contract | undefine
 }
 
 /**
+ * Extract contract from a rule or constraint descriptor.
+ */
+export function getContractFromDescriptor(descriptor?: {
+  contract?: Contract;
+  meta?: Record<string, unknown>;
+}): Contract | undefined {
+  if (!descriptor) {
+    return undefined;
+  }
+
+  if (descriptor.contract && isContract(descriptor.contract)) {
+    return descriptor.contract;
+  }
+
+  return getContract(descriptor.meta);
+}
+
+/**
  * Severity levels for contract gaps.
  */
 export type Severity = 'warning' | 'error' | 'info';

@@ -12,7 +12,7 @@ import type {
   MissingArtifact,
   Severity,
 } from './types.js';
-import { getContract } from './types.js';
+import { getContractFromDescriptor } from './types.js';
 
 /**
  * Options for contract validation.
@@ -26,6 +26,20 @@ export interface ValidateOptions {
   incompleteSeverity?: Severity;
   /** Required contract fields */
   requiredFields?: Array<'behavior' | 'examples' | 'invariants'>;
+  /** Optional index of artifacts for test/spec presence */
+  artifactIndex?: ArtifactIndex;
+}
+
+/**
+ * Artifact index for contract compliance checks.
+ */
+export interface ArtifactIndex {
+  /** Rule IDs that have associated tests */
+  tests?: Set<string>;
+  /** Rule IDs that have associated specs (e.g., TLA+) */
+  spec?: Set<string>;
+  /** Optional mapping of rule IDs to contract versions (for drift detection) */
+  contractVersions?: Map<string, string>;
 }
 
 /**
@@ -42,6 +56,7 @@ export function validateContracts<TContext = unknown>(
   const {
     incompleteSeverity = 'warning',
     requiredFields = ['behavior', 'examples'],
+    artifactIndex,
   } = options;
 
   const complete: Array<{ ruleId: string; contract: Contract }> = [];
@@ -50,14 +65,22 @@ export function validateContracts<TContext = unknown>(
 
   // Validate rules
   for (const rule of registry.getAllRules()) {
-    const contract = getContract(rule.meta);
+    const contract = getContractFromDescriptor(rule);
 
     if (!contract) {
       missing.push(rule.id);
+      if (options.missingSeverity) {
+        incomplete.push({
+          ruleId: rule.id,
+          missing: ['contract'],
+          severity: options.missingSeverity,
+          message: `Rule '${rule.id}' has no contract`,
+        });
+      }
       continue;
     }
 
-    const gaps = validateContract(contract, requiredFields);
+    const gaps = validateContract(contract, requiredFields, artifactIndex);
 
     if (gaps.length > 0) {
       incomplete.push({
@@ -73,14 +96,22 @@ export function validateContracts<TContext = unknown>(
 
   // Validate constraints
   for (const constraint of registry.getAllConstraints()) {
-    const contract = getContract(constraint.meta);
+    const contract = getContractFromDescriptor(constraint);
 
     if (!contract) {
       missing.push(constraint.id);
+      if (options.missingSeverity) {
+        incomplete.push({
+          ruleId: constraint.id,
+          missing: ['contract'],
+          severity: options.missingSeverity,
+          message: `Constraint '${constraint.id}' has no contract`,
+        });
+      }
       continue;
     }
 
-    const gaps = validateContract(contract, requiredFields);
+    const gaps = validateContract(contract, requiredFields, artifactIndex);
 
     if (gaps.length > 0) {
       incomplete.push({
@@ -114,7 +145,8 @@ export function validateContracts<TContext = unknown>(
  */
 function validateContract(
   contract: Contract,
-  requiredFields: Array<'behavior' | 'examples' | 'invariants'>
+  requiredFields: Array<'behavior' | 'examples' | 'invariants'>,
+  artifactIndex?: ArtifactIndex
 ): MissingArtifact[] {
   const missing: MissingArtifact[] = [];
 
@@ -128,6 +160,14 @@ function validateContract(
 
   if (requiredFields.includes('invariants') && (!contract.invariants || contract.invariants.length === 0)) {
     missing.push('invariants');
+  }
+
+  if (artifactIndex?.tests && !artifactIndex.tests.has(contract.ruleId)) {
+    missing.push('tests');
+  }
+
+  if (artifactIndex?.spec && !artifactIndex.spec.has(contract.ruleId)) {
+    missing.push('spec');
   }
 
   return missing;

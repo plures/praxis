@@ -10,13 +10,24 @@ import {
   formatValidationReport,
   formatValidationReportJSON,
   formatValidationReportSARIF,
-  type ContractGap,
+  writeLogicLedgerEntry,
+  type MissingArtifact,
+  type ArtifactIndex,
 } from '../../decision-ledger/index.js';
+import { ContractMissing } from '../../decision-ledger/index.js';
+import type { PraxisEvent, PraxisFact } from '../../core/protocol.js';
+import type { ContractGap } from '../../decision-ledger/types.js';
 
 interface ValidateOptions {
   output?: 'console' | 'json' | 'sarif';
   strict?: boolean;
   registry?: string;
+  tests?: boolean;
+  spec?: boolean;
+  emitFacts?: boolean;
+  gapOutput?: string;
+  ledger?: string;
+  author?: string;
 }
 
 /**
@@ -31,12 +42,32 @@ export async function validateCommand(options: ValidateOptions): Promise<void> {
   // In a real implementation, this would load the registry from the project
   // For now, we'll create a demo registry to show how it works
   const registry = await loadRegistry(options.registry);
+  const artifactIndex = await buildArtifactIndex(registry, {
+    includeTests: options.tests ?? true,
+    includeSpec: options.spec ?? true,
+  });
 
   // Validate contracts
   const report = validateContracts(registry, {
     strict,
-    requiredFields: ['behavior', 'examples'],
+    requiredFields: ['behavior', 'examples', 'invariants'],
+    missingSeverity: strict ? 'error' : 'warning',
+    artifactIndex,
   });
+
+  if (options.emitFacts) {
+    const facts = gapsToFacts(report.incomplete);
+    const events = gapsToEvents(report.incomplete);
+    emitGapArtifacts({ facts, events, gapOutput: options.gapOutput });
+  }
+
+  if (options.ledger) {
+    await writeLedgerSnapshots(registry, {
+      rootDir: options.ledger,
+      author: options.author ?? 'system',
+      artifactIndex,
+    });
+  }
 
   // Format and output the report
   switch (outputFormat) {
@@ -98,7 +129,12 @@ async function loadRegistry(registryPath?: string): Promise<PraxisRegistry> {
       // Dynamic import would happen here
       // const module = await import(registryPath);
       // return module.registry || module.default;
-      console.warn(`Note: Loading from custom registry path not yet implemented`);
+      const module = await import(resolveRegistryPath(registryPath));
+      const candidate = module.registry ?? module.default ?? module.createRegistry?.();
+      if (candidate && candidate instanceof PraxisRegistry) {
+        return candidate;
+      }
+      throw new Error('Registry module did not export a PraxisRegistry instance');
     } catch (error) {
       console.warn(`Warning: Could not load registry from ${registryPath}:`, error);
     }
@@ -107,4 +143,110 @@ async function loadRegistry(registryPath?: string): Promise<PraxisRegistry> {
   // Return empty registry for now
   // In practice, this would scan the project for rules/constraints
   return registry;
+}
+
+function resolveRegistryPath(registryPath: string): string {
+  if (registryPath.startsWith('.') || registryPath.startsWith('/')) {
+    return new URL(registryPath, `file://${process.cwd()}/`).href;
+  }
+
+  return registryPath;
+}
+
+async function buildArtifactIndex(
+  registry: PraxisRegistry,
+  options: { includeTests: boolean; includeSpec: boolean }
+): Promise<ArtifactIndex> {
+  const index: ArtifactIndex = {};
+  const ruleIds = new Set(registry.getRuleIds().concat(registry.getConstraintIds()));
+
+  if (options.includeTests) {
+    index.tests = new Set();
+    for (const id of ruleIds) {
+      if (await hasArtifactFile('tests', id)) {
+        index.tests.add(id);
+      }
+    }
+  }
+
+  if (options.includeSpec) {
+    index.spec = new Set();
+    for (const id of ruleIds) {
+      if (await hasArtifactFile('spec', id)) {
+        index.spec.add(id);
+      }
+    }
+  }
+
+  return index;
+}
+
+async function writeLedgerSnapshots(
+  registry: PraxisRegistry,
+  options: { rootDir: string; author: string; artifactIndex?: ArtifactIndex }
+): Promise<void> {
+  const { rootDir, author, artifactIndex } = options;
+  const allDescriptors = registry.getAllRules().concat(registry.getAllConstraints());
+
+  for (const descriptor of allDescriptors) {
+    if (!descriptor.contract && !descriptor.meta?.contract) {
+      continue;
+    }
+    const contract = descriptor.contract ?? (descriptor.meta?.contract as any);
+    await writeLogicLedgerEntry(contract, {
+      rootDir,
+      author,
+      testsPresent: artifactIndex?.tests?.has(contract.ruleId) ?? false,
+      specPresent: artifactIndex?.spec?.has(contract.ruleId) ?? false,
+    });
+  }
+}
+
+async function hasArtifactFile(type: 'tests' | 'spec', ruleId: string): Promise<boolean> {
+  const fs = await import('node:fs/promises');
+  const path = await import('node:path');
+  const candidateDirs = type === 'tests' ? ['src/__tests__', 'tests', 'test'] : ['spec', 'specs'];
+  const sanitized = ruleId.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+  for (const dir of candidateDirs) {
+    const fullDir = path.resolve(process.cwd(), dir);
+    try {
+      const entries = await fs.readdir(fullDir);
+      if (entries.some((file) => file.includes(sanitized))) {
+        return true;
+      }
+    } catch {
+      // ignore missing directories
+    }
+  }
+
+  return false;
+}
+
+function gapsToFacts(gaps: ContractGap[]): PraxisFact[] {
+  return gaps.map((gap) =>
+    ContractMissing.create({
+      ruleId: gap.ruleId,
+      missing: gap.missing,
+      severity: gap.severity,
+      message: gap.message,
+    })
+  );
+}
+
+function gapsToEvents(_gaps: ContractGap[]): PraxisEvent[] {
+  return [];
+}
+
+function emitGapArtifacts(payload: {
+  facts: PraxisFact[];
+  events: PraxisEvent[];
+  gapOutput?: string;
+}): void {
+  if (payload.gapOutput) {
+    const fs = require('node:fs');
+    fs.writeFileSync(payload.gapOutput, JSON.stringify(payload, null, 2));
+  } else {
+    console.log(JSON.stringify(payload, null, 2));
+  }
 }

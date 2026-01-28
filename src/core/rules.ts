@@ -7,6 +7,15 @@
  */
 
 import type { PraxisEvent, PraxisFact, PraxisState } from './protocol.js';
+import type { Contract, ContractGap, MissingArtifact, Severity } from '../decision-ledger/types.js';
+
+declare const process:
+  | {
+      env?: {
+        NODE_ENV?: string;
+      };
+    }
+  | undefined;
 
 /**
  * Unique identifier for a rule
@@ -52,6 +61,8 @@ export interface RuleDescriptor<TContext = unknown> {
   description: string;
   /** Implementation function */
   impl: RuleFn<TContext>;
+  /** Optional contract for rule behavior */
+  contract?: Contract;
   /** Optional metadata */
   meta?: Record<string, unknown>;
 }
@@ -66,6 +77,8 @@ export interface ConstraintDescriptor<TContext = unknown> {
   description: string;
   /** Implementation function */
   impl: ConstraintFn<TContext>;
+  /** Optional contract for constraint behavior */
+  contract?: Contract;
   /** Optional metadata */
   meta?: Record<string, unknown>;
 }
@@ -84,12 +97,45 @@ export interface PraxisModule<TContext = unknown> {
 }
 
 /**
+ * Compliance validation options for rule/constraint registration.
+ */
+export interface RegistryComplianceOptions {
+  /** Enable contract checks during registration (default: true in dev) */
+  enabled?: boolean;
+  /** Required contract fields to be present */
+  requiredFields?: Array<'behavior' | 'examples' | 'invariants'>;
+  /** Severity to use for missing contracts */
+  missingSeverity?: Severity;
+  /** Callback for contract gaps (e.g., to emit facts) */
+  onGap?: (gap: ContractGap) => void;
+}
+
+/**
+ * PraxisRegistry configuration options.
+ */
+export interface PraxisRegistryOptions {
+  compliance?: RegistryComplianceOptions;
+}
+
+/**
  * Registry for rules and constraints.
  * Maps IDs to their descriptors.
  */
 export class PraxisRegistry<TContext = unknown> {
   private rules = new Map<RuleId, RuleDescriptor<TContext>>();
   private constraints = new Map<ConstraintId, ConstraintDescriptor<TContext>>();
+  private readonly compliance: RegistryComplianceOptions;
+  private contractGaps: ContractGap[] = [];
+
+  constructor(options: PraxisRegistryOptions = {}) {
+    const defaultEnabled = typeof process !== 'undefined' ? process.env?.NODE_ENV !== 'production' : false;
+    this.compliance = {
+      enabled: defaultEnabled,
+      requiredFields: ['behavior', 'examples', 'invariants'],
+      missingSeverity: 'warning',
+      ...options.compliance,
+    };
+  }
 
   /**
    * Register a rule
@@ -99,6 +145,7 @@ export class PraxisRegistry<TContext = unknown> {
       throw new Error(`Rule with id "${descriptor.id}" already registered`);
     }
     this.rules.set(descriptor.id, descriptor);
+    this.trackContractCompliance(descriptor.id, descriptor);
   }
 
   /**
@@ -109,6 +156,7 @@ export class PraxisRegistry<TContext = unknown> {
       throw new Error(`Constraint with id "${descriptor.id}" already registered`);
     }
     this.constraints.set(descriptor.id, descriptor);
+    this.trackContractCompliance(descriptor.id, descriptor);
   }
 
   /**
@@ -163,5 +211,90 @@ export class PraxisRegistry<TContext = unknown> {
    */
   getAllConstraints(): ConstraintDescriptor<TContext>[] {
     return Array.from(this.constraints.values());
+  }
+
+  /**
+  * Get collected contract gaps from registration-time validation.
+  */
+  getContractGaps(): ContractGap[] {
+    return [...this.contractGaps];
+  }
+
+  /**
+  * Clear collected contract gaps.
+  */
+  clearContractGaps(): void {
+    this.contractGaps = [];
+  }
+
+  private trackContractCompliance(
+    id: string,
+    descriptor: RuleDescriptor<TContext> | ConstraintDescriptor<TContext>
+  ): void {
+    if (!this.compliance.enabled) {
+      return;
+    }
+
+    const gaps = this.validateDescriptorContract(id, descriptor);
+    for (const gap of gaps) {
+      this.contractGaps.push(gap);
+      if (this.compliance.onGap) {
+        this.compliance.onGap(gap);
+      } else {
+        const label = gap.severity === 'error' ? 'ERROR' : gap.severity === 'warning' ? 'WARN' : 'INFO';
+        console.warn(`[Praxis][${label}] Contract gap for "${gap.ruleId}": missing ${gap.missing.join(', ')}`);
+      }
+    }
+  }
+
+  private validateDescriptorContract(
+    id: string,
+    descriptor: RuleDescriptor<TContext> | ConstraintDescriptor<TContext>
+  ): ContractGap[] {
+    const requiredFields = this.compliance.requiredFields ?? ['behavior', 'examples', 'invariants'];
+    const missingSeverity = this.compliance.missingSeverity ?? 'warning';
+    const contract =
+      descriptor.contract ??
+      (descriptor.meta?.contract && typeof descriptor.meta.contract === 'object'
+        ? (descriptor.meta.contract as Contract)
+        : undefined);
+
+    if (!contract) {
+      return [
+        {
+          ruleId: id,
+          missing: ['contract'],
+          severity: missingSeverity,
+          message: `Contract missing for "${id}"`,
+        },
+      ];
+    }
+
+    const missing: MissingArtifact[] = [];
+
+    if (requiredFields.includes('behavior') && (!contract.behavior || contract.behavior.trim() === '')) {
+      missing.push('behavior');
+    }
+
+    if (requiredFields.includes('examples') && (!contract.examples || contract.examples.length === 0)) {
+      missing.push('examples');
+    }
+
+    if (requiredFields.includes('invariants') && (!contract.invariants || contract.invariants.length === 0)) {
+      missing.push('invariants');
+    }
+
+    if (missing.length === 0) {
+      return [];
+    }
+
+    return [
+      {
+        ruleId: id,
+        missing,
+        severity: 'warning',
+        message: `Contract for "${id}" is incomplete: missing ${missing.join(', ')}`,
+      },
+    ];
   }
 }

@@ -16,6 +16,7 @@ export {
   type ValidationReport,
   defineContract,
   getContract,
+  getContractFromDescriptor,
   isContract,
 } from './types.js';
 
@@ -27,6 +28,7 @@ export {
   ContractGapAcknowledged,
   ContractAdded,
   ContractUpdated,
+  ContractGapEmitted,
 } from './facts-events.js';
 
 export {
@@ -43,3 +45,10 @@ export {
   BehaviorLedger,
   createBehaviorLedger,
 } from './ledger.js';
+
+export {
+  type LogicLedgerEntry,
+  type LogicLedgerWriteOptions,
+  type LogicLedgerIndex,
+  writeLogicLedgerEntry,
+} from './logic-ledger.js';

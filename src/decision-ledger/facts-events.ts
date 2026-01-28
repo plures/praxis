@@ -105,3 +105,17 @@ export const ContractUpdated = defineEvent<
     newVersion: string;
   }
 >('CONTRACT_UPDATED');
+
+/**
+ * Event: CONTRACT_GAP_EMITTED
+ *
+ * Emitted when contract gaps are surfaced during validation.
+ */
+export const ContractGapEmitted = defineEvent<
+  'CONTRACT_GAP_EMITTED',
+  {
+    ruleId: string;
+    missing: MissingArtifact[];
+    severity: Severity;
+  }
+>('CONTRACT_GAP_EMITTED');
