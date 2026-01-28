@@ -275,4 +275,28 @@ program
     }
   });
 
+// Reverse command (Decision Ledger - Reverse Engineering)
+program
+  .command('reverse')
+  .description('Reverse engineer contracts from existing codebase')
+  .option('-d, --dir <path>', 'Root directory to scan', process.cwd())
+  .option('--ai <provider>', 'AI provider (none, github-copilot, openai, auto)', 'none')
+  .option('-o, --output <dir>', 'Output directory for contracts', './contracts')
+  .option('--ledger', 'Write to logic ledger', false)
+  .option('--dry-run', 'Dry run mode (no files written)', false)
+  .option('-i, --interactive', 'Interactive mode (prompt for each)', false)
+  .option('--confidence <threshold>', 'Confidence threshold (0.0-1.0)', '0.7')
+  .option('--limit <n>', 'Max number of rules to process')
+  .option('--author <name>', 'Author name for ledger entries', 'reverse-engineer')
+  .option('--format <format>', 'Output format (json, yaml)', 'json')
+  .action(async (options) => {
+    try {
+      const { reverseCommand } = await import('./commands/reverse.js');
+      await reverseCommand(options);
+    } catch (error) {
+      console.error('Error reverse engineering contracts:', error);
+      process.exit(1);
+    }
+  });
+
 program.parse();

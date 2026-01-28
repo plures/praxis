@@ -33,6 +33,7 @@ export {
 
 export {
   type ValidateOptions,
+  type ArtifactIndex,
   validateContracts,
   formatValidationReport,
   formatValidationReportJSON,
@@ -52,3 +53,18 @@ export {
   type LogicLedgerIndex,
   writeLogicLedgerEntry,
 } from './logic-ledger.js';
+
+export {
+  type ScanOptions,
+  type ScanResult,
+  type DiscoveredArtifact,
+  scanRepository,
+  inferContractFromFile,
+} from './scanner.js';
+
+export {
+  type AIProvider,
+  type ReverseGenerationOptions,
+  type GenerationResult,
+  generateContractFromRule,
+} from './reverse-generator.js';
