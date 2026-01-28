@@ -48,7 +48,7 @@ describe('CLI Validate Command', () => {
   });
 
   it('should output validation report as JSON', async () => {
-    const { stdout, stderr } = await execAsync(
+    const { stdout } = await execAsync(
       `node ${cliPath} validate --registry ${sampleRegistryPath} --output json 2>/dev/null`
     );
 
