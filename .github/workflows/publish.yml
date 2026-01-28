@@ -75,22 +75,15 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       
-      - name: Restore dependencies
-        run: dotnet restore
-      
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-      
-      - name: Run tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
-      
       - name: Get version from tag
         id: get_version
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/v}
+          # Try to get the most recent tag
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            VERSION=${TAG#v}
             echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-            echo "Detected version: $VERSION"
+            echo "Detected version from tag: $VERSION"
           else
             VERSION=$(grep '<Version>' Praxis/Praxis.csproj | sed -E 's/.*<Version>([^<]+)<\/Version>.*/\1/')
             echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
@@ -101,12 +94,20 @@ jobs:
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
           sed -i "s/<Version>[^<]*<\/Version>/<Version>$VERSION<\/Version>/" Praxis/Praxis.csproj
+          echo "Updated version in csproj to: $VERSION"
           cat Praxis/Praxis.csproj | grep Version
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+      
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
       
       - name: Pack NuGet package
         run: dotnet pack Praxis/Praxis.csproj --configuration Release --no-build --output ./nupkg
       
       - name: Publish to NuGet
         run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

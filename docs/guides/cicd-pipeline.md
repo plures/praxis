@@ -67,13 +67,17 @@ Publish to Repositories (Parallel)
 - Publishes to JavaScript Registry (JSR) using Deno
 - Publishes as `@plures/praxis`
 - Uses OIDC authentication
+- Note: Uses `--allow-dirty` flag to allow publishing from clean checkout state
 
 #### NuGet Publishing
+- Extracts version from the most recent git tag
+- Updates version in `.csproj` file before building
 - Builds the C# package
 - Runs C# tests
-- Updates version in `.csproj` file
 - Publishes to NuGet.org as `Praxis`
 - Requires `NUGET_API_KEY` secret
+
+**Note**: When the publish workflow is called from the release workflow, it extracts version information from the git tags instead of relying on GitHub context, ensuring consistent versioning across all published packages.
 
 ## Additional Workflows
 
@@ -103,10 +107,11 @@ The following secrets must be configured in the GitHub repository:
 
 ## Manual Triggers
 
-All workflows support `workflow_dispatch`, allowing manual triggering when needed:
+The main pipeline workflows support `workflow_dispatch`, allowing manual triggering when needed:
 
 - **Release Workflow**: Manually create a release and publish for the current state
 - **Publish Workflow**: Re-publish to all repositories without creating a new release
+- **C# Build Check**: Manually validate C# code builds and tests (separate from publishing)
 
 ## Best Practices
 
