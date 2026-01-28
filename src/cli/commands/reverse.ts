@@ -59,7 +59,7 @@ export async function reverseCommand(options: ReverseOptions): Promise<void> {
   const registry = new PraxisRegistry();
 
   // Scan the repository
-  const scanResult = await scanRepository(registry, {
+  const scanResult = await scanRepository({
     rootDir,
     scanTests: true,
     scanSpecs: true,

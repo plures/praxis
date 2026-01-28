@@ -112,18 +112,29 @@ async function generateWithAI(
 ): Promise<GenerationResult> {
   const { aiProvider, openaiApiKey, githubToken } = options;
 
-  if (aiProvider === 'openai' || aiProvider === 'auto') {
+  if (aiProvider === 'openai') {
     if (!openaiApiKey) {
       throw new Error('OpenAI API key is required for OpenAI provider');
     }
     return await generateWithOpenAI(descriptor, openaiApiKey, options);
   }
 
-  if (aiProvider === 'github-copilot' || aiProvider === 'auto') {
+  if (aiProvider === 'github-copilot') {
     if (!githubToken) {
       throw new Error('GitHub token is required for GitHub Copilot provider');
     }
     return await generateWithGitHubCopilot(descriptor, githubToken, options);
+  }
+
+  if (aiProvider === 'auto') {
+    // Try GitHub Copilot first, then OpenAI
+    if (githubToken) {
+      return await generateWithGitHubCopilot(descriptor, githubToken, options);
+    }
+    if (openaiApiKey) {
+      return await generateWithOpenAI(descriptor, openaiApiKey, options);
+    }
+    throw new Error('Auto AI provider requires either GitHub token or OpenAI API key');
   }
 
   throw new Error(`Unsupported AI provider: ${aiProvider}`);
@@ -134,17 +145,17 @@ async function generateWithAI(
  */
 async function generateWithOpenAI(
   descriptor: RuleDescriptor | ConstraintDescriptor,
-  apiKey: string,
+  _apiKey: string,
   options: ReverseGenerationOptions
 ): Promise<GenerationResult> {
   // Build prompt for OpenAI
-  const prompt = buildPromptForContract(descriptor, options);
+  // const prompt = buildPromptForContract(descriptor, options);
 
   // In a real implementation, this would call the OpenAI API
   // For now, we'll return a placeholder indicating AI would be used
-  const warnings: string[] = [
-    'OpenAI integration is a placeholder - implement with actual API calls',
-  ];
+  // const warnings: string[] = [
+  //   'OpenAI integration is a placeholder - implement with actual API calls',
+  // ];
 
   // Fallback to heuristic for now
   return await generateWithHeuristics(descriptor, {
@@ -161,17 +172,17 @@ async function generateWithOpenAI(
  */
 async function generateWithGitHubCopilot(
   descriptor: RuleDescriptor | ConstraintDescriptor,
-  token: string,
+  _token: string,
   options: ReverseGenerationOptions
 ): Promise<GenerationResult> {
   // Build prompt for GitHub Copilot
-  const prompt = buildPromptForContract(descriptor, options);
+  // const prompt = buildPromptForContract(descriptor, options);
 
   // In a real implementation, this would call the GitHub Copilot API
   // For now, we'll return a placeholder indicating AI would be used
-  const warnings: string[] = [
-    'GitHub Copilot integration is a placeholder - implement with actual API calls',
-  ];
+  // const warnings: string[] = [
+  //   'GitHub Copilot integration is a placeholder - implement with actual API calls',
+  // ];
 
   // Fallback to heuristic for now
   return await generateWithHeuristics(descriptor, {
@@ -287,7 +298,7 @@ async function generateWithHeuristics(
  */
 async function extractExamplesFromTests(
   testFile: string,
-  ruleId: string
+  _ruleId: string
 ): Promise<Example[]> {
   const fs = await import('node:fs/promises');
   const content = await fs.readFile(testFile, 'utf-8');
@@ -359,8 +370,10 @@ function generateDefaultAssumptions(
 
 /**
  * Build a prompt for AI contract generation.
+ * Currently unused but kept for future AI integration.
+ * @internal
  */
-function buildPromptForContract(
+export function buildPromptForContract(
   descriptor: RuleDescriptor | ConstraintDescriptor,
   options: ReverseGenerationOptions
 ): string {

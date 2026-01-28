@@ -7,7 +7,6 @@
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { PraxisRegistry } from '../core/rules.js';
 import type { RuleDescriptor, ConstraintDescriptor } from '../core/rules.js';
 import type { Contract } from './types.js';
 
@@ -66,12 +65,10 @@ export interface DiscoveredArtifact {
 /**
  * Scan a repository for existing rules and constraints.
  *
- * @param registry The registry to populate with discovered rules
  * @param options Scan options
  * @returns Scan result
  */
 export async function scanRepository(
-  registry: PraxisRegistry,
   options: ScanOptions
 ): Promise<ScanResult> {
   const startTime = Date.now();
