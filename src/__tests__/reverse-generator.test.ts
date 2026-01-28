@@ -68,30 +68,33 @@ describe('Reverse Contract Generator', () => {
       expect(result.contract.assumptions!.length).toBe(0);
     });
 
-    it('should increase confidence when source file is provided', async () => {
+    it('should increase confidence when artifacts are provided', async () => {
       const rule: RuleDescriptor = {
         id: 'test.rule',
         description: 'Test rule',
         impl: () => [],
-        meta: {
-          sourceFile: '/path/to/rule.ts',
-        },
       };
 
-      // Without source file
-      const resultWithoutSource = await generateContractFromRule(rule, {
+      // Baseline: no artifacts
+      const resultBaseline = await generateContractFromRule(rule, {
         aiProvider: 'none',
       });
 
-      // With source file
-      const resultWithSource = await generateContractFromRule(rule, {
+      // With test files (should increase confidence)
+      const resultWithTests = await generateContractFromRule(rule, {
         aiProvider: 'none',
-        sourceFile: '/path/to/rule.ts',
+        testFiles: ['/path/to/test1.ts', '/path/to/test2.ts'],
       });
 
-      // Note: This test will fail if the source file doesn't exist,
-      // but it shows the intended behavior
-      expect(resultWithSource.confidence).toBeGreaterThanOrEqual(resultWithoutSource.confidence - 0.1);
+      // With spec files (should increase confidence)
+      const resultWithSpecs = await generateContractFromRule(rule, {
+        aiProvider: 'none',
+        specFiles: ['/path/to/spec.tla'],
+      });
+
+      // Confidence should increase with more artifacts
+      expect(resultWithTests.confidence).toBeGreaterThan(resultBaseline.confidence);
+      expect(resultWithSpecs.confidence).toBeGreaterThan(resultBaseline.confidence);
     });
 
     it('should include warnings for missing information', async () => {
