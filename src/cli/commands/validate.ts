@@ -185,7 +185,10 @@ async function writeLedgerSnapshots(
   options: { rootDir: string; author: string; artifactIndex?: ArtifactIndex }
 ): Promise<void> {
   const { rootDir, author, artifactIndex } = options;
-  const allDescriptors = registry.getAllRules().concat(registry.getAllConstraints());
+  const allDescriptors: Array<{ id: string; contract?: any; meta?: Record<string, unknown> }> = [
+    ...registry.getAllRules(),
+    ...registry.getAllConstraints(),
+  ];
 
   for (const descriptor of allDescriptors) {
     if (!descriptor.contract && !descriptor.meta?.contract) {
