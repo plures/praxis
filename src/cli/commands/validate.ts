@@ -58,7 +58,7 @@ export async function validateCommand(options: ValidateOptions): Promise<void> {
   if (options.emitFacts) {
     const facts = gapsToFacts(report.incomplete);
     const events = gapsToEvents(report.incomplete);
-    emitGapArtifacts({ facts, events, gapOutput: options.gapOutput });
+    await emitGapArtifacts({ facts, events, gapOutput: options.gapOutput });
   }
 
   if (options.ledger) {
@@ -238,14 +238,14 @@ function gapsToEvents(_gaps: ContractGap[]): PraxisEvent[] {
   return [];
 }
 
-function emitGapArtifacts(payload: {
+async function emitGapArtifacts(payload: {
   facts: PraxisFact[];
   events: PraxisEvent[];
   gapOutput?: string;
-}): void {
+}): Promise<void> {
   if (payload.gapOutput) {
-    const fs = require('node:fs');
-    fs.writeFileSync(payload.gapOutput, JSON.stringify(payload, null, 2));
+    const fs = await import('node:fs/promises');
+    await fs.writeFile(payload.gapOutput, JSON.stringify(payload, null, 2));
   } else {
     console.log(JSON.stringify(payload, null, 2));
   }
