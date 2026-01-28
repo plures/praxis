@@ -12,6 +12,7 @@ import {
   formatValidationReportSARIF,
   writeLogicLedgerEntry,
   type ArtifactIndex,
+  type Contract,
 } from '../../decision-ledger/index.js';
 import { ContractMissing } from '../../decision-ledger/index.js';
 import type { PraxisEvent, PraxisFact } from '../../core/protocol.js';
@@ -187,11 +188,11 @@ async function writeLedgerSnapshots(
   options: { rootDir: string; author: string; artifactIndex?: ArtifactIndex }
 ): Promise<void> {
   const { rootDir, author, artifactIndex } = options;
-  const allDescriptors = registry.getAllRules().concat(registry.getAllConstraints());
-
-  for (const descriptor of allDescriptors) {
+  
+  // Process rules and constraints separately to avoid type issues
+  const processDescriptor = async (descriptor: { contract?: Contract; meta?: Record<string, unknown> } & { id: string }) => {
     if (!descriptor.contract && !descriptor.meta?.contract) {
-      continue;
+      return;
     }
     const contract = descriptor.contract ?? (descriptor.meta?.contract as any);
     await writeLogicLedgerEntry(contract, {
@@ -200,6 +201,16 @@ async function writeLedgerSnapshots(
       testsPresent: artifactIndex?.tests?.has(contract.ruleId) ?? false,
       specPresent: artifactIndex?.spec?.has(contract.ruleId) ?? false,
     });
+  };
+
+  // Process all rules
+  for (const descriptor of registry.getAllRules()) {
+    await processDescriptor(descriptor);
+  }
+  
+  // Process all constraints
+  for (const descriptor of registry.getAllConstraints()) {
+    await processDescriptor(descriptor);
   }
 }
 
