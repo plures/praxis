@@ -144,6 +144,27 @@ fix: resolve schema validation edge case
 docs: update getting started guide
 ```
 
+### Semantic Versioning Labels
+
+When creating a pull request, add one of these labels to control the version bump:
+
+- **semver:major** - Breaking changes (e.g., 1.0.0 → 2.0.0)
+- **semver:minor** - New features, backwards compatible (e.g., 1.0.0 → 1.1.0)
+- **semver:patch** - Bug fixes, patches (e.g., 1.0.0 → 1.0.1) - **default if no label**
+
+The CI/CD pipeline will automatically bump the version and publish based on your label selection.
+
+## CI/CD Pipeline
+
+Praxis uses a fully automated CI/CD pipeline. When your PR is merged to `main`:
+
+1. **Auto Version Bump**: Version is automatically bumped based on semver labels
+2. **Tag Creation**: A git tag is created (e.g., `v1.2.3`)
+3. **Release**: GitHub Release is automatically created
+4. **Publishing**: Package is published to NPM, JSR, and NuGet in parallel
+
+For detailed information about the pipeline, see [CI/CD Pipeline Guide](./docs/guides/cicd-pipeline.md).
+
 ## Any contributions you make will be under the MIT Software License
 
 In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
