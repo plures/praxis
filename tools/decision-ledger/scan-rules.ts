@@ -216,19 +216,19 @@ function getStringProperty(obj: ts.ObjectLiteralExpression, name: string): strin
 }
 
 function hasContractProperty(obj: ts.ObjectLiteralExpression): boolean {
+  if (getObjectHasContract(obj)) {
+    return true;
+  }
+
   for (const prop of obj.properties) {
-    if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
-      if (prop.name.text === 'contract') {
+    if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name) && prop.name.text === 'meta') {
+      const meta = unwrapObjectLiteral(prop.initializer);
+      if (meta && getObjectHasContract(meta)) {
         return true;
-      }
-      if (prop.name.text === 'meta') {
-        const meta = unwrapObjectLiteral(prop.initializer);
-        if (meta && getObjectHasContract(meta)) {
-          return true;
-        }
       }
     }
   }
+
   return false;
 }
 
