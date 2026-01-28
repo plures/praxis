@@ -6,6 +6,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { promises as fs } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { exec } from 'node:child_process';
@@ -23,7 +24,7 @@ describe('CLI Validate Command', () => {
   let tempDir: string;
 
   beforeEach(async () => {
-    tempDir = path.join('/tmp', `praxis-test-${Date.now()}`);
+    tempDir = path.join(tmpdir(), `praxis-test-${Date.now()}`);
     await fs.mkdir(tempDir, { recursive: true });
   });
 
@@ -137,8 +138,8 @@ describe('CLI Validate Command', () => {
       await execAsync(
         `node ${cliPath} validate --registry ${sampleRegistryPath} --strict 2>&1`
       );
-      // Should not reach here
-      expect(true).toBe(false);
+      // Should not reach here - strict mode should exit with error
+      throw new Error('Expected command to fail in strict mode');
     } catch (error: any) {
       // Expect non-zero exit code
       expect(error.code).toBe(1);
