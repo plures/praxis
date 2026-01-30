@@ -12,6 +12,7 @@ import {
   defineFact,
   defineModule,
 } from '../dsl/index.js';
+import { defineContract } from '../decision-ledger/types.js';
 
 describe('Edge Cases and Failure Paths', () => {
   describe('Rule Errors', () => {
@@ -24,6 +25,12 @@ describe('Edge Cases and Failure Paths', () => {
         impl: () => {
           throw new Error('Intentional error');
         },
+        contract: defineContract({
+          ruleId: 'error.rule',
+          behavior: 'Test rule that intentionally throws an error',
+          examples: [{ given: 'Any state', when: 'Rule is executed', then: 'Error is thrown' }],
+          invariants: ['Always throws an error'],
+        }),
       });
 
       const registry = new PraxisRegistry<{ value: number }>();
@@ -51,6 +58,12 @@ describe('Edge Cases and Failure Paths', () => {
         impl: () => {
           throw new Error('Error');
         },
+        contract: defineContract({
+          ruleId: 'error.rule',
+          behavior: 'Test rule that intentionally throws an error',
+          examples: [{ given: 'Any state', when: 'Rule is executed', then: 'Error is thrown' }],
+          invariants: ['Always throws an error'],
+        }),
       });
 
       const successRule = defineRule<{ count: number }>({
@@ -63,6 +76,12 @@ describe('Edge Cases and Failure Paths', () => {
           }
           return [];
         },
+        contract: defineContract({
+          ruleId: 'success.rule',
+          behavior: 'Test rule that succeeds and increments count',
+          examples: [{ given: 'Test event', when: 'Rule is executed', then: 'Count is incremented and Success fact is emitted' }],
+          invariants: ['Count is incremented on success'],
+        }),
       });
 
       const registry = new PraxisRegistry<{ count: number }>();
@@ -93,6 +112,12 @@ describe('Edge Cases and Failure Paths', () => {
           // Return invalid fact structure
           return [{ tag: 'Invalid', notPayload: 'wrong' }] as any;
         },
+        contract: defineContract({
+          ruleId: 'invalid.rule',
+          behavior: 'Test rule that returns invalid fact structure',
+          examples: [{ given: 'Any state', when: 'Rule is executed', then: 'Invalid fact is returned' }],
+          invariants: ['Returns malformed facts'],
+        }),
       });
 
       const registry = new PraxisRegistry<{ value: number }>();
@@ -117,6 +142,12 @@ describe('Edge Cases and Failure Paths', () => {
         impl: () => {
           throw new Error('Constraint error');
         },
+        contract: defineContract({
+          ruleId: 'error.constraint',
+          behavior: 'Test constraint that intentionally throws an error',
+          examples: [{ given: 'Any state', when: 'Constraint is checked', then: 'Error is thrown' }],
+          invariants: ['Always throws an error'],
+        }),
       });
 
       const registry = new PraxisRegistry<{ value: number }>();
@@ -139,6 +170,12 @@ describe('Edge Cases and Failure Paths', () => {
         id: 'fail.constraint',
         description: 'Always fails',
         impl: () => false,
+        contract: defineContract({
+          ruleId: 'fail.constraint',
+          behavior: 'Test constraint that always fails',
+          examples: [{ given: 'Any state', when: 'Constraint is checked', then: 'Returns false' }],
+          invariants: ['Always returns false'],
+        }),
       });
 
       const registry = new PraxisRegistry<{ value: number }>();
@@ -163,6 +200,12 @@ describe('Edge Cases and Failure Paths', () => {
         impl: (state) => {
           return state.context.value >= 0 || 'Value must be non-negative';
         },
+        contract: defineContract({
+          ruleId: 'custom.constraint',
+          behavior: 'Test constraint that returns custom error message',
+          examples: [{ given: 'Negative value', when: 'Constraint is checked', then: 'Returns custom error message' }],
+          invariants: ['Returns custom message for negative values'],
+        }),
       });
 
       const registry = new PraxisRegistry<{ value: number }>();
@@ -184,12 +227,24 @@ describe('Edge Cases and Failure Paths', () => {
         id: 'constraint1',
         description: 'Constraint 1',
         impl: () => 'Violation 1',
+        contract: defineContract({
+          ruleId: 'constraint1',
+          behavior: 'Test constraint that returns violation message',
+          examples: [{ given: 'Any state', when: 'Constraint is checked', then: 'Returns "Violation 1"' }],
+          invariants: ['Always returns "Violation 1"'],
+        }),
       });
 
       const constraint2 = defineConstraint<{ value: number }>({
         id: 'constraint2',
         description: 'Constraint 2',
         impl: () => 'Violation 2',
+        contract: defineContract({
+          ruleId: 'constraint2',
+          behavior: 'Test constraint that returns violation message',
+          examples: [{ given: 'Any state', when: 'Constraint is checked', then: 'Returns "Violation 2"' }],
+          invariants: ['Always returns "Violation 2"'],
+        }),
       });
 
       const registry = new PraxisRegistry<{ value: number }>();
@@ -249,6 +304,12 @@ describe('Edge Cases and Failure Paths', () => {
         id: 'duplicate',
         description: 'Test',
         impl: () => [],
+        contract: defineContract({
+          ruleId: 'duplicate',
+          behavior: 'Test rule for duplicate ID testing',
+          examples: [{ given: 'Rule is registered twice', when: 'Second registration', then: 'Throws error' }],
+          invariants: ['Rule IDs must be unique'],
+        }),
       });
 
       const registry = new PraxisRegistry();
@@ -264,6 +325,12 @@ describe('Edge Cases and Failure Paths', () => {
         id: 'duplicate',
         description: 'Test',
         impl: () => true,
+        contract: defineContract({
+          ruleId: 'duplicate',
+          behavior: 'Test constraint for duplicate ID testing',
+          examples: [{ given: 'Constraint is registered twice', when: 'Second registration', then: 'Throws error' }],
+          invariants: ['Constraint IDs must be unique'],
+        }),
       });
 
       const registry = new PraxisRegistry();
@@ -277,12 +344,52 @@ describe('Edge Cases and Failure Paths', () => {
     it('should register module with multiple rules and constraints', () => {
       const module = defineModule({
         rules: [
-          defineRule({ id: 'rule1', description: 'Rule 1', impl: () => [] }),
-          defineRule({ id: 'rule2', description: 'Rule 2', impl: () => [] }),
+          defineRule({
+            id: 'rule1',
+            description: 'Rule 1',
+            impl: () => [],
+            contract: defineContract({
+              ruleId: 'rule1',
+              behavior: 'Test rule 1 for module registration',
+              examples: [{ given: 'Any state', when: 'Rule is executed', then: 'Empty array returned' }],
+              invariants: ['Always returns empty array'],
+            }),
+          }),
+          defineRule({
+            id: 'rule2',
+            description: 'Rule 2',
+            impl: () => [],
+            contract: defineContract({
+              ruleId: 'rule2',
+              behavior: 'Test rule 2 for module registration',
+              examples: [{ given: 'Any state', when: 'Rule is executed', then: 'Empty array returned' }],
+              invariants: ['Always returns empty array'],
+            }),
+          }),
         ],
         constraints: [
-          defineConstraint({ id: 'c1', description: 'C1', impl: () => true }),
-          defineConstraint({ id: 'c2', description: 'C2', impl: () => true }),
+          defineConstraint({
+            id: 'c1',
+            description: 'C1',
+            impl: () => true,
+            contract: defineContract({
+              ruleId: 'c1',
+              behavior: 'Test constraint 1 for module registration',
+              examples: [{ given: 'Any state', when: 'Constraint is checked', then: 'Returns true' }],
+              invariants: ['Always returns true'],
+            }),
+          }),
+          defineConstraint({
+            id: 'c2',
+            description: 'C2',
+            impl: () => true,
+            contract: defineContract({
+              ruleId: 'c2',
+              behavior: 'Test constraint 2 for module registration',
+              examples: [{ given: 'Any state', when: 'Constraint is checked', then: 'Returns true' }],
+              invariants: ['Always returns true'],
+            }),
+          }),
         ],
         meta: { version: '1.0.0' },
       });
@@ -328,6 +435,12 @@ describe('Edge Cases and Failure Paths', () => {
           state.context.nested.deep.array.push('item');
           return [];
         },
+        contract: defineContract({
+          ruleId: 'complex.rule',
+          behavior: 'Test rule that manipulates complex nested context',
+          examples: [{ given: 'Complex nested context', when: 'Rule is executed', then: 'Nested values are updated' }],
+          invariants: ['Context structure is preserved'],
+        }),
       });
 
       const registry = new PraxisRegistry<ComplexContext>();
@@ -381,6 +494,12 @@ describe('Edge Cases and Failure Paths', () => {
           }
           return [];
         },
+        contract: defineContract({
+          ruleId: 'many.facts',
+          behavior: 'Test rule that generates many facts',
+          examples: [{ given: 'Test event', when: 'Rule is executed', then: '1000 facts are generated' }],
+          invariants: ['Generates exactly 1000 facts when triggered'],
+        }),
       });
 
       const registry = new PraxisRegistry<{ count: number }>();
@@ -425,6 +544,12 @@ describe('Edge Cases and Failure Paths', () => {
           }
           return [];
         },
+        contract: defineContract({
+          ruleId: 'count.events',
+          behavior: 'Test rule that counts events',
+          examples: [{ given: 'Multiple test events', when: 'Rule is executed', then: 'Count fact is emitted' }],
+          invariants: ['Count matches number of test events'],
+        }),
       });
 
       const registry = new PraxisRegistry<{ count: number }>();
@@ -456,6 +581,12 @@ describe('Edge Cases and Failure Paths', () => {
           }
           return [];
         },
+        contract: defineContract({
+          ruleId: 'empty.rule',
+          behavior: 'Test rule that handles empty events',
+          examples: [{ given: 'Empty event', when: 'Rule is executed', then: 'Context is updated and fact is emitted' }],
+          invariants: ['Triggered flag is set to true'],
+        }),
       });
 
       const registry = new PraxisRegistry<{ triggered: boolean }>();

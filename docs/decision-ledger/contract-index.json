@@ -1,0 +1,757 @@
+{
+  "generatedAt": "2026-01-30T07:07:22.057Z",
+  "root": "/home/runner/work/praxis/praxis",
+  "summary": {
+    "rules": 45,
+    "constraints": 8,
+    "files": 117
+  },
+  "rules": [
+    {
+      "id": "auth.checkSession",
+      "kind": "rule",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Check for session expiration (30 minute timeout)",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "auth.checkSession",
+        "guards": [
+          "!checkEvent || !state.context.currentUser || !state.context.sessionStartTime"
+        ],
+        "mutations": [
+          "state.context.currentUser = null",
+          "state.context.sessionStartTime = null",
+          "state.context.cart = { items: [], total: 0, discountApplied: 0 }"
+        ],
+        "events": [
+          "CheckSession"
+        ]
+      }
+    },
+    {
+      "id": "auth.login",
+      "kind": "rule",
+      "file": "examples/decision-ledger/index.js",
+      "description": "Process login events",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "auth.login",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "auth.login",
+      "kind": "rule",
+      "file": "examples/sample-registry.js",
+      "description": "Process login events",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "auth.login",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "auth.login",
+      "kind": "rule",
+      "file": "examples/sample-registry.ts",
+      "description": "Process login events",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "auth.login",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "auth.login",
+      "kind": "rule",
+      "file": "src/examples/auth-basic/index.ts",
+      "description": "Process login event and create UserLoggedIn fact",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "auth.login",
+        "guards": [
+          "!loginEvent"
+        ],
+        "mutations": [],
+        "events": [
+          "Login"
+        ]
+      }
+    },
+    {
+      "id": "auth.login",
+      "kind": "rule",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Process login event",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "auth.login",
+        "guards": [
+          "!loginEvent"
+        ],
+        "mutations": [
+          "state.context.currentUser = loginEvent.payload.username",
+          "state.context.sessionStartTime = Date.now()"
+        ],
+        "events": [
+          "Login"
+        ]
+      }
+    },
+    {
+      "id": "auth.logout",
+      "kind": "rule",
+      "file": "examples/sample-registry.js",
+      "description": "Process logout events",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "auth.logout",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "auth.logout",
+      "kind": "rule",
+      "file": "examples/sample-registry.ts",
+      "description": "Process logout events",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "auth.logout",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "auth.logout",
+      "kind": "rule",
+      "file": "src/examples/auth-basic/index.ts",
+      "description": "Process logout event and create UserLoggedOut fact",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "auth.logout",
+        "guards": [
+          "!logoutEvent || !state.context.currentUser"
+        ],
+        "mutations": [],
+        "events": [
+          "Logout"
+        ]
+      }
+    },
+    {
+      "id": "auth.logout",
+      "kind": "rule",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Process logout event",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "auth.logout",
+        "guards": [
+          "!logoutEvent || !state.context.currentUser"
+        ],
+        "mutations": [
+          "state.context.currentUser = null",
+          "state.context.sessionStartTime = null",
+          "state.context.cart = {\n      items: [],\n      total: 0,\n      discountApplied: 0,\n    }"
+        ],
+        "events": [
+          "Logout"
+        ]
+      }
+    },
+    {
+      "id": "auth.updateContext",
+      "kind": "rule",
+      "file": "src/examples/auth-basic/index.ts",
+      "description": "Update context based on login/logout facts",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "auth.updateContext",
+        "guards": [],
+        "mutations": [
+          "state.context.currentUser = latestLogin.payload.userId",
+          "state.context.currentUser = null"
+        ],
+        "events": []
+      }
+    },
+    {
+      "id": "cart.addItem",
+      "kind": "rule",
+      "file": "examples/decision-ledger/index.js",
+      "description": "Add item to cart",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "cart.addItem",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "cart.addItem",
+      "kind": "rule",
+      "file": "examples/sample-registry.js",
+      "description": "Add item to shopping cart (no contract)",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.addItem",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "cart.addItem",
+      "kind": "rule",
+      "file": "examples/sample-registry.ts",
+      "description": "Add item to shopping cart (no contract)",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.addItem",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "cart.addItem",
+      "kind": "rule",
+      "file": "src/examples/cart/index.ts",
+      "description": "Add item to cart",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.addItem",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "cart.addItem",
+      "kind": "rule",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Add item to cart",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.addItem",
+        "guards": [
+          "!state.context.currentUser || addEvents.length === 0"
+        ],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "cart.applyDiscount",
+      "kind": "rule",
+      "file": "src/examples/cart/index.ts",
+      "description": "Apply discount code",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.applyDiscount",
+        "guards": [
+          "!discountEvent || state.context.discountApplied"
+        ],
+        "mutations": [],
+        "events": [
+          "ApplyDiscount"
+        ]
+      }
+    },
+    {
+      "id": "cart.applyDiscount",
+      "kind": "rule",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Apply discount codes",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.applyDiscount",
+        "guards": [
+          "!discountEvent || !state.context.currentUser"
+        ],
+        "mutations": [],
+        "events": [
+          "ApplyDiscount"
+        ]
+      }
+    },
+    {
+      "id": "cart.checkout",
+      "kind": "rule",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Process checkout",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.checkout",
+        "guards": [
+          "!checkoutEvent || !state.context.currentUser || state.context.cart.items.length === 0"
+        ],
+        "mutations": [
+          "state.context.cart = { items: [], total: 0, discountApplied: 0 }"
+        ],
+        "events": [
+          "Checkout"
+        ]
+      }
+    },
+    {
+      "id": "cart.clear",
+      "kind": "rule",
+      "file": "src/examples/cart/index.ts",
+      "description": "Clear cart",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.clear",
+        "guards": [
+          "!clearEvent"
+        ],
+        "mutations": [],
+        "events": [
+          "ClearCart"
+        ]
+      }
+    },
+    {
+      "id": "cart.removeItem",
+      "kind": "rule",
+      "file": "src/examples/cart/index.ts",
+      "description": "Remove item from cart",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.removeItem",
+        "guards": [
+          "!removeEvent"
+        ],
+        "mutations": [],
+        "events": [
+          "RemoveFromCart"
+        ]
+      }
+    },
+    {
+      "id": "cart.removeItem",
+      "kind": "rule",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Remove item from cart",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.removeItem",
+        "guards": [
+          "!removeEvent || !state.context.currentUser"
+        ],
+        "mutations": [],
+        "events": [
+          "RemoveFromCart"
+        ]
+      }
+    },
+    {
+      "id": "cart.updateContext",
+      "kind": "rule",
+      "file": "src/examples/cart/index.ts",
+      "description": "Update cart context based on facts",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.updateContext",
+        "guards": [],
+        "mutations": [
+          "state.context.items = []",
+          "state.context.total = 0",
+          "state.context.discountApplied = false",
+          "state.context.items = Array.from(itemMap.entries()).map(([productId, data]) => ({\n      productId,\n      quantity: data.quantity,\n      price: data.price,\n    }))",
+          "state.context.discountApplied = true",
+          "state.context.total = Math.round(total * 100) / 100"
+        ],
+        "events": []
+      }
+    },
+    {
+      "id": "cart.updateContext",
+      "kind": "rule",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Update cart context from facts",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "cart.updateContext",
+        "guards": [],
+        "mutations": [
+          "state.context.cart = { items: [], total: 0, discountApplied: 0 }",
+          "state.context.cart.items = Array.from(itemMap.entries()).map(([productId, data]) => ({\n      productId,\n      quantity: data.quantity,\n      price: data.price,\n    }))",
+          "state.context.cart.discountApplied = totalDiscount",
+          "state.context.cart.total = total * (1 - totalDiscount)"
+        ],
+        "events": []
+      }
+    },
+    {
+      "id": "counter.decrement",
+      "kind": "rule",
+      "file": "examples/reactive-counter/index.ts",
+      "description": "Decrement the counter",
+      "hasContract": false
+    },
+    {
+      "id": "counter.decrement",
+      "kind": "rule",
+      "file": "src/examples/svelte-counter/index.ts",
+      "description": "Decrement the counter",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "counter.decrement",
+        "guards": [
+          "!decrementEvent"
+        ],
+        "mutations": [],
+        "events": [
+          "Decrement"
+        ]
+      }
+    },
+    {
+      "id": "counter.increment",
+      "kind": "rule",
+      "file": "examples/reactive-counter/index.ts",
+      "description": "Increment the counter",
+      "hasContract": false
+    },
+    {
+      "id": "counter.increment",
+      "kind": "rule",
+      "file": "examples/unified-app/index.js",
+      "description": "Increment counter",
+      "hasContract": false
+    },
+    {
+      "id": "counter.increment",
+      "kind": "rule",
+      "file": "src/examples/svelte-counter/index.ts",
+      "description": "Increment the counter",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "counter.increment",
+        "guards": [
+          "!incrementEvent"
+        ],
+        "mutations": [],
+        "events": [
+          "Increment"
+        ]
+      }
+    },
+    {
+      "id": "counter.reset",
+      "kind": "rule",
+      "file": "examples/reactive-counter/index.ts",
+      "description": "Reset the counter",
+      "hasContract": false
+    },
+    {
+      "id": "counter.reset",
+      "kind": "rule",
+      "file": "src/examples/svelte-counter/index.ts",
+      "description": "Reset the counter",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "counter.reset",
+        "guards": [
+          "!resetEvent"
+        ],
+        "mutations": [
+          "state.context.count = 0",
+          "state.context.history = [0]"
+        ],
+        "events": [
+          "Reset"
+        ]
+      }
+    },
+    {
+      "id": "features.disable",
+      "kind": "rule",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Disable a feature flag",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "features.disable",
+        "guards": [
+          "!disableEvent"
+        ],
+        "mutations": [
+          "state.context.features.freeShippingEnabled = false",
+          "state.context.features.loyaltyProgramEnabled = false",
+          "state.context.features.newCheckoutFlowEnabled = false"
+        ],
+        "events": [
+          "DisableFeature"
+        ]
+      }
+    },
+    {
+      "id": "features.enable",
+      "kind": "rule",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Enable a feature flag",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "features.enable",
+        "guards": [
+          "!enableEvent"
+        ],
+        "mutations": [
+          "state.context.features.freeShippingEnabled = true",
+          "state.context.features.loyaltyProgramEnabled = true",
+          "state.context.features.newCheckoutFlowEnabled = true"
+        ],
+        "events": [
+          "EnableFeature"
+        ]
+      }
+    },
+    {
+      "id": "legacy.process",
+      "kind": "rule",
+      "file": "examples/decision-ledger/index.js",
+      "description": "Legacy processing rule",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "legacy.process",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "messages.receive",
+      "kind": "rule",
+      "file": "examples/unified-app/index.js",
+      "description": "Receive message",
+      "hasContract": false
+    },
+    {
+      "id": "order.process",
+      "kind": "rule",
+      "file": "examples/sample-registry.js",
+      "description": "Process order checkout (incomplete contract)",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "order.process",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "order.process",
+      "kind": "rule",
+      "file": "examples/sample-registry.ts",
+      "description": "Process order checkout (incomplete contract)",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "order.process",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "task.complete",
+      "kind": "rule",
+      "file": "examples/cloud-sync/index.ts",
+      "description": "Complete a task",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "task.complete",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "task.create",
+      "kind": "rule",
+      "file": "examples/cloud-sync/index.ts",
+      "description": "Create a new task",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "task.create",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "todo.add",
+      "kind": "rule",
+      "file": "src/examples/advanced-todo/index.ts",
+      "description": "Add a new todo item",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "todo.add",
+        "guards": [
+          "!event || !event.payload.text.trim()"
+        ],
+        "mutations": [],
+        "events": [
+          "AddTodo"
+        ]
+      }
+    },
+    {
+      "id": "todo.clearCompleted",
+      "kind": "rule",
+      "file": "src/examples/advanced-todo/index.ts",
+      "description": "Remove all completed todos",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "todo.clearCompleted",
+        "guards": [
+          "!event"
+        ],
+        "mutations": [
+          "state.context.todos = state.context.todos.filter((t) => !t.completed)"
+        ],
+        "events": [
+          "ClearCompleted"
+        ]
+      }
+    },
+    {
+      "id": "todo.completeAll",
+      "kind": "rule",
+      "file": "src/examples/advanced-todo/index.ts",
+      "description": "Mark all todos as completed",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "todo.completeAll",
+        "guards": [
+          "!event"
+        ],
+        "mutations": [],
+        "events": [
+          "CompleteAll"
+        ]
+      }
+    },
+    {
+      "id": "todo.remove",
+      "kind": "rule",
+      "file": "src/examples/advanced-todo/index.ts",
+      "description": "Remove a todo item",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "todo.remove",
+        "guards": [
+          "!event"
+        ],
+        "mutations": [],
+        "events": [
+          "RemoveTodo"
+        ]
+      }
+    },
+    {
+      "id": "todo.setFilter",
+      "kind": "rule",
+      "file": "src/examples/advanced-todo/index.ts",
+      "description": "Change the filter",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "todo.setFilter",
+        "guards": [
+          "!event"
+        ],
+        "mutations": [
+          "state.context.filter = event.payload.filter"
+        ],
+        "events": [
+          "SetFilter"
+        ]
+      }
+    },
+    {
+      "id": "todo.toggle",
+      "kind": "rule",
+      "file": "src/examples/advanced-todo/index.ts",
+      "description": "Toggle todo completion status",
+      "hasContract": false,
+      "analysis": {
+        "ruleId": "todo.toggle",
+        "guards": [
+          "!event"
+        ],
+        "mutations": [],
+        "events": [
+          "ToggleTodo"
+        ]
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "auth.maxSessions",
+      "kind": "constraint",
+      "file": "examples/sample-registry.js",
+      "description": "User cannot have more than 5 concurrent sessions",
+      "hasContract": true
+    },
+    {
+      "id": "auth.maxSessions",
+      "kind": "constraint",
+      "file": "examples/sample-registry.ts",
+      "description": "User cannot have more than 5 concurrent sessions",
+      "hasContract": true
+    },
+    {
+      "id": "auth.singleSession",
+      "kind": "constraint",
+      "file": "src/examples/auth-basic/index.ts",
+      "description": "Only one user can be logged in at a time",
+      "hasContract": false
+    },
+    {
+      "id": "auth.singleSession",
+      "kind": "constraint",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Only one user can be logged in at a time",
+      "hasContract": false
+    },
+    {
+      "id": "cart.maxItems",
+      "kind": "constraint",
+      "file": "src/examples/cart/index.ts",
+      "description": "Cart cannot exceed 100 items",
+      "hasContract": false
+    },
+    {
+      "id": "cart.maxItems",
+      "kind": "constraint",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Cart cannot exceed 100 items",
+      "hasContract": false
+    },
+    {
+      "id": "cart.maxTotal",
+      "kind": "constraint",
+      "file": "src/examples/cart/index.ts",
+      "description": "Cart total cannot exceed $10,000",
+      "hasContract": false
+    },
+    {
+      "id": "cart.requiresAuth",
+      "kind": "constraint",
+      "file": "src/examples/hero-ecommerce/index.ts",
+      "description": "Cart operations require authentication",
+      "hasContract": false
+    }
+  ]
+}
