@@ -58,7 +58,7 @@ async function main(): Promise<void> {
 
   const targetRoots = DEFAULT_ROOTS
     .map((dir) => path.join(rootDir, dir))
-    .filter((dir) => existsSync(dir));
+    .filter((dir) => isDirectorySync(dir));
 
   const files: string[] = [];
   for (const dir of targetRoots) {
@@ -113,7 +113,7 @@ function getArgValue(args: string[], name: string): string | undefined {
   return args[index + 1];
 }
 
-function existsSync(targetPath: string): boolean {
+function isDirectorySync(targetPath: string): boolean {
   try {
     const stat = statSync(targetPath);
     return stat.isDirectory();
