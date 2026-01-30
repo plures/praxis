@@ -2,7 +2,7 @@ import * as ts from 'typescript';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { statSync } from 'node:fs';
-import { analyzeRuleFile, analyzeRuleSource, type RuleAnalysis } from '../ast-analyzer/src/ast-analyzer.ts';
+import { analyzeRuleFile, analyzeRuleSource, type RuleAnalysis } from '../ast-analyzer/src/ast-analyzer';
 
 type DefinitionKind = 'rule' | 'constraint';
 
