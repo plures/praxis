@@ -238,6 +238,57 @@ The generator system transforms schemas into code:
 
 For more details, see [FRAMEWORK.md](./FRAMEWORK.md).
 
+## Contributing to Praxis-Core
+
+Praxis-Core is the canonical logic layer used by all packages and tools. When contributing to core modules (`src/core/`, `src/dsl/`, `src/decision-ledger/`), follow these additional guidelines:
+
+### Core Module Stability
+
+Core modules are **STABLE** and follow strict backward compatibility requirements:
+
+1. **Public API Changes**: All public API changes require review and approval
+2. **Breaking Changes**: Breaking changes only allowed in major versions
+3. **Deprecation**: Deprecate APIs for at least one minor version before removal
+4. **Documentation**: All public APIs must be documented with TSDoc comments
+
+### Core Module Guidelines
+
+1. **Purity**: All rules and constraints must be pure functions (no side effects)
+2. **Immutability**: Never mutate state; always return new values
+3. **Type Safety**: Use explicit types for all public APIs
+4. **JSON Compatibility**: Core types must remain JSON-serializable
+5. **Cross-Language**: Consider C# and PowerShell compatibility for protocol changes
+
+### Decision Ledger for Core Changes
+
+All core module changes require Decision Ledger compliance:
+
+1. **Contracts**: Every rule/constraint must have a contract attached
+2. **Examples**: Contracts must include Given/When/Then examples
+3. **Tests**: All contract examples must have corresponding tests
+4. **Validation**: Run validation before submitting PR:
+
+```bash
+npm run scan:rules
+npm run build
+npm run validate:contracts
+```
+
+### Core Breaking Change Policy
+
+Breaking changes to core APIs require:
+
+1. **Justification**: Clear explanation of why the change is necessary
+2. **Migration Guide**: Step-by-step guide for upgrading
+3. **Deprecation Period**: At least one minor version of deprecation warnings
+4. **Cross-Language Coordination**: Updates to C# and PowerShell implementations
+5. **Major Version Bump**: Breaking changes only in major releases
+
+For more details, see:
+
+- [Praxis-Core API Documentation](./docs/core/praxis-core-api.md)
+- [Extending Praxis-Core](./docs/core/extending-praxis-core.md)
+
 ## References
 
 This document was adapted from the open-source contribution guidelines for [Facebook's Draft](https://github.com/facebook/draft-js/blob/master/CONTRIBUTING.md).

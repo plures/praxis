@@ -312,6 +312,8 @@ See [src/decision-ledger/README.md](./src/decision-ledger/README.md) for complet
 ## Documentation
 - [Getting Started](./GETTING_STARTED.md)
 - [Framework Guide](./FRAMEWORK.md)
+- [Praxis-Core API](./docs/core/praxis-core-api.md) - Stable API surface & guarantees
+- [Extending Praxis-Core](./docs/core/extending-praxis-core.md) - Extension guidelines
 - [Decision Ledger Guide](./src/decision-ledger/README.md)
 - [Examples](./examples/)
 
