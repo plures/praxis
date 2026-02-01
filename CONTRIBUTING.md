@@ -114,9 +114,13 @@ npm run test:ui     # UI mode
 deno task test
 ```
 
-## Decision Ledger Dogfooding
+## Dogfooding Plures Tools
 
-Praxis dogfoods its Decision Ledger. If your change adds or modifies any rule or constraint:
+Praxis actively dogfoods all Plures tools to find friction before users do. This helps us build better tools and improve the developer experience.
+
+### Decision Ledger Dogfooding
+
+If your change adds or modifies any rule or constraint:
 
 1. **Add/Update Contract** via `defineContract()` and attach it to `meta.contract`.
 2. **Add Tests** that cover every Given/When/Then example and invariant.
@@ -130,6 +134,25 @@ npm run validate:contracts
 ```
 
 See `docs/decision-ledger/DOGFOODING.md` for full guidance.
+
+### Using Plures Tools Daily
+
+We dogfood all Plures tools during development:
+
+- **Praxis CLI**: Use for scaffolding and generation
+- **PluresDB**: Use for test fixtures and examples
+- **State-Docs**: Generate documentation from schemas
+- **CodeCanvas**: Visualize complex schemas and architecture
+- **Unum**: Explore distributed features in development
+
+**When you encounter friction**, file a dogfooding issue immediately:
+
+1. Use the **Dogfooding Friction Report** issue template
+2. Focus on **one specific friction point** per issue
+3. Provide context about what you were trying to do
+4. Suggest how it could be better
+
+See `docs/DOGFOODING_CHECKLIST.md` for daily/weekly/monthly dogfooding workflows.
 
 ## Pull Request Process
 
