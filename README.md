@@ -458,6 +458,44 @@ This protocol is:
 
 ## Framework Architecture
 
+Praxis is organized as a **monorepo** with clearly separated packages. See [MONOREPO.md](./MONOREPO.md) for the complete organization plan.
+
+### Target Monorepo Structure
+
+```
+praxis/
+├── packages/                       # Published npm packages
+│   ├── praxis-core/               # Core logic library (zero dependencies)
+│   │   └── src/
+│   │       ├── logic/             # Facts, events, rules, constraints, engine
+│   │       ├── schema/            # Schema definitions and validation
+│   │       ├── decision-ledger/   # Contracts and behavior specifications
+│   │       └── protocol/          # Core protocol types
+│   ├── praxis-cli/                # Command-line interface
+│   │   └── src/
+│   │       ├── commands/          # CLI commands
+│   │       └── generators/        # Code generators
+│   ├── praxis-svelte/             # Svelte 5 integration
+│   │   └── src/
+│   │       ├── components/        # Reactive Svelte components
+│   │       ├── generators/        # Component generators
+│   │       └── runtime/           # Svelte runtime integration
+│   ├── praxis-cloud/              # Cloud sync and relay
+│   │   └── src/
+│   │       ├── relay/             # Cloud relay server
+│   │       └── sync/              # Sync protocol
+│   └── praxis/                    # Main package (re-exports all)
+├── apps/                          # Example applications
+├── tools/                         # Development tools
+├── ui/                            # UI components and tools
+├── docs/                          # Documentation
+└── examples/                      # Simple examples and demos
+```
+
+### Current Structure (In Transition)
+
+The existing code is currently located in:
+
 ```
 /praxis
 ├── core/                          # Core framework

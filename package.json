@@ -3,6 +3,10 @@
   "version": "1.2.13",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "main": "./dist/node/index.js",
   "types": "./dist/node/index.d.ts",
   "bin": {

@@ -1,0 +1,69 @@
+{
+  "name": "@plures/praxis-svelte",
+  "version": "0.1.0",
+  "description": "Svelte 5 integration for the Praxis application framework - reactive components and runtime",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "svelte": "./src/components/*.svelte",
+      "import": "./dist/components/index.js",
+      "require": "./dist/components/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "praxis",
+    "svelte",
+    "svelte5",
+    "runes",
+    "reactive",
+    "components",
+    "ui-generation",
+    "typescript"
+  ],
+  "author": "Plures",
+  "license": "MIT",
+  "dependencies": {
+    "@plures/praxis-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "svelte": "^5.46.0"
+  },
+  "peerDependenciesMeta": {
+    "svelte": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "@types/node": "^25.0.1",
+    "esbuild-svelte": "^0.9.4",
+    "svelte": "^5.46.0",
+    "svelte-preprocess": "^6.0.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
