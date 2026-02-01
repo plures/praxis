@@ -10,6 +10,42 @@ Praxis-Core is the canonical logic layer of the Praxis framework. It provides th
 
 This document defines the **stable API surface** and **stability guarantees** for praxis-core.
 
+## What is Praxis-Core?
+
+Praxis-Core consists of the following source modules under `src/`:
+
+### Core Modules (Stable)
+
+1. **`src/core/protocol.ts`** - Language-neutral protocol types
+2. **`src/core/rules.ts`** - Registry system for rules and constraints
+3. **`src/core/engine.ts`** - Logic engine execution
+4. **`src/core/actors.ts`** - Actor system for side effects
+5. **`src/core/introspection.ts`** - Registry introspection and analysis
+6. **`src/core/reactive-engine.ts`** - Framework-agnostic reactive engine
+7. **`src/core/reactive-engine.svelte.ts`** - Svelte 5 reactive engine
+8. **`src/dsl/`** - DSL helpers for defining facts, events, rules
+9. **`src/decision-ledger/`** - Contract-based validation and behavior tracking
+
+### Supporting Core Modules
+
+10. **`src/core/schema/`** - Schema types, validation, and loading
+11. **`src/core/component/`** - Component generation from schemas
+12. **`src/core/logic/`** - Logic generation utilities
+13. **`src/core/pluresdb/`** - PluresDB integration primitives
+
+All modules above are considered part of the **praxis-core** stable API surface.
+
+### Non-Core Modules
+
+The following are **not** part of praxis-core but build on top of it:
+
+- `src/integrations/` - Third-party integrations (PluresDB, Unum, Tauri, etc.)
+- `src/cli/` - Command-line interface
+- `src/cloud/` - Cloud synchronization
+- `src/components/` - UI components
+- `src/runtime/` - Runtime adapters
+- `src/adapters/` - External adapters
+
 ## Core Modules
 
 Praxis-Core consists of the following stable modules:
