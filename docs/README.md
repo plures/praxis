@@ -2,6 +2,16 @@
 
 Welcome to the official Praxis documentation! Praxis is the full-stack application framework for the Plures ecosystem, providing a complete solution for building modern, local-first, distributed applications.
 
+## 🐕 Dogfooding Plures Tools
+
+**Start here for dogfooding:** [Dogfooding Index](./DOGFOODING_INDEX.md)
+
+We actively dogfood all Plures tools during development. Key resources:
+- [Quick Start Guide](./DOGFOODING_QUICK_START.md) - Get started in 5 minutes
+- [Dogfooding Checklist](./DOGFOODING_CHECKLIST.md) - Daily/weekly/monthly workflows
+- [Plures Tools Inventory](./PLURES_TOOLS_INVENTORY.md) - All available tools
+- [Workflow Examples](./examples/DOGFOODING_WORKFLOW_EXAMPLE.md) - See it in action
+
 ## Quick Start
 
 ```bash
