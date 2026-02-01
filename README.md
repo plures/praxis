@@ -1,5 +1,11 @@
 # Praxis
 
+<!-- plures-readme-banner -->
+[![CI](https://github.com/plures/praxis/actions/workflows/ci.yml/badge.svg)](https://github.com/plures/praxis/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/%40plures%2Fpraxis.svg)](https://www.npmjs.com/package/@plures/praxis)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+
 **Typed, visual-first application logic for Svelte, Node, and the browser.**
 
 [![npm version](https://img.shields.io/npm/v/@plures/praxis.svg)](https://www.npmjs.com/package/@plures/praxis)
@@ -1131,3 +1137,16 @@ Please review our [Code of Conduct](./CODE_OF_CONDUCT.md) before participating.
 ---
 
 Built with ❤️ by the plures team
+
+---
+
+<!-- plures-readme-standard-sections -->
+## Overview
+
+## Install
+
+## Development
+
+## Contributing
+
+## License
