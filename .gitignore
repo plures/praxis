@@ -12,8 +12,23 @@ dist/
 coverage
 coverage/
 
+# Package-specific build artifacts
+packages/*/dist/
+packages/*/node_modules/
+packages/*/coverage/
+packages/*/.turbo/
+packages/*/*.tsbuildinfo
+
+# App-specific build artifacts
+apps/*/dist/
+apps/*/node_modules/
+apps/*/coverage/
+apps/*/.turbo/
+apps/*/*.tsbuildinfo
+
 # Generated code from examples
 examples/*/generated/
+
 # Deno
 .deno/
 deno.lock
