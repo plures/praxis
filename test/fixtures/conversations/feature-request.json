@@ -1,0 +1,25 @@
+{
+  "id": "test-conversation-2",
+  "timestamp": "2024-01-01T11:00:00.000Z",
+  "turns": [
+    {
+      "role": "user",
+      "content": "Could you add support for dark mode to the application? It would be great to have a toggle in the settings.",
+      "timestamp": "2024-01-01T11:00:00.000Z"
+    },
+    {
+      "role": "assistant",
+      "content": "That's a great feature request! Dark mode is definitely something many users would appreciate.",
+      "timestamp": "2024-01-01T11:00:30.000Z"
+    }
+  ],
+  "metadata": {
+    "source": "cli",
+    "userId": "user456",
+    "sessionId": "session-def",
+    "tags": ["ui", "feature"]
+  },
+  "redacted": false,
+  "normalized": false,
+  "classified": false
+}
