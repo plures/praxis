@@ -1,0 +1,25 @@
+{
+  "id": "test-conversation-3",
+  "timestamp": "2024-01-01T12:00:00.000Z",
+  "turns": [
+    {
+      "role": "user",
+      "content": "How do I configure the database connection string in the config file?",
+      "timestamp": "2024-01-01T12:00:00.000Z"
+    },
+    {
+      "role": "assistant",
+      "content": "You can set the database connection string in the config.json file under the 'database' key.",
+      "timestamp": "2024-01-01T12:00:30.000Z"
+    }
+  ],
+  "metadata": {
+    "source": "web",
+    "userId": "user789",
+    "sessionId": "session-ghi",
+    "tags": ["configuration", "database"]
+  },
+  "redacted": false,
+  "normalized": false,
+  "classified": false
+}

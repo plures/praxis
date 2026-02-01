@@ -1,0 +1,30 @@
+{
+  "id": "test-conversation-1",
+  "timestamp": "2024-01-01T10:00:00.000Z",
+  "turns": [
+    {
+      "role": "user",
+      "content": "I found a bug in the authentication system. When I try to login with my email test@example.com, it crashes with an error.",
+      "timestamp": "2024-01-01T10:00:00.000Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm sorry to hear that. Can you provide more details about the error message you're seeing?",
+      "timestamp": "2024-01-01T10:00:30.000Z"
+    },
+    {
+      "role": "user",
+      "content": "The error says 'Cannot read property userId of undefined' and it happens every time I submit the login form.",
+      "timestamp": "2024-01-01T10:01:00.000Z"
+    }
+  ],
+  "metadata": {
+    "source": "github-copilot",
+    "userId": "user123",
+    "sessionId": "session-abc",
+    "tags": ["authentication", "login"]
+  },
+  "redacted": false,
+  "normalized": false,
+  "classified": false
+}
