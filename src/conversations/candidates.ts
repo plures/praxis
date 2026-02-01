@@ -41,7 +41,8 @@ export function generateCandidate(conversation: Conversation): Candidate | null 
     priority = 'high';
   }
   
-  const labels = [classification.category, ...(classification.tags || [])];
+  // Deduplicate labels using Set for O(n) performance
+  const labels = [...new Set([classification.category, ...(classification.tags || [])])];
   
   return {
     id: randomUUID(),
@@ -51,7 +52,7 @@ export function generateCandidate(conversation: Conversation): Candidate | null 
     body,
     metadata: {
       priority,
-      labels: labels.filter((v, i, a) => a.indexOf(v) === i), // unique
+      labels,
       source: {
         conversationId: conversation.id,
         timestamp: conversation.timestamp,
