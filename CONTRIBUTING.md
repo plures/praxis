@@ -206,17 +206,66 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 
 By contributing, you agree that your contributions will be licensed under its MIT License.
 
+## Monorepo Structure
+
+Praxis is organized as a monorepo with clear package boundaries. See [MONOREPO.md](./MONOREPO.md) for the complete organization plan.
+
+### Repository Layout
+
+```
+praxis/
+├── packages/           # Published npm packages
+│   ├── praxis-core/   # Core logic library (facts, rules, schemas, contracts)
+│   ├── praxis-cli/    # Command-line interface and generators
+│   ├── praxis-svelte/ # Svelte 5 integration
+│   ├── praxis-cloud/  # Cloud sync and relay
+│   └── praxis/        # Main package (re-exports all)
+├── apps/              # Example applications (not published)
+├── tools/             # Development tools (not published)
+├── ui/                # UI components and tools (not published)
+└── docs/              # Documentation
+```
+
+### Package Ownership
+
+When contributing, please respect package boundaries:
+
+- **praxis-core**: Core logic primitives only (no UI, no integrations)
+- **praxis-cli**: CLI commands, generators, templates
+- **praxis-svelte**: Svelte-specific code and components
+- **praxis-cloud**: Cloud relay and sync protocol
+- **praxis**: Re-exports from other packages for convenience
+
+### Working with Packages
+
+The repository uses npm workspaces. When developing:
+
+```bash
+# Install all dependencies (from root)
+npm install
+
+# Build all packages
+npm run build
+
+# Test all packages
+npm test
+
+# Work on a specific package
+cd packages/praxis-core
+npm test
+```
+
 ## Architecture Overview
 
 Praxis follows a modular architecture:
 
 ### Core Components
 
-- **Schema System** (`src/core/schema/`): Declarative schema definitions and validation
-- **Logic Engine** (`src/core/logic/`): Facts, events, rules, and constraints
-- **Component Generator** (`src/core/component/`): Generates Svelte components from schemas
-- **State Machines** (`src/flows.ts`): Flow and scenario orchestration
-- **CLI** (`src/cli/`): Command-line interface for project scaffolding and code generation
+- **Schema System** (`packages/praxis-core/src/schema/`): Declarative schema definitions and validation
+- **Logic Engine** (`packages/praxis-core/src/logic/`): Facts, events, rules, and constraints
+- **Decision Ledger** (`packages/praxis-core/src/decision-ledger/`): Contracts and behavior specifications
+- **Component Generator** (`packages/praxis-svelte/src/generators/`): Generates Svelte components from schemas
+- **CLI** (`packages/praxis-cli/src/`): Command-line interface for project scaffolding and code generation
 
 ### Key Concepts
 
@@ -225,7 +274,8 @@ Praxis follows a modular architecture:
 3. **Events**: Temporal occurrences that trigger logic
 4. **Rules**: Declarative logic that derives new facts from existing ones
 5. **Constraints**: Validation rules that ensure data integrity
-6. **Actors**: Effectful components for side effects and integrations
+6. **Contracts**: Behavior specifications for rules and constraints
+7. **Actors**: Effectful components for side effects and integrations
 
 ### Generator Architecture
 
@@ -236,7 +286,7 @@ The generator system transforms schemas into code:
 3. **Generate**: Create target code (Svelte, TypeScript, etc.)
 4. **Write**: Output generated files to the file system
 
-For more details, see [FRAMEWORK.md](./FRAMEWORK.md).
+For more details, see [FRAMEWORK.md](./FRAMEWORK.md) and [MONOREPO.md](./MONOREPO.md).
 
 ## References
 
