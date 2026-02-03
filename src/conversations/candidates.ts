@@ -37,12 +37,12 @@ export function generateCandidate(conversation: Conversation): Candidate | null 
   
   // Determine priority
   let priority: CandidateMetadata['priority'] = 'medium';
-  if (classification.category === 'bug-report' && classification.confidence > 0.7) {
+  if (classification.category === 'bug-report' && (classification.confidence ?? 0) > 0.7) {
     priority = 'high';
   }
   
   // Deduplicate labels using Set for O(n) performance
-  const labels = [...new Set([classification.category, ...(classification.tags || [])])];
+  const labels = [...new Set([classification.category, ...(classification.tags || [])].filter((l): l is string => l !== undefined))];
   
   return {
     id: randomUUID(),
