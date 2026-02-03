@@ -35,14 +35,10 @@ jobs:
         cache: 'pnpm'
 
     - name: 'Install dependencies'
-      shell: bash
-      run: |
-        pnpm install --frozen-lockfile --prod
+      run: pnpm install --frozen-lockfile --production
 
     - name: 'Build TypeScript'
-      shell: bash
-      run: |
-        pnpm run build
+      run: pnpm run build
 
     - name: 'Deploy to Azure Functions'
       uses: Azure/functions-action@v1
