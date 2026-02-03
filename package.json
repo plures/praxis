@@ -3,6 +3,7 @@
   "version": "1.2.15",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "type": "module",
+  "packageManager": "pnpm@10.28.2",
   "workspaces": [
     "packages/*",
     "apps/*"
