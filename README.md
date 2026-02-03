@@ -577,7 +577,7 @@ Comprehensive example demonstrating all Praxis features in a single application:
 - Constraints enforcing business rules
 
 ```bash
-npm run build
+pnpm run build
 node dist/examples/hero-ecommerce/index.js
 ```
 
@@ -628,7 +628,7 @@ Demonstrates the terminal node feature for command execution:
 - Both text and widget input modes
 
 ```bash
-npm run build
+pnpm run build
 node examples/terminal-node/index.js
 ```
 
@@ -639,7 +639,7 @@ See [examples/terminal-node/README.md](./examples/terminal-node/README.md) and [
 Login/logout with facts, rules, and constraints.
 
 ```bash
-npm run build
+pnpm run build
 node dist/examples/auth-basic/index.js
 ```
 
@@ -648,7 +648,7 @@ node dist/examples/auth-basic/index.js
 Shopping cart with multiple rules, constraints, and complex state management.
 
 ```bash
-npm run build
+pnpm run build
 node dist/examples/cart/index.js
 ```
 
@@ -657,7 +657,7 @@ node dist/examples/cart/index.js
 Counter example showing Svelte v5 integration with reactive stores.
 
 ```bash
-npm run build
+pnpm run build
 node dist/examples/svelte-counter/index.js
 ```
 
@@ -697,11 +697,11 @@ Features:
 - CLI integration for CI/CD pipelines
 
 ```bash
-npm run build
+pnpm run build
 node examples/decision-ledger/index.js
 
 # Validate contracts
-npx praxis validate --registry examples/sample-registry.js
+pnpm exec praxis validate --registry examples/sample-registry.js
 ```
 
 See [examples/decision-ledger/README.md](./examples/decision-ledger/README.md)
@@ -1120,16 +1120,16 @@ See [CROSS_LANGUAGE_SYNC.md](./CROSS_LANGUAGE_SYNC.md) for details on keeping im
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Build
-npm run build
+pnpm run build
 
 # Run tests
-npm test
+pnpm test
 
 # Type check
-npm run typecheck
+pnpm run typecheck
 ```
 
 ### Deno Development

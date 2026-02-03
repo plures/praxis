@@ -31,16 +31,16 @@ git clone https://github.com/YOUR_USERNAME/praxis.git
 cd praxis
 
 # Install dependencies
-npm install
+pnpm install
 
 # Build the library
-npm run build
+pnpm run build
 
 # Run tests
-npm test
+pnpm test
 
 # Type check
-npm run typecheck
+pnpm run typecheck
 ```
 
 ### Deno Setup (Experimental)
@@ -106,9 +106,9 @@ Run `deno fmt` before committing to ensure consistent style.
 
 ```bash
 # Node.js (Vitest)
-npm test
-npm run test:watch  # Watch mode
-npm run test:ui     # UI mode
+pnpm test
+pnpm run test:watch  # Watch mode
+pnpm run test:ui     # UI mode
 
 # Deno
 deno task test
@@ -128,9 +128,9 @@ If your change adds or modifies any rule or constraint:
 4. **Run dogfood checks**:
 
 ```bash
-npm run scan:rules
-npm run build
-npm run validate:contracts
+pnpm run scan:rules
+pnpm run build
+pnpm run validate:contracts
 ```
 
 See `docs/decision-ledger/DOGFOODING.md` for full guidance.
@@ -265,13 +265,13 @@ The repository uses npm workspaces. When developing:
 
 ```bash
 # Install all dependencies (from root)
-npm install
+pnpm install
 
 # Build all packages
-npm run build
+pnpm run build
 
 # Test all packages
-npm test
+pnpm test
 
 # Work on a specific package
 cd packages/praxis-core
@@ -342,9 +342,9 @@ All core module changes require Decision Ledger compliance:
 4. **Validation**: Run validation before submitting PR:
 
 ```bash
-npm run scan:rules
-npm run build
-npm run validate:contracts
+pnpm run scan:rules
+pnpm run build
+pnpm run validate:contracts
 ```
 
 ### Core Breaking Change Policy
