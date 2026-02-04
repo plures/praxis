@@ -40,7 +40,7 @@ function gateValidTitle(candidate: Candidate): GateResult {
  * Gate: Not duplicate (simple check based on title)
  * In production, this would check against existing issues
  */
-function gateNotDuplicate(candidate: Candidate): GateResult {
+function gateNotDuplicate(_candidate: Candidate): GateResult {
   // For now, always pass - would implement duplicate detection in production
   return {
     name: 'not-duplicate',
@@ -53,9 +53,9 @@ function gateNotDuplicate(candidate: Candidate): GateResult {
  * Gate: Has metadata
  */
 function gateHasMetadata(candidate: Candidate): GateResult {
-  const hasLabels = candidate.metadata.labels && candidate.metadata.labels.length > 0;
+  const hasLabels = !!(candidate.metadata.labels && candidate.metadata.labels.length > 0);
   const hasPriority = !!candidate.metadata.priority;
-  const passed = hasLabels && hasPriority;
+  const passed: boolean = hasLabels && hasPriority;
   
   return {
     name: 'has-metadata',

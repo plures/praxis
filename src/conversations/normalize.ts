@@ -21,7 +21,7 @@ function normalizeWhitespace(text: string): string {
  */
 function normalizeCodeBlocks(text: string): string {
   // Ensure code blocks have consistent formatting
-  return text.replace(/```(\w+)?\n/g, (match, lang) => {
+  return text.replace(/```(\w+)?\n/g, (_match, lang) => {
     return lang ? `\`\`\`${lang.toLowerCase()}\n` : '```\n';
   });
 }
