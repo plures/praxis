@@ -86,12 +86,12 @@ jobs:
               // Create custom hash based on changed file paths and line changes
               const lines = diffOutput.split('\n');
               const fileMarkers = lines
-                .filter(l => l.startsWith('diff --git') || l.startsWith('+++') || l.startsWith('---'))
+                .filter(l => l.startsWith('diff --git') || l.startsWith('+++ ') || l.startsWith('--- '))
                 .map(l => l.replace(/^[+-]{3}\s+/, '').replace(/^diff --git\s+/, ''))
                 .filter(l => l && !l.startsWith('/dev/null'));
 
-              const addedLines = lines.filter(l => l.startsWith('+') && !l.startsWith('+++')).length;
-              const removedLines = lines.filter(l => l.startsWith('-') && !l.startsWith('---')).length;
+              const addedLines = lines.filter(l => l.startsWith('+') && !l.startsWith('+++ ')).length;
+              const removedLines = lines.filter(l => l.startsWith('-') && !l.startsWith('--- ')).length;
 
               return {
                 files: [...new Set(fileMarkers)].sort(),
@@ -105,7 +105,8 @@ jobs:
           }
 
           function computePatchOverlap(sig1, sig2) {
-            if (sig1.totalChanges === 0 || sig2.totalChanges === 0) return 0;
+            // If either PR has no files changed, can't compute meaningful overlap
+            if (sig1.files.length === 0 || sig2.files.length === 0) return 0;
 
             const files1 = new Set(sig1.files);
             const files2 = new Set(sig2.files);
@@ -114,12 +115,17 @@ jobs:
             if (commonFiles.length === 0) return 0;
 
             const fileOverlap = (commonFiles.length / Math.max(files1.size, files2.size)) * 100;
-            const lineRatio = Math.min(
-              sig1.totalChanges / sig2.totalChanges,
-              sig2.totalChanges / sig1.totalChanges
-            ) * 100;
 
-            // Weighted combination
+            // Calculate line change similarity only if both have line changes
+            let lineRatio = 0;
+            if (sig1.totalChanges > 0 && sig2.totalChanges > 0) {
+              lineRatio = Math.min(
+                sig1.totalChanges / sig2.totalChanges,
+                sig2.totalChanges / sig1.totalChanges
+              ) * 100;
+            }
+
+            // Weighted combination (file overlap is more reliable)
             return fileOverlap * 0.7 + lineRatio * 0.3;
           }
 
