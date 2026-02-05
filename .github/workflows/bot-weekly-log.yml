@@ -1,0 +1,156 @@
+name: Weekly Bot Activity Log
+
+on:
+  schedule:
+    # Run every Monday at 10:00 UTC
+    - cron: "0 10 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+
+jobs:
+  log-weekly-activity:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20.x'
+      
+      - name: Get date range for last week
+        id: dates
+        run: |
+          END_DATE=$(date -u +%Y-%m-%d)
+          START_DATE=$(date -u -d '7 days ago' +%Y-%m-%d)
+          WEEK_LABEL=$(date -u -d '7 days ago' +%Y-W%U)
+          echo "start=$START_DATE" >> $GITHUB_OUTPUT
+          echo "end=$END_DATE" >> $GITHUB_OUTPUT
+          echo "week=$WEEK_LABEL" >> $GITHUB_OUTPUT
+      
+      - name: Collect bot activity
+        id: activity
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          START_DATE: ${{ steps.dates.outputs.start }}
+          END_DATE: ${{ steps.dates.outputs.end }}
+        run: |
+          # Get bot PRs merged in the last week
+          BOT_PRS=$(gh pr list \
+            --state merged \
+            --label bot-update \
+            --search "merged:>=$START_DATE" \
+            --json number,title,mergedAt,url \
+            --limit 100)
+          
+          # Get dependabot PRs merged in the last week
+          DEPENDABOT_PRS=$(gh pr list \
+            --state merged \
+            --author "dependabot[bot]" \
+            --search "merged:>=$START_DATE" \
+            --json number,title,mergedAt,url \
+            --limit 100)
+          
+          # Count activities
+          BOT_COUNT=$(echo "$BOT_PRS" | jq '. | length')
+          DEPENDABOT_COUNT=$(echo "$DEPENDABOT_PRS" | jq '. | length')
+          
+          echo "bot_count=$BOT_COUNT" >> $GITHUB_OUTPUT
+          echo "dependabot_count=$DEPENDABOT_COUNT" >> $GITHUB_OUTPUT
+          
+          # Create weekly summary
+          mkdir -p .github/bot-logs
+          LOG_FILE=".github/bot-logs/${WEEK_LABEL}.md"
+          
+          cat > "$LOG_FILE" <<EOF
+          # Bot Activity Log - Week ${{ steps.dates.outputs.week }}
+          
+          **Period:** $START_DATE to $END_DATE
+          
+          ## Summary
+          - Bot-managed PRs merged: $BOT_COUNT
+          - Dependabot PRs merged: $DEPENDABOT_COUNT
+          - Total automated updates: $((BOT_COUNT + DEPENDABOT_COUNT))
+          
+          ## Bot-managed Updates
+          EOF
+          
+          if [ "$BOT_COUNT" -gt 0 ]; then
+            echo "$BOT_PRS" | jq -r '.[] | "- [#\(.number)](\(.url)) \(.title) (merged: \(.mergedAt[:10]))"' >> "$LOG_FILE"
+          else
+            echo "- No bot-managed PRs merged this week" >> "$LOG_FILE"
+          fi
+          
+          cat >> "$LOG_FILE" <<EOF
+          
+          ## Dependabot Updates
+          EOF
+          
+          if [ "$DEPENDABOT_COUNT" -gt 0 ]; then
+            echo "$DEPENDABOT_PRS" | jq -r '.[] | "- [#\(.number)](\(.url)) \(.title) (merged: \(.mergedAt[:10]))"' >> "$LOG_FILE"
+          else
+            echo "- No dependabot PRs merged this week" >> "$LOG_FILE"
+          fi
+          
+          echo "log_file=$LOG_FILE" >> $GITHUB_OUTPUT
+      
+      - name: Update index
+        run: |
+          mkdir -p .github/bot-logs
+          INDEX_FILE=".github/bot-logs/INDEX.md"
+          
+          cat > "$INDEX_FILE" <<EOF
+          # Bot Activity Logs Index
+          
+          This directory contains weekly logs of automated bot activities in the Praxis repository.
+          Each log captures dependency updates, version bumps, and other automated maintenance tasks.
+          
+          ## Purpose
+          - Track bot activities even when no GitHub issue is created
+          - Provide audit trail for automated changes
+          - Enable review of batch updates over time
+          
+          ## Weekly Logs
+          EOF
+          
+          # List all log files in reverse chronological order
+          find .github/bot-logs -name "*.md" -not -name "INDEX.md" | sort -r | while read -r log; do
+            filename=$(basename "$log")
+            week=${filename%.md}
+            echo "- [$week](./$filename)" >> "$INDEX_FILE"
+          done
+      
+      - name: Commit and push logs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add .github/bot-logs/
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update bot activity log for week ${{ steps.dates.outputs.week }}"
+            git push origin HEAD:main
+          fi
+      
+      - name: Create summary
+        run: |
+          echo "## 🤖 Weekly Bot Activity Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Week:** ${{ steps.dates.outputs.week }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Period:** ${{ steps.dates.outputs.start }} to ${{ steps.dates.outputs.end }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Bot-managed PRs: ${{ steps.activity.outputs.bot_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Dependabot PRs: ${{ steps.activity.outputs.dependabot_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Total updates: $((${{ steps.activity.outputs.bot_count }} + ${{ steps.activity.outputs.dependabot_count }}))" >> $GITHUB_STEP_SUMMARY
