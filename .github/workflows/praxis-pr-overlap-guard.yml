@@ -1,0 +1,201 @@
+name: Praxis PR Overlap Guard
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  guard-against-overlapping-work:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - run: |
+          git fetch origin pull/${{ github.event.pull_request.number }}/head:praxis-pr-${{ github.event.pull_request.number }}
+          git checkout praxis-pr-${{ github.event.pull_request.number }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20.x'
+
+      - name: Analyze PR overlap
+        id: overlap_analysis
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          THIS_PR: ${{ github.event.pull_request.number }}
+          THIS_TITLE: ${{ github.event.pull_request.title }}
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+        run: |
+          node << 'PRAXIS_SCRIPT'
+          const { execSync } = require('child_process');
+          const fs = require('fs');
+
+          const thisPrNum = parseInt(process.env.THIS_PR);
+          const thisTitle = process.env.THIS_TITLE;
+          const targetBranch = process.env.TARGET_BRANCH;
+
+          // Fetch all open PRs targeting same branch using gh CLI
+          const openPrsJson = execSync(
+            `gh pr list --base ${targetBranch} --state open --json number,title,url --limit 100`,
+            { encoding: 'utf8' }
+          );
+
+          const openPrs = JSON.parse(openPrsJson).filter(pr => pr.number !== thisPrNum);
+
+          // Custom title similarity using character trigrams
+          function computeTitleOverlap(str1, str2) {
+            const normalize = s => s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+            const s1 = normalize(str1);
+            const s2 = normalize(str2);
+
+            // Generate character trigrams
+            const makeTrigrams = text => {
+              const grams = new Set();
+              const padded = `  ${text}  `;
+              for (let i = 0; i < padded.length - 2; i++) {
+                grams.add(padded.slice(i, i + 3));
+              }
+              return grams;
+            };
+
+            const trigrams1 = makeTrigrams(s1);
+            const trigrams2 = makeTrigrams(s2);
+
+            // Jaccard coefficient
+            const intersection = new Set([...trigrams1].filter(t => trigrams2.has(t)));
+            const union = new Set([...trigrams1, ...trigrams2]);
+
+            return union.size > 0 ? (intersection.size / union.size) * 100 : 0;
+          }
+
+          // Compute patch signatures for diff comparison
+          function getPatchSignature() {
+            try {
+              const diffOutput = execSync(
+                `git diff origin/${targetBranch}...HEAD`,
+                { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }
+              );
+
+              // Create custom hash based on changed file paths and line changes
+              const lines = diffOutput.split('\n');
+              const fileMarkers = lines
+                .filter(l => l.startsWith('diff --git') || l.startsWith('+++') || l.startsWith('---'))
+                .map(l => l.replace(/^[+-]{3}\s+/, '').replace(/^diff --git\s+/, ''))
+                .filter(l => l && !l.startsWith('/dev/null'));
+
+              const addedLines = lines.filter(l => l.startsWith('+') && !l.startsWith('+++')).length;
+              const removedLines = lines.filter(l => l.startsWith('-') && !l.startsWith('---')).length;
+
+              return {
+                files: [...new Set(fileMarkers)].sort(),
+                addedLines,
+                removedLines,
+                totalChanges: addedLines + removedLines
+              };
+            } catch (err) {
+              return { files: [], addedLines: 0, removedLines: 0, totalChanges: 0 };
+            }
+          }
+
+          function computePatchOverlap(sig1, sig2) {
+            if (sig1.totalChanges === 0 || sig2.totalChanges === 0) return 0;
+
+            const files1 = new Set(sig1.files);
+            const files2 = new Set(sig2.files);
+            const commonFiles = [...files1].filter(f => files2.has(f));
+
+            if (commonFiles.length === 0) return 0;
+
+            const fileOverlap = (commonFiles.length / Math.max(files1.size, files2.size)) * 100;
+            const lineRatio = Math.min(
+              sig1.totalChanges / sig2.totalChanges,
+              sig2.totalChanges / sig1.totalChanges
+            ) * 100;
+
+            // Weighted combination
+            return fileOverlap * 0.7 + lineRatio * 0.3;
+          }
+
+          const thisPatchSig = getPatchSignature();
+          const suspiciousPrs = [];
+
+          for (const otherPr of openPrs) {
+            const titleSim = computeTitleOverlap(thisTitle, otherPr.title);
+
+            let patchSim = 0;
+            if (titleSim > 30) {
+              // Only compute expensive patch comparison if titles are somewhat similar
+              try {
+                execSync(`gh pr checkout ${otherPr.number}`, { stdio: 'ignore' });
+                const otherPatchSig = getPatchSignature();
+                patchSim = computePatchOverlap(thisPatchSig, otherPatchSig);
+                execSync(`git checkout praxis-pr-${thisPrNum}`, { stdio: 'ignore' });
+              } catch (err) {
+                // Skip patch comparison if checkout fails
+              }
+            }
+
+            // Flag as suspicious if title very similar OR high patch overlap
+            if (titleSim >= 60 || patchSim >= 50) {
+              suspiciousPrs.push({
+                prNumber: otherPr.number,
+                prTitle: otherPr.title,
+                prUrl: otherPr.url,
+                titleSimilarity: Math.round(titleSim),
+                patchSimilarity: Math.round(patchSim)
+              });
+            }
+          }
+
+          if (suspiciousPrs.length > 0) {
+            fs.writeFileSync('/tmp/praxis-overlap-data.json', JSON.stringify(suspiciousPrs, null, 2));
+            console.log(`::set-output name=overlap_detected::true`);
+            console.log(`::set-output name=overlap_count::${suspiciousPrs.length}`);
+          } else {
+            console.log(`::set-output name=overlap_detected::false`);
+          }
+          PRAXIS_SCRIPT
+
+      - name: Alert about overlapping PRs
+        if: steps.overlap_analysis.outputs.overlap_detected == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const overlaps = JSON.parse(fs.readFileSync('/tmp/praxis-overlap-data.json', 'utf8'));
+
+            const alertLines = [
+              '## 🔍 Praxis PR Overlap Detection',
+              '',
+              'This PR appears to overlap with existing open PR(s). Please verify this is not duplicate work:',
+              ''
+            ];
+
+            for (const overlap of overlaps) {
+              alertLines.push(`### PR #${overlap.prNumber}: ${overlap.prTitle}`);
+              alertLines.push(`🔗 ${overlap.prUrl}`);
+              alertLines.push('');
+              alertLines.push(`**Similarity Metrics:**`);
+              alertLines.push(`- Title match: ${overlap.titleSimilarity}%`);
+              if (overlap.patchSimilarity > 0) {
+                alertLines.push(`- Code overlap: ${overlap.patchSimilarity}%`);
+              }
+              alertLines.push('');
+            }
+
+            alertLines.push('---');
+            alertLines.push('*This is an automated Praxis guardrail. If this is intentional (e.g., competing approaches), please add a note explaining the difference.*');
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: alertLines.join('\n')
+            });
