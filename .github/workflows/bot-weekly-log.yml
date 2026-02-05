@@ -68,7 +68,7 @@ jobs:
           
           # Create weekly summary
           mkdir -p .github/bot-logs
-          LOG_FILE=".github/bot-logs/${WEEK_LABEL}.md"
+          LOG_FILE=".github/bot-logs/${{ steps.dates.outputs.week }}.md"
           
           cat > "$LOG_FILE" <<EOF
           # Bot Activity Log - Week ${{ steps.dates.outputs.week }}
@@ -140,6 +140,8 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
+            # Note: This commits directly to main for audit logging purposes.
+            # Ensure branch protection rules allow github-actions[bot] to push.
             git commit -m "chore: update bot activity log for week ${{ steps.dates.outputs.week }}"
             git push origin HEAD:main
           fi

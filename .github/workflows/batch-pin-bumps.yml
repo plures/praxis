@@ -99,15 +99,15 @@ jobs:
           git add -A
           
           # Commit with descriptive message
-          git commit -m "chore: weekly pin bumps for $WEEK
+          COMMIT_TITLE="chore: weekly pin bumps for $WEEK"
+          COMMIT_BODY="Automated weekly dependency pin updates.
 
-          Automated weekly dependency pin updates:
-          ${{ steps.check.outputs.summary }}
-          
           This PR batches all pin updates for the week to reduce commit churn.
           Review the lockfile changes for any unexpected updates.
           
           Tracking: Weekly log $WEEK"
+          
+          git commit -m "$COMMIT_TITLE" -m "$COMMIT_BODY"
           
           # Push branch
           git push origin "$BRANCH"
