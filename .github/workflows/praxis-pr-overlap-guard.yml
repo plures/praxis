@@ -156,10 +156,10 @@ jobs:
 
           if (suspiciousPrs.length > 0) {
             fs.writeFileSync('/tmp/praxis-overlap-data.json', JSON.stringify(suspiciousPrs, null, 2));
-            console.log(`::set-output name=overlap_detected::true`);
-            console.log(`::set-output name=overlap_count::${suspiciousPrs.length}`);
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `overlap_detected=true\n`);
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `overlap_count=${suspiciousPrs.length}\n`);
           } else {
-            console.log(`::set-output name=overlap_detected::false`);
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `overlap_detected=false\n`);
           }
           PRAXIS_SCRIPT
 
