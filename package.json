@@ -1,6 +1,6 @@
 {
   "name": "@plures/praxis",
-  "version": "1.2.16",
+  "version": "1.2.17",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "type": "module",
   "packageManager": "pnpm@9.15.1",

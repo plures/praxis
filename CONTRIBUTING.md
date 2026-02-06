@@ -164,6 +164,8 @@ See `docs/DOGFOODING_CHECKLIST.md` for daily/weekly/monthly dogfooding workflows
 6. Address any review feedback.
 7. The PR will be merged once you have the sign-off of the maintainers.
 
+**Note**: The repository includes an automated PR Overlap Guard that detects potential duplicate PRs. If you receive an alert, please review the linked PRs to ensure your work is distinct. See [docs/workflows/pr-overlap-guard.md](docs/workflows/pr-overlap-guard.md) for details.
+
 ### Commit Messages
 
 Use clear, descriptive commit messages:
