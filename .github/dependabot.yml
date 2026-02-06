@@ -5,22 +5,64 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
+      day: "monday"
+      time: "09:00"  # UTC timezone
+    open-pull-requests-limit: 5
+    groups:
+      npm-production:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@types/*"
+          - "@vitest/*"
+          - "typescript"
+          - "tsup"
+          - "vite"
+          - "vitest"
+        update-types:
+          - "minor"
+          - "patch"
+      npm-dev-tools:
+        patterns:
+          - "@types/*"
+          - "@vitest/*"
+          - "typescript"
+          - "tsup"
+          - "vite"
+          - "vitest"
+        update-types:
+          - "minor"
+          - "patch"
     labels:
       - "dependencies"
       - "npm"
+      - "bot-update"
     commit-message:
-      prefix: "chore"
+      prefix: "chore(deps)"
       include: "scope"
+    pull-request-branch-name:
+      separator: "/"
     
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "09:00"  # UTC timezone
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
     labels:
       - "dependencies"
       - "github-actions"
+      - "bot-update"
     commit-message:
-      prefix: "chore"
+      prefix: "chore(deps)"
       include: "scope"
+    pull-request-branch-name:
+      separator: "/"

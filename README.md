@@ -1156,6 +1156,8 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 Contributions are welcome! Please read our [Contributing Guide](./CONTRIBUTING.md) to get started.
 
+**Automated Updates**: This repository uses batched bot updates to reduce commit churn. Dependency updates are grouped weekly and include audit trails. See the [Bot Update Policy](./docs/BOT_UPDATE_POLICY.md) for details.
+
 **Dogfooding Plures Tools**: We actively dogfood all Plures tools during development. If you encounter friction while using any tool, please file a [Dogfooding Friction Report](https://github.com/plures/praxis/issues/new/choose). See the [Dogfooding Quick Start](./docs/DOGFOODING_QUICK_START.md) for details.
 
 - 🐛 [Report a bug](https://github.com/plures/praxis/issues/new?template=bug_report.yml)
