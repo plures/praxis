@@ -10,10 +10,13 @@ Modern software systems—especially those incorporating AI-assisted logic, rule
 2. **Compliance Pipeline** for build-time and runtime validation
 3. **First-class Facts** for tracking missing artifacts
 4. **Immutable Logic Ledger** with assumption invalidation and versioned snapshots
+5. **Reverse Engineering** for migrating existing codebases to contracts
 
 ## Quick Start
 
-### Defining a Contract
+### For New Projects
+
+Start with contracts from the beginning:
 
 ```typescript
 import { defineContract, defineRule } from '@plures/praxis';
@@ -58,6 +61,24 @@ const loginRule = defineRule({
   },
   meta: { contract: loginContract }
 });
+```
+
+### For Existing Projects (Reverse Engineering)
+
+Automatically generate contracts from existing code:
+
+```bash
+# Scan your codebase and generate contracts
+praxis reverse
+
+# With interactive review
+praxis reverse --interactive
+
+# Using AI for better quality
+export OPENAI_API_KEY="your-key"
+praxis reverse --ai openai
+
+# See REVERSE_ENGINEERING.md for complete guide
 ```
 
 ### Build-time Validation
@@ -238,6 +259,14 @@ Formats a validation report as JSON.
 
 Formats a validation report as SARIF (for CI/CD integration).
 
+#### `scanRepository(options: ScanOptions): Promise<ScanResult>`
+
+Scans a repository to discover existing rules and constraints.
+
+#### `generateContractFromRule(descriptor: RuleDescriptor, options: ReverseGenerationOptions): Promise<GenerationResult>`
+
+Generates a contract from an existing rule or constraint using AI or heuristics.
+
 ### Facts and Events
 
 ```typescript
@@ -282,6 +311,43 @@ praxis validate --output sarif > results.sarif
 
 # Strict mode for CI/CD pipelines
 praxis validate --strict
+```
+
+### `praxis reverse`
+
+Reverse engineer contracts from existing codebase.
+
+**Options:**
+- `-d, --dir <path>` - Root directory to scan (default: current directory)
+- `--ai <provider>` - AI provider: `none` (default), `github-copilot`, `openai`, `auto`
+- `-o, --output <dir>` - Output directory for contracts (default: `./contracts`)
+- `--ledger` - Write to logic ledger (default: false)
+- `--dry-run` - Preview without writing files (default: false)
+- `-i, --interactive` - Interactive mode, prompt for each (default: false)
+- `--confidence <threshold>` - Confidence threshold 0.0-1.0 (default: 0.7)
+- `--limit <n>` - Max number of rules to process
+- `--author <name>` - Author name for ledger entries (default: 'reverse-engineer')
+- `--format <format>` - Output format: `json` (default), `yaml`
+
+**Examples:**
+
+```bash
+# Basic reverse engineering
+praxis reverse
+
+# Interactive mode with AI
+praxis reverse --interactive --ai auto
+
+# Generate and write to ledger
+praxis reverse --ledger --author "migration-2024"
+
+# Preview what would be generated
+praxis reverse --dry-run
+
+# Process first 10 rules only
+praxis reverse --limit 10
+
+# See REVERSE_ENGINEERING.md for complete guide
 ```
 
 ## Integration with CI/CD

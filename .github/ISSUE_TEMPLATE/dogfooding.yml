@@ -1,0 +1,134 @@
+name: Dogfooding Friction Report
+description: Report friction encountered while using Plures tools in daily development
+title: "[Dogfood]: "
+labels: ["dogfood", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for dogfooding Plures tools! This template helps capture friction points for immediate action.
+        
+        **Guidelines:**
+        - Focus on **one specific friction point** per issue
+        - Provide enough context to reproduce the friction
+        - Link to related work (PRs, commits, discussions) when relevant
+        - Suggest solutions if you have ideas
+
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Which Plures Tool?
+      description: Select the tool where you encountered friction
+      options:
+        - Praxis CLI
+        - PluresDB
+        - Decision Ledger
+        - State-Docs
+        - CodeCanvas
+        - Unum
+        - OpenClaw
+        - Other/Multiple
+    validations:
+      required: true
+
+  - type: dropdown
+    id: friction-type
+    attributes:
+      label: Type of Friction
+      description: What kind of friction did you encounter?
+      options:
+        - Confusing error message
+        - Missing/unclear documentation
+        - Manual step that should be automated
+        - Unexpected behavior
+        - Difficult to use
+        - Missing feature
+        - Performance/speed issue
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-were-you-doing
+    attributes:
+      label: What were you trying to do?
+      description: Describe the task or goal you were working on
+      placeholder: |
+        Example: "I was adding a new rule and trying to validate its contract..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: friction-description
+    attributes:
+      label: What friction did you encounter?
+      description: Describe the specific friction point in detail
+      placeholder: |
+        Example: "The `validate:contracts` command showed a warning but didn't indicate which file contained the rule with the missing contract. I had to grep the codebase to find it."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-experience
+    attributes:
+      label: What would the ideal experience be?
+      description: How should this work to eliminate the friction?
+      placeholder: |
+        Example: "The validation output should include the file path and line number where each rule is defined, so I can immediately jump to the right location."
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround (if any)
+      description: Did you find a way around this friction?
+      placeholder: |
+        Example: "I used `grep -r 'defineRule' src/` to find the file, then searched for the rule ID."
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context & References
+      description: Links to related PRs, commits, conversations, or documentation
+      placeholder: |
+        - PR #123 where I encountered this
+        - Related to conversation in docs/decision-ledger/DOGFOODING.md
+        - Similar to issue #456
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Impact Level
+      description: How much does this friction slow you down?
+      options:
+        - High - Blocks work or causes significant delays
+        - Medium - Annoying but workable
+        - Low - Minor inconvenience
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: Suggested Solutions
+      description: If you have ideas for fixing this, share them here
+      placeholder: |
+        - Enhance CLI output to include file paths
+        - Add a `--verbose` flag for detailed validation
+        - Update documentation with this edge case
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Dogfooding Checklist
+      description: Confirm that this issue follows dogfooding guidelines
+      options:
+        - label: This issue focuses on one specific friction point
+          required: true
+        - label: I've provided enough context to understand the friction
+          required: true
+        - label: I've suggested an ideal experience or solution (if possible)
+          required: false

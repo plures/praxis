@@ -1,5 +1,11 @@
 # Praxis
 
+<!-- plures-readme-banner -->
+[![CI](https://github.com/plures/praxis/actions/workflows/ci.yml/badge.svg)](https://github.com/plures/praxis/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/%40plures%2Fpraxis.svg)](https://www.npmjs.com/package/@plures/praxis)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+
 **Typed, visual-first application logic for Svelte, Node, and the browser.**
 
 [![npm version](https://img.shields.io/npm/v/@plures/praxis.svg)](https://www.npmjs.com/package/@plures/praxis)
@@ -239,6 +245,67 @@ npx praxis generate --schema src/schemas/app.schema.ts
 npx praxis canvas src/schemas/app.schema.ts
 ```
 
+## Decision Ledger (Behavior Contracts)
+
+Document, validate, and track the evolution of your rules and constraints with explicit behavioral contracts.
+
+```typescript
+import { defineContract, defineRule } from '@plures/praxis';
+
+// Define a contract with explicit behavior, examples, and invariants
+const loginContract = defineContract({
+  ruleId: 'auth.login',
+  behavior: 'Process login events and create user session facts',
+  examples: [
+    {
+      given: 'User provides valid credentials',
+      when: 'LOGIN event is received',
+      then: 'UserSessionCreated fact is emitted'
+    }
+  ],
+  invariants: ['Session must have unique ID'],
+  assumptions: [
+    {
+      id: 'assume-unique-username',
+      statement: 'Usernames are unique across the system',
+      confidence: 0.9,
+      justification: 'Standard authentication practice',
+      impacts: ['spec', 'tests', 'code'],
+      status: 'active'
+    }
+  ]
+});
+
+// Attach contract to rule
+const loginRule = defineRule({
+  id: 'auth.login',
+  description: 'Process login events',
+  impl: (state, events) => { /* ... */ },
+  contract: loginContract
+});
+```
+
+**Validate contracts in CI/CD:**
+```bash
+# Validate all contracts
+npx praxis validate --strict
+
+# Generate SARIF for GitHub Actions
+npx praxis validate --output sarif > results.sarif
+
+# Reverse engineer contracts from existing code
+npx praxis reverse --interactive
+```
+
+**Key features:**
+- ✅ Explicit behavior documentation with Given/When/Then examples
+- ✅ Assumption tracking with confidence levels
+- ✅ Immutable ledger for change history
+- ✅ Build-time validation and CI/CD integration
+- ✅ Auto-generation from existing code
+
+See [src/decision-ledger/README.md](./src/decision-ledger/README.md) for complete documentation.
+
 ## Exports map
 - `@plures/praxis` → main engine (ESM/CJS/types)
 - `@plures/praxis/svelte` → Svelte 5 integrations
@@ -251,7 +318,17 @@ npx praxis canvas src/schemas/app.schema.ts
 ## Documentation
 - [Getting Started](./GETTING_STARTED.md)
 - [Framework Guide](./FRAMEWORK.md)
+- [Praxis-Core API](./docs/core/praxis-core-api.md) - Stable API surface & guarantees
+- [Extending Praxis-Core](./docs/core/extending-praxis-core.md) - Extension guidelines
+- [Decision Ledger Guide](./src/decision-ledger/README.md)
 - [Examples](./examples/)
+
+## Decision Ledger
+
+Praxis dogfoods its Decision Ledger to keep rule/constraint behavior explicit and enforceable.
+
+- [Behavior Ledger](./docs/decision-ledger/BEHAVIOR_LEDGER.md)
+- [Dogfooding Guide](./docs/decision-ledger/DOGFOODING.md)
 
 ## Contributing
 PRs and discussions welcome. Please see [CONTRIBUTING.md](./CONTRIBUTING.md) and [SECURITY.md](./SECURITY.md).
@@ -382,6 +459,44 @@ This protocol is:
 - The foundation for all higher-level TypeScript APIs
 
 ## Framework Architecture
+
+Praxis is organized as a **monorepo** with clearly separated packages. See [MONOREPO.md](./MONOREPO.md) for the complete organization plan.
+
+### Target Monorepo Structure
+
+```
+praxis/
+├── packages/                       # Published npm packages
+│   ├── praxis-core/               # Core logic library (zero dependencies)
+│   │   └── src/
+│   │       ├── logic/             # Facts, events, rules, constraints, engine
+│   │       ├── schema/            # Schema definitions and validation
+│   │       ├── decision-ledger/   # Contracts and behavior specifications
+│   │       └── protocol/          # Core protocol types
+│   ├── praxis-cli/                # Command-line interface
+│   │   └── src/
+│   │       ├── commands/          # CLI commands
+│   │       └── generators/        # Code generators
+│   ├── praxis-svelte/             # Svelte 5 integration
+│   │   └── src/
+│   │       ├── components/        # Reactive Svelte components
+│   │       ├── generators/        # Component generators
+│   │       └── runtime/           # Svelte runtime integration
+│   ├── praxis-cloud/              # Cloud sync and relay
+│   │   └── src/
+│   │       ├── relay/             # Cloud relay server
+│   │       └── sync/              # Sync protocol
+│   └── praxis/                    # Main package (re-exports all)
+├── apps/                          # Example applications
+├── tools/                         # Development tools
+├── ui/                            # UI components and tools
+├── docs/                          # Documentation
+└── examples/                      # Simple examples and demos
+```
+
+### Current Structure (In Transition)
+
+The existing code is currently located in:
 
 ```
 /praxis
@@ -569,6 +684,27 @@ See [examples/simple-app/README.md](./examples/simple-app/README.md)
 Demonstrates real-time synchronization with Praxis Cloud relay service.
 
 See [examples/cloud-sync/README.md](./examples/cloud-sync/README.md)
+
+### 13. Decision Ledger (`examples/decision-ledger`)
+
+Demonstrates behavior contracts for rules and constraints with validation and immutable ledger tracking.
+
+Features:
+- Contract definition with behavior, examples, and invariants
+- Assumption tracking with confidence levels
+- Validation and reporting (console, JSON, SARIF)
+- Immutable logic ledger for change history
+- CLI integration for CI/CD pipelines
+
+```bash
+npm run build
+node examples/decision-ledger/index.js
+
+# Validate contracts
+npx praxis validate --registry examples/sample-registry.js
+```
+
+See [examples/decision-ledger/README.md](./examples/decision-ledger/README.md)
 
 ## API Reference
 
@@ -1020,6 +1156,10 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 Contributions are welcome! Please read our [Contributing Guide](./CONTRIBUTING.md) to get started.
 
+**Automated Updates**: This repository uses batched bot updates to reduce commit churn. Dependency updates are grouped weekly and include audit trails. See the [Bot Update Policy](./docs/BOT_UPDATE_POLICY.md) for details.
+
+**Dogfooding Plures Tools**: We actively dogfood all Plures tools during development. If you encounter friction while using any tool, please file a [Dogfooding Friction Report](https://github.com/plures/praxis/issues/new/choose). See the [Dogfooding Quick Start](./docs/DOGFOODING_QUICK_START.md) for details.
+
 - 🐛 [Report a bug](https://github.com/plures/praxis/issues/new?template=bug_report.yml)
 - 💡 [Request a feature](https://github.com/plures/praxis/issues/new?template=enhancement.yml)
 - 📖 [Improve documentation](https://github.com/plures/praxis/issues/new?template=bug_report.yml)
@@ -1041,3 +1181,16 @@ Please review our [Code of Conduct](./CODE_OF_CONDUCT.md) before participating.
 ---
 
 Built with ❤️ by the plures team
+
+---
+
+<!-- plures-readme-standard-sections -->
+## Overview
+
+## Install
+
+## Development
+
+## Contributing
+
+## License

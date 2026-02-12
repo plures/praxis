@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://praxis.dev/schemas/candidate.json",
+  "title": "Candidate",
+  "description": "Schema for a conversation candidate for emission (GitHub issue, documentation, etc.)",
+  "type": "object",
+  "required": ["id", "conversationId", "type", "title", "body", "metadata"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the candidate"
+    },
+    "conversationId": {
+      "type": "string",
+      "description": "Reference to the source conversation ID"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["github-issue", "github-pr", "documentation", "feature-request", "bug-report"],
+      "description": "Type of candidate to emit"
+    },
+    "title": {
+      "type": "string",
+      "description": "Title or subject for the candidate"
+    },
+    "body": {
+      "type": "string",
+      "description": "Main content body for the candidate"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Candidate metadata",
+      "properties": {
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"],
+          "description": "Priority level"
+        },
+        "labels": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Labels to apply (for GitHub issues/PRs)"
+        },
+        "assignees": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Assignees (for GitHub issues/PRs)"
+        },
+        "source": {
+          "type": "object",
+          "description": "Source information",
+          "properties": {
+            "conversationId": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    },
+    "gateStatus": {
+      "type": "object",
+      "description": "Gating decision results",
+      "properties": {
+        "passed": {
+          "type": "boolean",
+          "description": "Whether the candidate passed gating"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Reason for gating decision"
+        },
+        "gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "passed": {
+                "type": "boolean"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Individual gate results"
+        }
+      }
+    },
+    "emitted": {
+      "type": "boolean",
+      "description": "Whether the candidate has been emitted",
+      "default": false
+    },
+    "emissionResult": {
+      "type": "object",
+      "description": "Result of emission attempt",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "externalId": {
+          "type": "string",
+          "description": "External ID (e.g., GitHub issue number)"
+        },
+        "error": {
+          "type": "string",
+          "description": "Error message if emission failed"
+        }
+      }
+    }
+  }
+}

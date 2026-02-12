@@ -277,4 +277,101 @@ program
     }
   });
 
+// Reverse command (Decision Ledger - Reverse Engineering)
+program
+  .command('reverse')
+  .description('Reverse engineer contracts from existing codebase')
+  .option('-d, --dir <path>', 'Root directory to scan', process.cwd())
+  .option('--ai <provider>', 'AI provider (none, github-copilot, openai, auto)', 'none')
+  .option('-o, --output <dir>', 'Output directory for contracts', './contracts')
+  .option('--ledger', 'Write to logic ledger', false)
+  .option('--dry-run', 'Dry run mode (no files written)', false)
+  .option('-i, --interactive', 'Interactive mode (prompt for each)', false)
+  .option('--confidence <threshold>', 'Confidence threshold (0.0-1.0)', '0.7')
+  .option('--limit <n>', 'Max number of rules to process')
+  .option('--author <name>', 'Author name for ledger entries', 'reverse-engineer')
+  .option('--format <format>', 'Output format (json, yaml)', 'json')
+  .action(async (options) => {
+    try {
+      const { reverseCommand } = await import('./commands/reverse.js');
+      await reverseCommand(options);
+    } catch (error) {
+      console.error('Error reverse engineering contracts:', error);
+      process.exit(1);
+    }
+  });
+
+// Conversations commands (praxis-conversations subsystem)
+const conversationsCmd = program
+  .command('conversations')
+  .description('Conversation ingestion subsystem (capture -> redact -> normalize -> classify -> emit)');
+
+conversationsCmd
+  .command('capture')
+  .description('Capture a conversation from input')
+  .option('-i, --input <file>', 'Input conversation file')
+  .option('-o, --output <file>', 'Output file for captured conversation')
+  .action(async (options) => {
+    try {
+      const { captureCommand } = await import('./commands/conversations.js');
+      await captureCommand(options);
+    } catch (error) {
+      console.error('Error capturing conversation:', error);
+      process.exit(1);
+    }
+  });
+
+conversationsCmd
+  .command('push')
+  .description('Process conversation through pipeline (redact -> normalize)')
+  .requiredOption('-i, --input <file>', 'Input conversation file')
+  .option('-o, --output <file>', 'Output file for processed conversation')
+  .option('--skip-redaction', 'Skip PII redaction', false)
+  .option('--skip-normalization', 'Skip normalization', false)
+  .action(async (options) => {
+    try {
+      const { pushCommand } = await import('./commands/conversations.js');
+      await pushCommand(options);
+    } catch (error) {
+      console.error('Error processing conversation:', error);
+      process.exit(1);
+    }
+  });
+
+conversationsCmd
+  .command('classify')
+  .description('Classify conversation and generate candidate')
+  .requiredOption('-i, --input <file>', 'Input conversation file')
+  .option('-o, --output <file>', 'Output file for candidate')
+  .action(async (options) => {
+    try {
+      const { classifyCommand } = await import('./commands/conversations.js');
+      await classifyCommand(options);
+    } catch (error) {
+      console.error('Error classifying conversation:', error);
+      process.exit(1);
+    }
+  });
+
+conversationsCmd
+  .command('emit')
+  .description('Emit candidate to destination (fs or github)')
+  .requiredOption('-i, --input <file>', 'Input candidate file')
+  .requiredOption('-e, --emitter <type>', 'Emitter type (fs, github)')
+  .option('--output-dir <dir>', 'Output directory (for fs emitter)', './output/candidates')
+  .option('--owner <owner>', 'GitHub repository owner (for github emitter)')
+  .option('--repo <repo>', 'GitHub repository name (for github emitter)')
+  .option('--token <token>', 'GitHub token (for github emitter)')
+  .option('--dry-run', 'Dry run mode (no actual emission)', false)
+  .option('--commit-intent', 'REQUIRED: Explicit commit intent for GitHub emission', false)
+  .action(async (options) => {
+    try {
+      const { emitCommand } = await import('./commands/conversations.js');
+      await emitCommand(options);
+    } catch (error) {
+      console.error('Error emitting candidate:', error);
+      process.exit(1);
+    }
+  });
+
 program.parse();
