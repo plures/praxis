@@ -67,6 +67,7 @@ jobs:
           echo "Detected version: $VERSION"
       
       - name: Generate changelog
+        if: startsWith(github.ref, 'refs/tags/')
         id: changelog
         run: |
           if [ -f CHANGELOG.md ]; then
@@ -78,6 +79,7 @@ jobs:
           fi
       
       - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.get_version.outputs.VERSION }}
@@ -90,5 +92,6 @@ jobs:
   publish:
     name: Publish artifacts
     needs: release
+    if: startsWith(github.ref, 'refs/tags/') && github.event_name == 'push'
     uses: ./.github/workflows/publish.yml
     secrets: inherit
