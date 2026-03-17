@@ -20,7 +20,7 @@ importers:
     devDependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.1
-        version: 6.2.4(svelte@5.53.7)(vite@7.3.1(@types/node@25.3.3)(tsx@4.21.0))
+        version: 6.2.4(svelte@5.53.12)(vite@7.3.1(@types/node@25.3.5)(tsx@4.21.0))
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
@@ -35,13 +35,13 @@ importers:
         version: 4.0.18(vitest@4.0.18)
       esbuild-svelte:
         specifier: ^0.9.4
-        version: 0.9.4(esbuild@0.27.2)(svelte@5.53.7)
+        version: 0.9.4(esbuild@0.27.2)(svelte@5.53.12)
       svelte:
         specifier: ^5.46.0
-        version: 5.53.7
+        version: 5.53.12
       svelte-preprocess:
         specifier: ^6.0.3
-        version: 6.0.3(postcss-load-config@6.0.1(postcss@8.5.6)(tsx@4.21.0))(postcss@8.5.6)(svelte@5.53.7)(typescript@5.9.3)
+        version: 6.0.3(postcss-load-config@6.0.1(postcss@8.5.6)(tsx@4.21.0))(postcss@8.5.6)(svelte@5.53.12)(typescript@5.9.3)
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)
@@ -162,19 +162,19 @@ importers:
     devDependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.1
-        version: 6.2.4(svelte@5.53.7)(vite@7.3.1(@types/node@25.3.3)(tsx@4.21.0))
+        version: 6.2.4(svelte@5.53.12)(vite@7.3.1(@types/node@25.3.5)(tsx@4.21.0))
       '@types/node':
         specifier: ^25.0.1
         version: 25.3.5
       esbuild-svelte:
         specifier: ^0.9.4
-        version: 0.9.4(esbuild@0.27.2)(svelte@5.53.7)
+        version: 0.9.4(esbuild@0.27.2)(svelte@5.53.12)
       svelte:
         specifier: ^5.46.0
-        version: 5.53.7
+        version: 5.53.12
       svelte-preprocess:
         specifier: ^6.0.3
-        version: 6.0.3(postcss-load-config@6.0.1(postcss@8.5.6)(tsx@4.21.0))(postcss@8.5.6)(svelte@5.53.7)(typescript@5.9.3)
+        version: 6.0.3(postcss-load-config@6.0.1(postcss@8.5.6)(tsx@4.21.0))(postcss@8.5.6)(svelte@5.53.12)(typescript@5.9.3)
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)
@@ -544,6 +544,10 @@ packages:
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
+  '@typescript-eslint/types@8.57.0':
+    resolution: {integrity: sha512-dTLI8PEXhjUC7B9Kre+u0XznO696BhXcTlOn0/6kf1fHaQW8+VjJAVHJ3eTI14ZapTxdkOmc80HblPQLaEeJdg==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
   '@vitest/expect@4.0.18':
     resolution: {integrity: sha512-8sCWUyckXXYvx4opfzVY03EOiYVxyNrHS5QxX3DAIi5dpJAAkyJezHCP77VMX4HKA2LDT/Jpfo8i2r5BE3GnQQ==}
 
@@ -793,8 +797,8 @@ packages:
   devalue@5.6.2:
     resolution: {integrity: sha512-nPRkjWzzDQlsejL1WVifk5rvcFi/y1onBRxjaFMjZeR9mFpqu2gmAZ9xUB9/IEanEP/vBtGeGganC/GO1fmufg==}
 
-  devalue@5.6.3:
-    resolution: {integrity: sha512-nc7XjUU/2Lb+SvEFVGcWLiKkzfw8+qHI7zn8WYXKkLMgfGSHbgCEaR6bJpev8Cm6Rmrb19Gfd/tZvGqx9is3wg==}
+  devalue@5.6.4:
+    resolution: {integrity: sha512-Gp6rDldRsFh/7XuouDbxMH3Mx8GMCcgzIb1pDTvNyn8pZGQ22u+Wa+lGV9dQCltFQ7uVw0MhRyb8XDskNFOReA==}
 
   dht-rpc@6.26.3:
     resolution: {integrity: sha512-KuLfRv/hecUHipQcTXHpVv4/N4Jhpww5sLdsrn3Edm5oHwzK9SgNV34hNt7a2aVZCOcG5SfP4AvcQ7pI+y9YNg==}
@@ -846,8 +850,8 @@ packages:
   esrap@2.2.2:
     resolution: {integrity: sha512-zA6497ha+qKvoWIK+WM9NAh5ni17sKZKhbS5B3PoYbBvaYHZWoS33zmFybmyqpn07RLUxSmn+RCls2/XF+d0oQ==}
 
-  esrap@2.2.3:
-    resolution: {integrity: sha512-8fOS+GIGCQZl/ZIlhl59htOlms6U8NvX6ZYgYHpRU/b6tVSh3uHkOHZikl3D4cMbYM0JlpBe+p/BkZEi8J9XIQ==}
+  esrap@2.2.4:
+    resolution: {integrity: sha512-suICpxAmZ9A8bzJjEl/+rLJiDKC0X4gYWUxT6URAWBLvlXmtbZd5ySMu/N2ZGEtMCAmflUDPSehrP9BQcsGcSg==}
 
   estree-walker@3.0.3:
     resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
@@ -1288,8 +1292,8 @@ packages:
     resolution: {integrity: sha512-jj95WnbKbXsXXngYj28a4zx8jeZx50CN/J4r0CEeax2pbfdsETv/J1K8V9Hbu3DCXnpHz5qAikICuxEooi7eNQ==}
     engines: {node: '>=18'}
 
-  svelte@5.53.7:
-    resolution: {integrity: sha512-uxck1KI7JWtlfP3H6HOWi/94soAl23jsGJkBzN2BAWcQng0+lTrRNhxActFqORgnO9BHVd1hKJhG+ljRuIUWfQ==}
+  svelte@5.53.12:
+    resolution: {integrity: sha512-4x/uk4rQe/d7RhfvS8wemTfNjQ0bJbKvamIzRBfTe2eHHjzBZ7PZicUQrC2ryj83xxEacfA1zHKd1ephD1tAxA==}
     engines: {node: '>=18'}
 
   teex@1.0.1:
@@ -1736,22 +1740,22 @@ snapshots:
     dependencies:
       acorn: 8.16.0
 
-  '@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.7)(vite@7.3.1(@types/node@25.3.3)(tsx@4.21.0)))(svelte@5.53.7)(vite@7.3.1(@types/node@25.3.3)(tsx@4.21.0))':
+  '@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.12)(vite@7.3.1(@types/node@25.3.5)(tsx@4.21.0)))(svelte@5.53.12)(vite@7.3.1(@types/node@25.3.5)(tsx@4.21.0))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.53.7)(vite@7.3.1(@types/node@25.3.3)(tsx@4.21.0))
+      '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.53.12)(vite@7.3.1(@types/node@25.3.5)(tsx@4.21.0))
       obug: 2.1.1
-      svelte: 5.53.7
-      vite: 7.3.1(@types/node@25.3.3)(tsx@4.21.0)
+      svelte: 5.53.12
+      vite: 7.3.1(@types/node@25.3.5)(tsx@4.21.0)
 
-  '@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.7)(vite@7.3.1(@types/node@25.3.3)(tsx@4.21.0))':
+  '@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.12)(vite@7.3.1(@types/node@25.3.5)(tsx@4.21.0))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.7)(vite@7.3.1(@types/node@25.3.3)(tsx@4.21.0)))(svelte@5.53.7)(vite@7.3.1(@types/node@25.3.3)(tsx@4.21.0))
+      '@sveltejs/vite-plugin-svelte-inspector': 5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.53.12)(vite@7.3.1(@types/node@25.3.5)(tsx@4.21.0)))(svelte@5.53.12)(vite@7.3.1(@types/node@25.3.5)(tsx@4.21.0))
       deepmerge: 4.3.1
       magic-string: 0.30.21
       obug: 2.1.1
-      svelte: 5.53.7
-      vite: 7.3.1(@types/node@25.3.3)(tsx@4.21.0)
-      vitefu: 1.1.2(vite@7.3.1(@types/node@25.3.3)(tsx@4.21.0))
+      svelte: 5.53.12
+      vite: 7.3.1(@types/node@25.3.5)(tsx@4.21.0)
+      vitefu: 1.1.2(vite@7.3.1(@types/node@25.3.5)(tsx@4.21.0))
 
   '@types/chai@5.2.3':
     dependencies:
@@ -1773,6 +1777,8 @@ snapshots:
   '@types/ws@8.18.1':
     dependencies:
       '@types/node': 25.3.5
+
+  '@typescript-eslint/types@8.57.0': {}
 
   '@vitest/expect@4.0.18':
     dependencies:
@@ -2023,7 +2029,7 @@ snapshots:
 
   devalue@5.6.2: {}
 
-  devalue@5.6.3: {}
+  devalue@5.6.4: {}
 
   dht-rpc@6.26.3:
     dependencies:
@@ -2066,11 +2072,11 @@ snapshots:
     dependencies:
       es-errors: 1.3.0
 
-  esbuild-svelte@0.9.4(esbuild@0.27.2)(svelte@5.53.7):
+  esbuild-svelte@0.9.4(esbuild@0.27.2)(svelte@5.53.12):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       esbuild: 0.27.2
-      svelte: 5.53.7
+      svelte: 5.53.12
 
   esbuild@0.27.2:
     optionalDependencies:
@@ -2109,9 +2115,10 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  esrap@2.2.3:
+  esrap@2.2.4:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
+      '@typescript-eslint/types': 8.57.0
 
   estree-walker@3.0.3:
     dependencies:
@@ -2669,9 +2676,9 @@ snapshots:
       tinyglobby: 0.2.15
       ts-interface-checker: 0.1.13
 
-  svelte-preprocess@6.0.3(postcss-load-config@6.0.1(postcss@8.5.6)(tsx@4.21.0))(postcss@8.5.6)(svelte@5.53.7)(typescript@5.9.3):
+  svelte-preprocess@6.0.3(postcss-load-config@6.0.1(postcss@8.5.6)(tsx@4.21.0))(postcss@8.5.6)(svelte@5.53.12)(typescript@5.9.3):
     dependencies:
-      svelte: 5.53.7
+      svelte: 5.53.12
     optionalDependencies:
       postcss: 8.5.6
       postcss-load-config: 6.0.1(postcss@8.5.6)(tsx@4.21.0)
@@ -2695,7 +2702,7 @@ snapshots:
       magic-string: 0.30.21
       zimmerframe: 1.1.4
 
-  svelte@5.53.7:
+  svelte@5.53.12:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -2706,9 +2713,9 @@ snapshots:
       aria-query: 5.3.1
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.6.3
+      devalue: 5.6.4
       esm-env: 1.2.2
-      esrap: 2.2.3
+      esrap: 2.2.4
       is-reference: 3.0.3
       locate-character: 3.0.0
       magic-string: 0.30.21
