@@ -57,6 +57,28 @@ export type {
   GeneratedPluresDBFile,
 } from '../core/pluresdb/generator.js';
 
+// Chronicle - Causal graph tracking for Praxis state transitions
+export type {
+  TraceDirection,
+  EdgeType,
+  ChronicleEvent,
+  ChronicleNode,
+  ChronicleEdge,
+  Chronicle,
+  ChronicleSpan,
+  ChronosTraceParams,
+  ChronosSearchParams,
+  McpToolResult,
+  ChronosMcpTools,
+} from '../core/chronicle/index.js';
+export {
+  ChronicleContext,
+  PluresDbChronicle,
+  createChronicle,
+  CHRONICLE_PATHS,
+  createChronosMcpTools,
+} from '../core/chronicle/index.js';
+
 /**
  * PluresDB adapter interface for engine integration
  *

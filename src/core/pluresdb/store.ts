@@ -11,6 +11,8 @@ declare const process: { env: { [key: string]: string | undefined } } | undefine
 import type { PraxisDB, UnsubscribeFn } from './adapter.js';
 import type { PraxisRegistry } from '../rules.js';
 import type { PraxisFact, PraxisEvent, PraxisState } from '../protocol.js';
+import type { Chronicle } from '../chronicle/chronicle.js';
+import { ChronicleContext } from '../chronicle/context.js';
 
 /**
  * Key paths for Praxis data in PluresDB
@@ -110,12 +112,33 @@ export class PraxisDBStore<TContext = unknown> {
   private subscriptions: UnsubscribeFn[] = [];
   private factWatchers = new Map<string, Set<(facts: PraxisFact[]) => void>>();
   private onRuleError: RuleErrorHandler;
+  private chronicle?: Chronicle;
 
   constructor(options: PraxisDBStoreOptions<TContext> & { onRuleError?: RuleErrorHandler }) {
     this.db = options.db;
     this.registry = options.registry;
     this.context = options.initialContext ?? ({} as TContext);
     this.onRuleError = options.onRuleError ?? defaultErrorHandler;
+  }
+
+  /**
+   * Attach a Chronicle observer to this store.
+   *
+   * Every subsequent `storeFact` and `appendEvent` call will be recorded as a
+   * causal graph node in PluresDB, enabling full observability for free.
+   *
+   * @param chronicle Chronicle implementation to attach
+   * @returns `this` for fluent chaining
+   *
+   * @example
+   * ```typescript
+   * const store = createPraxisDBStore(db, registry)
+   *   .withChronicle(createChronicle(db));
+   * ```
+   */
+  withChronicle(chronicle: Chronicle): this {
+    this.chronicle = chronicle;
+    return this;
   }
 
   /**
@@ -134,7 +157,36 @@ export class PraxisDBStore<TContext = unknown> {
       throw new Error(`Constraint violation: ${constraintResult.errors.join(', ')}`);
     }
 
+    // Capture before state for Chronicle (best-effort; ignore errors)
+    let before: unknown;
+    if (this.chronicle) {
+      const payload = fact.payload as Record<string, unknown> | undefined;
+      const id = payload?.id as string | undefined;
+      if (id) {
+        before = await this.getFact(fact.tag, id);
+      }
+    }
+
     await this.persistFact(fact);
+
+    // Record state transition in Chronicle
+    if (this.chronicle) {
+      const payload = fact.payload as Record<string, unknown> | undefined;
+      const id = (payload?.id as string | undefined) ?? '';
+      const span = ChronicleContext.current;
+      try {
+        await this.chronicle.record({
+          path: getFactPath(fact.tag, id),
+          before,
+          after: fact,
+          cause: span?.spanId,
+          context: span?.contextId,
+          metadata: { factTag: fact.tag, operation: 'storeFact' },
+        });
+      } catch {
+        // Chronicle errors must never fail the primary operation
+      }
+    }
 
     // Trigger rule evaluation - facts stored directly may trigger derived computations
     await this.triggerRules([fact]);
@@ -153,7 +205,36 @@ export class PraxisDBStore<TContext = unknown> {
     }
 
     for (const fact of facts) {
+      // Capture before state for Chronicle (best-effort)
+      let before: unknown;
+      if (this.chronicle) {
+        const payload = fact.payload as Record<string, unknown> | undefined;
+        const id = payload?.id as string | undefined;
+        if (id) {
+          before = await this.getFact(fact.tag, id);
+        }
+      }
+
       await this.persistFact(fact);
+
+      // Record state transition in Chronicle
+      if (this.chronicle) {
+        const payload = fact.payload as Record<string, unknown> | undefined;
+        const id = (payload?.id as string | undefined) ?? '';
+        const span = ChronicleContext.current;
+        try {
+          await this.chronicle.record({
+            path: getFactPath(fact.tag, id),
+            before,
+            after: fact,
+            cause: span?.spanId,
+            context: span?.contextId,
+            metadata: { factTag: fact.tag, operation: 'storeFacts' },
+          });
+        } catch {
+          // Chronicle errors must never fail the primary operation
+        }
+      }
     }
 
     // Trigger rule evaluation
@@ -207,8 +288,37 @@ export class PraxisDBStore<TContext = unknown> {
     const newEvents = [...existingEvents, entry];
     await this.db.set(path, newEvents);
 
-    // Trigger rules with this event
-    await this.triggerRulesForEvents([event]);
+    // Record event in Chronicle and capture node ID so derived facts can link back to it
+    let eventNodeId: string | undefined;
+    if (this.chronicle) {
+      const span = ChronicleContext.current;
+      try {
+        const node = await this.chronicle.record({
+          path,
+          before: existingEvents.length > 0 ? existingEvents[existingEvents.length - 1] : undefined,
+          after: entry,
+          cause: span?.spanId,
+          context: span?.contextId,
+          metadata: { eventTag: event.tag, sequence: String(entry.sequence), operation: 'appendEvent' },
+        });
+        eventNodeId = node.id;
+      } catch {
+        // Chronicle errors must never fail the primary operation
+      }
+    }
+
+    // Trigger rules within a causal span attributed to this event node,
+    // so any derived facts automatically link back to this event via 'causes' edges.
+    const outerSpan = ChronicleContext.current;
+    const ruleSpan = eventNodeId
+      ? { spanId: eventNodeId, contextId: outerSpan?.contextId }
+      : outerSpan;
+
+    if (ruleSpan && this.chronicle) {
+      await ChronicleContext.runAsync(ruleSpan, () => this.triggerRulesForEvents([event]));
+    } else {
+      await this.triggerRulesForEvents([event]);
+    }
   }
 
   /**
@@ -224,7 +334,8 @@ export class PraxisDBStore<TContext = unknown> {
       eventsByTag.set(event.tag, [...existing, event]);
     }
 
-    // Append each group
+    // Append each group and collect the last recorded event node ID for causal linking
+    let lastEventNodeId: string | undefined;
     for (const [tag, tagEvents] of eventsByTag) {
       const path = getEventPath(tag);
       const existingEvents = (await this.db.get<EventStreamEntry[]>(path)) ?? [];
@@ -237,10 +348,38 @@ export class PraxisDBStore<TContext = unknown> {
       }));
 
       await this.db.set(path, [...existingEvents, ...newEntries]);
+
+      // Record each appended event in Chronicle
+      if (this.chronicle) {
+        const span = ChronicleContext.current;
+        for (const entry of newEntries) {
+          try {
+            const node = await this.chronicle.record({
+              path,
+              after: entry,
+              cause: span?.spanId,
+              context: span?.contextId,
+              metadata: { eventTag: tag, sequence: String(entry.sequence), operation: 'appendEvents' },
+            });
+            lastEventNodeId = node.id;
+          } catch {
+            // Chronicle errors must never fail the primary operation
+          }
+        }
+      }
     }
 
-    // Trigger rules
-    await this.triggerRulesForEvents(events);
+    // Trigger rules in a causal span attributed to the last event node
+    const outerSpan = ChronicleContext.current;
+    const ruleSpan = lastEventNodeId
+      ? { spanId: lastEventNodeId, contextId: outerSpan?.contextId }
+      : outerSpan;
+
+    if (ruleSpan && this.chronicle) {
+      await ChronicleContext.runAsync(ruleSpan, () => this.triggerRulesForEvents(events));
+    } else {
+      await this.triggerRulesForEvents(events);
+    }
   }
 
   /**
@@ -386,6 +525,24 @@ export class PraxisDBStore<TContext = unknown> {
       if (constraintResult.valid) {
         for (const fact of derivedFacts) {
           await this.persistFact(fact);
+
+          // Record derived fact in Chronicle using the current causal span
+          if (this.chronicle) {
+            const payload = fact.payload as Record<string, unknown> | undefined;
+            const id = (payload?.id as string | undefined) ?? '';
+            const span = ChronicleContext.current;
+            try {
+              await this.chronicle.record({
+                path: getFactPath(fact.tag, id),
+                after: fact,
+                cause: span?.spanId,
+                context: span?.contextId,
+                metadata: { factTag: fact.tag, operation: 'derivedFact' },
+              });
+            } catch {
+              // Chronicle errors must never fail the primary operation
+            }
+          }
         }
       }
     }

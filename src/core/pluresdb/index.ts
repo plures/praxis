@@ -32,3 +32,25 @@ export {
 // Config Generator - Generate PluresDB config from schemas
 export type { PluresDBGeneratorOptions, GeneratedPluresDBFile } from './generator.js';
 export { PluresDBGenerator, createPluresDBGenerator } from './generator.js';
+
+// Chronicle - Causal graph tracking for state transitions
+export type {
+  TraceDirection,
+  EdgeType,
+  ChronicleEvent,
+  ChronicleNode,
+  ChronicleEdge,
+  Chronicle,
+  ChronosTraceParams,
+  ChronosSearchParams,
+  McpToolResult,
+  ChronosMcpTools,
+} from '../chronicle/index.js';
+export {
+  ChronicleContext,
+  PluresDbChronicle,
+  createChronicle,
+  CHRONICLE_PATHS,
+  createChronosMcpTools,
+} from '../chronicle/index.js';
+export type { ChronicleSpan } from '../chronicle/index.js';

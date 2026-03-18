@@ -208,6 +208,18 @@ export type {
   GeneratedPluresDBFile,
   PluresDBAdapter,
   PluresDBAdapterOptions,
+  // Chronicle
+  TraceDirection,
+  EdgeType,
+  ChronicleEvent,
+  ChronicleNode,
+  ChronicleEdge,
+  Chronicle,
+  ChronicleSpan,
+  ChronosTraceParams,
+  ChronosSearchParams,
+  McpToolResult,
+  ChronosMcpTools,
 } from './integrations/pluresdb.js';
 export {
   InMemoryPraxisDB,
@@ -229,6 +241,12 @@ export {
   createPluresDBGenerator,
   createPluresDBAdapter,
   attachToEngine,
+  // Chronicle
+  ChronicleContext,
+  PluresDbChronicle,
+  createChronicle,
+  CHRONICLE_PATHS,
+  createChronosMcpTools,
 } from './integrations/pluresdb.js';
 
 // Unum Integration (Identity & Channels)
