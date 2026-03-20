@@ -68,6 +68,12 @@
       "import": "./dist/node/mcp/index.js",
       "require": "./dist/node/mcp/index.cjs",
       "default": "./dist/node/mcp/index.js"
+    },
+    "./expectations": {
+      "types": "./dist/node/expectations/index.d.ts",
+      "import": "./dist/node/expectations/index.js",
+      "require": "./dist/node/expectations/index.cjs",
+      "default": "./dist/node/expectations/index.js"
     }
   },
   "files": [

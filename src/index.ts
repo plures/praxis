@@ -353,3 +353,22 @@ export type { UIContext } from './core/ui-rules.js';
 export { auditCompleteness, formatReport } from './core/completeness.js';
 export type { LogicBranch, StateField, StateTransition, CompletenessReport, CompletenessConfig } from './core/completeness.js';
 
+// ── Expectations DSL (behavioral declarations) ─────────────────────────────
+export {
+  Expectation,
+  ExpectationSet,
+  expectBehavior,
+  verify,
+  formatVerificationReport,
+} from './expectations/index.js';
+export type {
+  ExpectationCondition,
+  ConditionStatus,
+  ConditionResult,
+  ExpectationResult,
+  VerificationReport,
+  ExpectationSetOptions,
+  VerifiableRegistry,
+  VerifiableDescriptor,
+} from './expectations/index.js';
+
