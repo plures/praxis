@@ -488,7 +488,7 @@ describe('Edge Cases and Failure Paths', () => {
           if (events.some(TestEvent.is)) {
             const facts = [];
             for (let i = 0; i < 1000; i++) {
-              facts.push(TestFact.create({ index: i }));
+              facts.push({ tag: `TestFact-${i}`, payload: { index: i } });
             }
             return facts;
           }

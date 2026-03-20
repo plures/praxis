@@ -61,6 +61,18 @@ export interface RuleDescriptor<TContext = unknown> {
   description: string;
   /** Implementation function */
   impl: RuleFn<TContext>;
+  /**
+   * Optional event type filter — only evaluate this rule when at least one
+   * event in the batch has a matching `tag`. When omitted, the rule runs on
+   * every step (catch-all).
+   *
+   * Accepts a single tag string or an array of tags.
+   *
+   * @example
+   * { id: 'sprint-behind', eventTypes: ['sprint.update'], impl: ... }
+   * { id: 'note-check', eventTypes: 'note.update', impl: ... }
+   */
+  eventTypes?: string | string[];
   /** Optional contract for rule behavior */
   contract?: Contract;
   /** Optional metadata */
