@@ -389,3 +389,24 @@ export type {
   SanitizationType,
 } from './factory/index.js';
 
+// ── Project Logic (developer workflow) ──────────────────────────────────────
+export {
+  defineGate,
+  semverContract,
+  commitFromState,
+  branchRules,
+  lintGate,
+  formatGate,
+  expectationGate,
+} from './project/index.js';
+export type {
+  GateConfig,
+  GateState,
+  GateStatus,
+  SemverContractConfig,
+  SemverReport,
+  PraxisDiff,
+  BranchRulesConfig,
+  PredefinedGateConfig,
+} from './project/index.js';
+
