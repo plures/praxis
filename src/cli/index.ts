@@ -239,6 +239,34 @@ cloudCmd
     }
   });
 
+// MCP server command
+program
+  .command('mcp')
+  .description('Start the Praxis MCP server (Model Context Protocol) for AI assistant integration')
+  .option('--name <name>', 'Server name', '@plures/praxis')
+  .option('--version <version>', 'Server version', '1.0.0')
+  .action(async (options) => {
+    try {
+      const { createPraxisMcpServer } = await import('../mcp/server.js');
+      const { PraxisRegistry } = await import('../core/rules.js');
+
+      const registry = new PraxisRegistry({
+        compliance: { enabled: false },
+      });
+      const server = createPraxisMcpServer({
+        name: options.name,
+        version: options.version,
+        initialContext: {},
+        registry,
+      });
+
+      await server.start();
+    } catch (error) {
+      console.error('Error starting MCP server:', error);
+      process.exit(1);
+    }
+  });
+
 // Verify command
 program
   .command('verify <type>')

@@ -62,6 +62,12 @@
       "import": "./dist/node/components/index.js",
       "require": "./dist/node/components/index.cjs",
       "default": "./dist/node/components/index.js"
+    },
+    "./mcp": {
+      "types": "./dist/node/mcp/index.d.ts",
+      "import": "./dist/node/mcp/index.js",
+      "require": "./dist/node/mcp/index.cjs",
+      "default": "./dist/node/mcp/index.js"
     }
   },
   "files": [
@@ -123,9 +129,11 @@
     "vitest": "^4.0.15"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@plures/pluresdb": "^2.9.7",
     "commander": "^14.0.2",
     "js-yaml": "^4.1.1",
-    "@plures/pluresdb": "^2.9.7"
+    "zod": "^4.3.6"
   },
   "peerDependencies": {
     "svelte": "^5.46.0"
