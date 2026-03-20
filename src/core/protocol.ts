@@ -75,6 +75,13 @@ export interface PraxisState {
   context: unknown;
   /** Current facts about the domain */
   facts: PraxisFact[];
+  /**
+   * Events currently being processed in this step.
+   * Available to rules during execution — guaranteed to contain the exact
+   * events passed to step()/stepWithContext().
+   * Empty outside of step execution.
+   */
+  events?: PraxisEvent[];
   /** Optional metadata (timestamps, version, etc.) */
   meta?: Record<string, unknown>;
   /** Protocol version (for cross-language compatibility) */

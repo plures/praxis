@@ -8,6 +8,7 @@
 
 import type { PraxisEvent, PraxisFact, PraxisState } from './protocol.js';
 import type { Contract, ContractGap, MissingArtifact, Severity } from '../decision-ledger/types.js';
+import type { RuleResult } from './rule-result.js';
 
 declare const process:
   | {
@@ -31,14 +32,20 @@ export type ConstraintId = string;
  * A rule function derives new facts or transitions from context + input facts/events.
  * Rules must be pure - no side effects.
  *
- * @param state Current Praxis state
- * @param events Events to process
- * @returns Array of new facts to add to the state
+ * Returns either:
+ * - `RuleResult` (new API — typed, traceable, supports retraction)
+ * - `PraxisFact[]` (legacy — backward compatible, will be deprecated)
+ *
+ * The state parameter includes `events` — the current batch being processed.
+ *
+ * @param state Current Praxis state (includes state.events for current batch)
+ * @param events Events to process (same as state.events, provided for convenience)
+ * @returns RuleResult or array of new facts
  */
 export type RuleFn<TContext = unknown> = (
-  state: PraxisState & { context: TContext },
+  state: PraxisState & { context: TContext; events: PraxisEvent[] },
   events: PraxisEvent[]
-) => PraxisFact[];
+) => RuleResult | PraxisFact[];
 
 /**
  * A constraint function checks that an invariant holds.

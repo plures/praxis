@@ -326,3 +326,30 @@ export {
 // Unified Integration Helpers
 export type { UnifiedAppConfig, UnifiedApp } from './integrations/unified.js';
 export { createUnifiedApp, attachAllIntegrations } from './integrations/unified.js';
+
+// ── Rule Result (typed rule returns — no empty arrays) ──────────────────────
+export { RuleResult, fact } from './core/rule-result.js';
+export type { TypedRuleFn } from './core/rule-result.js';
+
+// ── UI Rules (predefined, lightweight, separate from business logic) ────────
+export {
+  uiModule,
+  createUIModule,
+  loadingGateRule,
+  errorDisplayRule,
+  offlineIndicatorRule,
+  dirtyGuardRule,
+  initGateRule,
+  viewportRule,
+  noInteractionWhileLoadingConstraint,
+  mustBeInitializedConstraint,
+  uiStateChanged,
+  navigationRequest,
+  resizeEvent,
+} from './core/ui-rules.js';
+export type { UIContext } from './core/ui-rules.js';
+
+// ── Completeness Analysis ───────────────────────────────────────────────────
+export { auditCompleteness, formatReport } from './core/completeness.js';
+export type { LogicBranch, StateField, StateTransition, CompletenessReport, CompletenessConfig } from './core/completeness.js';
+
