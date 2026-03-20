@@ -372,3 +372,20 @@ export type {
   VerifiableDescriptor,
 } from './expectations/index.js';
 
+// ── Rules Factory (predefined modules) ─────────────────────────────────────
+export {
+  inputRules,
+  toastRules,
+  formRules,
+  navigationRules,
+  dataRules,
+} from './factory/index.js';
+export type {
+  InputRulesConfig,
+  ToastRulesConfig,
+  FormRulesConfig,
+  NavigationRulesConfig,
+  DataRulesConfig,
+  SanitizationType,
+} from './factory/index.js';
+
