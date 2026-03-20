@@ -12,8 +12,7 @@
  * can be governed by Praxis — business rules stay clean, UI rules stay separate.
  */
 
-import type { PraxisEvent, PraxisFact } from './protocol.js';
-import type { PraxisState } from './protocol.js';
+import type { PraxisEvent } from './protocol.js';
 import type { PraxisModule, RuleDescriptor, ConstraintDescriptor } from './rules.js';
 import { RuleResult, fact } from './rule-result.js';
 
@@ -63,10 +62,11 @@ export const loadingGateRule: RuleDescriptor<UIContext> = {
     return RuleResult.retract(['ui.loading-gate'], 'Not loading');
   },
   contract: {
+    ruleId: 'RULE_ID_PLACEHOLDER',
     behavior: 'Emits ui.loading-gate when context.loading is true, retracts when false',
     examples: [
-      { input: { loading: true }, output: 'ui.loading-gate emitted' },
-      { input: { loading: false }, output: 'ui.loading-gate retracted' },
+      { given: 'loading is true', when: 'ui state changes', then: 'ui.loading-gate emitted' },
+      { given: 'loading is false', when: 'ui state changes', then: 'ui.loading-gate retracted' },
     ],
     invariants: ['Loading gate must reflect context.loading exactly'],
   },
@@ -88,10 +88,11 @@ export const errorDisplayRule: RuleDescriptor<UIContext> = {
     return RuleResult.retract(['ui.error-display'], 'Error cleared');
   },
   contract: {
+    ruleId: 'RULE_ID_PLACEHOLDER',
     behavior: 'Emits ui.error-display when context.error is non-null, retracts when cleared',
     examples: [
-      { input: { error: 'Network timeout' }, output: 'ui.error-display with message' },
-      { input: { error: null }, output: 'ui.error-display retracted' },
+      { given: 'error is set', when: 'ui state changes', then: 'ui.error-display emitted with message' },
+      { given: 'error is null', when: 'ui state changes', then: 'ui.error-display retracted' },
     ],
     invariants: ['Error display must clear when error is null'],
   },
@@ -111,10 +112,11 @@ export const offlineIndicatorRule: RuleDescriptor<UIContext> = {
     return RuleResult.retract(['ui.offline'], 'Back online');
   },
   contract: {
+    ruleId: 'RULE_ID_PLACEHOLDER',
     behavior: 'Emits ui.offline when context.offline is true, retracts when back online',
     examples: [
-      { input: { offline: true }, output: 'ui.offline emitted' },
-      { input: { offline: false }, output: 'ui.offline retracted' },
+      { given: 'offline is true', when: 'network changes', then: 'ui.offline emitted' },
+      { given: 'offline is false', when: 'network changes', then: 'ui.offline retracted' },
     ],
     invariants: ['Offline indicator must match actual connectivity'],
   },
@@ -138,10 +140,11 @@ export const dirtyGuardRule: RuleDescriptor<UIContext> = {
     return RuleResult.retract(['ui.unsaved-warning'], 'No unsaved changes');
   },
   contract: {
+    ruleId: 'RULE_ID_PLACEHOLDER',
     behavior: 'Emits ui.unsaved-warning when context.dirty is true, retracts when saved',
     examples: [
-      { input: { dirty: true }, output: 'ui.unsaved-warning emitted with blocking=true' },
-      { input: { dirty: false }, output: 'ui.unsaved-warning retracted' },
+      { given: 'dirty is true', when: 'ui state changes', then: 'ui.unsaved-warning emitted with blocking=true' },
+      { given: 'dirty is false', when: 'ui state changes', then: 'ui.unsaved-warning retracted' },
     ],
     invariants: ['Dirty guard must clear after save'],
   },
@@ -163,10 +166,11 @@ export const initGateRule: RuleDescriptor<UIContext> = {
     return RuleResult.retract(['ui.init-pending'], 'App initialized');
   },
   contract: {
+    ruleId: 'RULE_ID_PLACEHOLDER',
     behavior: 'Emits ui.init-pending until context.initialized is true',
     examples: [
-      { input: { initialized: false }, output: 'ui.init-pending emitted' },
-      { input: { initialized: true }, output: 'ui.init-pending retracted' },
+      { given: 'initialized is false', when: 'app starts', then: 'ui.init-pending emitted' },
+      { given: 'initialized is true', when: 'init completes', then: 'ui.init-pending retracted' },
     ],
     invariants: ['Init gate must clear exactly once, when initialization completes'],
   },
@@ -189,10 +193,11 @@ export const viewportRule: RuleDescriptor<UIContext> = {
     })]);
   },
   contract: {
+    ruleId: 'RULE_ID_PLACEHOLDER',
     behavior: 'Classifies viewport into responsive layout hints',
     examples: [
-      { input: { viewport: 'mobile' }, output: 'compact=true, showSidebar=false' },
-      { input: { viewport: 'desktop' }, output: 'compact=false, showSidebar=true' },
+      { given: 'viewport is mobile', when: 'resize event', then: 'compact=true, showSidebar=false' },
+      { given: 'viewport is desktop', when: 'resize event', then: 'compact=false, showSidebar=true' },
     ],
     invariants: ['Viewport class must update on every resize event'],
   },
@@ -214,10 +219,11 @@ export const noInteractionWhileLoadingConstraint: ConstraintDescriptor<UIContext
     return true;
   },
   contract: {
+    ruleId: 'RULE_ID_PLACEHOLDER',
     behavior: 'Fails when context.loading is true',
     examples: [
-      { input: { loading: true }, output: 'violation' },
-      { input: { loading: false }, output: 'pass' },
+      { given: 'loading is true', when: 'action attempted', then: 'violation' },
+      { given: 'loading is false', when: 'action attempted', then: 'pass' },
     ],
     invariants: ['Must always fail during loading'],
   },
@@ -236,10 +242,11 @@ export const mustBeInitializedConstraint: ConstraintDescriptor<UIContext> = {
     return true;
   },
   contract: {
+    ruleId: 'RULE_ID_PLACEHOLDER',
     behavior: 'Fails when context.initialized is false',
     examples: [
-      { input: { initialized: false }, output: 'violation' },
-      { input: { initialized: true }, output: 'pass' },
+      { given: 'initialized is false', when: 'action attempted', then: 'violation' },
+      { given: 'initialized is true', when: 'action attempted', then: 'pass' },
     ],
     invariants: ['Must always fail before init completes'],
   },

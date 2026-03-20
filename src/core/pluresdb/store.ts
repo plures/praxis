@@ -502,9 +502,10 @@ export class PraxisDBStore<TContext = unknown> {
     const rules = this.registry.getAllRules();
 
     // Build state for rule evaluation
-    const state: PraxisState & { context: TContext } = {
+    const state: PraxisState & { context: TContext; events: PraxisEvent[] } = {
       context: this.context,
       facts: [],
+      events,
       meta: {},
     };
 
@@ -512,8 +513,13 @@ export class PraxisDBStore<TContext = unknown> {
     const derivedFacts: PraxisFact[] = [];
     for (const rule of rules) {
       try {
-        const facts = rule.impl(state, events);
-        derivedFacts.push(...facts);
+        const result = rule.impl(state, events);
+        if (Array.isArray(result)) {
+          derivedFacts.push(...result);
+        } else if (result && 'kind' in result && result.kind === 'emit') {
+          derivedFacts.push(...(result as any).facts);
+        }
+        // noop/skip/retract handled by engine, not store
       } catch (error) {
         this.onRuleError(rule.id, error);
       }
