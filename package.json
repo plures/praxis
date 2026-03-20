@@ -80,6 +80,12 @@
       "import": "./dist/node/factory/index.js",
       "require": "./dist/node/factory/index.cjs",
       "default": "./dist/node/factory/index.js"
+    },
+    "./project": {
+      "types": "./dist/node/project/index.d.ts",
+      "import": "./dist/node/project/index.js",
+      "require": "./dist/node/project/index.cjs",
+      "default": "./dist/node/project/index.js"
     }
   },
   "files": [
