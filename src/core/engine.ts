@@ -15,6 +15,7 @@ import type {
 } from './protocol.js';
 import { PRAXIS_PROTOCOL_VERSION } from './protocol.js';
 import { PraxisRegistry } from './rules.js';
+import { RuleResult } from './rule-result.js';
 
 /**
  * Options for creating a Praxis engine
@@ -150,8 +151,15 @@ export class LogicEngine<TContext = unknown> {
     const diagnostics: PraxisDiagnostics[] = [];
     let newState = { ...this.state };
 
+    // ── Inject events into state so rules can access them via state.events ──
+    const stateWithEvents = {
+      ...newState,
+      events, // current batch — rules can read state.events
+    };
+
     // Apply rules
     const newFacts: PraxisFact[] = [];
+    const retractions: string[] = [];
     const eventTags = new Set(events.map(e => e.tag));
     for (const ruleId of config.ruleIds) {
       const rule = this.registry.getRule(ruleId);
@@ -174,8 +182,35 @@ export class LogicEngine<TContext = unknown> {
       }
 
       try {
-        const ruleFacts = rule.impl(newState, events);
-        newFacts.push(...ruleFacts);
+        const rawResult = rule.impl(stateWithEvents, events);
+
+        // Support both legacy PraxisFact[] return and new RuleResult return
+        if (rawResult instanceof RuleResult) {
+          rawResult.ruleId = ruleId;
+
+          switch (rawResult.kind) {
+            case 'emit':
+              newFacts.push(...rawResult.facts);
+              break;
+            case 'retract':
+              retractions.push(...rawResult.retractTags);
+              break;
+            case 'noop':
+            case 'skip':
+              // Traceable no-ops — store in diagnostics for introspection
+              if (rawResult.reason) {
+                diagnostics.push({
+                  kind: 'rule-error', // reused kind — could add 'rule-trace' in protocol v2
+                  message: `[${rawResult.kind}] ${ruleId}: ${rawResult.reason}`,
+                  data: { ruleId, resultKind: rawResult.kind, reason: rawResult.reason },
+                });
+              }
+              break;
+          }
+        } else if (Array.isArray(rawResult)) {
+          // Legacy: PraxisFact[] — backward compatible
+          newFacts.push(...rawResult);
+        }
       } catch (error) {
         diagnostics.push({
           kind: 'rule-error',
@@ -185,23 +220,30 @@ export class LogicEngine<TContext = unknown> {
       }
     }
 
+    // ── Apply retractions ──
+    let existingFacts = newState.facts;
+    if (retractions.length > 0) {
+      const retractSet = new Set(retractions);
+      existingFacts = existingFacts.filter(f => !retractSet.has(f.tag));
+    }
+
     // Merge new facts with deduplication
     let mergedFacts: PraxisFact[];
     switch (this.factDedup) {
       case 'last-write-wins': {
         // Build a map keyed by tag — new facts overwrite old ones with same tag
         const factMap = new Map<string, PraxisFact>();
-        for (const f of newState.facts) factMap.set(f.tag, f);
+        for (const f of existingFacts) factMap.set(f.tag, f);
         for (const f of newFacts) factMap.set(f.tag, f);
         mergedFacts = Array.from(factMap.values());
         break;
       }
       case 'append':
-        mergedFacts = [...newState.facts, ...newFacts];
+        mergedFacts = [...existingFacts, ...newFacts];
         break;
       case 'none':
       default:
-        mergedFacts = [...newState.facts, ...newFacts];
+        mergedFacts = [...existingFacts, ...newFacts];
         break;
     }
 
