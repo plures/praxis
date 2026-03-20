@@ -85,6 +85,11 @@ export interface DefineRuleOptions<TContext = unknown> {
   id: string;
   description: string;
   impl: RuleFn<TContext>;
+  /**
+   * Optional event type filter — only evaluate this rule when at least one
+   * event in the batch has a matching `tag`. Accepts a single tag or array.
+   */
+  eventTypes?: string | string[];
   contract?: Contract;
   meta?: Record<string, unknown>;
 }
@@ -115,6 +120,7 @@ export function defineRule<TContext = unknown>(
     id: options.id,
     description: options.description,
     impl: options.impl,
+    eventTypes: options.eventTypes,
     contract,
     meta,
   };

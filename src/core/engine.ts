@@ -28,6 +28,20 @@ export interface PraxisEngineOptions<TContext = unknown> {
   initialFacts?: PraxisFact[];
   /** Initial metadata (optional) */
   initialMeta?: Record<string, unknown>;
+  /**
+   * Fact deduplication strategy (default: 'last-write-wins').
+   *
+   * - 'none': facts accumulate without dedup (original behavior)
+   * - 'last-write-wins': only keep the latest fact per tag (most common)
+   * - 'append': keep all facts but cap at maxFacts
+   */
+  factDedup?: 'none' | 'last-write-wins' | 'append';
+  /**
+   * Maximum number of facts to retain (default: 1000).
+   * When exceeded, oldest facts are evicted (FIFO).
+   * Set to 0 for unlimited (not recommended).
+   */
+  maxFacts?: number;
 }
 
 /**
@@ -69,9 +83,13 @@ function safeClone<T>(value: T): T {
 export class LogicEngine<TContext = unknown> {
   private state: PraxisState & { context: TContext };
   private readonly registry: PraxisRegistry<TContext>;
+  private readonly factDedup: 'none' | 'last-write-wins' | 'append';
+  private readonly maxFacts: number;
 
   constructor(options: PraxisEngineOptions<TContext>) {
     this.registry = options.registry;
+    this.factDedup = options.factDedup ?? 'last-write-wins';
+    this.maxFacts = options.maxFacts ?? 1000;
     this.state = {
       context: options.initialContext,
       facts: options.initialFacts ?? [],
@@ -134,6 +152,7 @@ export class LogicEngine<TContext = unknown> {
 
     // Apply rules
     const newFacts: PraxisFact[] = [];
+    const eventTags = new Set(events.map(e => e.tag));
     for (const ruleId of config.ruleIds) {
       const rule = this.registry.getRule(ruleId);
       if (!rule) {
@@ -143,6 +162,15 @@ export class LogicEngine<TContext = unknown> {
           data: { ruleId },
         });
         continue;
+      }
+
+      // Event type filtering: if rule declares eventTypes, skip unless
+      // at least one event in the batch matches.
+      if (rule.eventTypes) {
+        const filterTags = Array.isArray(rule.eventTypes) ? rule.eventTypes : [rule.eventTypes];
+        if (!filterTags.some(t => eventTags.has(t))) {
+          continue; // No matching events — skip this rule
+        }
       }
 
       try {
@@ -157,10 +185,35 @@ export class LogicEngine<TContext = unknown> {
       }
     }
 
+    // Merge new facts with deduplication
+    let mergedFacts: PraxisFact[];
+    switch (this.factDedup) {
+      case 'last-write-wins': {
+        // Build a map keyed by tag — new facts overwrite old ones with same tag
+        const factMap = new Map<string, PraxisFact>();
+        for (const f of newState.facts) factMap.set(f.tag, f);
+        for (const f of newFacts) factMap.set(f.tag, f);
+        mergedFacts = Array.from(factMap.values());
+        break;
+      }
+      case 'append':
+        mergedFacts = [...newState.facts, ...newFacts];
+        break;
+      case 'none':
+      default:
+        mergedFacts = [...newState.facts, ...newFacts];
+        break;
+    }
+
+    // Enforce maxFacts limit (evict oldest first)
+    if (this.maxFacts > 0 && mergedFacts.length > this.maxFacts) {
+      mergedFacts = mergedFacts.slice(mergedFacts.length - this.maxFacts);
+    }
+
     // Add new facts to state
     newState = {
       ...newState,
-      facts: [...newState.facts, ...newFacts],
+      facts: mergedFacts,
     };
 
     // Check constraints
@@ -222,6 +275,35 @@ export class LogicEngine<TContext = unknown> {
   }
 
   /**
+   * Atomically update context AND process events in a single call.
+   *
+   * This avoids the fragile pattern of calling updateContext() then step()
+   * separately, where rules could see stale context if the ordering is wrong.
+   *
+   * @param updater Function that produces new context from old context
+   * @param events Events to process after context is updated
+   * @returns Result with new state and diagnostics
+   *
+   * @example
+   * engine.stepWithContext(
+   *   ctx => ({ ...ctx, sprintName: sprint.name, items: sprint.items }),
+   *   [{ tag: 'sprint.update', payload: { name: sprint.name } }]
+   * );
+   */
+  stepWithContext(
+    updater: (context: TContext) => TContext,
+    events: PraxisEvent[]
+  ): PraxisStepResult {
+    // Update context first — rules see fresh data
+    this.state = {
+      ...this.state,
+      context: updater(this.state.context),
+    };
+    // Then step with the now-current context
+    return this.step(events);
+  }
+
+  /**
    * Add facts directly (for exceptional cases).
    * Generally, facts should be added through rules.
    *
@@ -232,6 +314,22 @@ export class LogicEngine<TContext = unknown> {
       ...this.state,
       facts: [...this.state.facts, ...facts],
     };
+  }
+
+  /**
+   * Check all constraints without processing any events.
+   *
+   * Useful for validation-only scenarios (e.g., form validation,
+   * pre-save checks) where you want constraint diagnostics without
+   * triggering any rules.
+   *
+   * @returns Array of constraint violation diagnostics (empty = all passing)
+   */
+  checkConstraints(): PraxisDiagnostics[] {
+    return this.stepWithConfig([], {
+      ruleIds: [],
+      constraintIds: this.registry.getConstraintIds(),
+    }).diagnostics;
   }
 
   /**
