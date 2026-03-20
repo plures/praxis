@@ -74,6 +74,12 @@
       "import": "./dist/node/expectations/index.js",
       "require": "./dist/node/expectations/index.cjs",
       "default": "./dist/node/expectations/index.js"
+    },
+    "./factory": {
+      "types": "./dist/node/factory/index.d.ts",
+      "import": "./dist/node/factory/index.js",
+      "require": "./dist/node/factory/index.cjs",
+      "default": "./dist/node/factory/index.js"
     }
   },
   "files": [
