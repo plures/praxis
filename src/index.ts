@@ -487,3 +487,24 @@ export type {
   FullBehavioralDiff,
 } from './chronos/index.js';
 
+
+// ── Unified Reactive Layer (v2.0) ───────────────────────────────────────────
+// The zero-boilerplate API: createApp → query() + mutate()
+export { createApp } from './unified/core.js';
+export type { PraxisApp } from './unified/core.js';
+export {
+  definePath,
+  defineRule as defineUnifiedRule,
+  defineConstraint as defineUnifiedConstraint,
+  defineModule as defineUnifiedModule,
+} from './unified/index.js';
+export type {
+  PathSchema,
+  QueryOptions,
+  ReactiveRef,
+  MutationResult,
+  UnifiedRule,
+  UnifiedConstraint,
+  LivenessConfig,
+  PraxisAppConfig,
+} from './unified/types.js';

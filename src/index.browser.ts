@@ -303,3 +303,23 @@ export type {
   BranchRulesConfig,
   PredefinedGateConfig,
 } from './project/index.js';
+
+// ── Unified Reactive Layer (v2.0) ───────────────────────────────────────────
+export { createApp } from './unified/core.js';
+export type { PraxisApp } from './unified/core.js';
+export {
+  definePath,
+  defineRule as defineUnifiedRule,
+  defineConstraint as defineUnifiedConstraint,
+  defineModule as defineUnifiedModule,
+} from './unified/index.js';
+export type {
+  PathSchema,
+  QueryOptions,
+  ReactiveRef,
+  MutationResult,
+  UnifiedRule,
+  UnifiedConstraint,
+  LivenessConfig,
+  PraxisAppConfig,
+} from './unified/types.js';
