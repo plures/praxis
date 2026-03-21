@@ -107,6 +107,12 @@
         "import": "./dist/browser/project/index.js"
       },
       "default": "./dist/node/project/index.js"
+    },
+    "./unified": {
+      "browser": "./dist/browser/unified/index.js",
+      "import": "./dist/esm/unified/index.js",
+      "require": "./dist/cjs/unified/index.js",
+      "types": "./dist/esm/unified/index.d.ts"
     }
   },
   "files": [
