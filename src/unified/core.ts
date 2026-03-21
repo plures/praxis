@@ -456,7 +456,6 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
       const state = paths.get(p);
       const lastUpdated = state?.lastUpdated ?? 0;
       const elapsed = lastUpdated > 0 ? now - lastUpdated : now - initTime;
-      const timeout = livenessConfig?.timeoutMs ?? 5000;
       result[p] = {
         stale: !state || state.updateCount === 0,
         lastUpdated,
