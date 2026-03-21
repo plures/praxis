@@ -184,10 +184,10 @@ const adapter = createPluresDBAdapter({ db, registry });
 adapter.attachEngine(engine); // auto-persist facts & events
 ```
 
-For production, use the official [PluresDB npm package](https://www.npmjs.com/package/pluresdb) with P2P sync and CRDT conflict resolution:
+For production, use the official [@plures/pluresdb](https://www.npmjs.com/package/@plures/pluresdb) package with P2P sync and CRDT conflict resolution:
 
 ```ts
-import { PluresNode } from 'pluresdb';
+import { PluresNode } from '@plures/pluresdb';
 import { createPluresDB } from '@plures/praxis';
 
 const db = createPluresDB(new PluresNode({ config: { port: 34567, dataDir: './data' }, autoStart: true }));

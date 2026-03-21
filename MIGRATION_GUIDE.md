@@ -85,14 +85,14 @@ Existing import paths (`.`, `./svelte`, `./schema`, `./component`, `./cloud`, `.
 
 ### PluresDB: Official NPM Package
 
-Praxis now uses the official `pluresdb` package from npm instead of the built-in adapter:
+Praxis now uses the official `@plures/pluresdb` package from npm instead of the built-in adapter:
 
 ```ts
 // Before (1.x)
 import { createInMemoryDB } from '@plures/praxis';
 
 // After (2.0) — for production
-import { PluresNode } from 'pluresdb';
+import { PluresNode } from '@plures/pluresdb';
 import { createPluresDB } from '@plures/praxis';
 
 const db = createPluresDB(new PluresNode({ config: { port: 34567, dataDir: './data' }, autoStart: true }));
