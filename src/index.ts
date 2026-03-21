@@ -155,6 +155,51 @@ export type {
   LedgerEntryStatus,
 } from './decision-ledger/index.js';
 
+// Decision Ledger — Analyzer Engine
+export {
+  analyzeDependencyGraph,
+  findDeadRules,
+  findUnreachableStates,
+  findShadowedRules,
+  findContradictions,
+  findGaps,
+  traceDerivation,
+  traceImpact,
+  verifyContractExamples,
+  verifyInvariants,
+  findContractGaps,
+  crossReferenceContracts,
+  suggest,
+  suggestAll,
+  generateLedger,
+  formatLedger,
+  formatBuildOutput,
+  diffLedgers,
+} from './decision-ledger/index.js';
+export type {
+  FactNode,
+  DependencyEdge,
+  DependencyGraph,
+  DerivationStep,
+  DerivationChain,
+  DeadRule,
+  UnreachableState,
+  ShadowedRule,
+  Contradiction,
+  Gap,
+  ImpactReport,
+  ExampleVerification,
+  ContractVerificationResult,
+  InvariantCheck,
+  ContractCoverageGap,
+  CrossReference,
+  FindingType,
+  Suggestion,
+  AnalysisReport,
+  LedgerDiffEntry,
+  LedgerDiff,
+} from './decision-ledger/index.js';
+
 // Terminal Node Runtime
 export type {
   TerminalExecutionResult,

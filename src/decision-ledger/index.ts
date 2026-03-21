@@ -68,3 +68,62 @@ export {
   type GenerationResult,
   generateContractFromRule,
 } from './reverse-generator.js';
+
+// ─── Analyzer Engine ────────────────────────────────────────────────────────
+
+export {
+  type FactNode,
+  type DependencyEdge,
+  type DependencyGraph,
+  type DerivationStep,
+  type DerivationChain,
+  type DeadRule,
+  type UnreachableState,
+  type ShadowedRule,
+  type Contradiction,
+  type Gap,
+  type ImpactReport,
+  type ExampleVerification,
+  type ContractVerificationResult,
+  type InvariantCheck,
+  type ContractCoverageGap,
+  type CrossReference,
+  type FindingType,
+  type Suggestion,
+  type AnalysisReport,
+  type LedgerDiffEntry,
+  type LedgerDiff,
+} from './analyzer-types.js';
+
+export {
+  analyzeDependencyGraph,
+  findDeadRules,
+  findUnreachableStates,
+  findShadowedRules,
+  findContradictions,
+  findGaps,
+} from './analyzer.js';
+
+export {
+  traceDerivation,
+  traceImpact,
+} from './derivation.js';
+
+export {
+  verifyContractExamples,
+  verifyInvariants,
+  findContractGaps,
+  crossReferenceContracts,
+} from './contract-verification.js';
+
+export {
+  suggest,
+  suggestAll,
+} from './suggestions.js';
+
+export {
+  generateLedger,
+  formatLedger,
+  formatBuildOutput,
+  diffLedgers,
+} from './report.js';
