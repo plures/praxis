@@ -37,6 +37,8 @@ interface PathState<T = unknown> {
 interface RuleState {
   rule: UnifiedRule;
   lastResult: RuleResult | null;
+  /** Tags this rule has emitted — used for auto-retraction on skip/noop */
+  emittedTags: Set<string>;
 }
 
 // ── Timeline Entry (Chronos-compatible) ─────────────────────────────────────
@@ -148,6 +150,7 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
   const ruleStates: RuleState[] = (config.rules ?? []).map(rule => ({
     rule,
     lastResult: null,
+    emittedTags: new Set<string>(),
   }));
 
   // ── Constraints ──
@@ -250,12 +253,27 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
         switch (result.kind) {
           case 'emit':
             newFacts.push(...result.facts);
+            // Track which tags this rule has emitted
+            for (const f of result.facts) {
+              rs.emittedTags.add(f.tag);
+            }
             break;
           case 'retract':
             retractions.push(...result.retractTags);
+            // Also clear tracked tags that are being retracted
+            for (const tag of result.retractTags) {
+              rs.emittedTags.delete(tag);
+            }
             break;
           case 'noop':
           case 'skip':
+            // Auto-retract: if a rule previously emitted facts and now
+            // skips/noops, those facts should be cleaned up. Otherwise
+            // stale facts persist when preconditions become unmet.
+            if (rs.emittedTags.size > 0) {
+              retractions.push(...rs.emittedTags);
+              rs.emittedTags.clear();
+            }
             break;
         }
       } catch (err) {

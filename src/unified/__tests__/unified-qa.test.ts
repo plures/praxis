@@ -706,3 +706,56 @@ describe('Unified QA — Destroy', () => {
     expect(app.timeline()).toEqual([]);
   });
 });
+
+describe('auto-retraction on skip/noop', () => {
+  it('retracts facts when rule transitions from emit to skip', () => {
+    const app = createApp({
+      name: 'auto-retract-test',
+      schema: [definePath<number | null>('val', null)],
+      rules: [defineRule({
+        id: 'r1',
+        watch: ['val'],
+        evaluate: (values) => {
+          const v = values['val'] as number | null;
+          if (v === null) return RuleResult.skip('no data');
+          if (v > 5) return RuleResult.emit([fact('big', { v })]);
+          return RuleResult.retract(['big']);
+        },
+      })],
+    });
+
+    // Emit a fact
+    app.mutate('val', 10);
+    expect(app.facts().find(f => f.tag === 'big')).toBeDefined();
+
+    // Now skip — fact should auto-retract
+    app.mutate('val', null);
+    expect(app.facts().find(f => f.tag === 'big')).toBeUndefined();
+
+    app.destroy();
+  });
+
+  it('retracts facts when rule transitions from emit to noop', () => {
+    const app = createApp({
+      name: 'auto-retract-noop-test',
+      schema: [definePath<number>('val', 0)],
+      rules: [defineRule({
+        id: 'r1',
+        watch: ['val'],
+        evaluate: (values) => {
+          const v = values['val'] as number;
+          if (v > 5) return RuleResult.emit([fact('big', { v })]);
+          return RuleResult.noop();
+        },
+      })],
+    });
+
+    app.mutate('val', 10);
+    expect(app.facts().find(f => f.tag === 'big')).toBeDefined();
+
+    app.mutate('val', 3);
+    expect(app.facts().find(f => f.tag === 'big')).toBeUndefined();
+
+    app.destroy();
+  });
+});
