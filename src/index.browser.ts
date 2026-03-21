@@ -220,3 +220,86 @@ export {
 // Unified Integration Helpers
 export type { UnifiedAppConfig, UnifiedApp } from './integrations/unified.js';
 export { createUnifiedApp, attachAllIntegrations } from './integrations/unified.js';
+
+// ── Rule Result (typed rule returns — no empty arrays) ──────────────────────
+export { RuleResult, fact } from './core/rule-result.js';
+export type { TypedRuleFn } from './core/rule-result.js';
+
+// ── UI Rules (predefined, lightweight, separate from business logic) ────────
+export {
+  uiModule,
+  createUIModule,
+  loadingGateRule,
+  errorDisplayRule,
+  offlineIndicatorRule,
+  dirtyGuardRule,
+  initGateRule,
+  viewportRule,
+  noInteractionWhileLoadingConstraint,
+  mustBeInitializedConstraint,
+  uiStateChanged,
+  navigationRequest,
+  resizeEvent,
+} from './core/ui-rules.js';
+export type { UIContext } from './core/ui-rules.js';
+
+// ── Completeness Analysis ───────────────────────────────────────────────────
+export { auditCompleteness, formatReport } from './core/completeness.js';
+export type { LogicBranch, StateField, StateTransition, CompletenessReport, CompletenessConfig } from './core/completeness.js';
+
+// ── Expectations DSL (behavioral declarations) ─────────────────────────────
+export {
+  Expectation,
+  ExpectationSet,
+  expectBehavior,
+  verify,
+  formatVerificationReport,
+} from './expectations/index.js';
+export type {
+  ExpectationCondition,
+  ConditionStatus,
+  ConditionResult,
+  ExpectationResult,
+  VerificationReport,
+  ExpectationSetOptions,
+  VerifiableRegistry,
+  VerifiableDescriptor,
+} from './expectations/index.js';
+
+// ── Rules Factory (predefined modules) ─────────────────────────────────────
+export {
+  inputRules,
+  toastRules,
+  formRules,
+  navigationRules,
+  dataRules,
+} from './factory/index.js';
+export type {
+  InputRulesConfig,
+  ToastRulesConfig,
+  FormRulesConfig,
+  NavigationRulesConfig,
+  DataRulesConfig,
+  SanitizationType,
+} from './factory/index.js';
+
+// ── Project Logic (developer workflow) ──────────────────────────────────────
+export {
+  defineGate,
+  semverContract,
+  commitFromState,
+  branchRules,
+  lintGate,
+  formatGate,
+  expectationGate,
+} from './project/index.js';
+export type {
+  GateConfig,
+  GateState,
+  GateStatus,
+  SemverContractConfig,
+  SemverReport,
+  PraxisDiff,
+  BranchRulesConfig,
+  PredefinedGateConfig,
+} from './project/index.js';
