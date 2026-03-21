@@ -37,7 +37,10 @@ export default defineConfig([
     name: 'browser',
     entry: {
       index: 'src/index.browser.ts',
-      'integrations/svelte': 'src/integrations/svelte.ts'
+      'integrations/svelte': 'src/integrations/svelte.ts',
+      'expectations/index': 'src/expectations/index.ts',
+      'factory/index': 'src/factory/index.ts',
+      'project/index': 'src/project/index.ts',
     },
     outDir: 'dist/browser',
     format: ['esm'],
