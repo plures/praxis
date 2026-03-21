@@ -1,6 +1,6 @@
 {
   "name": "@plures/praxis",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "type": "module",
   "packageManager": "pnpm@9.15.1",
@@ -109,10 +109,16 @@
       "default": "./dist/node/project/index.js"
     },
     "./unified": {
-      "browser": "./dist/browser/unified/index.js",
-      "import": "./dist/esm/unified/index.js",
-      "require": "./dist/cjs/unified/index.js",
-      "types": "./dist/esm/unified/index.d.ts"
+      "node": {
+        "types": "./dist/node/unified/index.d.ts",
+        "import": "./dist/node/unified/index.js",
+        "require": "./dist/node/unified/index.cjs"
+      },
+      "browser": {
+        "types": "./dist/browser/unified/index.d.ts",
+        "import": "./dist/browser/unified/index.js"
+      },
+      "default": "./dist/node/unified/index.js"
     }
   },
   "files": [
