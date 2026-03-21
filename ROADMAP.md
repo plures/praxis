@@ -28,7 +28,19 @@ This document outlines the development roadmap for Praxis, including V1.0 goals,
 5. **Cross-Language**: Support TypeScript, C#, and more
 6. **Developer Joy**: Fast builds, clear errors, great DX
 
-## Current Status (v1.2.26)
+## Current Status (v2.0)
+
+> Praxis 2.0 was released with the unified reactive layer (`createApp`), the Decision Ledger
+> contract system, the official PluresDB npm integration, and new subpath exports. See
+> [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) for upgrade details.
+
+### v2.0 Highlights
+
+- **Unified Reactive Layer** — `createApp()`, `definePath()`, `query()`, `mutate()`, `batch()`
+- **Decision Ledger** — `defineContract()`, `validateContracts()`, CI/CD enforcement
+- **RuleResult class** — `.emit()`, `.noop()`, `.skip()`, `.retract()` for explicit rule outcomes
+- **Official PluresDB** — `createPluresDB()` wrapping the `pluresdb` npm package
+- **New export paths** — `/unified`, `/expectations`, `/factory`, `/project`, `/mcp`
 
 ### ✅ Completed Features
 

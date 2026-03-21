@@ -1,81 +1,77 @@
-# Praxis Documentation
+# Praxis 2.0 Documentation
 
-Welcome to the official Praxis documentation! Praxis is the full-stack application framework for the Plures ecosystem, providing a complete solution for building modern, local-first, distributed applications.
+Welcome to the official Praxis documentation. Praxis is the full-stack declarative application framework for the Plures ecosystem — typed logic, reactive state, local-first data, and visual tooling for Svelte, Node, and the browser.
 
-## 🐕 Dogfooding Plures Tools
-
-**Start here for dogfooding:** [Dogfooding Index](./DOGFOODING_INDEX.md)
-
-We actively dogfood all Plures tools during development. Key resources:
-- [Quick Start Guide](./DOGFOODING_QUICK_START.md) - Get started in 5 minutes
-- [Dogfooding Checklist](./DOGFOODING_CHECKLIST.md) - Daily/weekly/monthly workflows
-- [Plures Tools Inventory](./PLURES_TOOLS_INVENTORY.md) - All available tools
-- [Workflow Examples](./examples/DOGFOODING_WORKFLOW_EXAMPLE.md) - See it in action
+> **New to Praxis?** Start with the [Getting Started guide](../GETTING_STARTED.md).
+> **Upgrading from 1.x?** See the [Migration Guide](../MIGRATION_GUIDE.md).
 
 ## Quick Start
 
 ```bash
-# Install Praxis
 npm install @plures/praxis
-
-# Create a new app
 npx praxis create app my-app
-cd my-app
-npm install
-
-# Start development
-npm run dev
 ```
 
 ## Documentation Index
 
 ### Core Concepts
 
-| Document                                               | Description                                  |
-| ------------------------------------------------------ | -------------------------------------------- |
-| [What is Praxis](./core/what-is-praxis.md)             | Overview of Praxis and its core philosophy   |
-| [Praxis-Core API](./core/praxis-core-api.md)           | Stable API surface and guarantees            |
-| [Extending Praxis-Core](./core/extending-praxis-core.md) | Extension guidelines without breaking changes |
-| [Schema Model](./core/schema-model.md)                 | Understanding the Praxis Schema Format (PSF) |
-| [Logic Engine](./core/logic-engine.md)                 | Facts, events, rules, and constraints        |
-| [UI Generation](./core/ui-generation.md)               | Automatic component generation from schemas  |
-| [PluresDB Integration](./core/pluresdb-integration.md) | Local-first data with reactive storage       |
-| [Code ↔ Canvas Sync](./core/code-canvas-sync.md)      | Bidirectional synchronization                |
-| [CLI Usage](./core/cli-usage.md)                       | Command-line interface reference             |
-| [Building Extensions](./core/building-extensions.md)   | Extending Praxis functionality               |
+| Document | Description |
+|----------|-------------|
+| [What is Praxis](./core/what-is-praxis.md) | Overview and philosophy |
+| [Praxis-Core API](./core/praxis-core-api.md) | Stable API surface and guarantees |
+| [Extending Praxis-Core](./core/extending-praxis-core.md) | Extension guidelines |
+| [Schema Model](./core/schema-model.md) | Praxis Schema Format (PSF) |
+| [Logic Engine](./core/logic-engine.md) | Facts, events, rules, and constraints |
+| [UI Generation](./core/ui-generation.md) | Component generation from schemas |
+| [PluresDB Integration](./core/pluresdb-integration.md) | Local-first data with reactive storage |
+| [Code ↔ Canvas Sync](./core/code-canvas-sync.md) | Bidirectional synchronization |
+| [CLI Usage](./core/cli-usage.md) | Command-line interface reference |
+| [Building Extensions](./core/building-extensions.md) | Extending Praxis |
 
 ### Guides
 
-| Guide                                                         | Description                         |
-| ------------------------------------------------------------- | ----------------------------------- |
-| [Getting Started](./guides/getting-started.md)                | First steps with Praxis             |
-| [Svelte Integration](./guides/svelte-integration.md)          | Using Praxis with Svelte 5          |
-| [Canvas](./guides/canvas.md)                                  | Visual development with CodeCanvas  |
+| Guide | Description |
+|-------|-------------|
+| [Getting Started](./guides/getting-started.md) | First steps with Praxis |
+| [Svelte Integration](./guides/svelte-integration.md) | Using Praxis with Svelte 5 |
+| [Canvas](./guides/canvas.md) | Visual development with CodeCanvas |
 | [History & State Patterns](./guides/history-state-pattern.md) | Undo/redo and time-travel debugging |
-| [Parallel State Patterns](./guides/parallel-state-pattern.md) | Managing parallel state machines    |
-| [Orchestration](./guides/orchestration.md)                    | Distributed system coordination     |
+| [Parallel State Patterns](./guides/parallel-state-pattern.md) | Managing parallel state machines |
+| [Orchestration](./guides/orchestration.md) | Distributed system coordination |
+| [CI/CD Pipeline](./guides/cicd-pipeline.md) | Continuous integration setup |
 
 ### Tutorials
 
-| Tutorial                                           | Description                      |
-| -------------------------------------------------- | -------------------------------- |
-| [Build Your First App](./tutorials/first-app.md)   | Step-by-step beginner tutorial   |
-| [Todo with PluresDB](./tutorials/todo-pluresdb.md) | Local-first todo application     |
-| [Form Builder](./tutorials/form-builder.md)        | Dynamic form creation            |
-| [E-commerce Cart](./tutorials/ecommerce-cart.md)   | Shopping cart with checkout flow |
+| Tutorial | Description |
+|----------|-------------|
+| [Build Your First App](./tutorials/first-app.md) | Step-by-step beginner tutorial |
+| [Todo with PluresDB](./tutorials/todo-pluresdb.md) | Local-first todo application |
+| [Form Builder](./tutorials/form-builder.md) | Dynamic form creation |
+| [E-commerce Cart](./tutorials/ecommerce-cart.md) | Shopping cart with checkout flow |
+
+### Decision Ledger
+
+| Resource | Description |
+|----------|-------------|
+| [Dogfooding Guide](./decision-ledger/DOGFOODING.md) | Decision Ledger workflow |
+| [Behavior Ledger](./decision-ledger/BEHAVIOR_LEDGER.md) | Rule/constraint change log |
+| [Contract Index](./decision-ledger/contract-index.json) | Machine-readable contract inventory |
 
 ### Examples
 
-| Example                                     | Description                  |
-| ------------------------------------------- | ---------------------------- |
-| [Hero Shop](../examples/hero-shop/)         | Full e-commerce application  |
-| [Todo](../examples/todo/)                   | Minimal todo application     |
-| [Form Builder](../examples/form-builder/)   | Dynamic form builder         |
-| [Offline Chat](../examples/offline-chat/)   | Local-first chat application |
-| [Terminal Node](../examples/terminal-node/) | Self-orchestrating node      |
-| [Cloud Sync](../examples/cloud-sync/)       | Multi-client synchronization |
+| Example | Description |
+|---------|-------------|
+| [Unified App](../examples/unified-app/) | `createApp()` with rules and Mermaid docs |
+| [Hero Shop](../examples/hero-shop/) | Full e-commerce application |
+| [Todo](../examples/todo/) | Minimal todo application |
+| [Form Builder](../examples/form-builder/) | Dynamic form builder |
+| [Offline Chat](../examples/offline-chat/) | Local-first chat application |
+| [Terminal Node](../examples/terminal-node/) | Command execution with YAML schemas |
+| [Cloud Sync](../examples/cloud-sync/) | Multi-client synchronization |
+| [Decision Ledger](../examples/decision-ledger/) | Contracts, validation, SARIF output |
 
-## Architecture Overview
+## Architecture
 
 ```mermaid
 flowchart TB
@@ -108,59 +104,19 @@ flowchart TB
     Engine --> StateDocs
 ```
 
-## Key Features
+## Dogfooding
 
-### 🎯 Schema-Driven Development
+We actively dogfood all Plures tools during development:
 
-Define your entire application in PSF (Praxis Schema Format), then generate everything else.
+- [Dogfooding Index](./DOGFOODING_INDEX.md) — overview
+- [Quick Start](./DOGFOODING_QUICK_START.md) — get started in 5 minutes
+- [Checklist](./DOGFOODING_CHECKLIST.md) — daily/weekly/monthly workflows
+- [Tools Inventory](./PLURES_TOOLS_INVENTORY.md) — all available tools
+- [Workflow Example](./examples/DOGFOODING_WORKFLOW_EXAMPLE.md) — see it in action
 
-### ⚡ Logic Engine
+## 1.x Documentation Archive
 
-Pure, functional business logic with facts, events, rules, and constraints.
-
-### 🧩 Component Generation
-
-Automatically generate Svelte components from your schemas.
-
-### 📱 Local-First
-
-Built-in PluresDB integration for offline-capable, reactive data storage.
-
-### 🎨 Visual Development
-
-CodeCanvas provides visual schema and logic editing.
-
-### 📚 Auto-Documentation
-
-State-Docs generates documentation automatically from schemas.
-
-### 🌐 Cross-Platform
-
-Deploy to web, desktop (Tauri), and mobile from a single codebase.
-
-### 🔄 Real-Time Sync
-
-Praxis Cloud provides sync across devices and users.
-
-## Installation Options
-
-### npm
-
-```bash
-npm install @plures/praxis
-```
-
-### Deno
-
-```typescript
-import { createPraxisEngine } from 'jsr:@plures/praxis';
-```
-
-### C# (.NET)
-
-```bash
-dotnet add package Plures.Praxis
-```
+Historical documentation from Praxis 1.x development is preserved in [archive/1.x/](./archive/1.x/).
 
 ## Community
 

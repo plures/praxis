@@ -1,247 +1,156 @@
-# Praxis Monorepo Migration Guide
+# Migrating to Praxis 2.0
 
-This guide helps users and contributors understand the transition from the current monolithic structure to the new monorepo organization.
+This guide covers the key changes from Praxis 1.x to 2.0 and how to upgrade.
 
-## For Users
+## What Changed
 
-### Current Import Patterns (Still Supported)
+### New: Unified Reactive Layer (`createApp`)
 
-All existing import patterns continue to work without any changes:
+Praxis 2.0 introduces a zero-boilerplate API for building reactive applications. Instead of manually wiring registries, engines, and adapters, you call `createApp()`:
 
-```typescript
-// Main package - works now and after migration
+```ts
+import { createApp, definePath, defineRule, defineConstraint, RuleResult, fact } from '@plures/praxis/unified';
+
+const app = createApp({
+  name: 'my-app',
+  schema: [definePath<number>('count', 0)],
+  rules: [
+    defineRule({
+      id: 'count.doubled',
+      watch: ['count'],
+      evaluate: (v) => RuleResult.emit([fact('count.doubled', { value: v['count'] * 2 })]),
+    }),
+  ],
+});
+
+app.mutate('count', 5);
+app.query('count').current; // 5
+```
+
+The classic engine API (`createPraxisEngine`, `PraxisRegistry`, `defineFact`, `defineEvent`, `defineRule`) is still fully supported and unchanged.
+
+### New: RuleResult Class
+
+Rules can now return typed results instead of raw arrays:
+
+```ts
+import { RuleResult } from '@plures/praxis';
+
+// Before (1.x) — still works
+return [UserLoggedIn.create({ userId: 'alice' })];
+return [];
+
+// New (2.0) — explicit intent
+return RuleResult.emit([UserLoggedIn.create({ userId: 'alice' })]);
+return RuleResult.noop('No matching event');
+return RuleResult.skip('Precondition not met');
+return RuleResult.retract(['session.expired']);
+```
+
+### New: Decision Ledger & Contracts
+
+Every rule and constraint can now carry an explicit behavioral contract:
+
+```ts
+import { defineContract, defineRule } from '@plures/praxis';
+
+const loginContract = defineContract({
+  ruleId: 'auth.login',
+  behavior: 'Authenticate user and create session',
+  examples: [{ given: 'Valid credentials', when: 'LOGIN event', then: 'Session fact emitted' }],
+  invariants: ['Session must have unique ID'],
+});
+
+const loginRule = defineRule({
+  id: 'auth.login',
+  description: 'Process login',
+  impl: (state, events) => { /* ... */ },
+  contract: loginContract,
+});
+```
+
+### New: Additional Export Paths
+
+Praxis 2.0 adds several new subpath exports:
+
+| Import path | New in 2.0 | Description |
+|---|---|---|
+| `@plures/praxis/unified` | ✅ | Unified reactive layer |
+| `@plures/praxis/expectations` | ✅ | Behavior expectation DSL |
+| `@plures/praxis/factory` | ✅ | Pre-built UI rule modules |
+| `@plures/praxis/project` | ✅ | Project gates and lifecycle |
+| `@plures/praxis/mcp` | ✅ | Model Context Protocol tools |
+
+Existing import paths (`.`, `./svelte`, `./schema`, `./component`, `./cloud`, `./components`) continue to work unchanged.
+
+### PluresDB: Official NPM Package
+
+Praxis now uses the official `pluresdb` package from npm instead of the built-in adapter:
+
+```ts
+// Before (1.x)
+import { createInMemoryDB } from '@plures/praxis';
+
+// After (2.0) — for production
+import { PluresNode } from 'pluresdb';
+import { createPluresDB } from '@plures/praxis';
+
+const db = createPluresDB(new PluresNode({ config: { port: 34567, dataDir: './data' }, autoStart: true }));
+```
+
+The in-memory adapter (`createInMemoryDB`) is still available for development and testing.
+
+## Upgrade Steps
+
+### 1. Update the package
+
+```bash
+npm install @plures/praxis@latest
+```
+
+### 2. No breaking changes
+
+All 1.x APIs continue to work. You do not need to change existing code.
+
+### 3. Adopt new features incrementally
+
+- Try `createApp()` for new features or simpler modules
+- Add `contract` to existing rules for behavior documentation
+- Use `RuleResult` for clearer rule return values
+- Run `npm run scan:rules` and `npm run validate:contracts` for the Decision Ledger
+
+## Import Patterns
+
+All existing import patterns continue to work:
+
+```ts
+// Main package — unchanged
 import { createPraxisEngine, defineRule, defineFact } from '@plures/praxis';
 
-// Svelte integration - works now and after migration
-import { createReactiveEngine } from '@plures/praxis/svelte';
+// Svelte integration — unchanged
+import { usePraxisEngine } from '@plures/praxis/svelte';
 
-// Schema types - works now and after migration
-import type { Schema } from '@plures/praxis/schema';
+// Schema types — unchanged
+import type { PraxisSchema } from '@plures/praxis/schema';
 
-// Cloud integration - works now and after migration
-import { createCloudRelay } from '@plures/praxis/cloud';
+// Cloud integration — unchanged
+import { connectRelay } from '@plures/praxis/cloud';
 ```
-
-**No action required** - your code will continue to work as-is.
-
-### New Import Patterns (Future, Optional)
-
-Once the migration is complete, you can optionally use more granular imports for smaller bundle sizes:
-
-```typescript
-// Import only core logic (smaller bundle)
-import { createPraxisEngine, defineRule, defineFact } from '@plures/praxis-core';
-
-// Import only Svelte integration
-import { createReactiveEngine } from '@plures/praxis-svelte';
-
-// Import only CLI tools
-import { scaffold, generate } from '@plures/praxis-cli';
-
-// Import only cloud features
-import { createCloudRelay } from '@plures/praxis-cloud';
-```
-
-**Benefits of granular imports:**
-- Smaller bundle sizes (tree-shaking at package level)
-- Faster builds (only build what you use)
-- Clearer dependencies
-
-**You can switch gradually** - mix and match import patterns as needed.
-
-## For Contributors
-
-### Current Development Workflow
-
-The existing workflow continues unchanged during migration:
-
-```bash
-# Clone and install
-git clone https://github.com/plures/praxis.git
-cd praxis
-npm install
-
-# Build
-npm run build
-
-# Test
-npm test
-
-# Type check
-npm run typecheck
-```
-
-### New Development Workflow (After Migration)
-
-Once the monorepo structure is in place, the workflow will be:
-
-```bash
-# Clone and install (workspaces install all packages)
-git clone https://github.com/plures/praxis.git
-cd praxis
-npm install
-
-# Build all packages
-npm run build
-
-# Build a specific package
-cd packages/praxis-core
-npm run build
-
-# Test all packages
-npm test
-
-# Test a specific package
-cd packages/praxis-core
-npm test
-
-# Type check all packages
-npm run typecheck
-```
-
-### What's Changing
-
-#### File Locations
-
-Code will gradually move to the new package structure:
-
-| Current Location | New Location | Status |
-|-----------------|--------------|--------|
-| `src/core/engine.ts` | `packages/praxis-core/src/logic/engine.ts` | Planned |
-| `src/core/rules.ts` | `packages/praxis-core/src/logic/rules.ts` | Planned |
-| `src/core/schema/` | `packages/praxis-core/src/schema/` | Planned |
-| `src/decision-ledger/` | `packages/praxis-core/src/decision-ledger/` | Planned |
-| `src/cli/` | `packages/praxis-cli/src/` | Planned |
-| `src/integrations/svelte.ts` | `packages/praxis-svelte/src/` | Planned |
-| `src/cloud/` | `packages/praxis-cloud/src/` | Planned |
-| `examples/unified-app/` | `apps/unified-app/` | Planned |
-| `examples/terminal-canvas/` | `apps/terminal-canvas/` | Planned |
-
-#### Import Paths
-
-Internal imports will be updated:
-
-```typescript
-// Old (current)
-import { createEngine } from '../core/engine.js';
-import { defineRule } from '../core/rules.js';
-
-// New (after migration)
-import { createEngine } from '@praxis/core/logic/engine.js';
-import { defineRule } from '@praxis/core/logic/rules.js';
-
-// Or using workspace references in tsconfig
-import { createEngine } from '@praxis/core';
-```
-
-### Migration Principles
-
-1. **Incremental**: Changes happen step-by-step, not all at once
-2. **Non-Breaking**: Existing code continues to work
-3. **Reversible**: Each step can be rolled back if needed
-4. **Tested**: Tests run after each change
-5. **Documented**: This guide is updated as we go
-
-### Contributing During Migration
-
-**If you're adding new code:**
-- Check [MONOREPO.md](./MONOREPO.md) to see where your code should live
-- If the target package doesn't exist yet, use the current structure
-- We'll move code incrementally in coordination with maintainers
-
-**If you're fixing bugs:**
-- Fix in the current location
-- We'll migrate fixes when we move files
-
-**If you're refactoring:**
-- Coordinate with maintainers first
-- Large refactors should wait until migration is complete
-- Small, localized refactors are fine
-
-## Migration Timeline
-
-### Phase 1: Documentation (Current)
-- ✅ Create MONOREPO.md with target structure
-- ✅ Create packages/praxis-core/README.md
-- ✅ Update CONTRIBUTING.md
-- ✅ Update README.md
-- ✅ Create this migration guide
-
-### Phase 2: Package Structure (In Progress)
-- ✅ Create package directories
-- ✅ Create package.json files
-- ⏳ Set up TypeScript workspace configuration
-- ⏳ Configure build tools for packages
-
-### Phase 3: Core Extraction
-- ⏳ Move logic engine to praxis-core
-- ⏳ Move schema system to praxis-core
-- ⏳ Move decision ledger to praxis-core
-- ⏳ Update imports
-- ⏳ Verify tests pass
-
-### Phase 4: Integration Extraction
-- ⏳ Move CLI to praxis-cli
-- ⏳ Move Svelte integration to praxis-svelte
-- ⏳ Move cloud features to praxis-cloud
-- ⏳ Update imports
-- ⏳ Verify tests pass
-
-### Phase 5: Compatibility Layer
-- ⏳ Create praxis main package with re-exports
-- ⏳ Verify existing imports still work
-- ⏳ Update documentation
-
-### Phase 6: Examples Migration
-- ⏳ Move examples to apps/
-- ⏳ Update dependencies
-- ⏳ Verify apps still work
-
-### Phase 7: Cleanup
-- ⏳ Remove old structure (symlinks might remain for compatibility)
-- ⏳ Update all documentation
-- ⏳ Final testing
-- ⏳ Publish updated packages
 
 ## FAQ
 
-### Q: Do I need to change my imports?
+**Q: Do I need to rewrite my 1.x code?**
+No. All 1.x APIs are preserved. Adopt 2.0 features at your own pace.
 
-**A:** No, not immediately. The `@plures/praxis` package will continue to re-export everything.
+**Q: Is `createApp()` a replacement for `createPraxisEngine()`?**
+It's an alternative for simpler use cases. Use `createPraxisEngine()` when you need typed events, actors, or fine-grained control.
 
-### Q: When will the migration be complete?
-
-**A:** The migration is incremental and non-breaking. We'll update this guide with completion dates as we progress.
-
-### Q: What if I find broken imports during migration?
-
-**A:** Please open an issue with details. We'll fix it promptly.
-
-### Q: Can I start using the new package structure now?
-
-**A:** The packages exist but don't have code yet. Once we start Phase 3, you can begin using `@plures/praxis-core` and other packages.
-
-### Q: Will package versions be synchronized?
-
-**A:** Yes, all packages will be versioned together to maintain compatibility.
-
-### Q: What about the npm/JSR/NuGet packages?
-
-**A:** The main `@plures/praxis` package will continue to be published to all platforms. Individual packages will also be published once they're ready.
-
-### Q: How can I help with the migration?
-
-**A:** Review [MONOREPO.md](./MONOREPO.md) and this guide, then reach out to maintainers if you'd like to help with specific phases.
-
-## Getting Help
-
-- **Documentation Issues**: Open an issue with the `docs` label
-- **Migration Questions**: Open a discussion in the GitHub Discussions
-- **Bug Reports**: Open an issue with the `bug` label
-- **Feature Requests**: Open an issue with the `enhancement` label
+**Q: Are bundle sizes affected?**
+Use the new subpath exports (`/unified`, `/factory`, etc.) for smaller bundles via tree-shaking.
 
 ## References
 
-- [MONOREPO.md](./MONOREPO.md) - Complete monorepo organization plan
-- [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
-- [packages/praxis-core/README.md](./packages/praxis-core/README.md) - Core package documentation
+- [README.md](./README.md) — full 2.0 documentation
+- [Getting Started](./GETTING_STARTED.md) — quick start for new users
+- [FRAMEWORK.md](./FRAMEWORK.md) — architecture overview
+- [CHANGELOG.md](./CHANGELOG.md) — version history
