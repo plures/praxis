@@ -39,7 +39,7 @@ This document outlines the development roadmap for Praxis, including V1.0 goals,
 - **Unified Reactive Layer** — `createApp()`, `definePath()`, `query()`, `mutate()`, `batch()`
 - **Decision Ledger** — `defineContract()`, `validateContracts()`, CI/CD enforcement
 - **RuleResult class** — `.emit()`, `.noop()`, `.skip()`, `.retract()` for explicit rule outcomes
-- **Official PluresDB** — `createPluresDB()` wrapping the `pluresdb` npm package
+- **Official PluresDB** — `createPluresDB()` wrapping the `@plures/pluresdb` npm package
 - **New export paths** — `/unified`, `/expectations`, `/factory`, `/project`, `/mcp`
 
 ### ✅ Completed Features
