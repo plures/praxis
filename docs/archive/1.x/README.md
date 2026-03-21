@@ -21,7 +21,7 @@ For current documentation, see the [main docs](../../README.md) or the [project 
 | DECISION_LEDGER_IMPLEMENTATION.md | Decision ledger implementation notes |
 | DECISION_LEDGER_SUMMARY.md | Decision ledger summary |
 | INTEGRATION_ENHANCEMENT_SUMMARY.md | Integration enhancements |
-| SVELTE_INTEGRATION_SUMMARY.md | Svelte 5 integration summary |
+| SVELTE_INTEGRATION_SUMMARY.md | GitHub-based monetization strategy summary |
 | MONOREPO_SUMMARY.md | Monorepo organization summary |
 | IMPLEMENTATION_SUMMARY.md | Overall implementation summary |
 | IMPLEMENTATION.md | Implementation notes |
