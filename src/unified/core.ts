@@ -20,7 +20,6 @@ import type {
   MutationResult,
   UnifiedRule,
   UnifiedConstraint,
-  LivenessConfig,
 } from './types.js';
 import type { PraxisFact, PraxisDiagnostics } from '../core/protocol.js';
 import { RuleResult } from '../core/rule-result.js';
@@ -297,8 +296,6 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
       paths.set(path, state);
     }
 
-    let currentValue: T = applyQueryOpts(state.value as T, opts);
-
     // Create a subscribable that filters/maps if opts provided
     const ref: ReactiveRef<T> = {
       get current() {
@@ -310,7 +307,6 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
         // Wrap callback to apply query opts
         const wrappedCb = (rawValue: unknown) => {
           const processed = applyQueryOpts(rawValue as T, opts);
-          currentValue = processed;
           cb(processed);
         };
         const s = paths.get(path)!;

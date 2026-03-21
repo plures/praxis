@@ -5,7 +5,7 @@
  * Developers interact with query() and mutate() — everything else is internal.
  */
 
-import type { PraxisFact, PraxisEvent, PraxisDiagnostics } from '../core/protocol.js';
+import type { PraxisFact, PraxisDiagnostics } from '../core/protocol.js';
 
 // ── Store Contract ──────────────────────────────────────────────────────────
 // Any reactive store that supports subscribe(). Works with Svelte writable,
@@ -92,7 +92,7 @@ export interface MutationResult {
 
 // ── Rule Definition (v2) ────────────────────────────────────────────────────
 
-export interface UnifiedRule<TWatch = unknown> {
+export interface UnifiedRule {
   /** Unique rule ID */
   id: string;
   /** Human-readable description */
