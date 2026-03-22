@@ -402,4 +402,79 @@ conversationsCmd
     }
   });
 
+// ─── Hooks commands (reactive git integration) ─────────────────────────────
+
+const hooksCmd = program
+  .command('hooks')
+  .description('Reactive git hook integration — Praxis evaluates when git fires');
+
+hooksCmd
+  .command('install')
+  .description('Install Praxis hooks into .git/hooks/')
+  .option('-f, --force', 'Overwrite existing Praxis hooks', false)
+  .option('-v, --verbose', 'Show detailed output', false)
+  .action(async (options) => {
+    try {
+      const { hooksInstall } = await import('./commands/hooks.js');
+      await hooksInstall(options);
+    } catch (error) {
+      console.error('Error installing hooks:', error);
+      process.exit(1);
+    }
+  });
+
+hooksCmd
+  .command('uninstall')
+  .description('Remove Praxis hooks and restore backups')
+  .option('-v, --verbose', 'Show detailed output', false)
+  .action(async (options) => {
+    try {
+      const { hooksUninstall } = await import('./commands/hooks.js');
+      await hooksUninstall(options);
+    } catch (error) {
+      console.error('Error uninstalling hooks:', error);
+      process.exit(1);
+    }
+  });
+
+hooksCmd
+  .command('init')
+  .description('Create .praxis.hooks.json config file')
+  .action(async () => {
+    try {
+      const { hooksInit } = await import('./commands/hooks.js');
+      await hooksInit();
+    } catch (error) {
+      console.error('Error initializing config:', error);
+      process.exit(1);
+    }
+  });
+
+hooksCmd
+  .command('run <hook>')
+  .description('Run hook evaluation (called by git, not manually)')
+  .argument('[args...]', 'Hook arguments from git')
+  .action(async (hook, args) => {
+    try {
+      const { hooksRun } = await import('./commands/hooks.js');
+      await hooksRun(hook, args);
+    } catch (error) {
+      console.error('Error running hook:', error);
+      process.exit(1);
+    }
+  });
+
+hooksCmd
+  .command('status')
+  .description('Show installed hooks and configuration')
+  .action(async () => {
+    try {
+      const { hooksStatus } = await import('./commands/hooks.js');
+      await hooksStatus();
+    } catch (error) {
+      console.error('Error checking status:', error);
+      process.exit(1);
+    }
+  });
+
 program.parse();

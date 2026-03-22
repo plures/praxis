@@ -508,3 +508,23 @@ export type {
   LivenessConfig,
   PraxisAppConfig,
 } from './unified/types.js';
+
+// ── Reactive Git Hooks ──────────────────────────────────────────────────────
+// Git hooks fire → Praxis evaluates. No watchers, no daemons.
+export {
+  buildHookContext,
+  evaluateHook,
+  executeActions,
+  installHooks,
+  uninstallHooks,
+  initConfig as initHooksConfig,
+  loadConfig as loadHooksConfig,
+} from './hooks/index.js';
+export type {
+  GitHookName,
+  GitHookContext,
+  DiffStat,
+  HookAction,
+  HookEvalResult,
+  PraxisHooksConfig,
+} from './hooks/index.js';
