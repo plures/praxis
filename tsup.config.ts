@@ -12,6 +12,7 @@ export default defineConfig([
       component: 'src/core/component/generator.ts',
       'cloud/index': 'src/cloud/index.ts',
       'hooks/index': 'src/hooks/index.ts',
+      'lifecycle/index': 'src/lifecycle/index.ts',
       'components/index': 'src/components/index.ts',
       'cli/index': 'src/cli/index.ts',
       'unified/index': 'src/unified/index.ts',

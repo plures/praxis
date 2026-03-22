@@ -528,3 +528,39 @@ export type {
   HookEvalResult,
   PraxisHooksConfig,
 } from './hooks/index.js';
+
+// ── Lifecycle Engine ────────────────────────────────────────────────────────
+// Full software lifecycle automation. Expectations replace issues.
+// Events fire, triggers execute. Pluggable for any team/toolchain.
+
+export {
+  createEventBus,
+  expectation as lifecycleExpectation,
+  defineExpectation,
+  classifyExpectation,
+  loadExpectations,
+  ExpectationBuilder,
+  defineTriggers,
+  defineLifecycle,
+  triggers,
+} from './lifecycle/index.js';
+
+export type {
+  LifecycleExpectation,
+  ExpectationType,
+  ExpectationPriority,
+  LifecycleEventName,
+  LifecycleEvent,
+  LifecycleConfig,
+  TriggerAction,
+  TriggerContext,
+  TriggerResult,
+  TriggerDefinition,
+  ClassificationResult,
+  VersioningConfig,
+  QAConfig,
+  EventBus,
+  EventBusOptions,
+  DispatchResult,
+  TriggerMap,
+} from './lifecycle/index.js';
