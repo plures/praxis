@@ -119,3 +119,22 @@ export type {
   CustomerReport,
   Incident,
 } from './maintenance.js';
+
+// ── Technical Writer (Phase 8) ──────────────────────────────────────────────
+export { docs, defaultTemplates, defaultDocsConfig } from './docs.js';
+export {
+  auditDocs,
+  planDocsUpdate,
+  validateAgainstTemplate,
+} from './docs.js';
+export type {
+  TrackedDocument,
+  DocumentType,
+  DocumentTemplate,
+  TemplateSection,
+  DocsAuditResult,
+  DocsConfig,
+  CodeChange,
+  DocsUpdatePlan,
+  TemplateValidationResult,
+} from './docs.js';
