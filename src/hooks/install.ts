@@ -13,7 +13,8 @@ import { join, resolve } from 'node:path';
 import { execSync } from 'node:child_process';
 import type { GitHookName, PraxisHooksConfig } from './types.js';
 
-const ALL_HOOKS: GitHookName[] = [
+/** All supported git hooks */
+export const ALL_HOOKS: GitHookName[] = [
   'pre-commit',
   'commit-msg',
   'post-commit',

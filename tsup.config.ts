@@ -11,6 +11,7 @@ export default defineConfig([
       schema: 'src/core/schema/types.ts',
       component: 'src/core/component/generator.ts',
       'cloud/index': 'src/cloud/index.ts',
+      'hooks/index': 'src/hooks/index.ts',
       'components/index': 'src/components/index.ts',
       'cli/index': 'src/cli/index.ts',
       'unified/index': 'src/unified/index.ts',
