@@ -534,6 +534,7 @@ export type {
 // Events fire, triggers execute. Pluggable for any team/toolchain.
 
 export {
+  // Core (Phase 2)
   createEventBus,
   expectation as lifecycleExpectation,
   defineExpectation,
@@ -543,9 +544,38 @@ export {
   defineTriggers,
   defineLifecycle,
   triggers,
+  // Version Engine (Phase 3)
+  parseSemver,
+  formatSemver,
+  calculateBump,
+  applyBump,
+  incrementPrerelease,
+  promoteToStable,
+  syncVersions,
+  checkVersionConsistency,
+  generateChangelogEntry,
+  formatChangelog,
+  orchestrateVersionBump,
+  // QA (Phase 4)
+  generateTestCases,
+  formatTestCasesAsCode,
+  createTestMatrix,
+  expandMatrix,
+  summarizeQA,
+  formatQASummary,
+  // Review (Phase 5)
+  review,
+  // Release (Phase 6)
+  releasePipeline,
+  // Maintenance (Phase 7)
+  maintenance,
+  vulnerabilityToExpectation,
+  customerReportToExpectation,
+  incidentToExpectation,
 } from './lifecycle/index.js';
 
 export type {
+  // Core types
   LifecycleExpectation,
   ExpectationType,
   ExpectationPriority,
@@ -563,4 +593,28 @@ export type {
   EventBusOptions,
   DispatchResult,
   TriggerMap,
+  // Version types
+  SemverVersion,
+  BumpType,
+  VersionBumpResult,
+  VersionSyncResult,
+  ChangelogEntry,
+  // QA types
+  TestCase,
+  TestMatrix,
+  QARunResult,
+  TestResult,
+  QASummary,
+  // Review types
+  ReviewRequest,
+  ReviewResult,
+  ReviewComment,
+  ReviewCycleState,
+  // Release types
+  ReleaseState,
+  // Maintenance types
+  Vulnerability,
+  DependencyUpdate,
+  CustomerReport,
+  Incident,
 } from './lifecycle/index.js';
