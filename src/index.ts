@@ -572,6 +572,13 @@ export {
   vulnerabilityToExpectation,
   customerReportToExpectation,
   incidentToExpectation,
+  // Technical Writer (Phase 8)
+  docs,
+  defaultTemplates,
+  defaultDocsConfig,
+  auditDocs,
+  planDocsUpdate,
+  validateAgainstTemplate,
 } from './lifecycle/index.js';
 
 export type {
@@ -617,4 +624,14 @@ export type {
   DependencyUpdate,
   CustomerReport,
   Incident,
+  // Technical Writer types
+  TrackedDocument,
+  DocumentType,
+  DocumentTemplate,
+  TemplateSection,
+  DocsAuditResult,
+  DocsConfig,
+  CodeChange,
+  DocsUpdatePlan,
+  TemplateValidationResult,
 } from './lifecycle/index.js';
