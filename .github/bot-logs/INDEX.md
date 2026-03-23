@@ -9,6 +9,7 @@ Each log captures dependency updates, version bumps, and other automated mainten
 - Enable review of batch updates over time
 
 ## Weekly Logs
+- [2026-W11](./2026-W11.md)
 - [2026-W10](./2026-W10.md)
 - [2026-W09](./2026-W09.md)
 - [2026-W08](./2026-W08.md)
