@@ -393,4 +393,115 @@ describe('Unified Reactive Layer', () => {
       expect(app.timeline()).toEqual([]);
     });
   });
+
+  describe('rule evaluation cache (memoization)', () => {
+    it('does not re-evaluate a rule when watched inputs are unchanged', () => {
+      let evalCount = 0;
+      const countingRule = defineRule({
+        id: 'counting',
+        watch: ['sprint/current'],
+        evaluate: (values) => {
+          evalCount++;
+          const sprint = values['sprint/current'] as SprintInfo | null;
+          if (!sprint) return RuleResult.skip('No sprint');
+          return RuleResult.emit([fact('counting.ran', { count: evalCount })]);
+        },
+      });
+
+      const app = createApp({
+        name: 'test',
+        schema: [Sprint, Loading],
+        rules: [countingRule],
+      });
+
+      const sprintData: SprintInfo = { name: 'Sprint 1', currentDay: 1, totalDays: 10, completedHours: 0, totalHours: 20 };
+      app.mutate('sprint/current', sprintData);
+      expect(evalCount).toBe(1);
+
+      // Mutate a different path — sprint/current reference is unchanged, so rule is skipped
+      app.mutate('sprint/loading', true);
+      expect(evalCount).toBe(1);
+
+      app.destroy();
+    });
+
+    it('re-evaluates a rule when a watched path changes', () => {
+      let evalCount = 0;
+      const countingRule = defineRule({
+        id: 'counting',
+        watch: ['sprint/current'],
+        evaluate: (values) => {
+          evalCount++;
+          const sprint = values['sprint/current'] as SprintInfo | null;
+          if (!sprint) return RuleResult.skip('No sprint');
+          return RuleResult.emit([fact('counting.ran', { count: evalCount })]);
+        },
+      });
+
+      const app = createApp({
+        name: 'test',
+        schema: [Sprint, Loading],
+        rules: [countingRule],
+      });
+
+      app.mutate('sprint/current', { name: 'Sprint 1', currentDay: 1, totalDays: 10, completedHours: 0, totalHours: 20 });
+      expect(evalCount).toBe(1);
+
+      // New object → reference changed → rule must re-evaluate
+      app.mutate('sprint/current', { name: 'Sprint 2', currentDay: 2, totalDays: 10, completedHours: 4, totalHours: 20 });
+      expect(evalCount).toBe(2);
+
+      app.destroy();
+    });
+
+    it('marks cached timeline entries with cached: true', () => {
+      const app = createApp({
+        name: 'test',
+        schema: [Sprint, Loading],
+        rules: [sprintBehindRule],
+      });
+
+      const sprintData: SprintInfo = { name: 'Sprint 1', currentDay: 5, totalDays: 10, completedHours: 2, totalHours: 20 };
+      app.mutate('sprint/current', sprintData);
+
+      // Mutate an unrelated path so evaluateRules runs again but sprint unchanged
+      app.mutate('sprint/loading', true);
+
+      const cachedEntries = app.timeline().filter(
+        e => e.kind === 'rule-eval' && e.data.cached === true && e.data.ruleId === 'sprint.behind'
+      );
+      expect(cachedEntries.length).toBeGreaterThan(0);
+
+      app.destroy();
+    });
+
+    it('app.evaluate() bypasses the cache and forces re-evaluation', () => {
+      let evalCount = 0;
+      const countingRule = defineRule({
+        id: 'counting',
+        watch: ['sprint/current'],
+        evaluate: (values) => {
+          evalCount++;
+          const sprint = values['sprint/current'] as SprintInfo | null;
+          if (!sprint) return RuleResult.skip('No sprint');
+          return RuleResult.emit([fact('counting.ran', { count: evalCount })]);
+        },
+      });
+
+      const app = createApp({
+        name: 'test',
+        schema: [Sprint, Loading],
+        rules: [countingRule],
+      });
+
+      app.mutate('sprint/current', { name: 'Sprint 1', currentDay: 1, totalDays: 10, completedHours: 0, totalHours: 20 });
+      expect(evalCount).toBe(1);
+
+      // Force re-evaluate — inputs haven't changed but evaluate() must run the rule
+      app.evaluate();
+      expect(evalCount).toBe(2);
+
+      app.destroy();
+    });
+  });
 });
