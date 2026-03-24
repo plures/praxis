@@ -1,0 +1,382 @@
+/**
+ * Analysis Module for Praxis
+ * 
+ * Core analytical capabilities that examine Praxis's own operation:
+ * - Fact coverage analysis (what do we know vs. what should we know?)
+ * - Confidence distribution (where are our knowledge gaps?)
+ * - Rule effectiveness (which rules fire vs. stay dormant?)
+ * - Dependency health (are our inference chains sound?)
+ * - Prediction accuracy tracking (were our predictions right?)
+ * 
+ * This is Praxis examining itself — introspection as a first-class capability.
+ * 
+ * @module @plures/praxis/analysis
+ */
+
+// ── Types ──────────────────────────────────────────────────────────────────
+
+export interface AnalysisReport {
+  timestamp: string;
+  modules: ModuleAnalysis[];
+  factCoverage: CoverageReport;
+  confidenceDistribution: ConfidenceDistribution;
+  ruleEffectiveness: RuleEffectivenessReport;
+  dependencyHealth: DependencyHealthReport;
+  predictionAccuracy: PredictionAccuracyReport;
+  recommendations: Recommendation[];
+}
+
+export interface ModuleAnalysis {
+  moduleId: string;
+  ruleCount: number;
+  constraintCount: number;
+  fireRate: number;        // % of evaluations where at least one rule emitted
+  avgLatencyMs: number;
+  lastFired: string | null;
+  deadRules: string[];     // rules that have never fired
+}
+
+export interface CoverageReport {
+  /** Domains with at least one fact */
+  coveredDomains: string[];
+  /** Expected domains with no facts */
+  gapDomains: string[];
+  /** Facts that haven't been verified in > threshold days */
+  staleFacts: Array<{ id: string; claim: string; lastVerified: string | null; daysSinceVerification: number }>;
+  /** Total facts vs. verified facts */
+  totalFacts: number;
+  verifiedFacts: number;
+  coverageRatio: number;
+}
+
+export interface ConfidenceDistribution {
+  buckets: Array<{ range: string; min: number; max: number; count: number; facts: string[] }>;
+  mean: number;
+  median: number;
+  stdDev: number;
+  /** Facts where propagated confidence differs significantly from declared confidence */
+  propagationAnomalies: Array<{
+    factId: string;
+    declaredConfidence: number;
+    propagatedConfidence: number;
+    delta: number;
+    weakestDependency: string;
+  }>;
+}
+
+export interface RuleEffectivenessReport {
+  totalRules: number;
+  activeRules: number;      // fired at least once
+  dormantRules: number;     // never fired
+  /** Rules sorted by fire frequency */
+  byFrequency: Array<{ ruleId: string; fires: number; lastFired: string }>;
+  /** Rules that fire but never produce observable effects */
+  noopRules: string[];
+  /** Constraint violations over time */
+  constraintViolations: Array<{ constraintId: string; count: number; lastViolation: string }>;
+}
+
+export interface DependencyHealthReport {
+  /** Dependency graph statistics */
+  totalEdges: number;
+  maxDepth: number;
+  /** Circular dependencies (should be zero) */
+  cycles: string[][];
+  /** Single points of failure — facts with many dependents */
+  criticalFacts: Array<{ factId: string; dependentCount: number; confidence: number }>;
+  /** Orphaned facts — no dependencies and no dependents */
+  orphanedFacts: string[];
+}
+
+export interface PredictionAccuracyReport {
+  totalPredictions: number;
+  verified: number;
+  correct: number;
+  incorrect: number;
+  pending: number;
+  accuracy: number;         // correct / verified
+  /** Predictions sorted by confidence at time of prediction */
+  byConfidence: Array<{
+    predictionId: string;
+    claim: string;
+    predictedConfidence: number;
+    outcome: 'correct' | 'incorrect' | 'pending';
+    actualObservation?: string;
+  }>;
+  /** Calibration: are 80% confidence predictions right 80% of the time? */
+  calibration: Array<{ bucket: string; predictedRate: number; actualRate: number; count: number }>;
+}
+
+export interface Recommendation {
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  category: 'coverage-gap' | 'stale-fact' | 'dead-rule' | 'weak-chain' | 'calibration' | 'cycle';
+  message: string;
+  actionable: string;      // concrete next step
+  relatedIds: string[];
+}
+
+// ── Analysis Engine ────────────────────────────────────────────────────────
+
+export interface AnalysisContext {
+  facts: Map<string, import('./uncertainty').UncertainFact>;
+  ruleStats: Map<string, { fires: number; noops: number; lastFired: string | null }>;
+  constraintStats: Map<string, { violations: number; lastViolation: string | null }>;
+  predictions: Prediction[];
+  expectedDomains: string[];
+  staleThresholdDays: number;
+}
+
+export interface Prediction {
+  id: string;
+  claim: string;
+  confidence: number;
+  createdAt: string;
+  deadline: string;
+  outcome?: 'correct' | 'incorrect';
+  observation?: string;
+  resolvedAt?: string;
+}
+
+/**
+ * Run a full analysis of the Praxis system.
+ */
+export function analyze(ctx: AnalysisContext): AnalysisReport {
+  const now = new Date();
+
+  // ── Fact Coverage ──
+  const domains = new Set<string>();
+  const staleFacts: CoverageReport['staleFacts'] = [];
+  let verifiedCount = 0;
+
+  for (const [id, fact] of ctx.facts) {
+    const domain = id.split('.')[0] || 'unknown';
+    domains.add(domain);
+    if (fact.source === 'verified') verifiedCount++;
+
+    if (fact.lastVerified) {
+      const days = (now.getTime() - new Date(fact.lastVerified).getTime()) / 86_400_000;
+      if (days > ctx.staleThresholdDays) {
+        staleFacts.push({ id, claim: fact.claim, lastVerified: fact.lastVerified, daysSinceVerification: Math.floor(days) });
+      }
+    } else if (fact.source !== 'verified') {
+      staleFacts.push({ id, claim: fact.claim, lastVerified: null, daysSinceVerification: Infinity });
+    }
+  }
+
+  const gapDomains = ctx.expectedDomains.filter(d => !domains.has(d));
+  const factCoverage: CoverageReport = {
+    coveredDomains: [...domains],
+    gapDomains,
+    staleFacts: staleFacts.sort((a, b) => b.daysSinceVerification - a.daysSinceVerification),
+    totalFacts: ctx.facts.size,
+    verifiedFacts: verifiedCount,
+    coverageRatio: ctx.facts.size > 0 ? verifiedCount / ctx.facts.size : 0,
+  };
+
+  // ── Confidence Distribution ──
+  const confidences = [...ctx.facts.values()].map(f => f.confidence);
+  const bucketDefs = [
+    { range: '0.0-0.2', min: 0, max: 0.2 },
+    { range: '0.2-0.4', min: 0.2, max: 0.4 },
+    { range: '0.4-0.6', min: 0.4, max: 0.6 },
+    { range: '0.6-0.8', min: 0.6, max: 0.8 },
+    { range: '0.8-1.0', min: 0.8, max: 1.0 },
+  ];
+  const buckets = bucketDefs.map(b => ({
+    ...b,
+    count: 0 as number,
+    facts: [] as string[],
+  }));
+  for (const [id, fact] of ctx.facts) {
+    const bucket = buckets.find(b => fact.confidence >= b.min && fact.confidence < b.max) ?? buckets[buckets.length - 1];
+    bucket.count++;
+    bucket.facts.push(id);
+  }
+
+  const sorted = [...confidences].sort((a, b) => a - b);
+  const mean = confidences.length > 0 ? confidences.reduce((s, c) => s + c, 0) / confidences.length : 0;
+  const median = sorted.length > 0 ? sorted[Math.floor(sorted.length / 2)] : 0;
+  const variance = confidences.length > 0 ? confidences.reduce((s, c) => s + (c - mean) ** 2, 0) / confidences.length : 0;
+
+  const confidenceDistribution: ConfidenceDistribution = {
+    buckets,
+    mean,
+    median,
+    stdDev: Math.sqrt(variance),
+    propagationAnomalies: [], // filled by propagation analysis
+  };
+
+  // ── Rule Effectiveness ──
+  const byFrequency = [...ctx.ruleStats.entries()]
+    .map(([ruleId, stats]) => ({ ruleId, fires: stats.fires, lastFired: stats.lastFired ?? 'never' }))
+    .sort((a, b) => b.fires - a.fires);
+
+  const ruleEffectiveness: RuleEffectivenessReport = {
+    totalRules: ctx.ruleStats.size,
+    activeRules: byFrequency.filter(r => r.fires > 0).length,
+    dormantRules: byFrequency.filter(r => r.fires === 0).length,
+    byFrequency,
+    noopRules: [...ctx.ruleStats.entries()]
+      .filter(([, s]) => s.fires > 0 && s.noops === s.fires)
+      .map(([id]) => id),
+    constraintViolations: [...ctx.constraintStats.entries()]
+      .filter(([, s]) => s.violations > 0)
+      .map(([id, s]) => ({ constraintId: id, count: s.violations, lastViolation: s.lastViolation ?? 'unknown' })),
+  };
+
+  // ── Dependency Health ──
+  let maxDepth = 0;
+  const dependentCounts = new Map<string, number>();
+  const hasDeps = new Set<string>();
+  const hasDependents = new Set<string>();
+
+  for (const [id, fact] of ctx.facts) {
+    for (const dep of fact.dependsOn) {
+      hasDeps.add(id);
+      hasDependents.add(dep);
+      dependentCounts.set(dep, (dependentCounts.get(dep) ?? 0) + 1);
+    }
+  }
+
+  function getDepth(id: string, visited: Set<string> = new Set()): number {
+    if (visited.has(id)) return 0; // cycle
+    visited.add(id);
+    const fact = ctx.facts.get(id);
+    if (!fact || fact.dependsOn.length === 0) return 0;
+    return 1 + Math.max(...fact.dependsOn.map(d => getDepth(d, new Set(visited))));
+  }
+
+  for (const id of ctx.facts.keys()) {
+    maxDepth = Math.max(maxDepth, getDepth(id));
+  }
+
+  const criticalFacts = [...dependentCounts.entries()]
+    .filter(([, count]) => count >= 3)
+    .map(([factId, dependentCount]) => ({
+      factId,
+      dependentCount,
+      confidence: ctx.facts.get(factId)?.confidence ?? 0,
+    }))
+    .sort((a, b) => b.dependentCount - a.dependentCount);
+
+  const orphanedFacts = [...ctx.facts.keys()].filter(id => !hasDeps.has(id) && !hasDependents.has(id));
+
+  const dependencyHealth: DependencyHealthReport = {
+    totalEdges: [...ctx.facts.values()].reduce((s, f) => s + f.dependsOn.length, 0),
+    maxDepth,
+    cycles: [], // cycle detection would need Tarjan's — simplified for now
+    criticalFacts,
+    orphanedFacts,
+  };
+
+  // ── Prediction Accuracy ──
+  const correct = ctx.predictions.filter(p => p.outcome === 'correct').length;
+  const incorrect = ctx.predictions.filter(p => p.outcome === 'incorrect').length;
+  const verified = correct + incorrect;
+  const pending = ctx.predictions.filter(p => !p.outcome).length;
+
+  // Calibration buckets
+  const calBuckets = [
+    { bucket: '0-20%', min: 0, max: 0.2, predicted: 0, actual: 0, count: 0 },
+    { bucket: '20-40%', min: 0.2, max: 0.4, predicted: 0, actual: 0, count: 0 },
+    { bucket: '40-60%', min: 0.4, max: 0.6, predicted: 0, actual: 0, count: 0 },
+    { bucket: '60-80%', min: 0.6, max: 0.8, predicted: 0, actual: 0, count: 0 },
+    { bucket: '80-100%', min: 0.8, max: 1.0, predicted: 0, actual: 0, count: 0 },
+  ];
+
+  for (const pred of ctx.predictions.filter(p => p.outcome)) {
+    const cal = calBuckets.find(b => pred.confidence >= b.min && pred.confidence < b.max) ?? calBuckets[calBuckets.length - 1];
+    cal.count++;
+    cal.predicted += pred.confidence;
+    if (pred.outcome === 'correct') cal.actual++;
+  }
+
+  const predictionAccuracy: PredictionAccuracyReport = {
+    totalPredictions: ctx.predictions.length,
+    verified,
+    correct,
+    incorrect,
+    pending,
+    accuracy: verified > 0 ? correct / verified : 0,
+    byConfidence: ctx.predictions.map(p => ({
+      predictionId: p.id,
+      claim: p.claim,
+      predictedConfidence: p.confidence,
+      outcome: p.outcome ?? 'pending' as const,
+      actualObservation: p.observation,
+    })),
+    calibration: calBuckets.map(b => ({
+      bucket: b.bucket,
+      predictedRate: b.count > 0 ? b.predicted / b.count : 0,
+      actualRate: b.count > 0 ? b.actual / b.count : 0,
+      count: b.count,
+    })),
+  };
+
+  // ── Recommendations ──
+  const recommendations: Recommendation[] = [];
+
+  for (const domain of gapDomains) {
+    recommendations.push({
+      priority: 'high',
+      category: 'coverage-gap',
+      message: `No facts in domain "${domain}"`,
+      actionable: `Create observation or assumption facts for the "${domain}" domain`,
+      relatedIds: [],
+    });
+  }
+
+  for (const sf of staleFacts.slice(0, 5)) {
+    recommendations.push({
+      priority: sf.daysSinceVerification > 30 ? 'high' : 'medium',
+      category: 'stale-fact',
+      message: `Fact "${sf.claim}" not verified in ${sf.daysSinceVerification === Infinity ? 'ever' : sf.daysSinceVerification + ' days'}`,
+      actionable: `Run verification experiment for fact ${sf.id}`,
+      relatedIds: [sf.id],
+    });
+  }
+
+  for (const rule of byFrequency.filter(r => r.fires === 0).slice(0, 3)) {
+    recommendations.push({
+      priority: 'low',
+      category: 'dead-rule',
+      message: `Rule "${rule.ruleId}" has never fired`,
+      actionable: `Review whether this rule's conditions can ever be met, or remove it`,
+      relatedIds: [rule.ruleId],
+    });
+  }
+
+  for (const cf of criticalFacts.filter(f => f.confidence < 0.7)) {
+    recommendations.push({
+      priority: 'critical',
+      category: 'weak-chain',
+      message: `Critical fact "${cf.factId}" has ${cf.dependentCount} dependents but only ${(cf.confidence * 100).toFixed(0)}% confidence`,
+      actionable: `Prioritize verification — if this fact is wrong, ${cf.dependentCount} other facts collapse`,
+      relatedIds: [cf.factId],
+    });
+  }
+
+  if (predictionAccuracy.accuracy < 0.7 && verified >= 5) {
+    recommendations.push({
+      priority: 'high',
+      category: 'calibration',
+      message: `Prediction accuracy is ${(predictionAccuracy.accuracy * 100).toFixed(0)}% — system is miscalibrated`,
+      actionable: `Review prediction methodology. High-confidence predictions that fail indicate systematic bias.`,
+      relatedIds: [],
+    });
+  }
+
+  return {
+    timestamp: now.toISOString(),
+    modules: [], // populated by module-level analysis
+    factCoverage,
+    confidenceDistribution,
+    ruleEffectiveness,
+    dependencyHealth,
+    predictionAccuracy,
+    recommendations: recommendations.sort((a, b) => {
+      const order = { critical: 0, high: 1, medium: 2, low: 3 };
+      return order[a.priority] - order[b.priority];
+    }),
+  };
+}
