@@ -188,7 +188,6 @@ export class RateMonitor {
 
     // Compute rate per minute
     const minutes = this.windowSizeMs / 60_000;
-    const currentRate = trimmed.length / minutes;
 
     // Compare against historical (simplified: use first half as baseline)
     const midpoint = Math.floor(trimmed.length / 2);

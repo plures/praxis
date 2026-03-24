@@ -13,7 +13,8 @@
  * @module @plures/praxis/uncertainty
  */
 
-import { defineRule, defineConstraint, defineModule, RuleResult } from '@plures/praxis';
+import { defineRule, defineConstraint, defineModule } from '../dsl/index.js';
+import { RuleResult } from '../core/rule-result.js';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -152,8 +153,8 @@ export const confidenceDegradationRule = defineRule({
     const event = events.find(e => e.tag === FACT_CHALLENGED);
     if (!event) return RuleResult.skip('No challenge event');
 
-    const { factId, newConfidence, reason } = event.payload;
-    const factStore = state.context?.factStore as Map<string, UncertainFact> | undefined;
+    const { factId, newConfidence, reason } = event.payload as { factId: string; newConfidence: number; reason: string };
+    const factStore = (state.context as Record<string, unknown>)?.factStore as Map<string, UncertainFact> | undefined;
     if (!factStore) return RuleResult.skip('No fact store in context');
 
     const fact = factStore.get(factId);
@@ -225,8 +226,8 @@ export const expectationAnomalyRule = defineRule({
     const event = events.find(e => e.tag === FACT_ASSERTED);
     if (!event) return RuleResult.skip('No assertion event');
 
-    const { fact } = event.payload;
-    const expectations = state.context?.expectations as Array<{
+    const { fact } = event.payload as { fact: UncertainFact };
+    const expectations = (state.context as Record<string, unknown>)?.expectations as Array<{
       id: string;
       claim: string;
       conditions: Array<{ type: string; description: string }>;
@@ -277,7 +278,7 @@ export const evidenceRequiredConstraint = defineConstraint({
     invariants: ['High confidence requires evidence — no exceptions']
   },
   impl: (state) => {
-    const factStore = state.context?.factStore as Map<string, UncertainFact> | undefined;
+    const factStore = (state.context as Record<string, unknown>)?.factStore as Map<string, UncertainFact> | undefined;
     if (!factStore) return true;
 
     const violations = [];

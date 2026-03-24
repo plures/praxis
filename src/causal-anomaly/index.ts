@@ -14,7 +14,8 @@
  * @module @plures/praxis/causal-anomaly
  */
 
-import { defineRule, defineModule, RuleResult } from '@plures/praxis';
+import { defineRule, defineModule } from '../dsl/index.js';
+import { RuleResult } from '../core/rule-result.js';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -87,9 +88,10 @@ export const causalGapRule = defineRule({
     const event = events.find(e => e.tag === TIMELINE_EVENT);
     if (!event) return RuleResult.skip('No timeline event');
 
-    const timelineEvent: TimelineEvent = event.payload;
-    const expectations: CausalExpectation[] = state.context?.causalExpectations ?? [];
-    const timeline: TimelineEvent[] = state.context?.timeline ?? [];
+    const timelineEvent: TimelineEvent = event.payload as TimelineEvent;
+    const causalContext = state.context as { causalExpectations?: CausalExpectation[]; timeline?: TimelineEvent[] } | undefined;
+    const expectations: CausalExpectation[] = causalContext?.causalExpectations ?? [];
+    const timeline: TimelineEvent[] = causalContext?.timeline ?? [];
 
     // Find matching expectation for this event type
     const expectation = expectations.find(e => e.effect === timelineEvent.type);
@@ -155,8 +157,9 @@ export const unknownActorRule = defineRule({
     const event = events.find(e => e.tag === TIMELINE_EVENT);
     if (!event) return RuleResult.skip('No timeline event');
 
-    const timelineEvent: TimelineEvent = event.payload;
-    const knownActors: Set<string> = state.context?.knownActors ?? new Set();
+    const timelineEvent: TimelineEvent = event.payload as TimelineEvent;
+    const actorContext = state.context as { knownActors?: Set<string> } | undefined;
+    const knownActors: Set<string> = actorContext?.knownActors ?? new Set();
 
     if (!knownActors.has(timelineEvent.actor)) {
       return RuleResult.emit([{
