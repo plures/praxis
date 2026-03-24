@@ -18,6 +18,57 @@
  * @module @plures/praxis/experiments
  */
 
+import { PraxisRegistry } from '../core/rules.js';
+import type { RuleDescriptor } from '../core/rules.js';
+import { LogicEngine } from '../core/engine.js';
+import type { PraxisFact, PraxisEvent } from '../core/protocol.js';
+
+// Safe process shim for cross-env memory tracking
+declare const process:
+  | { memoryUsage?: () => { heapUsed: number } }
+  | undefined;
+
+function getHeapUsed(): number {
+  if (typeof process !== 'undefined' && typeof process.memoryUsage === 'function') {
+    return process.memoryUsage().heapUsed;
+  }
+  return 0;
+}
+
+/**
+ * Clone a registry into a new isolated instance with compliance checks disabled.
+ * The cloned registry shares rule/constraint descriptors by reference (read-only use).
+ */
+function cloneRegistry<TContext>(source: PraxisRegistry<TContext>): PraxisRegistry<TContext> {
+  const clone = new PraxisRegistry<TContext>({ compliance: { enabled: false } });
+  for (const rule of source.getAllRules()) {
+    clone.registerRule(rule);
+  }
+  for (const constraint of source.getAllConstraints()) {
+    clone.registerConstraint(constraint);
+  }
+  return clone;
+}
+
+/**
+ * Clone a registry and replace one rule with a patch descriptor.
+ * Used by the sandbox runner when a modify-rule step is executed.
+ */
+function cloneRegistryWithPatch<TContext>(
+  source: PraxisRegistry<TContext>,
+  ruleId: string,
+  patch: RuleDescriptor<TContext>,
+): PraxisRegistry<TContext> {
+  const clone = new PraxisRegistry<TContext>({ compliance: { enabled: false } });
+  for (const rule of source.getAllRules()) {
+    clone.registerRule(rule.id === ruleId ? patch : rule);
+  }
+  for (const constraint of source.getAllConstraints()) {
+    clone.registerConstraint(constraint);
+  }
+  return clone;
+}
+
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export type ExperimentStatus = 'draft' | 'approved' | 'running' | 'completed' | 'failed' | 'archived';
@@ -199,38 +250,103 @@ export interface SandboxRunner {
 
 /**
  * Create a sandbox runner with given constraints.
- * The runner clones the production state and runs the experiment
- * in isolation, then returns results without modifying anything.
+ *
+ * The runner clones the production registry and engine state into an isolated
+ * sandbox, then executes the experiment steps (inject-facts → run-engine →
+ * observe → assert) without touching production state.
+ *
+ * @param config.productionRegistry  Optional registry to clone into the sandbox.
+ * @param config.productionEngine    Optional engine whose state (context + facts)
+ *                                   seeds the sandbox.
+ * @param config.rulePatches         Map of ruleId → patched descriptor applied when
+ *                                   a `modify-rule` step targets that rule.
+ * @param config.productionFacts     Legacy: Map-based fact seed (used when no
+ *                                   productionEngine is provided).
+ * @param config.productionRules     Legacy: Map-based rule seed (unused in current
+ *                                   implementation, reserved for future use).
+ * @param config.onResourceExceeded  Optional callback fired when memory or time
+ *                                   limits are breached.
  */
 export function createSandboxRunner(config: {
   productionFacts?: Map<string, unknown>;
   productionRules?: Map<string, unknown>;
+  productionRegistry?: PraxisRegistry;
+  productionEngine?: LogicEngine;
+  rulePatches?: Map<string, RuleDescriptor<unknown>>;
   onResourceExceeded?: (metric: string, value: number, limit: number) => void;
 }): SandboxRunner {
   return {
     async run(experiment: Experiment): Promise<ExperimentResults> {
       const startTime = Date.now();
+      const memoryBaseline = getHeapUsed();
       const observations: ExperimentResults['observations'] = [];
       let apiCalls = 0;
       let tokensUsed = 0;
+      let memoryPeakBytes = 0;
+
+      // Assertion tracking for hypothesis evaluation
+      const assertionResults: Array<{ condition: string; passed: boolean }> = [];
 
       try {
-        // Clone production state into sandbox
-        const sandboxFacts = config.productionFacts
-          ? new Map(config.productionFacts)
-          : new Map();
+        // ── Sandbox state ──────────────────────────────────────────────────
+        // Clone the production registry (if provided) so rule modifications
+        // in the sandbox never touch the production instance.
+        let sandboxRegistry: PraxisRegistry<unknown> = config.productionRegistry
+          ? cloneRegistry(config.productionRegistry as PraxisRegistry<unknown>)
+          : new PraxisRegistry<unknown>({ compliance: { enabled: false } });
 
-        // Execute steps
+        // Seed sandbox facts from the production engine state (or fallback map).
+        const seedFacts: PraxisFact[] = config.productionEngine
+          ? [...config.productionEngine.getFacts()]
+          : config.productionFacts
+            ? Array.from(config.productionFacts.entries()).map(([key, val]) => ({
+                tag: key,
+                payload: val,
+              }))
+            : [];
+
+        const seedContext: unknown = config.productionEngine
+          ? config.productionEngine.getContext()
+          : {};
+
+        // Current sandbox engine — rebuilt when rules are patched mid-experiment
+        let sandboxEngine: LogicEngine<unknown> | null = null;
+
+        // Accumulated state between steps
+        let pendingFacts: PraxisFact[] = [...seedFacts];
+        let pendingEvents: PraxisEvent[] = [];
+
+        // ── Step execution ────────────────────────────────────────────────
         for (const step of experiment.design.steps) {
-          // Check timeout
-          if (Date.now() - startTime > experiment.sandbox.maxExecutionMs) {
+          // Enforce timeout
+          const elapsed = Date.now() - startTime;
+          if (elapsed > experiment.sandbox.maxExecutionMs) {
+            config.onResourceExceeded?.('timeout', elapsed, experiment.sandbox.maxExecutionMs);
             throw new Error(`Experiment timed out after ${experiment.sandbox.maxExecutionMs}ms`);
           }
 
+          // Track peak memory
+          const currentMem = getHeapUsed();
+          const usedMem = currentMem - memoryBaseline;
+          if (usedMem > memoryPeakBytes) memoryPeakBytes = usedMem;
+          if (
+            experiment.sandbox.maxMemoryBytes > 0 &&
+            usedMem > experiment.sandbox.maxMemoryBytes
+          ) {
+            config.onResourceExceeded?.('memory', usedMem, experiment.sandbox.maxMemoryBytes);
+            throw new Error(
+              `Sandbox memory limit exceeded: ${usedMem} > ${experiment.sandbox.maxMemoryBytes} bytes`,
+            );
+          }
+
           switch (step.kind) {
-            case 'inject-facts':
+            case 'inject-facts': {
               for (const fact of step.facts) {
-                sandboxFacts.set(`sandbox.${fact.claim}`, fact);
+                const praxisFact: PraxisFact = {
+                  tag: fact.claim,
+                  payload: { claim: fact.claim, confidence: fact.confidence },
+                };
+                pendingFacts.push(praxisFact);
                 observations.push({
                   metric: 'fact-injected',
                   value: fact.claim,
@@ -238,22 +354,205 @@ export function createSandboxRunner(config: {
                 });
               }
               break;
+            }
 
-            case 'observe':
+            case 'inject-events': {
+              for (const evt of step.events) {
+                const praxisEvent: PraxisEvent = {
+                  tag: evt.tag,
+                  payload: evt.payload,
+                };
+                pendingEvents.push(praxisEvent);
+              }
               observations.push({
-                metric: step.metric,
-                value: step.description,
+                metric: 'events-injected',
+                value: step.events.map(e => e.tag),
                 timestamp: new Date().toISOString(),
               });
               break;
+            }
 
-            case 'wait':
-              await new Promise(resolve => setTimeout(resolve, Math.min(step.durationMs, 5000)));
+            case 'run-engine': {
+              // Build a fresh engine seeded with pending facts
+              const initialContext: unknown = sandboxEngine ? sandboxEngine.getContext() : seedContext;
+              const initialFacts: PraxisFact[] = [
+                ...(sandboxEngine ? sandboxEngine.getFacts() : []),
+                ...pendingFacts,
+              ];
+              const runEngine: LogicEngine<unknown> = new LogicEngine<unknown>({
+                initialContext,
+                initialFacts,
+                registry: sandboxRegistry,
+                factDedup: 'last-write-wins',
+              });
+              pendingFacts = [];
+
+              // Run up to maxSteps, processing all collected events in one step
+              const eventsToProcess = [...pendingEvents];
+              pendingEvents = [];
+
+              let stepsRun = 0;
+              const effectiveMaxSteps = Math.max(1, step.maxSteps);
+              const batchSize = Math.max(1, Math.ceil(eventsToProcess.length / effectiveMaxSteps));
+              let offset = 0;
+              while (offset < eventsToProcess.length && stepsRun < effectiveMaxSteps) {
+                const batch = eventsToProcess.slice(offset, offset + batchSize);
+                runEngine.step(batch);
+                offset += batchSize;
+                stepsRun++;
+
+                // Re-check timeout inside engine loop
+                if (Date.now() - startTime > experiment.sandbox.maxExecutionMs) {
+                  throw new Error(
+                    `Experiment timed out after ${experiment.sandbox.maxExecutionMs}ms`,
+                  );
+                }
+              }
+
+              // If no events were pending, still run once to process existing state
+              if (eventsToProcess.length === 0) {
+                runEngine.step([]);
+              }
+
+              sandboxEngine = runEngine;
+
+              const finalFactCount: number = sandboxEngine.getFacts().length;
+              observations.push({
+                metric: 'engine-ran',
+                value: { steps: stepsRun || 1, factCount: finalFactCount },
+                timestamp: new Date().toISOString(),
+              });
               break;
+            }
+
+            case 'modify-rule': {
+              // Look for a pre-defined patch in the config
+              const patch = config.rulePatches?.get(step.ruleId) as
+                | RuleDescriptor<unknown>
+                | undefined;
+
+              if (patch) {
+                // Rebuild sandbox registry with patched rule — production unaffected
+                sandboxRegistry = cloneRegistryWithPatch(sandboxRegistry, step.ruleId, patch);
+
+                // If an engine already ran, rebuild it with the new registry
+                if (sandboxEngine) {
+                  const prevFacts: PraxisFact[] = sandboxEngine.getFacts();
+                  const prevCtx: unknown = sandboxEngine.getContext();
+                  sandboxEngine = new LogicEngine<unknown>({
+                    initialContext: prevCtx,
+                    initialFacts: prevFacts,
+                    registry: sandboxRegistry,
+                    factDedup: 'last-write-wins',
+                  });
+                }
+              }
+
+              observations.push({
+                metric: 'rule-modified',
+                value: {
+                  ruleId: step.ruleId,
+                  modification: step.modification,
+                  applied: !!patch,
+                },
+                timestamp: new Date().toISOString(),
+              });
+              break;
+            }
+
+            case 'observe': {
+              const engineFacts = sandboxEngine?.getFacts() ?? [];
+              observations.push({
+                metric: step.metric,
+                value: {
+                  description: step.description,
+                  factCount: engineFacts.length,
+                  facts: engineFacts,
+                },
+                timestamp: new Date().toISOString(),
+              });
+              break;
+            }
+
+            case 'assert': {
+              let passed = false;
+              let actual: unknown = undefined;
+
+              if (sandboxEngine) {
+                const facts = sandboxEngine.getFacts();
+                const factExists = facts.some(f => f.tag === step.condition);
+
+                if (typeof step.expected === 'boolean') {
+                  // Condition is a fact tag — check presence
+                  actual = factExists;
+                  passed = factExists === step.expected;
+                } else {
+                  // Check last observation matching the condition metric.
+                  // NOTE: uses JSON.stringify for deep equality — property order matters
+                  // and circular references are not supported. Use primitive or simple
+                  // object `expected` values for reliable comparisons.
+                  const lastObs = [...observations]
+                    .reverse()
+                    .find(o => o.metric === step.condition);
+                  actual = lastObs?.value;
+                  passed = JSON.stringify(actual) === JSON.stringify(step.expected);
+                }
+              } else {
+                // No engine: compare against observations.
+                // NOTE: uses JSON.stringify for deep equality — see note above.
+                const lastObs = [...observations]
+                  .reverse()
+                  .find(o => o.metric === step.condition);
+                actual = lastObs?.value;
+                passed = JSON.stringify(actual) === JSON.stringify(step.expected);
+              }
+
+              assertionResults.push({ condition: step.condition, passed });
+              observations.push({
+                metric: passed ? 'assertion-passed' : 'assertion-failed',
+                value: { condition: step.condition, expected: step.expected, actual },
+                timestamp: new Date().toISOString(),
+              });
+              break;
+            }
+
+            case 'wait': {
+              const waitMs = Math.min(step.durationMs, 5000);
+              const remainingMs = experiment.sandbox.maxExecutionMs - (Date.now() - startTime);
+
+              if (remainingMs <= 0) {
+                const elapsed = Date.now() - startTime;
+                config.onResourceExceeded?.('timeout', elapsed, experiment.sandbox.maxExecutionMs);
+                throw new Error(
+                  `Experiment timed out after ${experiment.sandbox.maxExecutionMs}ms`,
+                );
+              }
+
+              // Race the wait against the remaining execution budget
+              await Promise.race([
+                new Promise<void>(resolve => setTimeout(resolve, waitMs)),
+                new Promise<never>((_, reject) =>
+                  setTimeout(() => {
+                    const elapsed = Date.now() - startTime;
+                    config.onResourceExceeded?.(
+                      'timeout',
+                      elapsed,
+                      experiment.sandbox.maxExecutionMs,
+                    );
+                    reject(
+                      new Error(
+                        `Experiment timed out after ${experiment.sandbox.maxExecutionMs}ms`,
+                      ),
+                    );
+                  }, remainingMs),
+                ),
+              ]);
+              break;
+            }
 
             case 'model-prompt':
               apiCalls++;
-              // Model prompts would be executed by the caller's LLM integration
+              // Model prompts are executed by the caller's LLM integration
               observations.push({
                 metric: 'model-prompt-queued',
                 value: step.prompt.slice(0, 200),
@@ -261,11 +560,19 @@ export function createSandboxRunner(config: {
               });
               break;
 
-            // Other steps would be implemented by specific sandbox providers
+            case 'external-query':
+              apiCalls++;
+              observations.push({
+                metric: 'external-query-queued',
+                value: { source: step.source, query: step.query },
+                timestamp: new Date().toISOString(),
+              });
+              break;
+
             default:
               observations.push({
                 metric: 'step-skipped',
-                value: step.kind,
+                value: (step as ExperimentStep).kind,
                 timestamp: new Date().toISOString(),
               });
           }
@@ -273,14 +580,30 @@ export function createSandboxRunner(config: {
 
         const durationMs = Date.now() - startTime;
 
+        // Derive hypothesis support from assertion results
+        let hypothesisSupported: boolean | null = null;
+        if (assertionResults.length > 0) {
+          hypothesisSupported = assertionResults.every(a => a.passed);
+        }
+
+        const failedAssertions = assertionResults.filter(a => !a.passed).length;
+        const confidence =
+          assertionResults.length > 0
+            ? (assertionResults.length - failedAssertions) / assertionResults.length
+            : 0;
+
         return {
-          hypothesisSupported: null, // needs evaluation
-          confidence: 0,
+          hypothesisSupported,
+          confidence,
           observations,
-          conclusions: [],
+          conclusions: hypothesisSupported === true
+            ? ['All assertions passed — hypothesis supported']
+            : hypothesisSupported === false
+              ? [`${failedAssertions} assertion(s) failed — hypothesis not supported`]
+              : [],
           factUpdates: [],
           newQuestions: [],
-          resourceUsage: { durationMs, memoryPeakBytes: 0, apiCalls, tokensUsed },
+          resourceUsage: { durationMs, memoryPeakBytes, apiCalls, tokensUsed },
         };
       } catch (err) {
         const error = err instanceof Error ? err.message : String(err);
@@ -294,7 +617,7 @@ export function createSandboxRunner(config: {
           error,
           resourceUsage: {
             durationMs: Date.now() - startTime,
-            memoryPeakBytes: 0,
+            memoryPeakBytes,
             apiCalls,
             tokensUsed,
           },
