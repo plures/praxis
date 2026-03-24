@@ -73,7 +73,7 @@ export interface ResearchAgenda {
 
 // ── Research Generation ────────────────────────────────────────────────────
 
-import type { AnalysisReport, Recommendation } from './analysis';
+import type { AnalysisReport, Recommendation } from '../analysis/index.js';
 
 /**
  * Generate research questions from an analysis report.

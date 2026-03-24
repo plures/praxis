@@ -229,7 +229,7 @@ export function createHub(config: HubConfig): PraxisHub {
       recordChronicle('experiment-results', { experimentId, supported: results.hypothesisSupported });
     },
 
-    predict(claim: string, confidence: number, deadline: string, rationale: string): Prediction {
+    predict(claim: string, confidence: number, deadline: string, _rationale: string): Prediction {
       const prediction: Prediction = {
         id: `pred.${Date.now()}`,
         claim,
