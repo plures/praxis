@@ -24,6 +24,8 @@ import type { AnalysisReport, AnalysisContext, Prediction } from '../analysis/in
 import type { ResearchQuestion, ResearchAgenda } from '../research/index.js';
 import type { Experiment, ExperimentResults, ExperimentRegistry } from '../experiments/index.js';
 import type { UncertainFact, Evidence } from '../uncertainty/index.js';
+import type { ProjectEvent } from '../chronos/project-chronicle.js';
+import { ProjectChronicle, createTimeline } from '../chronos/index.js';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -48,6 +50,12 @@ export interface PraxisHub {
   
   /** Get all active research questions */
   activeResearch(): ResearchQuestion[];
+
+  /** Returns all experiment events in chronological order from the chronicle */
+  getExperimentTimeline(): ProjectEvent[];
+
+  /** Traces a fact back through the experiments and observations that established it */
+  getCausalChain(factId: string): CausalChainLink[];
 }
 
 export interface CycleResult {
@@ -79,6 +87,20 @@ export interface SystemHealth {
   topIssues: string[];
 }
 
+/** A single link in a causal chain tracing a fact back to its evidence. */
+export interface CausalChainLink {
+  /** Whether this link represents a fact, an experiment, or an observation. */
+  kind: 'fact' | 'experiment' | 'observation';
+  /** Identifier for this item. */
+  id: string;
+  /** Human-readable description. */
+  description: string;
+  /** ISO timestamp. */
+  timestamp: string;
+  /** Confidence score (only present for fact links). */
+  confidence?: number;
+}
+
 // ── Hub Implementation ─────────────────────────────────────────────────────
 
 export interface HubConfig {
@@ -92,10 +114,8 @@ export interface HubConfig {
   staleThresholdDays: number;
   /** Auto-approve experiments below this resource budget? */
   autoApproveThreshold: number;
-  /** Chronos chronicle integration */
-  chronicle?: {
-    record(event: { kind: string; data: Record<string, unknown> }): void;
-  };
+  /** Chronos chronicle integration — records all hub events as ProjectEvents */
+  chronicle?: ProjectChronicle;
   /** Model prompt function for model-calibration experiments */
   modelPrompt?: (prompt: string, opts?: { temperature?: number }) => Promise<string>;
 }
@@ -110,8 +130,27 @@ export function createHub(config: HubConfig): PraxisHub {
   let latestReport: AnalysisReport | null = null;
   let latestAgenda: ResearchAgenda | null = null;
 
-  function recordChronicle(kind: string, data: Record<string, unknown>) {
-    config.chronicle?.record({ kind, data });
+  function recordChronicle(action: string, data: Record<string, unknown>) {
+    if (!config.chronicle) return;
+    // Map hub event actions to ProjectChronicle event format
+    let kind: 'cycle' | 'prediction' | 'experiment' | 'fact';
+    let subject: string;
+
+    if (action === 'prediction-made' || action === 'prediction-resolved') {
+      kind = 'prediction';
+      subject = (data.id ?? 'unknown') as string;
+    } else if (action === 'experiment-results') {
+      kind = 'experiment';
+      subject = (data.experimentId ?? 'unknown') as string;
+    } else if (action === 'fact-updated') {
+      kind = 'fact';
+      subject = (data.factId ?? 'unknown') as string;
+    } else {
+      kind = 'cycle';
+      subject = 'hub';
+    }
+
+    config.chronicle.record({ kind, action, subject, metadata: data });
   }
 
   return {
@@ -323,6 +362,57 @@ export function createHub(config: HubConfig): PraxisHub {
 
     activeResearch(): ResearchQuestion[] {
       return latestAgenda?.questions.filter(q => q.status !== 'completed' && q.status !== 'abandoned') ?? [];
+    },
+
+    getExperimentTimeline(): ProjectEvent[] {
+      if (!config.chronicle) return [];
+      const timeline = createTimeline(config.chronicle);
+      return timeline.getTimeline({ kind: 'experiment' });
+    },
+
+    getCausalChain(factId: string): CausalChainLink[] {
+      const chain: CausalChainLink[] = [];
+      const fact = config.facts.get(factId);
+      if (!fact) return chain;
+
+      // Start with the fact itself
+      chain.push({
+        kind: 'fact',
+        id: factId,
+        description: fact.claim,
+        timestamp: fact.createdAt,
+        confidence: fact.confidence,
+      });
+
+      // Find experiments that produced updates for this fact
+      const relatedExperiments = config.experiments
+        .list()
+        .filter(exp => exp.results?.factUpdates?.some(u => u.factId === factId));
+
+      for (const exp of relatedExperiments) {
+        chain.push({
+          kind: 'experiment',
+          id: exp.id,
+          description: exp.hypothesis.claim,
+          timestamp: exp.completedAt ?? exp.createdAt,
+        });
+
+        // Add observations from this experiment
+        if (exp.results?.observations) {
+          for (const obs of exp.results.observations) {
+            chain.push({
+              kind: 'observation',
+              id: `${exp.id}.obs.${obs.metric}`,
+              description: `${obs.metric}: ${JSON.stringify(obs.value)}`,
+              timestamp: obs.timestamp,
+            });
+          }
+        }
+      }
+
+      // Sort chronologically by timestamp
+      chain.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+      return chain;
     },
   };
 }
