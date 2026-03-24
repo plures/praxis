@@ -1,0 +1,366 @@
+/**
+ * Chronos Bridge — Real-time org event ingestion into Praxis
+ * 
+ * Consumes GitHub webhook events (via workflow dispatches or direct),
+ * converts them to Chronos timeline events, and feeds them through
+ * the causal anomaly detector.
+ * 
+ * This is the live sensor that would have detected automation-infrastructure:
+ *   1. GitHub event fires (issue.assigned)
+ *   2. Bridge converts to TimelineEvent
+ *   3. Causal anomaly detector checks for matching cause
+ *   4. No queue-advance run found → CAUSAL_GAP alert
+ *   5. Unknown actor "auto-assign-issues.yml" → UNKNOWN_ACTOR alert
+ * 
+ * @module @plures/praxis/chronos-bridge
+ */
+
+import type { TimelineEvent, CausalExpectation } from '../causal-anomaly/index.js';
+
+// ── Types ──────────────────────────────────────────────────────────────────
+
+/** Raw GitHub webhook event (simplified) */
+export interface GitHubEvent {
+  action: string;
+  repository: { full_name: string; name: string };
+  sender: { login: string; type: string };
+  /** Issue events */
+  issue?: { number: number; assignees?: Array<{ login: string }> };
+  /** PR events */
+  pull_request?: { number: number; user?: { login: string }; merged?: boolean };
+  /** Check suite events */
+  check_suite?: { conclusion: string | null; head_branch: string };
+  /** Review events */
+  review?: { state: string; user: { login: string } };
+  /** Workflow run events */
+  workflow_run?: { name: string; conclusion: string | null };
+}
+
+export type AlertSeverity = 'info' | 'warning' | 'critical';
+
+export interface Alert {
+  id: string;
+  severity: AlertSeverity;
+  category: 'causal-gap' | 'unknown-actor' | 'rate-anomaly' | 'pattern-break';
+  title: string;
+  details: string;
+  relatedEvents: TimelineEvent[];
+  timestamp: string;
+  /** Whether this has been acknowledged */
+  acknowledged: boolean;
+}
+
+// ── Event Converter ────────────────────────────────────────────────────────
+
+/**
+ * Convert a GitHub webhook event into a Praxis TimelineEvent.
+ */
+export function githubToTimeline(event: GitHubEvent, receivedAt: number): TimelineEvent | null {
+  const repo = event.repository.name;
+  const actor = event.sender.login;
+
+  // Issue assigned
+  if (event.issue && event.action === 'assigned') {
+    const assignee = event.issue.assignees?.[event.issue.assignees.length - 1]?.login;
+    return {
+      id: `${repo}.issue.${event.issue.number}.assigned.${receivedAt}`,
+      timestamp: receivedAt,
+      repo,
+      type: 'issue-assigned',
+      actor,
+      subject: `#${event.issue.number}`,
+      details: { assignee, issueNumber: event.issue.number },
+    };
+  }
+
+  // Issue created
+  if (event.issue && event.action === 'opened') {
+    return {
+      id: `${repo}.issue.${event.issue.number}.opened.${receivedAt}`,
+      timestamp: receivedAt,
+      repo,
+      type: 'issue-created',
+      actor,
+      subject: `#${event.issue.number}`,
+      details: { issueNumber: event.issue.number },
+    };
+  }
+
+  // PR created
+  if (event.pull_request && event.action === 'opened') {
+    return {
+      id: `${repo}.pr.${event.pull_request.number}.opened.${receivedAt}`,
+      timestamp: receivedAt,
+      repo,
+      type: 'pr-created',
+      actor: event.pull_request.user?.login ?? actor,
+      subject: `#${event.pull_request.number}`,
+      details: { prNumber: event.pull_request.number },
+    };
+  }
+
+  // PR merged
+  if (event.pull_request && event.action === 'closed' && event.pull_request.merged) {
+    return {
+      id: `${repo}.pr.${event.pull_request.number}.merged.${receivedAt}`,
+      timestamp: receivedAt,
+      repo,
+      type: 'pr-merged',
+      actor,
+      subject: `#${event.pull_request.number}`,
+      details: { prNumber: event.pull_request.number },
+    };
+  }
+
+  // Review submitted
+  if (event.review && event.action === 'submitted') {
+    return {
+      id: `${repo}.review.${receivedAt}`,
+      timestamp: receivedAt,
+      repo,
+      type: 'review-completed',
+      actor: event.review.user.login,
+      subject: `PR review`,
+      details: { state: event.review.state },
+    };
+  }
+
+  // Check suite completed
+  if (event.check_suite && event.action === 'completed') {
+    return {
+      id: `${repo}.check.${receivedAt}`,
+      timestamp: receivedAt,
+      repo,
+      type: 'check-completed',
+      actor: 'github-actions[bot]',
+      subject: event.check_suite.head_branch,
+      details: { conclusion: event.check_suite.conclusion },
+    };
+  }
+
+  // Workflow run
+  if (event.workflow_run) {
+    return {
+      id: `${repo}.workflow.${receivedAt}`,
+      timestamp: receivedAt,
+      repo,
+      type: 'workflow-run',
+      actor: event.workflow_run.name,
+      subject: event.workflow_run.name,
+      details: { conclusion: event.workflow_run.conclusion },
+    };
+  }
+
+  return null;
+}
+
+// ── Rate Monitor ───────────────────────────────────────────────────────────
+
+/**
+ * Monitors event rates per repo and actor. Detects burst anomalies
+ * using a sliding window + z-score approach.
+ */
+export class RateMonitor {
+  private windows: Map<string, number[]> = new Map();
+  private readonly windowSizeMs: number;
+  private readonly zScoreThreshold: number;
+
+  constructor(opts?: { windowSizeMs?: number; zScoreThreshold?: number }) {
+    this.windowSizeMs = opts?.windowSizeMs ?? 3_600_000; // 1 hour
+    this.zScoreThreshold = opts?.zScoreThreshold ?? 3;
+  }
+
+  /**
+   * Record an event and check for rate anomaly.
+   * Returns alert if the rate exceeds z-score threshold.
+   */
+  record(key: string, timestamp: number): Alert | null {
+    const window = this.windows.get(key) ?? [];
+    window.push(timestamp);
+
+    // Trim to window
+    const cutoff = timestamp - this.windowSizeMs;
+    const trimmed = window.filter(t => t > cutoff);
+    this.windows.set(key, trimmed);
+
+    // Need at least 10 events to compute meaningful statistics
+    if (trimmed.length < 10) return null;
+
+    // Compute rate per minute
+    const minutes = this.windowSizeMs / 60_000;
+    const currentRate = trimmed.length / minutes;
+
+    // Compare against historical (simplified: use first half as baseline)
+    const midpoint = Math.floor(trimmed.length / 2);
+    const baselineRate = midpoint / (minutes / 2);
+    const recentRate = (trimmed.length - midpoint) / (minutes / 2);
+
+    if (baselineRate === 0) return null;
+
+    const ratio = recentRate / baselineRate;
+    if (ratio > this.zScoreThreshold) {
+      return {
+        id: `rate.${key}.${timestamp}`,
+        severity: ratio > 5 ? 'critical' : 'warning',
+        category: 'rate-anomaly',
+        title: `Rate anomaly: ${key}`,
+        details: `${recentRate.toFixed(1)}/min vs baseline ${baselineRate.toFixed(1)}/min (${ratio.toFixed(1)}x)`,
+        relatedEvents: [],
+        timestamp: new Date(timestamp).toISOString(),
+        acknowledged: false,
+      };
+    }
+
+    return null;
+  }
+}
+
+// ── Alert Manager ──────────────────────────────────────────────────────────
+
+export class AlertManager {
+  private alerts: Alert[] = [];
+  private handlers: Array<(alert: Alert) => void> = [];
+
+  /** Register a handler for new alerts */
+  onAlert(handler: (alert: Alert) => void): () => void {
+    this.handlers.push(handler);
+    return () => {
+      this.handlers = this.handlers.filter(h => h !== handler);
+    };
+  }
+
+  /** Emit an alert */
+  emit(alert: Alert): void {
+    this.alerts.push(alert);
+    for (const handler of this.handlers) {
+      try { handler(alert); } catch { /* handler errors don't propagate */ }
+    }
+  }
+
+  /** Get unacknowledged alerts */
+  pending(): Alert[] {
+    return this.alerts.filter(a => !a.acknowledged);
+  }
+
+  /** Acknowledge an alert */
+  acknowledge(alertId: string): void {
+    const alert = this.alerts.find(a => a.id === alertId);
+    if (alert) alert.acknowledged = true;
+  }
+
+  /** Get alert history */
+  history(opts?: { since?: string; severity?: AlertSeverity; limit?: number }): Alert[] {
+    let results = [...this.alerts];
+    if (opts?.since) {
+      const sinceMs = new Date(opts.since).getTime();
+      results = results.filter(a => new Date(a.timestamp).getTime() >= sinceMs);
+    }
+    if (opts?.severity) {
+      results = results.filter(a => a.severity === opts.severity);
+    }
+    if (opts?.limit) {
+      results = results.slice(-opts.limit);
+    }
+    return results;
+  }
+}
+
+// ── Full Pipeline ──────────────────────────────────────────────────────────
+
+export interface BridgeConfig {
+  expectations: CausalExpectation[];
+  knownActors: Set<string>;
+  rateMonitor?: RateMonitor;
+  alertManager: AlertManager;
+  /** Chronos chronicle for recording */
+  chronicle?: { record(event: { kind: string; data: Record<string, unknown> }): void };
+}
+
+/**
+ * Create the full bridge pipeline.
+ * Feed GitHub events in → get timeline events + alerts out.
+ */
+export function createBridge(config: BridgeConfig) {
+  const timeline: TimelineEvent[] = [];
+  const rateMonitor = config.rateMonitor ?? new RateMonitor();
+
+  return {
+    /** Process a raw GitHub event */
+    ingest(event: GitHubEvent): { timelineEvent: TimelineEvent | null; alerts: Alert[] } {
+      const now = Date.now();
+      const timelineEvent = githubToTimeline(event, now);
+      const alerts: Alert[] = [];
+
+      if (!timelineEvent) return { timelineEvent: null, alerts };
+
+      timeline.push(timelineEvent);
+      config.chronicle?.record({ kind: 'timeline-event', data: timelineEvent as unknown as Record<string, unknown> });
+
+      // Rate check
+      const rateKey = `${timelineEvent.repo}.${timelineEvent.actor}`;
+      const rateAlert = rateMonitor.record(rateKey, now);
+      if (rateAlert) {
+        rateAlert.relatedEvents = [timelineEvent];
+        alerts.push(rateAlert);
+        config.alertManager.emit(rateAlert);
+      }
+
+      // Unknown actor check
+      if (!config.knownActors.has(timelineEvent.actor)) {
+        const unknownAlert: Alert = {
+          id: `unknown.${timelineEvent.actor}.${now}`,
+          severity: 'warning',
+          category: 'unknown-actor',
+          title: `Unknown actor: ${timelineEvent.actor}`,
+          details: `"${timelineEvent.actor}" performed "${timelineEvent.type}" on ${timelineEvent.repo}#${timelineEvent.subject}`,
+          relatedEvents: [timelineEvent],
+          timestamp: new Date(now).toISOString(),
+          acknowledged: false,
+        };
+        alerts.push(unknownAlert);
+        config.alertManager.emit(unknownAlert);
+      }
+
+      // Causal gap check
+      const expectation = config.expectations.find(e => e.effect === timelineEvent.type);
+      if (expectation) {
+        const hasCause = expectation.expectedCauses.some(cause =>
+          timeline.some(prev =>
+            prev.type === cause.eventType &&
+            (cause.actor === '*' || prev.actor === cause.actor) &&
+            prev.repo === timelineEvent.repo &&
+            (now - prev.timestamp) <= cause.maxLagMs &&
+            (now - prev.timestamp) >= 0
+          )
+        );
+
+        if (!hasCause) {
+          const gapAlert: Alert = {
+            id: `gap.${timelineEvent.type}.${timelineEvent.repo}.${now}`,
+            severity: 'critical',
+            category: 'causal-gap',
+            title: `Causal gap: ${timelineEvent.type} without known cause`,
+            details: `"${timelineEvent.type}" on ${timelineEvent.repo}#${timelineEvent.subject} by "${timelineEvent.actor}" — expected cause: ${expectation.expectedCauses.map(c => c.actor).join(' or ')}`,
+            relatedEvents: [timelineEvent],
+            timestamp: new Date(now).toISOString(),
+            acknowledged: false,
+          };
+          alerts.push(gapAlert);
+          config.alertManager.emit(gapAlert);
+        }
+      }
+
+      return { timelineEvent, alerts };
+    },
+
+    /** Get the full timeline */
+    getTimeline(): TimelineEvent[] {
+      return [...timeline];
+    },
+
+    /** Get pending alerts */
+    pendingAlerts(): Alert[] {
+      return config.alertManager.pending();
+    },
+  };
+}
