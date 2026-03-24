@@ -414,7 +414,26 @@ export type {
   Prediction,
 } from './analysis/index.js';
 
-// ── Research Module (self-improving loop) ───────────────────────────────────
+// ── Experiments Module (sandboxed self-improvement) ────────────────────────
+export {
+  ExperimentRegistry,
+  createSandboxRunner,
+  createFactVerification,
+  createRuleExperiment,
+  createModelCalibration,
+  createABComparison,
+} from './experiments/index.js';
+export type {
+  ExperimentStatus,
+  ExperimentKind,
+  Experiment,
+  ExperimentDesign,
+  ExperimentStep,
+  SandboxConfig,
+  ExperimentResults,
+  SandboxRunner,
+} from './experiments/index.js';
+
 export { generateResearchQuestions, buildAgenda } from './research/index.js';
 export type {
   ResearchStatus,
