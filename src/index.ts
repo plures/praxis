@@ -414,6 +414,15 @@ export type {
   Prediction,
 } from './analysis/index.js';
 
+// ── Research Module (self-improving loop) ───────────────────────────────────
+export { generateResearchQuestions, buildAgenda } from './research/index.js';
+export type {
+  ResearchStatus,
+  ResearchOrigin,
+  ResearchQuestion,
+  ResearchAgenda,
+} from './research/index.js';
+
 // ── Expectations DSL (behavioral declarations) ─────────────────────────────
 export {
   Expectation,
