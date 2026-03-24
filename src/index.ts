@@ -398,6 +398,22 @@ export type { UIContext } from './core/ui-rules.js';
 export { auditCompleteness, formatReport } from './core/completeness.js';
 export type { LogicBranch, StateField, StateTransition, CompletenessReport, CompletenessConfig } from './core/completeness.js';
 
+// ── Analysis Module (introspection & health) ────────────────────────────────
+export { analyze } from './analysis/index.js';
+export type {
+  // AnalysisReport is aliased to avoid clash with decision-ledger's AnalysisReport
+  AnalysisReport as IntrospectionReport,
+  ModuleAnalysis,
+  CoverageReport,
+  ConfidenceDistribution,
+  RuleEffectivenessReport,
+  DependencyHealthReport,
+  PredictionAccuracyReport,
+  Recommendation,
+  AnalysisContext,
+  Prediction,
+} from './analysis/index.js';
+
 // ── Expectations DSL (behavioral declarations) ─────────────────────────────
 export {
   Expectation,

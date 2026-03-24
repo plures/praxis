@@ -118,7 +118,7 @@ export interface Recommendation {
 // ── Analysis Engine ────────────────────────────────────────────────────────
 
 export interface AnalysisContext {
-  facts: Map<string, import('./uncertainty').UncertainFact>;
+  facts: Map<string, import('../uncertainty').UncertainFact>;
   ruleStats: Map<string, { fires: number; noops: number; lastFired: string | null }>;
   constraintStats: Map<string, { violations: number; lastViolation: string | null }>;
   predictions: Prediction[];
@@ -243,7 +243,7 @@ export function analyze(ctx: AnalysisContext): AnalysisReport {
     visited.add(id);
     const fact = ctx.facts.get(id);
     if (!fact || fact.dependsOn.length === 0) return 0;
-    return 1 + Math.max(...fact.dependsOn.map(d => getDepth(d, new Set(visited))));
+    return 1 + Math.max(...fact.dependsOn.map((d: string) => getDepth(d, new Set(visited))));
   }
 
   for (const id of ctx.facts.keys()) {

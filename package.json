@@ -138,6 +138,19 @@
         "import": "./dist/browser/unified/index.js"
       },
       "default": "./dist/node/unified/index.js"
+    },
+    "./analysis": {
+      "node": {
+        "types": "./dist/node/analysis/index.d.ts",
+        "import": "./dist/node/analysis/index.js",
+        "require": "./dist/node/analysis/index.cjs",
+        "default": "./dist/node/analysis/index.js"
+      },
+      "browser": {
+        "types": "./dist/browser/analysis/index.d.ts",
+        "import": "./dist/browser/analysis/index.js"
+      },
+      "default": "./dist/node/analysis/index.js"
     }
   },
   "files": [
