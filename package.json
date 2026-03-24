@@ -154,6 +154,8 @@
   ],
   "scripts": {
     "build": "tsup",
+    "bench": "vitest bench",
+    "bench:run": "vitest bench --run",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
