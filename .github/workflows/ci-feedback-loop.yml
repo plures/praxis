@@ -21,7 +21,7 @@ jobs:
     name: Deno Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup Deno
         run: |
           for i in 1 2 3; do
