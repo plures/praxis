@@ -11,10 +11,10 @@
  */
 
 import { describe, bench } from 'vitest';
-import { LogicEngine, createPraxisEngine } from '../core/engine.js';
+import { createPraxisEngine } from '../core/engine.js';
 import { PraxisRegistry } from '../core/rules.js';
 import { RuleResult } from '../core/rule-result.js';
-import type { PraxisEvent, PraxisFact } from '../core/protocol.js';
+import type { PraxisEvent } from '../core/protocol.js';
 
 // ─── Shared fixtures ────────────────────────────────────────────────────────
 

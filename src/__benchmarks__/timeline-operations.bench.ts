@@ -13,7 +13,7 @@
 
 import { describe, bench } from 'vitest';
 import { ProjectChronicle, createProjectChronicle } from '../chronos/project-chronicle.js';
-import { Timeline, createTimeline } from '../chronos/timeline.js';
+import { createTimeline } from '../chronos/timeline.js';
 import type { ProjectEventKind } from '../chronos/project-chronicle.js';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
