@@ -8,10 +8,10 @@
  * `praxis hooks status` — Show installed hooks
  */
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
-import type { GitHookName, PraxisHooksConfig } from '../../hooks/types.js';
+import type { GitHookName } from '../../hooks/types.js';
 
 export async function hooksInstall(options: { force?: boolean; verbose?: boolean }) {
   const { installHooks, loadConfig, initConfig } = await import('../../hooks/install.js');
@@ -41,7 +41,7 @@ export async function hooksInstall(options: { force?: boolean; verbose?: boolean
   console.log('✅ Praxis hooks ready. Git events will now flow through Praxis.');
 }
 
-export async function hooksUninstall(options: { verbose?: boolean }) {
+export async function hooksUninstall(_options: { verbose?: boolean }) {
   const { uninstallHooks, loadConfig } = await import('../../hooks/install.js');
 
   const config = loadConfig();
