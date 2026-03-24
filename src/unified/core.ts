@@ -39,6 +39,12 @@ interface RuleState {
   lastResult: RuleResult | null;
   /** Tags this rule has emitted — used for auto-retraction on skip/noop */
   emittedTags: Set<string>;
+  /**
+   * Cached snapshot of watched-path values from the last evaluation.
+   * Compared by reference equality to detect unchanged inputs (memoization).
+   * Null means the rule has never been evaluated.
+   */
+  lastInputs: Record<string, unknown> | null;
 }
 
 // ── Timeline Entry (Chronos-compatible) ─────────────────────────────────────
@@ -151,6 +157,7 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
     rule,
     lastResult: null,
     emittedTags: new Set<string>(),
+    lastInputs: null,
   }));
 
   // ── Constraints ──
@@ -234,12 +241,40 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
     return violations;
   }
 
-  function evaluateRules() {
+  function evaluateRules(force = false) {
     const newFacts: PraxisFact[] = [];
     const retractions: string[] = [];
 
     for (const rs of ruleStates) {
       const values = getPathValues(rs.rule.watch);
+
+      // Memoize: skip evaluation when watched-path values are reference-equal
+      // to those from the previous run. Force flag bypasses the cache.
+      // `lastInputs` is null only before the first evaluation, so checking it
+      // alone is sufficient; `lastResult` will also be set at that point.
+      if (!force && rs.lastInputs !== null) {
+        let unchanged = true;
+        for (const p of rs.rule.watch) {
+          if (values[p] !== rs.lastInputs[p]) {
+            unchanged = false;
+            break;
+          }
+        }
+        if (unchanged) {
+          // Use the same path selector as the non-cached branch for consistency.
+          recordTimeline(rs.rule.watch[0] ?? '*', 'rule-eval', {
+            ruleId: rs.rule.id,
+            kind: rs.lastResult!.kind,
+            reason: rs.lastResult!.reason,
+            cached: true,
+          });
+          continue;
+        }
+      }
+
+      // Snapshot current inputs so we can detect changes next time.
+      rs.lastInputs = { ...values };
+
       try {
         const result = rs.rule.evaluate(values, [...facts]);
         rs.lastResult = result;
@@ -517,7 +552,7 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
       return allViolations;
     },
     timeline: () => [...timeline],
-    evaluate: evaluateRules,
+    evaluate: () => evaluateRules(true),
     destroy,
     liveness: getLiveness,
   };
