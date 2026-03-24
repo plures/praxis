@@ -679,3 +679,15 @@ export type {
   DocsUpdatePlan,
   TemplateValidationResult,
 } from './lifecycle/index.js';
+
+// ── Integration Hub ─────────────────────────────────────────────────────────
+// Self-improving feedback loop connecting analysis, research, experiments,
+// uncertainty, and Chronos for temporal tracking.
+export { createHub } from './integration/hub.js';
+export type {
+  PraxisHub,
+  CycleResult,
+  SystemHealth,
+  HubConfig,
+  CausalChainLink,
+} from './integration/hub.js';

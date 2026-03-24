@@ -19,7 +19,10 @@ export type ProjectEventKind =
   | 'expectation'
   | 'gate'
   | 'build'
-  | 'fact';
+  | 'fact'
+  | 'cycle'
+  | 'prediction'
+  | 'experiment';
 
 /**
  * A single project lifecycle event.
