@@ -57,7 +57,7 @@ jobs:
       github.event.pull_request.merged == true
     steps:
       - name: Assign next issue to Copilot
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           COPILOT_TOKEN: ${{ secrets.COPILOT_PAT }}
         with:
