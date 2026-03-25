@@ -10,6 +10,7 @@ import type {
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
+/** A request to initiate a code review for a pull request. */
 export interface ReviewRequest {
   prNumber: number | string;
   repo: string;
@@ -17,6 +18,7 @@ export interface ReviewRequest {
   automated: boolean;
 }
 
+/** The result of a code review, including approval status and reviewer comments. */
 export interface ReviewResult {
   prNumber: number | string;
   approved: boolean;
@@ -24,6 +26,7 @@ export interface ReviewResult {
   comments: ReviewComment[];
 }
 
+/** A single review comment on a pull request, with an optional file path, line number, and severity. */
 export interface ReviewComment {
   path?: string;
   line?: number;
@@ -31,6 +34,7 @@ export interface ReviewComment {
   severity: 'suggestion' | 'required' | 'praise';
 }
 
+/** Tracks the state of a review-implement-re-review cycle for a pull request across multiple rounds. */
 export interface ReviewCycleState {
   prNumber: number | string;
   round: number;
@@ -41,6 +45,7 @@ export interface ReviewCycleState {
 
 // ─── Review Triggers ────────────────────────────────────────────────────────
 
+/** Built-in trigger actions for the review lifecycle phase (CI gating, requesting reviews, and re-review cycles). */
 export const review = {
   /**
    * Gate that requires all CI checks to pass before review.
