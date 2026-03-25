@@ -75,7 +75,7 @@
     "@plures/praxis-cloud": "workspace:*"
   },
   "peerDependencies": {
-    "svelte": "^5.46.0"
+    "svelte": "^5.53.5"
   },
   "peerDependenciesMeta": {
     "svelte": {

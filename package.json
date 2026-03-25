@@ -205,7 +205,7 @@
     "@types/ws": "^8.18.1",
     "@vitest/ui": "^4.0.15",
     "esbuild-svelte": "^0.9.4",
-    "svelte": "^5.46.0",
+    "svelte": "^5.55.0",
     "svelte-preprocess": "^6.0.3",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
@@ -221,11 +221,18 @@
     "zod": "^4.3.6"
   },
   "peerDependencies": {
-    "svelte": "^5.46.0"
+    "svelte": "^5.53.5"
   },
   "peerDependenciesMeta": {
     "svelte": {
       "optional": true
+    }
+  },
+  "pnpm": {
+    "overrides": {
+      "rollup": ">=4.59.0",
+      "flatted": ">=3.4.2",
+      "devalue": ">=5.6.4"
     }
   },
   "publishConfig": {
