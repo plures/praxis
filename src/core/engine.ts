@@ -58,7 +58,6 @@ function safeClone<T>(value: T): T {
   // (handles Map, Set, Date, etc.). Guard for environments that lack it.
   if (typeof globalThis.structuredClone === 'function') {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return globalThis.structuredClone(value);
     } catch {
       // fall through to safer copies
@@ -66,7 +65,6 @@ function safeClone<T>(value: T): T {
   }
 
   if (Array.isArray(value)) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return [...(value as unknown as unknown[])] as unknown as T;
   }
 
