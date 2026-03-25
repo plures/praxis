@@ -17,6 +17,7 @@
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, extname, basename } from 'node:path';
+import process from 'node:process';
 import type { TriggerAction } from './types.js';
 
 // ─── Types ──────────────────────────────────────────────────────────────────

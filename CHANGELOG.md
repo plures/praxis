@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.18] - 2026-03-25
+
 ### Added
 
 - **PluresDB from NPM**: Added `PluresDBPraxisAdapter` to wrap the official PluresDB package from NPM
@@ -350,6 +352,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **JSON-Friendly**: All types are serializable for cross-platform use
 - **Type-Safe**: Full TypeScript support with strict typing
 
+[2.4.18]: https://github.com/plures/praxis/releases/tag/v2.4.18
 [1.0.0]: https://github.com/plures/praxis/releases/tag/v1.0.0
 [0.2.1]: https://github.com/plures/praxis/releases/tag/v0.2.1
 [0.2.0]: https://github.com/plures/praxis/releases/tag/v0.2.0
