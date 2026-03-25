@@ -16,7 +16,7 @@ declare function $state<T>(initial: T): T;
 
 export interface ReactiveEngineOptions<TContext> {
     initialContext: TContext;
-    initialFacts?: any[];
+    initialFacts?: unknown[];
     initialMeta?: Record<string, unknown>;
     registry?: PraxisRegistry<TContext>;
 }
@@ -27,9 +27,9 @@ export interface ReactiveEngineOptions<TContext> {
  */
 export class ReactiveLogicEngine<TContext extends object> {
     // Use Svelte's $state rune for automatic reactivity
-    state: { context: TContext; facts: any[]; meta: Record<string, unknown> } = $state({
+    state: { context: TContext; facts: unknown[]; meta: Record<string, unknown> } = $state({
         context: {} as TContext,
-        facts: [] as any[],
+        facts: [] as unknown[],
         meta: {} as Record<string, unknown>
     });
 
@@ -68,7 +68,7 @@ export class ReactiveLogicEngine<TContext extends object> {
     /**
      * Access the reactive facts list.
      */
-    get facts(): any[] {
+    get facts(): unknown[] {
         return this.state.facts;
     }
 
@@ -85,7 +85,7 @@ export class ReactiveLogicEngine<TContext extends object> {
      * 
      * @param mutator A function that receives the state and modifies it.
      */
-    apply(mutator: (state: { context: TContext; facts: any[]; meta: Record<string, unknown> }) => void): void {
+    apply(mutator: (state: { context: TContext; facts: unknown[]; meta: Record<string, unknown> }) => void): void {
         mutator(this.state);
     }
 

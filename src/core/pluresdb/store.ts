@@ -13,6 +13,7 @@ import type { PraxisRegistry } from '../rules.js';
 import type { PraxisFact, PraxisEvent, PraxisState } from '../protocol.js';
 import type { Chronicle } from '../chronicle/chronicle.js';
 import { ChronicleContext } from '../chronicle/context.js';
+import { RuleResult } from '../rule-result.js';
 
 /**
  * Key paths for Praxis data in PluresDB
@@ -516,8 +517,8 @@ export class PraxisDBStore<TContext = unknown> {
         const result = rule.impl(state, events);
         if (Array.isArray(result)) {
           derivedFacts.push(...result);
-        } else if (result && 'kind' in result && result.kind === 'emit') {
-          derivedFacts.push(...(result as any).facts);
+        } else if (result instanceof RuleResult && result.kind === 'emit') {
+          derivedFacts.push(...result.facts);
         }
         // noop/skip/retract handled by engine, not store
       } catch (error) {

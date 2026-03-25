@@ -12,6 +12,20 @@ import type { TriggerAction, LifecycleExpectation } from './types.js';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
+/** npm audit vulnerability data shape */
+interface NpmAuditVulnData {
+  via?: Array<{ url?: string; title?: string }>;
+  severity?: string;
+  fixAvailable?: { version?: string };
+}
+
+/** npm outdated package data shape */
+interface NpmOutdatedPkgData {
+  current?: string;
+  latest?: string;
+  type?: string;
+}
+
 /** A security vulnerability detected in a dependency, including CVE details and severity. */
 export interface Vulnerability {
   /** CVE ID or advisory ID */
@@ -140,12 +154,12 @@ export const maintenance = {
 
           let vulns: Vulnerability[] = [];
           try {
-            const audit = JSON.parse(output);
+            const audit = JSON.parse(output) as { vulnerabilities?: Record<string, NpmAuditVulnData> };
             if (audit.vulnerabilities) {
-              vulns = Object.entries(audit.vulnerabilities).map(([pkg, data]: [string, any]) => ({
-                id: data.via?.[0]?.url || `npm-${pkg}`,
+              vulns = Object.entries(audit.vulnerabilities).map(([pkg, data]) => ({
+                id: data.via?.[0]?.url ?? `npm-${pkg}`,
                 package: pkg,
-                severity: data.severity ?? 'moderate',
+                severity: (data.severity as Vulnerability['severity']) ?? 'moderate',
                 description: data.via?.[0]?.title ?? `Vulnerability in ${pkg}`,
                 fixedIn: data.fixAvailable?.version,
               }));
@@ -187,12 +201,12 @@ export const maintenance = {
 
           let updates: DependencyUpdate[] = [];
           try {
-            const outdated = JSON.parse(output);
-            updates = Object.entries(outdated).map(([pkg, data]: [string, any]) => ({
+            const outdated = JSON.parse(output) as Record<string, NpmOutdatedPkgData>;
+            updates = Object.entries(outdated).map(([pkg, data]) => ({
               package: pkg,
               currentVersion: data.current ?? 'unknown',
               latestVersion: data.latest ?? 'unknown',
-              updateType: data.type ?? 'patch',
+              updateType: (data.type as DependencyUpdate['updateType']) ?? 'patch',
               breaking: data.type === 'major',
             }));
           } catch { /* not JSON */ }

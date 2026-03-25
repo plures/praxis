@@ -122,10 +122,10 @@ export function createInMemoryDB(): InMemoryPraxisDB {
  * PluresDB instance type - represents either PluresNode or SQLiteCompatibleAPI
  */
 export type PluresDBInstance = {
-  get(key: string): Promise<any>;
-  put(key: string, value: any): Promise<any>;
+  get(key: string): Promise<unknown>;
+  put(key: string, value: unknown): Promise<unknown>;
   delete?(key: string): Promise<void>;
-  list?(): Promise<any[]>;
+  list?(): Promise<unknown[]>;
   close?(): Promise<void>;
 };
 

@@ -202,7 +202,7 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
     if (!state) return;
     for (const cb of state.subscribers) {
       try {
-        cb(value as any);
+        cb(value);
       } catch (err) {
         console.error(`[praxis] Subscriber error for "${path}":`, err);
       }
@@ -363,7 +363,7 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
           cb(processed);
         };
         const s = paths.get(path)!;
-        s.subscribers.add(wrappedCb as any);
+        s.subscribers.add(wrappedCb);
 
         // Immediate callback with current value (Svelte store contract)
         try {
@@ -373,7 +373,7 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
         }
 
         return () => {
-          s.subscribers.delete(wrappedCb as any);
+          s.subscribers.delete(wrappedCb);
         };
       },
     };
@@ -383,10 +383,10 @@ export function createApp(config: PraxisAppConfig): PraxisApp {
 
   function applyQueryOpts<T>(value: T, opts?: QueryOptions<T>): T {
     if (!opts || !Array.isArray(value)) return value;
-    let result: any[] = [...(value as any[])];
-    if (opts.where) result = result.filter(opts.where as any);
+    let result: unknown[] = [...value];
+    if (opts.where) result = result.filter(opts.where as (item: unknown) => boolean);
     if (opts.sort) result.sort(opts.sort);
-    if (opts.select) result = result.map(opts.select as any);
+    if (opts.select) result = result.map(opts.select as (item: unknown) => unknown);
     if (opts.limit) result = result.slice(0, opts.limit);
     return result as unknown as T;
   }

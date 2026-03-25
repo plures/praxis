@@ -61,7 +61,7 @@ export interface QueryOptions<T> {
   /** Select/map function */
   select?: (item: T) => unknown;
   /** Sort comparator */
-  sort?: (a: any, b: any) => number;
+  sort?: (a: unknown, b: unknown) => number;
   /** Limit results */
   limit?: number;
 }
@@ -100,7 +100,7 @@ export interface UnifiedRule {
   /** Graph paths this rule watches — auto-subscribed */
   watch: string[];
   /** Rule evaluation function — receives watched values by path */
-  evaluate: (values: Record<string, any>, facts: PraxisFact[]) => import('../core/rule-result.js').RuleResult;
+  evaluate: (values: Record<string, unknown>, facts: PraxisFact[]) => import('../core/rule-result.js').RuleResult;
 }
 
 // ── Constraint Definition (v2) ──────────────────────────────────────────────
@@ -113,7 +113,7 @@ export interface UnifiedConstraint {
   /** Graph paths this constraint reads */
   watch: string[];
   /** Validation function — return true if valid, string if violated */
-  validate: (values: Record<string, any>) => true | string;
+  validate: (values: Record<string, unknown>) => true | string;
 }
 
 // ── Liveness Monitor ────────────────────────────────────────────────────────

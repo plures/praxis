@@ -13,7 +13,7 @@
 
 export interface ReactiveEngineOptions<TContext> {
     initialContext: TContext;
-    initialFacts?: any[];
+    initialFacts?: unknown[];
     initialMeta?: Record<string, unknown>;
 }
 
@@ -22,7 +22,7 @@ export interface ReactiveEngineOptions<TContext> {
  */
 export type StateChangeCallback<TContext> = (state: {
     context: TContext;
-    facts: any[];
+    facts: unknown[];
     meta: Record<string, unknown>;
 }) => void;
 
@@ -35,14 +35,14 @@ export type UnsubscribeFn = () => void;
  * Framework-agnostic reactive logic engine using JavaScript Proxies
  */
 export class ReactiveLogicEngine<TContext extends object> {
-    private _state: { context: TContext; facts: any[]; meta: Record<string, unknown> };
+    private _state: { context: TContext; facts: unknown[]; meta: Record<string, unknown> };
     private _subscribers = new Set<StateChangeCallback<TContext>>();
     private _contextProxy: TContext;
-    private _factsProxy: any[];
+    private _factsProxy: unknown[];
     private _metaProxy: Record<string, unknown>;
     private _batchDepth = 0;
     private _pendingNotification = false;
-    private _proxyCache = new WeakMap<object, any>();
+    private _proxyCache = new WeakMap<object, object>();
     
     // Array methods that mutate the array
     private static readonly ARRAY_MUTATORS = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'];
@@ -69,7 +69,7 @@ export class ReactiveLogicEngine<TContext extends object> {
         // Check cache first
         const cached = this._proxyCache.get(target);
         if (cached) {
-            return cached;
+            return cached as T;
         }
         
         const self = this;
@@ -86,8 +86,8 @@ export class ReactiveLogicEngine<TContext extends object> {
                 // Bind array methods to notify on mutations
                 if (Array.isArray(obj) && typeof value === 'function') {
                     if (ReactiveLogicEngine.ARRAY_MUTATORS.includes(prop as string)) {
-                        return function(...args: any[]) {
-                            const result = (value as Function).apply(obj, args);
+                        return function(...args: unknown[]) {
+                            const result = (value as (...a: unknown[]) => unknown).apply(obj, args);
                             self._notify();
                             return result;
                         };
@@ -97,7 +97,7 @@ export class ReactiveLogicEngine<TContext extends object> {
                 return value;
             },
             set(obj, prop, value) {
-                const oldValue = (obj as any)[prop];
+                const oldValue = Reflect.get(obj, prop);
                 const result = Reflect.set(obj, prop, value);
                 
                 // Only notify if value actually changed
@@ -151,7 +151,7 @@ export class ReactiveLogicEngine<TContext extends object> {
     /**
      * Get the full state object
      */
-    get state(): { context: TContext; facts: any[]; meta: Record<string, unknown> } {
+    get state(): { context: TContext; facts: unknown[]; meta: Record<string, unknown> } {
         return {
             context: this._contextProxy,
             facts: this._factsProxy,
@@ -171,7 +171,7 @@ export class ReactiveLogicEngine<TContext extends object> {
      * Access the reactive facts list.
      * Changes to this array will trigger subscriber notifications.
      */
-    get facts(): any[] {
+    get facts(): unknown[] {
         return this._factsProxy;
     }
 
@@ -190,7 +190,7 @@ export class ReactiveLogicEngine<TContext extends object> {
      * 
      * @param mutator A function that receives the state and modifies it.
      */
-    apply(mutator: (state: { context: TContext; facts: any[]; meta: Record<string, unknown> }) => void): void {
+    apply(mutator: (state: { context: TContext; facts: unknown[]; meta: Record<string, unknown> }) => void): void {
         this._batchDepth++;
         try {
             mutator({
@@ -242,7 +242,7 @@ export class ReactiveLogicEngine<TContext extends object> {
      * @returns Object with subscribe method for reactive updates
      */
     $derived<TDerived>(
-        selector: (state: { context: TContext; facts: any[]; meta: Record<string, unknown> }) => TDerived
+        selector: (state: { context: TContext; facts: unknown[]; meta: Record<string, unknown> }) => TDerived
     ): { subscribe: (callback: (value: TDerived) => void) => UnsubscribeFn } {
         const subscribers = new Set<(value: TDerived) => void>();
         let currentValue = selector({

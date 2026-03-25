@@ -7,6 +7,33 @@
 import type { Subscription } from './billing.js';
 import { createSponsorSubscription, createFreeSubscription } from './billing.js';
 
+/** GitHub Sponsors GraphQL API response shape */
+interface GitHubSponsorsResponse {
+  errors?: { message: string }[];
+  data?: {
+    user?: {
+      id: number;
+      sponsorshipsAsSponsor?: {
+        nodes: GitHubSponsorshipNode[];
+      };
+    };
+  };
+}
+
+/** A single sponsorship node from GitHub's GraphQL API */
+interface GitHubSponsorshipNode {
+  sponsorable?: { login?: string };
+  tier?: {
+    id: string;
+    name: string;
+    monthlyPriceInCents: number;
+    description: string;
+    isOneTime: boolean;
+  };
+  createdAt?: string;
+  isActive?: boolean;
+}
+
 /**
  * GitHub Sponsors tier information
  */
@@ -142,16 +169,16 @@ export class GitHubSponsorsClient {
         throw new Error(`GitHub API error: ${response.statusText}`);
       }
 
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as GitHubSponsorsResponse;
 
       if (data.errors) {
         throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
       }
 
       // Check if user sponsors the Praxis account
-      const sponsorships = data.data?.user?.sponsorshipsAsSponsor?.nodes || [];
+      const sponsorships = data.data?.user?.sponsorshipsAsSponsor?.nodes ?? [];
       const praxisSponsorship = sponsorships.find(
-        (s: any) => s.sponsorable?.login === this.accountLogin
+        (s) => s.sponsorable?.login === this.accountLogin
       );
 
       if (!praxisSponsorship) {
@@ -160,16 +187,16 @@ export class GitHubSponsorsClient {
 
       return {
         sponsorLogin: userLogin,
-        sponsorId: data.data.user.id,
+        sponsorId: data.data?.user?.id ?? 0,
         tier: {
-          id: praxisSponsorship.tier.id,
-          name: praxisSponsorship.tier.name,
-          monthlyPriceInCents: praxisSponsorship.tier.monthlyPriceInCents,
-          description: praxisSponsorship.tier.description,
-          isOneTime: praxisSponsorship.tier.isOneTime,
+          id: praxisSponsorship.tier?.id ?? '',
+          name: praxisSponsorship.tier?.name ?? '',
+          monthlyPriceInCents: praxisSponsorship.tier?.monthlyPriceInCents ?? 0,
+          description: praxisSponsorship.tier?.description ?? '',
+          isOneTime: praxisSponsorship.tier?.isOneTime ?? false,
         },
-        createdAt: praxisSponsorship.createdAt,
-        isActive: praxisSponsorship.isActive,
+        createdAt: praxisSponsorship.createdAt ?? '',
+        isActive: praxisSponsorship.isActive ?? false,
       };
     } catch (error) {
       console.error('Failed to get sponsorship:', error);

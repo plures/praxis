@@ -12,6 +12,8 @@ import type { CRDTSyncMessage, UsageMetrics, HealthCheckResponse } from '../type
 export interface AzureContext {
   log: (message: string) => void;
   done: (err?: Error, result?: unknown) => void;
+  /** HTTP response binding (set by HTTP-triggered functions) */
+  res?: AzureHttpResponse;
 }
 
 /**

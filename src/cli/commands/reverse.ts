@@ -10,6 +10,7 @@ import { scanRepository } from '../../decision-ledger/scanner.js';
 import { generateContractFromRule } from '../../decision-ledger/reverse-generator.js';
 import { writeLogicLedgerEntry } from '../../decision-ledger/logic-ledger.js';
 import type { AIProvider } from '../../decision-ledger/reverse-generator.js';
+import type { Contract } from '../../decision-ledger/types.js';
 
 interface ReverseOptions {
   /** Root directory to scan */
@@ -260,7 +261,7 @@ export async function reverseCommand(options: ReverseOptions): Promise<void> {
  * Write a contract to a file.
  */
 async function writeContractToFile(
-  contract: any,
+  contract: Contract,
   outputDir: string,
   format: 'json' | 'yaml'
 ): Promise<void> {

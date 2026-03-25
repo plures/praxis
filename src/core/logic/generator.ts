@@ -4,7 +4,7 @@
  * Generates logic module code from schema definitions.
  */
 
-import type { FactDefinition, EventDefinition, RuleDefinition } from '../schema/types.js';
+import type { FactDefinition, EventDefinition, RuleDefinition, FieldType } from '../schema/types.js';
 import type { NormalizedSchema } from '../schema/normalize.js';
 
 /**
@@ -400,7 +400,7 @@ export class LogicGenerator {
   /**
    * Map field type to TypeScript type
    */
-  private mapFieldType(type: any): string {
+  private mapFieldType(type: FieldType): string {
     if (typeof type === 'string') {
       switch (type) {
         case 'string':

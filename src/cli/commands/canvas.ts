@@ -17,6 +17,50 @@ import {
 import { loadSchemaFromFile } from '../../core/schema/loader.js';
 import type { PSFSchema } from '../../../core/schema-engine/psf.js';
 
+// ── Legacy schema types (pre-PSF format) ─────────────────────────────────────
+
+interface LegacyEventRef {
+  name: string;
+}
+
+interface LegacyRule {
+  id?: string;
+  name?: string;
+  on?: string[];
+  do?: string | string[];
+  meta?: Record<string, unknown>;
+  triggers?: string[];
+  logic?: { events?: string[] };
+}
+
+interface LegacyFact {
+  id?: string;
+  name?: string;
+}
+
+interface LegacyLogicGroup {
+  id?: string;
+  description?: string;
+  rules?: LegacyRule[];
+  facts?: LegacyFact[];
+  events?: (string | LegacyEventRef)[];
+  constraints?: unknown[];
+}
+
+interface LegacySchema {
+  logic?: LegacyLogicGroup[];
+  events?: unknown[];
+  version?: string;
+}
+
+interface CanvasConnection {
+  id: string;
+  source: string;
+  target: string;
+  type: string;
+  label: string;
+}
+
 /**
  * Canvas command options
  */
@@ -60,7 +104,7 @@ export async function canvas(
         console.error(`Error loading schema: ${result.errors.join(', ')}`);
         process.exit(1);
       }
-      const loadedSchema = result.schema as any;
+      const loadedSchema = result.schema as unknown as LegacySchema & PSFSchema;
       console.log('Loaded schema keys:', Object.keys(loadedSchema));
       console.log('Has logic:', !!loadedSchema.logic);
       console.log('Has events:', !!loadedSchema.events);
@@ -71,11 +115,11 @@ export async function canvas(
         console.log(`Found ${loadedSchema.logic.length} logic groups.`);
 
         // 1. Extract Rules and ensure IDs, tagging them with their source flow
-        const rules: any[] = [];
-        const flows: any[] = [];
+        const rules: LegacyRule[] = [];
+        const flows: Array<{ id: string; name: string; type: string; steps: unknown[]; description?: string }> = [];
 
-        loadedSchema.logic.forEach((l: any) => {
-          const flowId = l.id || 'default-flow';
+        loadedSchema.logic?.forEach((l: LegacyLogicGroup) => {
+          const flowId = l.id ?? 'default-flow';
           console.log(`Processing flow: ${flowId}`);
           flows.push({
             id: flowId,
@@ -85,10 +129,10 @@ export async function canvas(
             description: l.description,
           });
 
-          (l.rules || []).forEach((r: any) => {
+          (l.rules ?? []).forEach((r: LegacyRule) => {
             rules.push({
               ...r,
-              id: r.id || r.name,
+              id: r.id ?? r.name,
               triggers: r.on,
               meta: { ...r.meta, flowId: flowId },
             });
@@ -96,15 +140,15 @@ export async function canvas(
         });
 
         // Extract Facts and ensure IDs
-        const facts = loadedSchema.logic
-          .flatMap((l: any) => l.facts || [])
-          .map((f: any) => ({
+        const facts = (loadedSchema.logic ?? [])
+          .flatMap((l: LegacyLogicGroup) => l.facts ?? [])
+          .map((f: LegacyFact) => ({
             ...f,
-            id: f.id || f.name,
+            id: f.id ?? f.name,
           }));
 
         // 2. Infer Models from Rules
-        const inferredModels = new Map<string, any>();
+        const inferredModels = new Map<string, Record<string, unknown>>();
 
         // Always ensure core models exist for Azure DevOps Integration
         inferredModels.set('Connection', {
@@ -136,28 +180,29 @@ export async function canvas(
         // 3. Extract Events Aggressively
         const eventSet = new Set<string>();
         // From explicit events list
-        loadedSchema.logic.forEach((l: any) => {
-          (l.events || []).forEach((e: any) => eventSet.add(typeof e === 'string' ? e : e.name));
+        (loadedSchema.logic ?? []).forEach((l: LegacyLogicGroup) => {
+          (l.events ?? []).forEach((e) => eventSet.add(typeof e === 'string' ? e : e.name));
         });
         // From rules
-        rules.forEach((r: any) => {
-          (r.on || []).forEach((e: string) => eventSet.add(e));
-          if (r.logic && r.logic.events) {
+        rules.forEach((r: LegacyRule) => {
+          (r.on ?? []).forEach((e: string) => eventSet.add(e));
+          if (r.logic?.events) {
             r.logic.events.forEach((e: string) => eventSet.add(e));
           }
         });
 
         // 4. Generate Connections
-        const connections: any[] = [];
-        const factMap = new Map(facts.map((f: any) => [f.name, f.id]));
+        const connections: CanvasConnection[] = [];
+        const factMap = new Map(facts.map((f: LegacyFact) => [f.name, f.id]));
 
-        rules.forEach((r: any) => {
+        rules.forEach((r: LegacyRule) => {
+          const ruleId = r.id ?? r.name ?? 'unknown';
           // Event -> Rule
-          (r.on || []).forEach((e: string) => {
+          (r.on ?? []).forEach((e: string) => {
             connections.push({
-              id: `conn_evt_${e}_${r.id}`,
+              id: `conn_evt_${e}_${ruleId}`,
               source: e,
-              target: r.id,
+              target: ruleId,
               type: 'event',
               label: 'triggers',
             });
@@ -168,10 +213,10 @@ export async function canvas(
             const doStrs = Array.isArray(r.do) ? r.do : [r.do];
             doStrs.forEach((action: string) => {
               factMap.forEach((factId, factName) => {
-                if (typeof action === 'string' && action.includes(factName as string)) {
+                if (typeof action === 'string' && action.includes(factName as string) && factId) {
                   connections.push({
-                    id: `conn_act_${r.id}_${factId}`,
-                    source: r.id,
+                    id: `conn_act_${ruleId}_${factId}`,
+                    source: ruleId,
                     target: factId,
                     type: 'control',
                     label: 'updates',
@@ -197,7 +242,7 @@ export async function canvas(
           })),
           facts: facts,
           rules: rules,
-          constraints: loadedSchema.logic.flatMap((l: any) => l.constraints || []),
+          constraints: (loadedSchema.logic ?? []).flatMap((l: LegacyLogicGroup) => l.constraints ?? []),
           flows: flows,
           canvas: {
             connections: connections,
@@ -325,30 +370,30 @@ async function exportCanvas(schemaPath: string | undefined, options: CanvasOptio
     console.error(`Error loading schema: ${result.errors.join(', ')}`);
     process.exit(1);
   }
-  const loadedSchema = result.schema as any;
+  const loadedSchema = result.schema as unknown as LegacySchema & PSFSchema;
   let schema: PSFSchema;
 
   if (loadedSchema.logic && !loadedSchema.events) {
     console.log('Converting legacy schema to PSF format...');
 
     // 1. Extract Rules and ensure IDs, tagging them with their source flow
-    const rules: any[] = [];
-    const flows: any[] = [];
+    const rules: LegacyRule[] = [];
+    const flows: Array<{ id: string; name: string; type: string; steps: unknown[]; description?: string }> = [];
 
-    loadedSchema.logic.forEach((l: any) => {
-      const flowId = l.id || 'default-flow';
+    (loadedSchema.logic ?? []).forEach((l: LegacyLogicGroup) => {
+      const flowId = l.id ?? 'default-flow';
       flows.push({
         id: flowId,
-        name: l.description || flowId,
+        name: l.description ?? flowId,
         type: 'sequence',
         steps: [], // Populated implicitly by rules for now
         description: l.description,
       });
 
-      (l.rules || []).forEach((r: any) => {
+      (l.rules ?? []).forEach((r: LegacyRule) => {
         rules.push({
           ...r,
-          id: r.id || r.name,
+          id: r.id ?? r.name,
           triggers: r.on,
           meta: { ...r.meta, flowId: flowId },
         });
@@ -356,15 +401,15 @@ async function exportCanvas(schemaPath: string | undefined, options: CanvasOptio
     });
 
     // Extract Facts and ensure IDs
-    const facts = loadedSchema.logic
-      .flatMap((l: any) => l.facts || [])
-      .map((f: any) => ({
+    const facts = (loadedSchema.logic ?? [])
+      .flatMap((l: LegacyLogicGroup) => l.facts ?? [])
+      .map((f: LegacyFact) => ({
         ...f,
-        id: f.id || f.name,
+        id: f.id ?? f.name,
       }));
 
     // 2. Infer Models from Rules
-    const inferredModels = new Map<string, any>();
+    const inferredModels = new Map<string, Record<string, unknown>>();
 
     // Always ensure core models exist for Azure DevOps Integration
     inferredModels.set('Connection', {
@@ -396,13 +441,13 @@ async function exportCanvas(schemaPath: string | undefined, options: CanvasOptio
     // 3. Extract Events Aggressively
     const eventSet = new Set<string>();
     // From explicit events list
-    loadedSchema.logic.forEach((l: any) => {
-      (l.events || []).forEach((e: any) => eventSet.add(typeof e === 'string' ? e : e.name));
+    (loadedSchema.logic ?? []).forEach((l: LegacyLogicGroup) => {
+      (l.events ?? []).forEach((e) => eventSet.add(typeof e === 'string' ? e : e.name));
     });
     // From rules
-    rules.forEach((r: any) => {
-      (r.on || []).forEach((e: string) => eventSet.add(e));
-      if (r.logic && r.logic.events) {
+    rules.forEach((r: LegacyRule) => {
+      (r.on ?? []).forEach((e: string) => eventSet.add(e));
+      if (r.logic?.events) {
         r.logic.events.forEach((e: string) => eventSet.add(e));
       }
     });
@@ -422,10 +467,10 @@ async function exportCanvas(schemaPath: string | undefined, options: CanvasOptio
       })),
       facts: facts,
       rules: rules,
-      constraints: loadedSchema.logic.flatMap((l: any) => l.constraints || []),
+      constraints: (loadedSchema.logic ?? []).flatMap((l: LegacyLogicGroup) => l.constraints ?? []),
       flows: flows,
       metadata: loadedSchema.metadata,
-    } as PSFSchema;
+    } as unknown as PSFSchema;
   } else {
     schema = loadedSchema as unknown as PSFSchema;
   }
