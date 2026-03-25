@@ -46,7 +46,7 @@
     "@plures/praxis-core": "workspace:*"
   },
   "peerDependencies": {
-    "svelte": "^5.46.0"
+    "svelte": "^5.53.5"
   },
   "peerDependenciesMeta": {
     "svelte": {
@@ -57,7 +57,7 @@
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@types/node": "^25.0.1",
     "esbuild-svelte": "^0.9.4",
-    "svelte": "^5.46.0",
+    "svelte": "^5.55.0",
     "svelte-preprocess": "^6.0.3",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
