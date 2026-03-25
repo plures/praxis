@@ -8,6 +8,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { authenticateWithDeviceFlow } from '../../cloud/auth.js';
+
+/** GitHub user info API response (from /user endpoint) */
+interface GitHubUserApiResponse {
+  id: number;
+  login: string;
+  email?: string | null;
+  name?: string | null;
+  avatar_url?: string;
+}
 import { createSponsorsClient } from '../../cloud/sponsors.js';
 import type { AuthResult } from '../../cloud/types.js';
 
@@ -109,7 +118,7 @@ export async function loginCommand(options: { token?: string }): Promise<void> {
         throw new Error(`Invalid token: ${response.statusText}`);
       }
 
-      const userData = (await response.json()) as any;
+      const userData = (await response.json()) as GitHubUserApiResponse;
 
       authResult = {
         success: true,
@@ -117,8 +126,8 @@ export async function loginCommand(options: { token?: string }): Promise<void> {
         user: {
           id: userData.id,
           login: userData.login,
-          email: userData.email,
-          name: userData.name,
+          email: userData.email ?? undefined,
+          name: userData.name ?? undefined,
           avatarUrl: userData.avatar_url,
         },
       };

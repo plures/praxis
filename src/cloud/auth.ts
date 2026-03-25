@@ -16,6 +16,32 @@ export interface GitHubOAuthConfig {
   scope?: string;
 }
 
+/** GitHub token exchange response */
+interface GitHubTokenResponse {
+  access_token?: string;
+  expires_in?: number;
+  error?: string;
+  error_description?: string;
+}
+
+/** GitHub user info API response */
+interface GitHubUserInfoResponse {
+  id: number;
+  login: string;
+  email?: string | null;
+  name?: string | null;
+  avatar_url?: string;
+}
+
+/** GitHub device code response */
+interface GitHubDeviceCodeResponse {
+  device_code: string;
+  user_code: string;
+  verification_uri: string;
+  expires_in: number;
+  interval: number;
+}
+
 /**
  * GitHub OAuth client
  */
@@ -69,18 +95,19 @@ export class GitHubOAuth {
         throw new Error(`Token exchange failed: ${response.statusText}`);
       }
 
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as GitHubTokenResponse;
 
       if (data.error) {
         throw new Error(`GitHub OAuth error: ${data.error_description || data.error}`);
       }
 
       // Get user info
-      const user = await this.getUserInfo(data.access_token);
+      const accessToken = data.access_token ?? '';
+      const user = await this.getUserInfo(accessToken);
 
       return {
         success: true,
-        token: data.access_token,
+        token: accessToken,
         user,
         expiresAt: data.expires_in ? Date.now() + data.expires_in * 1000 : undefined,
       };
@@ -106,13 +133,13 @@ export class GitHubOAuth {
       throw new Error(`Failed to get user info: ${response.statusText}`);
     }
 
-    const data = (await response.json()) as any;
+    const data = (await response.json()) as GitHubUserInfoResponse;
 
     return {
       id: data.id,
       login: data.login,
-      email: data.email,
-      name: data.name,
+      email: data.email ?? undefined,
+      name: data.name ?? undefined,
       avatarUrl: data.avatar_url,
     };
   }
@@ -175,7 +202,7 @@ export async function authenticateWithDeviceFlow(clientId: string): Promise<Auth
       throw new Error(`Device flow initiation failed: ${deviceResponse.statusText}`);
     }
 
-    const deviceData = (await deviceResponse.json()) as any;
+    const deviceData = (await deviceResponse.json()) as GitHubDeviceCodeResponse;
 
     console.log('\nTo authenticate with GitHub:');
     console.log(`1. Visit: ${deviceData.verification_uri}`);
@@ -202,7 +229,7 @@ export async function authenticateWithDeviceFlow(clientId: string): Promise<Auth
         }),
       });
 
-      const tokenData = (await tokenResponse.json()) as any;
+      const tokenData = (await tokenResponse.json()) as GitHubTokenResponse;
 
       if (tokenData.access_token) {
         // Get user info

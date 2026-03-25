@@ -4,7 +4,7 @@
  * Generates Svelte components from schema definitions.
  */
 
-import type { ComponentDefinition, ModelDefinition } from '../schema/types.js';
+import type { ComponentDefinition, ModelDefinition, FieldType } from '../schema/types.js';
 
 /**
  * Generator configuration
@@ -339,7 +339,7 @@ ${styles ? `<style>\n${styles}\n</style>` : ''}`;
   /**
    * Map field type to TypeScript type
    */
-  private mapFieldType(type: any): string {
+  private mapFieldType(type: FieldType): string {
     if (typeof type === 'string') {
       switch (type) {
         case 'string':

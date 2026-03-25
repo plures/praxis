@@ -105,7 +105,7 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
         status.lastSync = Date.now();
 
         // Merge received vector clock
-        const result = (await response.json()) as any;
+        const result = (await response.json()) as { clock?: Record<string, number> };
         if (result.clock) {
           Object.entries(result.clock).forEach(([key, value]) => {
             vectorClock[key] = Math.max(vectorClock[key] || 0, value as number);

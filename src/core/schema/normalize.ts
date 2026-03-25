@@ -10,6 +10,7 @@ import type {
   ComponentDefinition,
   LogicDefinition,
   FieldDefinition,
+  FieldType,
 } from './types.js';
 
 /**
@@ -189,7 +190,7 @@ function normalizeLogic(
 /**
  * Expand field type to fully qualified type string
  */
-export function expandFieldType(fieldType: any, schemaPrefix: string = ''): string {
+export function expandFieldType(fieldType: FieldType, schemaPrefix: string = ''): string {
   if (typeof fieldType === 'string') {
     return fieldType;
   }
@@ -216,7 +217,7 @@ export function expandFieldType(fieldType: any, schemaPrefix: string = ''): stri
 /**
  * Generate TypeScript type from field type
  */
-export function fieldTypeToTypeScript(fieldType: any): string {
+export function fieldTypeToTypeScript(fieldType: FieldType): string {
   if (typeof fieldType === 'string') {
     switch (fieldType) {
       case 'string':
@@ -245,8 +246,8 @@ export function fieldTypeToTypeScript(fieldType: any): string {
     if ('object' in fieldType) {
       const fields = fieldType.object;
       const fieldTypes = Object.entries(fields)
-        .map(([key, field]: [string, any]) => {
-          const type = fieldTypeToTypeScript(field.type || field);
+        .map(([key, field]: [string, FieldDefinition]) => {
+          const type = fieldTypeToTypeScript(field.type);
           return `${key}: ${type}`;
         })
         .join('; ');

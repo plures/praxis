@@ -194,7 +194,10 @@ async function writeLedgerSnapshots(
     if (!descriptor.contract && !descriptor.meta?.contract) {
       return;
     }
-    const contract = descriptor.contract ?? (descriptor.meta?.contract as any);
+    const contract = descriptor.contract ?? (descriptor.meta?.contract as Contract | undefined);
+    if (!contract) {
+      return;
+    }
     await writeLogicLedgerEntry(contract, {
       rootDir,
       author,
