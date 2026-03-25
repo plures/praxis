@@ -203,6 +203,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.0.1",
     "@types/ws": "^8.18.1",
+    "@vitest/coverage-v8": "^4.1.0",
     "@vitest/ui": "^4.0.15",
     "esbuild-svelte": "^0.9.4",
     "svelte": "^5.55.0",
