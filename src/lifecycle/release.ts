@@ -10,6 +10,7 @@ import type { QASummary } from './qa.js';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
+/** Current state of a release as it moves through the prerelease → QA → stable → published pipeline. */
 export interface ReleaseState {
   version: string;
   phase: 'prerelease' | 'qa' | 'stable' | 'published';
@@ -21,6 +22,7 @@ export interface ReleaseState {
 
 // ─── Release Triggers ───────────────────────────────────────────────────────
 
+/** Built-in trigger actions for the release lifecycle phase (git tagging, QA gating, and stable promotion). */
 export const releasePipeline = {
   /**
    * Create a git tag for a release.

@@ -16,6 +16,7 @@ import type { LifecycleExpectation, VersioningConfig } from './types.js';
 
 // ─── Semver Types ───────────────────────────────────────────────────────────
 
+/** Represents a parsed semantic version with optional prerelease and build metadata. */
 export interface SemverVersion {
   major: number;
   minor: number;
@@ -24,8 +25,10 @@ export interface SemverVersion {
   build?: string;       // e.g., 'build.123'
 }
 
+/** The type of semver version bump to apply: major, minor, patch, or none. */
 export type BumpType = 'major' | 'minor' | 'patch' | 'none';
 
+/** The result of calculating a version bump, including the old and new version strings and the reasons for the bump. */
 export interface VersionBumpResult {
   from: string;
   to: string;
@@ -34,6 +37,7 @@ export interface VersionBumpResult {
   reasons: string[];
 }
 
+/** The result of syncing a version string into a single file (e.g., package.json or Cargo.toml). */
 export interface VersionSyncResult {
   file: string;
   updated: boolean;
@@ -42,6 +46,7 @@ export interface VersionSyncResult {
   error?: string;
 }
 
+/** A single changelog entry representing the changes included in one released version. */
 export interface ChangelogEntry {
   version: string;
   date: string;
@@ -53,6 +58,7 @@ export interface ChangelogEntry {
 
 const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9.]+))?(?:\+([a-zA-Z0-9.]+))?$/;
 
+/** Parse a semver string (e.g., `"1.2.3-rc.1"`) into a {@link SemverVersion} object, or `null` if invalid. */
 export function parseSemver(version: string): SemverVersion | null {
   const clean = version.replace(/^v/, '');
   const match = clean.match(SEMVER_RE);
@@ -66,6 +72,7 @@ export function parseSemver(version: string): SemverVersion | null {
   };
 }
 
+/** Format a {@link SemverVersion} back into a version string, optionally prefixed with `"v"`. */
 export function formatSemver(v: SemverVersion, prefix: boolean = false): string {
   let s = `${v.major}.${v.minor}.${v.patch}`;
   if (v.prerelease) s += `-${v.prerelease}`;
@@ -459,6 +466,7 @@ export function writeChangelog(
 
 // ─── Orchestrator ───────────────────────────────────────────────────────────
 
+/** Full result of an orchestrated version bump, including bump details, file sync results, and generated changelog entry. */
 export interface VersionOrchestrationResult {
   bump: VersionBumpResult;
   sync: VersionSyncResult[];

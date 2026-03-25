@@ -37,6 +37,7 @@ export interface TrackedDocument {
   reason?: string;
 }
 
+/** The type of a tracked document (readme, api reference, guide, architecture, changelog, contributing, example, reference, or custom). */
 export type DocumentType =
   | 'readme'        // README.md — current version only
   | 'api'           // API reference
@@ -60,6 +61,7 @@ export interface DocumentTemplate {
   filePattern?: string;
 }
 
+/** A required or optional section within a document template, defining its heading, description, and example content. */
 export interface TemplateSection {
   /** Section heading */
   heading: string;
@@ -150,6 +152,7 @@ export interface DocsUpdatePlan {
 
 // ─── Default Templates ──────────────────────────────────────────────────────
 
+/** Built-in document templates for readme, API reference, changelog, and contributing guide document types. */
 export const defaultTemplates: DocumentTemplate[] = [
   {
     name: 'readme',
@@ -357,6 +360,7 @@ export function planDocsUpdate(
 
 // ─── Template Validation ────────────────────────────────────────────────────
 
+/** Result of validating a document against a template, listing any missing required sections or unexpected extra sections. */
 export interface TemplateValidationResult {
   path: string;
   template: string;
@@ -424,6 +428,7 @@ export function validateAgainstTemplate(
 
 // ─── Trigger Actions ────────────────────────────────────────────────────────
 
+/** Built-in trigger actions for the documentation lifecycle phase (auditing, updating, and validating project docs). */
 export const docs = {
   /**
    * Audit documentation and report status.
@@ -646,6 +651,7 @@ function findFilesForTemplate(rootDir: string, template: DocumentTemplate, _conf
 
 // ─── Default Config ─────────────────────────────────────────────────────────
 
+/** Create a default {@link DocsConfig} with sensible defaults, merged with any provided overrides. */
 export function defaultDocsConfig(overrides?: Partial<DocsConfig>): DocsConfig {
   return {
     docsDir: overrides?.docsDir ?? 'docs',

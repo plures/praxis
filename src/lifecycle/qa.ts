@@ -14,6 +14,7 @@ import type { LifecycleExpectation, QAConfig } from './types.js';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
+/** A test case generated from the acceptance criteria of a {@link LifecycleExpectation}. */
 export interface TestCase {
   /** Unique test ID */
   id: string;
@@ -31,6 +32,7 @@ export interface TestCase {
   priority: string;
 }
 
+/** A matrix of test combinations across multiple configuration axes (e.g., OS × Node version). */
 export interface TestMatrix {
   /** Matrix name */
   name: string;
@@ -42,6 +44,7 @@ export interface TestMatrix {
   testCaseIds: string[];
 }
 
+/** The aggregate result of executing a QA run against a prerelease, including per-test results and summary statistics. */
 export interface QARunResult {
   /** Run ID */
   id: string;
@@ -65,6 +68,7 @@ export interface QARunResult {
   matrix?: Record<string, string>;
 }
 
+/** The result of executing a single test case, including pass/fail status, duration, and any error details. */
 export interface TestResult {
   testId: string;
   title: string;
@@ -75,6 +79,7 @@ export interface TestResult {
   details?: string;
 }
 
+/** A QA artifact file produced during a test run (e.g., test-cases JSON, coverage report, or run result). */
 export interface QAArtifact {
   /** Artifact type */
   type: 'test-cases' | 'matrix' | 'run-result' | 'coverage' | 'summary';
@@ -316,6 +321,7 @@ export function loadQARunResults(rootDir: string, config: QAConfig): QARunResult
 
 // ─── QA Summary ─────────────────────────────────────────────────────────────
 
+/** Aggregated summary of QA results across all runs for a given prerelease version. */
 export interface QASummary {
   version: string;
   totalRuns: number;

@@ -12,6 +12,7 @@ import type { TriggerAction, LifecycleExpectation } from './types.js';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
+/** A security vulnerability detected in a dependency, including CVE details and severity. */
 export interface Vulnerability {
   /** CVE ID or advisory ID */
   id: string;
@@ -27,6 +28,7 @@ export interface Vulnerability {
   cvss?: number;
 }
 
+/** An available update for a dependency, indicating the current and latest versions and whether the update is breaking. */
 export interface DependencyUpdate {
   package: string;
   currentVersion: string;
@@ -35,6 +37,7 @@ export interface DependencyUpdate {
   breaking: boolean;
 }
 
+/** A customer-reported issue including severity, reproduction steps, and reporter information. */
 export interface CustomerReport {
   id: string;
   reporter: string;
@@ -44,6 +47,7 @@ export interface CustomerReport {
   reproSteps?: string[];
 }
 
+/** A production incident requiring a hotfix, including severity level and affected services. */
 export interface Incident {
   id: string;
   title: string;
@@ -117,6 +121,7 @@ export function incidentToExpectation(incident: Incident): LifecycleExpectation 
 
 // ─── Maintenance Triggers ───────────────────────────────────────────────────
 
+/** Built-in trigger actions for the maintenance lifecycle phase (vulnerability scanning, dependency updates, and incident response). */
 export const maintenance = {
   /**
    * Scan for vulnerabilities and create expectations.
