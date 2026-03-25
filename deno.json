@@ -1,13 +1,15 @@
 {
   "name": "@plures/praxis",
-  "version": "2.4.18",
+  "version": "2.4.19",
   "exports": {
     ".": "./src/index.ts",
     "./svelte": "./src/integrations/svelte.ts",
     "./schema": "./src/core/schema/types.ts",
     "./component": "./src/core/component/generator.ts"
   },
-  "unstable": ["sloppy-imports"],
+  "unstable": [
+    "sloppy-imports"
+  ],
   "tasks": {
     "dev": "deno run --watch src/index.ts",
     "build": "deno run --allow-read --allow-write scripts/build.ts",
@@ -21,7 +23,10 @@
   "compilerOptions": {
     "strict": true,
     "allowJs": false,
-    "lib": ["deno.window", "deno.unstable"],
+    "lib": [
+      "deno.window",
+      "deno.unstable"
+    ],
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
@@ -32,13 +37,22 @@
     "semiColons": true,
     "singleQuote": false,
     "proseWrap": "preserve",
-    "include": ["src/"]
+    "include": [
+      "src/"
+    ]
   },
   "lint": {
-    "include": ["src/"],
+    "include": [
+      "src/"
+    ],
     "rules": {
-      "tags": ["recommended"],
-      "exclude": ["no-unused-vars", "no-sloppy-imports"]
+      "tags": [
+        "recommended"
+      ],
+      "exclude": [
+        "no-unused-vars",
+        "no-sloppy-imports"
+      ]
     }
   },
   "lock": false,
