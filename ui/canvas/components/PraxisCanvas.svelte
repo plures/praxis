@@ -29,6 +29,27 @@
   import CanvasEdge from './CanvasEdge.svelte';
   import CanvasToolbar from './CanvasToolbar.svelte';
 
+  /**
+   * Typed shape of the `data` bag stored in rule-type `CanvasNodeState` nodes.
+   *
+   * - `triggers` / `on` — event IDs that activate this rule (mutually exclusive conventions;
+   *   `triggers` is the canonical PSF field, `on` is a legacy alias).
+   * - `logic.events` — output event IDs emitted by the rule's action.
+   * - `meta.flowId` — optional flow the rule belongs to, used for flow-based filtering.
+   */
+  interface RuleNodeData {
+    description?: string;
+    /** Canonical PSF event IDs that activate this rule */
+    triggers?: string[];
+    /** Legacy alias for triggers */
+    on?: string[];
+    /** Rule action logic — may contain emitted event IDs */
+    logic?: { events?: string[] };
+    /** Metadata bag; flowId used for flow-based canvas filtering */
+    meta?: { flowId?: string; [key: string]: unknown };
+    [key: string]: unknown;
+  }
+
   // Props
   export let schema: PSFSchema;
   export let readonly: boolean = false;
@@ -82,13 +103,13 @@
       // Find rules triggered by this event
       const rules = nodes.filter(n =>
           n.type === 'rule' &&
-          ((n.data as any).triggers?.includes(selectedEventId) || (n.data as any).on?.includes(selectedEventId))
+          ((n.data as RuleNodeData).triggers?.includes(selectedEventId) || (n.data as RuleNodeData).on?.includes(selectedEventId))
       );
 
       rules.forEach(r => {
           ids.add(r.id);
           // Add outputs
-          const logic = (r.data as any).logic;
+          const logic = (r.data as RuleNodeData).logic;
           if (logic?.events) {
               logic.events.forEach((e: string) => ids.add(e));
           }
@@ -99,13 +120,13 @@
   $: filteredNodes = selectedFlowId 
     ? nodes.filter(n => {
         // Include nodes explicitly in the flow (via metadata)
-        if (n.type === 'rule' && (n.data as any)?.meta?.flowId === selectedFlowId) return true;
+        if (n.type === 'rule' && (n.data as RuleNodeData)?.meta?.flowId === selectedFlowId) return true;
         
         // Include nodes connected to the flow's rules
         // This is a simplified check; a more robust graph traversal might be needed
         // but for now, we check if the node is connected to any visible rule
         const flowRuleIds = new Set(nodes
-          .filter(r => r.type === 'rule' && (r.data as any)?.meta?.flowId === selectedFlowId)
+          .filter(r => r.type === 'rule' && (r.data as RuleNodeData)?.meta?.flowId === selectedFlowId)
           .map(r => r.id));
           
         // Check edges to see if this node is connected to a flow rule

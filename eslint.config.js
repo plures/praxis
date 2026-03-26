@@ -1,5 +1,7 @@
 // @ts-check
 import tseslint from 'typescript-eslint';
+import sveltePlugin from 'eslint-plugin-svelte';
+import svelteParser from 'svelte-eslint-parser';
 
 export default tseslint.config(
   {
@@ -26,6 +28,23 @@ export default tseslint.config(
     },
     rules: {
       // Type safety: forbid explicit `any` — the primary goal of this config
+      '@typescript-eslint/no-explicit-any': 'error',
+    },
+  },
+  {
+    files: ['ui/**/*.svelte'],
+    plugins: {
+      '@typescript-eslint': tseslint.plugin,
+      svelte: sveltePlugin,
+    },
+    languageOptions: {
+      parser: svelteParser,
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+    rules: {
+      // Type safety: forbid explicit `any` in Svelte components too
       '@typescript-eslint/no-explicit-any': 'error',
     },
   },
