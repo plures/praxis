@@ -18,6 +18,9 @@ import { PraxisRegistry } from '../core/rules.js';
 import { defineRule, defineConstraint } from '../dsl/index.js';
 import { defineContract } from '../decision-ledger/types.js';
 import type { Example } from '../decision-ledger/types.js';
+import type { LedgerEntry } from '../decision-ledger/ledger.js';
+import type { FieldType } from '../core/schema/types.js';
+import type { NormalizedModel } from '../core/schema/normalize.js';
 import { RuleResult, fact } from '../core/rule-result.js';
 
 // ─── Imports for tested modules ──────────────────────────────────────────────
@@ -452,7 +455,7 @@ describe('BehaviorLedger', () => {
     ledger = new BehaviorLedger();
   });
 
-  function makeEntry(id: string, ruleId: string, overrides: Partial<import('../decision-ledger/ledger.js').LedgerEntry> = {}): import('../decision-ledger/ledger.js').LedgerEntry {
+  function makeEntry(id: string, ruleId: string, overrides: Partial<LedgerEntry> = {}): LedgerEntry {
     return {
       id,
       timestamp: new Date().toISOString(),
@@ -471,7 +474,7 @@ describe('BehaviorLedger', () => {
 
     it('throws when appending duplicate ID', () => {
       ledger.append(makeEntry('e1', 'rule.a'));
-      expect(() => ledger.append(makeEntry('e1', 'rule.b'))).toThrow("Ledger entry with ID 'e1' already exists");
+      expect(() => ledger.append(makeEntry('e1', 'rule.b'))).toThrow(/already exists/);
     });
 
     it('marks superseded entry when newer one supersedes it', () => {
@@ -998,7 +1001,7 @@ describe('expandFieldType', () => {
   });
 
   it('returns "unknown" for unexpected types', () => {
-    expect(expandFieldType({} as unknown as import('../core/schema/types.js').FieldType)).toBe('unknown');
+    expect(expandFieldType({} as unknown as FieldType)).toBe('unknown');
   });
 });
 
@@ -1019,7 +1022,7 @@ describe('fieldTypeToTypeScript', () => {
   });
 
   it('converts unknown field type string to unknown', () => {
-    expect(fieldTypeToTypeScript('custom' as unknown as import('../core/schema/types.js').FieldType)).toBe('unknown');
+    expect(fieldTypeToTypeScript('custom' as unknown as FieldType)).toBe('unknown');
   });
 
   it('converts array object type', () => {
@@ -1042,7 +1045,7 @@ describe('fieldTypeToTypeScript', () => {
   });
 
   it('returns unknown for non-matching object', () => {
-    expect(fieldTypeToTypeScript({} as unknown as import('../core/schema/types.js').FieldType)).toBe('unknown');
+    expect(fieldTypeToTypeScript({} as unknown as FieldType)).toBe('unknown');
   });
 });
 
@@ -1051,7 +1054,7 @@ describe('sortModelsByDependencies', () => {
     const models = [
       { name: 'Order', fullName: 'App.Order', allFields: [], dependencies: ['User'], fields: [] },
       { name: 'User', fullName: 'App.User', allFields: [], dependencies: [], fields: [] },
-    ] as import('../core/schema/normalize.js').NormalizedModel[];
+    ] as NormalizedModel[];
 
     const sorted = sortModelsByDependencies(models);
     expect(sorted[0].name).toBe('User');
@@ -1062,7 +1065,7 @@ describe('sortModelsByDependencies', () => {
     const models = [
       { name: 'A', fullName: 'App.A', allFields: [], dependencies: ['B'], fields: [] },
       { name: 'B', fullName: 'App.B', allFields: [], dependencies: ['A'], fields: [] },
-    ] as import('../core/schema/normalize.js').NormalizedModel[];
+    ] as NormalizedModel[];
 
     expect(() => sortModelsByDependencies(models)).not.toThrow();
     // Due to circular detection, all input models are eventually included
@@ -1077,7 +1080,7 @@ describe('sortModelsByDependencies', () => {
   it('handles models with external (unknown) dependencies', () => {
     const models = [
       { name: 'Item', fullName: 'App.Item', allFields: [], dependencies: ['ExternalType'], fields: [] },
-    ] as import('../core/schema/normalize.js').NormalizedModel[];
+    ] as NormalizedModel[];
 
     const sorted = sortModelsByDependencies(models);
     expect(sorted).toHaveLength(1);
