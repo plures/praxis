@@ -8,7 +8,7 @@
  * Supports coexisting with husky, lefthook, etc. by chaining.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync, chmodSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, chmodSync, unlinkSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { execSync } from 'node:child_process';
 import type { GitHookName, PraxisHooksConfig } from './types.js';
@@ -165,12 +165,10 @@ export function uninstallHooks(
       writeFileSync(hookPath, backup);
       chmodSync(hookPath, 0o755);
       // Clean up backup
-      const { unlinkSync } = require('node:fs');
       unlinkSync(backupPath);
       restored.push(hookName);
       if (options.verbose) console.log(`  ♻️  ${hookName} — restored from backup`);
     } else {
-      const { unlinkSync } = require('node:fs');
       unlinkSync(hookPath);
       removed.push(hookName);
       if (options.verbose) console.log(`  🗑️  ${hookName} — removed`);

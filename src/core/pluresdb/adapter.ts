@@ -313,8 +313,8 @@ export async function createPraxisLocalFirst(
 
   const mod = await import('@plures/pluresdb/local-first');
   const LocalFirstCtor =
-    (mod as { PluresDBLocalFirst?: new (opts?: LocalFirstOptions) => PluresDBLocalFirst }).PluresDBLocalFirst ??
-    (mod as { default?: new (opts?: LocalFirstOptions) => PluresDBLocalFirst }).default;
+    (mod as unknown as { PluresDBLocalFirst?: new (opts?: LocalFirstOptions) => PluresDBLocalFirst }).PluresDBLocalFirst ??
+    (mod as unknown as { default?: new (opts?: LocalFirstOptions) => PluresDBLocalFirst }).default;
 
   if (!LocalFirstCtor) {
     throw new Error('Failed to load PluresDBLocalFirst from @plures/pluresdb/local-first');

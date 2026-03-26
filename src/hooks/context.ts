@@ -7,6 +7,7 @@
 
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import process from 'node:process';
 import type { GitHookContext, GitHookName, DiffStat } from './types.js';
 
 function git(args: string, cwd?: string): string {
