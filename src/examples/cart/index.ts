@@ -30,7 +30,7 @@ const ItemAdded = defineFact<'ItemAdded', { productId: string; quantity: number;
 );
 const ItemRemoved = defineFact<'ItemRemoved', { productId: string }>('ItemRemoved');
 const DiscountApplied = defineFact<'DiscountApplied', { percentage: number }>('DiscountApplied');
-const CartCleared = defineFact<'CartCleared', {}>('CartCleared');
+const CartCleared = defineFact<'CartCleared', Record<string, never>>('CartCleared');
 
 // Define events
 const AddToCart = defineEvent<
@@ -39,7 +39,7 @@ const AddToCart = defineEvent<
 >('ADD_TO_CART');
 const RemoveFromCart = defineEvent<'REMOVE_FROM_CART', { productId: string }>('REMOVE_FROM_CART');
 const ApplyDiscount = defineEvent<'APPLY_DISCOUNT', { code: string }>('APPLY_DISCOUNT');
-const ClearCart = defineEvent<'CLEAR_CART', {}>('CLEAR_CART');
+const ClearCart = defineEvent<'CLEAR_CART', Record<string, never>>('CLEAR_CART');
 
 // Define rules
 const addToCartRule = defineRule<CartContext>({

@@ -58,12 +58,11 @@ export class ExpectationBuilder {
 
   /** Add a Given/When/Then acceptance criterion */
   given(given: string): { when: (when: string) => { then: (then: string) => ExpectationBuilder } } {
-    const self = this;
     return {
       when: (when: string) => ({
         then: (then: string) => {
-          self._exp.acceptance!.push(`Given ${given}, when ${when}, then ${then}`);
-          return self;
+          this._exp.acceptance!.push(`Given ${given}, when ${when}, then ${then}`);
+          return this;
         },
       }),
     };

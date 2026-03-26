@@ -45,18 +45,26 @@
     "include": [
       "src/"
     ],
+    "exclude": [
+      "src/__tests__/**",
+      "src/**/*.test.ts",
+      "src/__benchmarks__/**"
+    ],
     "rules": {
       "tags": [
         "recommended"
       ],
       "exclude": [
         "no-unused-vars",
-        "no-sloppy-imports"
+        "no-sloppy-imports",
+        "no-process-global",
+        "no-node-globals",
+        "require-await"
       ]
     }
   },
   "lock": false,
-  "nodeModulesDir": false,
+  "nodeModulesDir": "none",
   "importMap": "./import_map.json",
   "license": "MIT",
   "publish": {

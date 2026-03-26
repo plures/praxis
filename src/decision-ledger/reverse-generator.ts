@@ -212,7 +212,7 @@ async function generateWithHeuristics(
 
   // Start with basic information
   let behavior = descriptor.description || `Process ${descriptor.id}`;
-  let examples: Example[] = [];
+  const examples: Example[] = [];
   let invariants: string[] = [];
   let assumptions: Assumption[] = [];
   let references: Reference[] = [];

@@ -33,7 +33,7 @@ export async function loadSchema(
     // Dynamic import is used, which works with .js files only.
 
     // Convert to absolute URL for ES module import
-    let fileUrl = pathToFileURL(filePath).href;
+    const fileUrl = pathToFileURL(filePath).href;
 
     // Attempt to import .ts or .js files directly. If import fails, error will be caught below.
 

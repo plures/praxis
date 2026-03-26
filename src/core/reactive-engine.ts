@@ -72,23 +72,21 @@ export class ReactiveLogicEngine<TContext extends object> {
             return cached as T;
         }
         
-        const self = this;
-        
         const handler: ProxyHandler<T> = {
-            get(obj, prop) {
+            get: (obj, prop) => {
                 const value = Reflect.get(obj, prop);
                 
                 // If the value is an object or array, wrap it in a proxy too
                 if (value && typeof value === 'object') {
-                    return self._createReactiveProxy(value);
+                    return this._createReactiveProxy(value);
                 }
                 
                 // Bind array methods to notify on mutations
                 if (Array.isArray(obj) && typeof value === 'function') {
                     if (ReactiveLogicEngine.ARRAY_MUTATORS.includes(prop as string)) {
-                        return function(...args: unknown[]) {
+                        return (...args: unknown[]) => {
                             const result = (value as (...a: unknown[]) => unknown).apply(obj, args);
-                            self._notify();
+                            this._notify();
                             return result;
                         };
                     }
@@ -96,20 +94,20 @@ export class ReactiveLogicEngine<TContext extends object> {
                 
                 return value;
             },
-            set(obj, prop, value) {
+            set: (obj, prop, value) => {
                 const oldValue = Reflect.get(obj, prop);
                 const result = Reflect.set(obj, prop, value);
                 
                 // Only notify if value actually changed
                 if (oldValue !== value) {
-                    self._notify();
+                    this._notify();
                 }
                 
                 return result;
             },
-            deleteProperty(obj, prop) {
+            deleteProperty: (obj, prop) => {
                 const result = Reflect.deleteProperty(obj, prop);
-                self._notify();
+                this._notify();
                 return result;
             },
         };

@@ -17,7 +17,7 @@ import type {
  * Create a cloud relay client
  */
 export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
-  let status: RelayStatus = {
+  const status: RelayStatus = {
     connected: false,
     endpoint: config.endpoint,
     appId: config.appId,

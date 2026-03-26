@@ -24,12 +24,12 @@ interface CounterContext {
 // Define facts
 const CountIncremented = defineFact<'CountIncremented', { amount: number }>('CountIncremented');
 const CountDecremented = defineFact<'CountDecremented', { amount: number }>('CountDecremented');
-const CountReset = defineFact<'CountReset', {}>('CountReset');
+const CountReset = defineFact<'CountReset', Record<string, never>>('CountReset');
 
 // Define events
 const Increment = defineEvent<'INCREMENT', { amount?: number }>('INCREMENT');
 const Decrement = defineEvent<'DECREMENT', { amount?: number }>('DECREMENT');
-const Reset = defineEvent<'RESET', {}>('RESET');
+const Reset = defineEvent<'RESET', Record<string, never>>('RESET');
 
 // Define rules
 const incrementRule = defineRule<CounterContext>({

@@ -375,7 +375,7 @@ export function usePraxisContext<TContext = unknown, TDerived = unknown>(
   engine: LogicEngine<TContext>,
   selector: (context: TContext) => TDerived
 ): TDerived {
-  let currentValue = selector(engine.getContext());
+  const currentValue = selector(engine.getContext());
   return currentValue;
 }
 
