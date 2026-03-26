@@ -436,7 +436,7 @@ function shouldInclude(relativePath: string, patterns: string[]): boolean {
  * Supports: *, **, ?, and basic path matching.
  */
 function globToRegex(pattern: string): RegExp {
-  let regexPattern = pattern
+  const regexPattern = pattern
     .replace(/\\/g, '\\\\')
     .replace(/\./g, '\\.')
     .replace(/\*\*/g, '___DOUBLESTAR___')

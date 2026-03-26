@@ -32,7 +32,7 @@ const UserLoggedOut = defineFact<'UserLoggedOut', { userId: string; timestamp: n
 
 // Define events
 const Login = defineEvent<'LOGIN', { username: string; password: string }>('LOGIN');
-const Logout = defineEvent<'LOGOUT', {}>('LOGOUT');
+const Logout = defineEvent<'LOGOUT', Record<string, never>>('LOGOUT');
 
 // Define rules
 const loginRule = defineRule<AuthContext>({

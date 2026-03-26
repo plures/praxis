@@ -290,7 +290,7 @@ export function createSandboxRunner(config: {
       const memoryBaseline = getHeapUsed();
       const observations: ExperimentResults['observations'] = [];
       let apiCalls = 0;
-      let tokensUsed = 0;
+      const tokensUsed = 0;
       let memoryPeakBytes = 0;
 
       // Assertion tracking for hypothesis evaluation

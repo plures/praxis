@@ -71,7 +71,7 @@ const ItemRemoved = defineFact<'ItemRemoved', { productId: string }>('ItemRemove
 const DiscountApplied = defineFact<'DiscountApplied', { amount: number; reason: string }>(
   'DiscountApplied'
 );
-const CartCleared = defineFact<'CartCleared', {}>('CartCleared');
+const CartCleared = defineFact<'CartCleared', Record<string, never>>('CartCleared');
 
 // Feature Flag Facts
 const FeatureEnabled = defineFact<'FeatureEnabled', { feature: string }>('FeatureEnabled');
@@ -89,8 +89,8 @@ const OrderPlaced = defineFact<'OrderPlaced', { orderId: string; total: number }
 
 // Auth Events
 const Login = defineEvent<'LOGIN', { username: string }>('LOGIN');
-const Logout = defineEvent<'LOGOUT', {}>('LOGOUT');
-const CheckSession = defineEvent<'CHECK_SESSION', {}>('CHECK_SESSION');
+const Logout = defineEvent<'LOGOUT', Record<string, never>>('LOGOUT');
+const CheckSession = defineEvent<'CHECK_SESSION', Record<string, never>>('CHECK_SESSION');
 
 // Cart Events
 const AddToCart = defineEvent<
@@ -99,7 +99,7 @@ const AddToCart = defineEvent<
 >('ADD_TO_CART');
 const RemoveFromCart = defineEvent<'REMOVE_FROM_CART', { productId: string }>('REMOVE_FROM_CART');
 const ApplyDiscount = defineEvent<'APPLY_DISCOUNT', { code: string }>('APPLY_DISCOUNT');
-const Checkout = defineEvent<'CHECKOUT', {}>('CHECKOUT');
+const Checkout = defineEvent<'CHECKOUT', Record<string, never>>('CHECKOUT');
 
 // Feature Flag Events
 const EnableFeature = defineEvent<'ENABLE_FEATURE', { feature: string }>('ENABLE_FEATURE');
@@ -309,7 +309,7 @@ const updateCartContextRule = defineRule<ECommerceContext>({
     }));
 
     // Calculate total
-    let total = state.context.cart.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+    const total = state.context.cart.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
     // Apply discounts
     let totalDiscount = 0;

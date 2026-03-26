@@ -39,8 +39,8 @@ const TodoAdded = defineFact<'TodoAdded', { id: string; text: string }>('TodoAdd
 const TodoToggled = defineFact<'TodoToggled', { id: string }>('TodoToggled');
 const TodoRemoved = defineFact<'TodoRemoved', { id: string }>('TodoRemoved');
 const FilterChanged = defineFact<'FilterChanged', { filter: string }>('FilterChanged');
-const AllCompleted = defineFact<'AllCompleted', {}>('AllCompleted');
-const CompletedCleared = defineFact<'CompletedCleared', {}>('CompletedCleared');
+const AllCompleted = defineFact<'AllCompleted', Record<string, never>>('AllCompleted');
+const CompletedCleared = defineFact<'CompletedCleared', Record<string, never>>('CompletedCleared');
 
 // ============================================================================
 // Events
@@ -52,8 +52,8 @@ const RemoveTodo = defineEvent<'REMOVE_TODO', { id: string }>('REMOVE_TODO');
 const SetFilter = defineEvent<'SET_FILTER', { filter: 'all' | 'active' | 'completed' }>(
   'SET_FILTER'
 );
-const CompleteAll = defineEvent<'COMPLETE_ALL', {}>('COMPLETE_ALL');
-const ClearCompleted = defineEvent<'CLEAR_COMPLETED', {}>('CLEAR_COMPLETED');
+const CompleteAll = defineEvent<'COMPLETE_ALL', Record<string, never>>('COMPLETE_ALL');
+const ClearCompleted = defineEvent<'CLEAR_COMPLETED', Record<string, never>>('CLEAR_COMPLETED');
 
 // ============================================================================
 // Rules
