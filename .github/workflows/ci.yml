@@ -114,7 +114,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v1.x
+          deno-version: v2.x
       
       - name: Check deno.json
         run: deno task --help || echo "Deno tasks not yet configured"

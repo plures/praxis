@@ -12,18 +12,33 @@ permissions:
 jobs:
   update-docs:
     runs-on: ubuntu-latest
-    if: >-
-      github.event.pull_request.merged == true &&
-      !contains(github.event.pull_request.title, '[docs]') &&
-      !contains(github.event.pull_request.title, 'chore(docs)')
     steps:
+      - name: Check whether to proceed
+        id: gate
+        run: |
+          MERGED="${{ github.event.pull_request.merged }}"
+          TITLE="${{ github.event.pull_request.title }}"
+          if [[ "$MERGED" != "true" ]]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Skipping: not a merged PR event"
+            exit 0
+          fi
+          if [[ "$TITLE" == *"[docs]"* ]] || [[ "$TITLE" == *"chore(docs)"* ]]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Skipping: doc-only PR"
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != 'true'
         with:
           ref: main
           fetch-depth: 2
 
       - name: Gather diff context
         id: context
+        if: steps.gate.outputs.skip != 'true'
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
           PR_NUM="${{ github.event.pull_request.number }}"
@@ -44,7 +59,7 @@ jobs:
           echo "$DIFF" > /tmp/code_diff.txt
 
       - name: Create doc update issue (unassigned)
-        if: steps.context.outputs.skip != 'true'
+        if: steps.gate.outputs.skip != 'true' && steps.context.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.COPILOT_PAT }}
