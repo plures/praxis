@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-02-06T04:10:28.021Z",
+  "generatedAt": "2026-03-26T06:39:03.475Z",
   "root": "/home/runner/work/praxis/praxis",
   "summary": {
-    "rules": 45,
-    "constraints": 8,
-    "files": 128
+    "rules": 49,
+    "constraints": 9,
+    "files": 192
   },
   "rules": [
     {
@@ -394,6 +394,32 @@
       }
     },
     {
+      "id": "causal.gapDetection",
+      "kind": "rule",
+      "file": "src/causal-anomaly/index.ts",
+      "description": "Detect effects that appear without known causes in the timeline",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "causal.gapDetection",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "causal.unknownActor",
+      "kind": "rule",
+      "file": "src/causal-anomaly/index.ts",
+      "description": "Flag events from actors not in the known-actors registry",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "causal.unknownActor",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
       "id": "counter.decrement",
       "kind": "rule",
       "file": "examples/reactive-counter/index.ts",
@@ -558,6 +584,32 @@
       "hasContract": true,
       "analysis": {
         "ruleId": "order.process",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "praxis.uncertainty.confidenceDegradation",
+      "kind": "rule",
+      "file": "src/uncertainty/index.ts",
+      "description": "Propagate confidence drops through dependency chains",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "praxis.uncertainty.confidenceDegradation",
+        "guards": [],
+        "mutations": [],
+        "events": []
+      }
+    },
+    {
+      "id": "praxis.uncertainty.expectationAnomaly",
+      "kind": "rule",
+      "file": "src/uncertainty/index.ts",
+      "description": "Detect when observations contradict declared expectations",
+      "hasContract": true,
+      "analysis": {
+        "ruleId": "praxis.uncertainty.expectationAnomaly",
         "guards": [],
         "mutations": [],
         "events": []
@@ -752,6 +804,13 @@
       "file": "src/examples/hero-ecommerce/index.ts",
       "description": "Cart operations require authentication",
       "hasContract": false
+    },
+    {
+      "id": "praxis.uncertainty.evidenceRequired",
+      "kind": "constraint",
+      "file": "src/uncertainty/index.ts",
+      "description": "Facts with confidence > 0.8 must have at least one piece of evidence",
+      "hasContract": true
     }
   ]
 }
