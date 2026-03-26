@@ -170,6 +170,7 @@
     "bench": "vitest bench",
     "bench:run": "vitest bench --run",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "typecheck": "tsc --noEmit",

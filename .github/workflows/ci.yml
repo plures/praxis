@@ -47,6 +47,17 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: Run coverage
+        run: pnpm run test:coverage
+        if: matrix.node-version == '22.x'
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage/
+        if: matrix.node-version == '22.x'
+
       - name: Decision ledger scan
         run: pnpm run scan:rules
 
