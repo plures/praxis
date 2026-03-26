@@ -12,6 +12,15 @@ export interface VerifyOptions {
   detailed?: boolean;
 }
 
+/**
+ * Run a named verification pass against the project.
+ *
+ * Currently supports `"implementation"` to verify that all FSM states have
+ * handler implementations. Exits with code 1 if verification fails.
+ *
+ * @param type - The verification type to run (e.g. `"implementation"`)
+ * @param _options - Verification options
+ */
 export async function verify(type: string, _options: VerifyOptions): Promise<void> {
   if (type !== 'implementation') {
     console.error(`Unknown verification type: ${type}`);

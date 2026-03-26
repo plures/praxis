@@ -69,6 +69,10 @@ function getLastCommitMessage(): string {
  * - pre-push: remote info, commits being pushed
  * - post-merge: merged files
  * - post-checkout: old/new HEAD, branch switch flag
+ *
+ * @param hook - The git hook name (e.g. `'pre-commit'`, `'post-commit'`)
+ * @param args - Arguments passed by git to the hook script (defaults to `[]`)
+ * @returns A populated {@link GitHookContext} for the given hook and git state
  */
 export function buildHookContext(
   hook: GitHookName,

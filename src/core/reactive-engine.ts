@@ -310,6 +310,9 @@ export class ReactiveLogicEngine<TContext extends object> {
  *   state.context.count++;
  * });
  * ```
+ *
+ * @param options - Engine options: `initialContext`, `registry`, `initialFacts`, `initialMeta`
+ * @returns A new {@link ReactiveLogicEngine} instance with subscribe, apply, and step methods
  */
 export function createReactiveEngine<TContext extends object>(
     options: ReactiveEngineOptions<TContext>

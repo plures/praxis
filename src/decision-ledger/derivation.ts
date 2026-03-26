@@ -17,6 +17,11 @@ import { analyzeDependencyGraph } from './analyzer.js';
  * to find the full derivation chain: event → rule A → fact X → rule B → fact Y
  *
  * Uses the engine's current state to identify which rules actually fired.
+ *
+ * @param factTag - The fact type tag to trace backwards from
+ * @param _engine - The logic engine (used for current state introspection)
+ * @param registry - The Praxis registry containing all rules
+ * @returns A {@link DerivationChain} showing the complete derivation path to the fact
  */
 export function traceDerivation<TContext = unknown>(
   factTag: string,
@@ -108,6 +113,10 @@ export function traceDerivation<TContext = unknown>(
  *
  * Returns which rules would stop firing and which downstream facts
  * would disappear if the given fact were removed.
+ *
+ * @param factTag - The fact type tag whose removal to simulate
+ * @param registry - The Praxis registry containing all rules
+ * @returns An {@link ImpactReport} listing affected rules and downstream facts
  */
 export function traceImpact<TContext = unknown>(
   factTag: string,

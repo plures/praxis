@@ -27,6 +27,9 @@ import type { ExpectationSet } from '../expectations/expectations.js';
  * This runs each rule with synthetic probe events to discover which facts
  * it reads from state and which facts it produces. For static analysis we
  * inspect rule metadata, contracts, event types, and probe execution.
+ *
+ * @param registry - The Praxis registry containing all rules and constraints
+ * @returns A {@link DependencyGraph} mapping facts, edges, producers, and consumers
  */
 export function analyzeDependencyGraph<TContext = unknown>(
   registry: PraxisRegistry<TContext>,
@@ -94,6 +97,10 @@ export function analyzeDependencyGraph<TContext = unknown>(
 
 /**
  * Find rules that can never fire given known event types.
+ *
+ * @param registry - The Praxis registry containing all rules
+ * @param knownEventTypes - The complete set of event type tags the application can emit
+ * @returns Array of {@link DeadRule} objects for rules whose required event types are not in the known set
  */
 export function findDeadRules<TContext = unknown>(
   registry: PraxisRegistry<TContext>,
@@ -129,6 +136,9 @@ export function findDeadRules<TContext = unknown>(
  * but no single rule or chain produces both. This is conservative —
  * if two facts are produced by completely independent rules that never
  * fire together, they form an unreachable state pair.
+ *
+ * @param registry - The Praxis registry containing all rules
+ * @returns Array of {@link UnreachableState} objects describing fact pairs that cannot co-exist
  */
 export function findUnreachableStates<TContext = unknown>(
   registry: PraxisRegistry<TContext>,
@@ -202,6 +212,9 @@ export function findUnreachableStates<TContext = unknown>(
 /**
  * Find rules where another rule with same event types always produces
  * a superset of the facts.
+ *
+ * @param registry - The Praxis registry containing all rules
+ * @returns Array of {@link ShadowedRule} objects describing rules made redundant by others
  */
 export function findShadowedRules<TContext = unknown>(
   registry: PraxisRegistry<TContext>,
@@ -250,6 +263,9 @@ export function findShadowedRules<TContext = unknown>(
 /**
  * Find rules that produce facts with the same tag but potentially conflicting
  * payloads under the same event conditions.
+ *
+ * @param registry - The Praxis registry containing all rules
+ * @returns Array of {@link Contradiction} objects describing rule pairs that could conflict
  */
 export function findContradictions<TContext = unknown>(
   registry: PraxisRegistry<TContext>,
@@ -303,6 +319,10 @@ export function findContradictions<TContext = unknown>(
 
 /**
  * Find expectations that have no covering rule or only partial coverage.
+ *
+ * @param registry - The Praxis registry containing all rules and constraints
+ * @param expectations - The expectation set to check coverage against
+ * @returns Array of {@link Gap} objects for expectations not fully covered by the registry
  */
 export function findGaps<TContext = unknown>(
   registry: PraxisRegistry<TContext>,

@@ -119,6 +119,10 @@ function commitMessageRule(config: PraxisHooksConfig): UnifiedRule {
  *
  * This is the core function — called by hook scripts when git fires an event.
  * Returns actions the hook script should take (block, allow, push, etc.).
+ *
+ * @param context - The git hook context built by {@link buildHookContext}
+ * @param config - Praxis hooks configuration loaded from `.praxis.hooks.json`
+ * @returns A {@link HookEvalResult} with `proceed` flag, `actions`, and an optional summary message
  */
 export async function evaluateHook(
   context: GitHookContext,
@@ -223,6 +227,8 @@ export async function evaluateHook(
 /**
  * Execute the actions returned by evaluateHook.
  * Called by the hook handler after evaluation.
+ *
+ * @param result - The hook evaluation result from {@link evaluateHook}
  */
 export function executeActions(result: HookEvalResult): void {
   for (const action of result.actions) {

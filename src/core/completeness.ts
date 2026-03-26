@@ -157,6 +157,13 @@ export interface CompletenessConfig {
  * The manifest is a developer-authored declaration of all logic branches,
  * state fields, and state transitions in the app. The auditor checks which
  * ones are covered by Praxis.
+ *
+ * @param manifest - Developer-authored manifest listing all logic branches, state fields, and transitions
+ * @param registryRuleIds - IDs of rules currently registered in the engine
+ * @param registryConstraintIds - IDs of constraints currently registered in the engine
+ * @param rulesWithContracts - IDs of rules that have Decision Ledger contracts attached
+ * @param config - Optional audit configuration (threshold, strict mode)
+ * @returns A {@link CompletenessReport} with a numeric score and per-dimension coverage details
  */
 export function auditCompleteness(
   manifest: {
@@ -225,6 +232,9 @@ export function auditCompleteness(
 
 /**
  * Format a completeness report as human-readable text.
+ *
+ * @param report - The completeness report returned by {@link auditCompleteness}
+ * @returns A multi-line string suitable for printing to a console or log
  */
 export function formatReport(report: CompletenessReport): string {
   const lines: string[] = [];

@@ -29,6 +29,11 @@ import { findContractGaps } from './contract-verification.js';
  *
  * This is the main entry point for the Decision Ledger analyzer.
  * It runs all analyses and produces a comprehensive report.
+ *
+ * @param registry - The Praxis registry containing all rules and constraints
+ * @param engine - The logic engine instance to analyze current state
+ * @param expectations - Optional expectation set to check coverage against
+ * @returns A comprehensive {@link AnalysisReport} with dead rules, contradictions, gaps, and health score
  */
 export function generateLedger<TContext = unknown>(
   registry: PraxisRegistry<TContext>,
@@ -106,6 +111,9 @@ export function generateLedger<TContext = unknown>(
 
 /**
  * Format an analysis report as human-readable markdown.
+ *
+ * @param report - The analysis report from {@link generateLedger}
+ * @returns A markdown-formatted string suitable for display in docs or CLI output
  */
 export function formatLedger(report: AnalysisReport): string {
   const lines: string[] = [];
@@ -219,6 +227,12 @@ export function formatLedger(report: AnalysisReport): string {
 
 /**
  * Format report as CI-friendly output with warnings and errors.
+ *
+ * Produces GitHub Actions annotation syntax (`::error::`, `::warning::`) so
+ * problems are surfaced inline in CI log output.
+ *
+ * @param report - The analysis report from {@link generateLedger}
+ * @returns A multi-line string with GitHub Actions annotation commands
  */
 export function formatBuildOutput(report: AnalysisReport): string {
   const lines: string[] = [];
@@ -270,6 +284,10 @@ export function formatBuildOutput(report: AnalysisReport): string {
 
 /**
  * Diff two analysis reports to find what changed between them.
+ *
+ * @param before - The earlier analysis report (baseline)
+ * @param after - The later analysis report (current state)
+ * @returns A {@link LedgerDiff} listing changes in findings between the two reports
  */
 export function diffLedgers(before: AnalysisReport, after: AnalysisReport): LedgerDiff {
   const changes: LedgerDiffEntry[] = [];

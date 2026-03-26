@@ -74,6 +74,9 @@ export interface Incident {
 
 /**
  * Convert a vulnerability to an expectation.
+ *
+ * @param vuln - The security vulnerability to convert
+ * @returns A {@link LifecycleExpectation} with type `'security'` and critical priority
  */
 export function vulnerabilityToExpectation(vuln: Vulnerability): LifecycleExpectation {
   const priority = vuln.severity === 'critical' ? 'critical'
@@ -98,6 +101,9 @@ export function vulnerabilityToExpectation(vuln: Vulnerability): LifecycleExpect
 
 /**
  * Convert a customer report to an expectation.
+ *
+ * @param report - The customer report to convert
+ * @returns A {@link LifecycleExpectation} with type `'fix'` and appropriate priority
  */
 export function customerReportToExpectation(report: CustomerReport): LifecycleExpectation {
   return {
@@ -116,6 +122,9 @@ export function customerReportToExpectation(report: CustomerReport): LifecycleEx
 
 /**
  * Convert an incident to a hotfix expectation.
+ *
+ * @param incident - The production incident to convert
+ * @returns A {@link LifecycleExpectation} with type `'fix'` and critical priority
  */
 export function incidentToExpectation(incident: Incident): LifecycleExpectation {
   return {

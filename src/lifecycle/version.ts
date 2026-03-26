@@ -58,7 +58,11 @@ export interface ChangelogEntry {
 
 const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9.]+))?(?:\+([a-zA-Z0-9.]+))?$/;
 
-/** Parse a semver string (e.g., `"1.2.3-rc.1"`) into a {@link SemverVersion} object, or `null` if invalid. */
+/** Parse a semver string (e.g., `"1.2.3-rc.1"`) into a {@link SemverVersion} object, or `null` if invalid.
+ *
+ * @param version - Semver string with optional `"v"` prefix (e.g. `"v2.0.0"` or `"1.2.3-rc.1"`)
+ * @returns Parsed {@link SemverVersion} or `null` if the string is not a valid semver
+ */
 export function parseSemver(version: string): SemverVersion | null {
   const clean = version.replace(/^v/, '');
   const match = clean.match(SEMVER_RE);
@@ -72,7 +76,12 @@ export function parseSemver(version: string): SemverVersion | null {
   };
 }
 
-/** Format a {@link SemverVersion} back into a version string, optionally prefixed with `"v"`. */
+/** Format a {@link SemverVersion} back into a version string, optionally prefixed with `"v"`.
+ *
+ * @param v - The semver version object to format
+ * @param prefix - When `true`, prepends `"v"` to the output (e.g. `"v1.2.3"`)
+ * @returns A semver-formatted string
+ */
 export function formatSemver(v: SemverVersion, prefix: boolean = false): string {
   let s = `${v.major}.${v.minor}.${v.patch}`;
   if (v.prerelease) s += `-${v.prerelease}`;
@@ -85,6 +94,9 @@ export function formatSemver(v: SemverVersion, prefix: boolean = false): string 
 /**
  * Calculate the semver bump type from a set of expectations.
  * Returns the highest bump needed.
+ *
+ * @param expectations - Array of lifecycle expectations to examine for breaking/feature/fix markers
+ * @returns The required `BumpType` and an array of reasons explaining each expectation's contribution
  */
 export function calculateBump(expectations: LifecycleExpectation[]): { bump: BumpType; reasons: string[] } {
   if (expectations.length === 0) return { bump: 'none', reasons: ['No expectations'] };
@@ -116,6 +128,11 @@ export function calculateBump(expectations: LifecycleExpectation[]): { bump: Bum
 
 /**
  * Apply a bump to a version, producing the next version.
+ *
+ * @param current - The current semver version
+ * @param bump - The bump type to apply (`'major'`, `'minor'`, `'patch'`, or `'none'`)
+ * @param prerelease - Optional prerelease tag and increment number (e.g. `{ tag: 'rc', increment: 1 }`)
+ * @returns The new {@link SemverVersion} after applying the bump
  */
 export function applyBump(
   current: SemverVersion,
@@ -150,6 +167,10 @@ export function applyBump(
 /**
  * Increment the prerelease counter of an existing prerelease version.
  * e.g., 1.2.0-rc.1 → 1.2.0-rc.2
+ *
+ * @param version - The prerelease version to increment
+ * @param tag - Optional prerelease tag to use (defaults to the existing tag, or `'rc'`)
+ * @returns A new {@link SemverVersion} with an incremented prerelease counter
  */
 export function incrementPrerelease(version: SemverVersion, tag?: string): SemverVersion {
   if (!version.prerelease) {
@@ -168,6 +189,9 @@ export function incrementPrerelease(version: SemverVersion, tag?: string): Semve
 
 /**
  * Promote a prerelease to stable (strip prerelease/build metadata).
+ *
+ * @param version - The prerelease version to promote (e.g. `1.2.0-rc.3`)
+ * @returns A stable {@link SemverVersion} with prerelease and build metadata removed
  */
 export function promoteToStable(version: SemverVersion): SemverVersion {
   return { major: version.major, minor: version.minor, patch: version.patch };
@@ -271,6 +295,11 @@ function findStrategy(filePath: string): VersionFileStrategy | null {
 
 /**
  * Read the current version from a file.
+ *
+ * Supports `package.json`, `*.csproj`, `*.fsproj`, `pyproject.toml`, `Cargo.toml`, and more.
+ *
+ * @param filePath - Absolute or relative path to the version file
+ * @returns The version string, or `null` if unrecognized format or file not readable
  */
 export function readVersionFromFile(filePath: string): string | null {
   const strategy = findStrategy(filePath);
@@ -286,6 +315,10 @@ export function readVersionFromFile(filePath: string): string | null {
 
 /**
  * Write a new version to a file.
+ *
+ * @param filePath - Absolute or relative path to the version file
+ * @param version - The new version string to write (e.g. `"2.0.0"`)
+ * @returns `true` if the version was written, `false` if the file format is unsupported or write failed
  */
 export function writeVersionToFile(filePath: string, version: string): boolean {
   const strategy = findStrategy(filePath);
@@ -303,6 +336,11 @@ export function writeVersionToFile(filePath: string, version: string): boolean {
 
 /**
  * Sync a version across multiple files.
+ *
+ * @param rootDir - Root directory of the project
+ * @param version - The target version string to write to all files
+ * @param files - Optional list of file paths to sync (relative to `rootDir`; defaults to `['package.json']`)
+ * @returns Array of {@link VersionSyncResult} objects, one per target file
  */
 export function syncVersions(
   rootDir: string,
@@ -341,6 +379,10 @@ export function syncVersions(
 
 /**
  * Check version consistency across files.
+ *
+ * @param rootDir - Root directory of the project
+ * @param files - List of file paths to check (relative to `rootDir`)
+ * @returns An object with `consistent` flag, per-file `versions`, and a list of `conflicts`
  */
 export function checkVersionConsistency(
   rootDir: string,
@@ -381,6 +423,11 @@ const SECTION_MAP: Record<string, string> = {
 
 /**
  * Generate a changelog entry from expectations.
+ *
+ * @param version - The release version string (e.g. `"2.1.0"`)
+ * @param expectations - Lifecycle expectations to include in the changelog
+ * @param date - Optional ISO date string (defaults to today)
+ * @returns A {@link ChangelogEntry} with categorized sections and breaking changes
  */
 export function generateChangelogEntry(
   version: string,
@@ -410,6 +457,9 @@ export function generateChangelogEntry(
 
 /**
  * Format a changelog entry as markdown.
+ *
+ * @param entry - The changelog entry to format
+ * @returns A markdown string formatted as a `## [version] — date` section
  */
 export function formatChangelog(entry: ChangelogEntry): string {
   const lines: string[] = [];
@@ -433,6 +483,11 @@ export function formatChangelog(entry: ChangelogEntry): string {
 
 /**
  * Prepend a changelog entry to CHANGELOG.md (or create it).
+ *
+ * @param rootDir - Root directory of the project
+ * @param entry - The changelog entry to prepend
+ * @param filename - Target filename (defaults to `'CHANGELOG.md'`)
+ * @returns `true` if the file was written successfully, `false` on error
  */
 export function writeChangelog(
   rootDir: string,
@@ -478,6 +533,13 @@ export interface VersionOrchestrationResult {
  * Orchestrate a full version bump: calculate → bump → sync → changelog → tag.
  *
  * Does NOT execute git operations — returns the tag name for the caller.
+ *
+ * @param rootDir - Root directory of the project
+ * @param currentVersion - The current version string (e.g. `"1.2.3"`)
+ * @param expectations - Lifecycle expectations to determine bump type and changelog content
+ * @param config - Optional versioning configuration (prerelease tag, files to sync, etc.)
+ * @param opts - Optional overrides: `prerelease`, `prereleaseTag`, `prereleaseNumber`, `dryRun`
+ * @returns A {@link VersionOrchestrationResult} with bump details, file sync results, changelog, and git tag name
  */
 export function orchestrateVersionBump(
   rootDir: string,

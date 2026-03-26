@@ -81,6 +81,10 @@ function findHooksDir(repoRoot?: string): string {
  *
  * If existing hooks are found, they're renamed to <hook>.pre-praxis
  * and the Praxis hook chains to them.
+ *
+ * @param config - Partial Praxis hooks configuration (merged with defaults)
+ * @param options - Installation options: `repoRoot`, `force` (overwrite), `verbose`
+ * @returns Lists of `installed`, `skipped`, and `chained` hook names
  */
 export function installHooks(
   config: Partial<PraxisHooksConfig> = {},
@@ -140,6 +144,10 @@ export function installHooks(
 
 /**
  * Uninstall Praxis hooks — removes the scripts and restores backups.
+ *
+ * @param config - Partial Praxis hooks configuration (merged with defaults)
+ * @param options - Uninstall options: `repoRoot`, `verbose`
+ * @returns Lists of `removed` and `restored` hook names
  */
 export function uninstallHooks(
   config: Partial<PraxisHooksConfig> = {},
@@ -180,6 +188,11 @@ export function uninstallHooks(
 
 /**
  * Write a default .praxis.hooks.json config file.
+ *
+ * If the file already exists it is left unchanged.
+ *
+ * @param repoRoot - Optional path to the repository root (defaults to `git rev-parse --show-toplevel`)
+ * @returns The absolute path to the config file (created or already-existing)
  */
 export function initConfig(repoRoot?: string): string {
   const root = repoRoot || execSync('git rev-parse --show-toplevel', {
@@ -207,6 +220,9 @@ export function initConfig(repoRoot?: string): string {
 
 /**
  * Load config from .praxis.hooks.json (or return defaults).
+ *
+ * @param repoRoot - Optional path to the repository root (defaults to `git rev-parse --show-toplevel`)
+ * @returns The loaded {@link PraxisHooksConfig}, or the default config if no file exists
  */
 export function loadConfig(repoRoot?: string): PraxisHooksConfig {
   const root = repoRoot || execSync('git rev-parse --show-toplevel', {

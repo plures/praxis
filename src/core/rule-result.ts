@@ -123,7 +123,16 @@ export type TypedRuleFn<TContext = unknown> = (
 ) => RuleResult;
 
 /**
- * Convenience: create a fact object (just a shorthand)
+ * Convenience helper to create a typed fact object.
+ *
+ * Shorthand for `{ tag, payload }` used inside `RuleResult.emit()` calls.
+ *
+ * @param tag - The fact type tag (e.g. `'sprint.behind'`)
+ * @param payload - The fact payload data
+ * @returns A {@link PraxisFact} with the given tag and payload
+ *
+ * @example
+ * return RuleResult.emit([fact('sprint.behind', { deficit: 3 })]);
  */
 export function fact(tag: string, payload: unknown): PraxisFact {
   return { tag, payload };

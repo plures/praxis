@@ -40,6 +40,11 @@ export interface PathSchema<T = unknown> {
  * Define a typed graph path.
  * This is the primary API for declaring what data exists in your app.
  *
+ * @param path - The path key in the reactive graph (e.g. `'sprint/current'`)
+ * @param initial - The initial value at this path before any mutations
+ * @param opts - Optional path options: `collection`, `liveness`, `description`
+ * @returns A {@link PathSchema} descriptor used in {@link PraxisAppConfig.schema}
+ *
  * @example
  * const Sprint = definePath<SprintInfo | null>('sprint/current', null);
  * const Items = definePath<WorkItem[]>('sprint/items', [], { collection: true });

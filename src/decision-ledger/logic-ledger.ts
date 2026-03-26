@@ -46,6 +46,17 @@ export interface LogicLedgerIndex {
   byRuleId: Record<string, string>;
 }
 
+/**
+ * Append a new versioned entry to the immutable logic ledger for a rule.
+ *
+ * Reads the current `LATEST.json` for the rule to determine the next version
+ * number, writes a versioned snapshot file (`v0001.json`, `v0002.json`, …),
+ * then atomically updates `LATEST.json` to reflect the new entry.
+ *
+ * @param contract - The contract whose behavior should be snapshotted
+ * @param options - Write options including the root directory and author
+ * @returns The newly written ledger entry
+ */
 export async function writeLogicLedgerEntry(
   contract: Contract,
   options: LogicLedgerWriteOptions

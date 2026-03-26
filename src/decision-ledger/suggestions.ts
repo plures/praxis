@@ -18,6 +18,10 @@ import type {
 
 /**
  * Generate a suggestion for any type of finding.
+ *
+ * @param finding - The finding to generate a suggestion for
+ * @param type - The type of finding, used to dispatch to the appropriate suggestion generator
+ * @returns A {@link Suggestion} with a message, action, and priority
  */
 export function suggest(
   finding: DeadRule | UnreachableState | ShadowedRule | Contradiction | Gap | ContractCoverageGap,
@@ -49,6 +53,9 @@ export function suggest(
 
 /**
  * Generate suggestions for all findings at once.
+ *
+ * @param findings - Object with optional arrays of each finding type to generate suggestions for
+ * @returns Flat array of {@link Suggestion} objects, one per finding across all types
  */
 export function suggestAll(findings: {
   deadRules?: DeadRule[];

@@ -24,6 +24,10 @@ import { analyzeDependencyGraph } from './analyzer.js';
  * `given` state and verify the output matches `then`.
  *
  * This is deeper than contract existence checking — it executes the rule.
+ *
+ * @param rule - The rule descriptor to verify
+ * @param contract - The contract with Given/When/Then examples to run against the rule
+ * @returns A {@link ContractVerificationResult} with per-example pass/fail status
  */
 export function verifyContractExamples<TContext = unknown>(
   rule: RuleDescriptor<TContext>,
@@ -88,6 +92,9 @@ export function verifyContractExamples<TContext = unknown>(
  *
  * For each rule with a contract, check if the invariants are consistent
  * with the rule's behavior description and examples.
+ *
+ * @param registry - The Praxis registry containing all rules with contracts
+ * @returns Array of {@link InvariantCheck} objects, one per invariant per rule
  */
 export function verifyInvariants<TContext = unknown>(
   registry: PraxisRegistry<TContext>,
@@ -125,6 +132,9 @@ export function verifyInvariants<TContext = unknown>(
  * - Rules with only happy-path examples (no error cases)
  * - Rules with no boundary condition examples
  * - Rules that handle multiple event types but only have examples for some
+ *
+ * @param registry - The Praxis registry containing all rules with contracts
+ * @returns Array of {@link ContractCoverageGap} objects for insufficiently covered contracts
  */
 export function findContractGaps<TContext = unknown>(
   registry: PraxisRegistry<TContext>,
@@ -199,6 +209,9 @@ export function findContractGaps<TContext = unknown>(
 /**
  * Find contracts that reference facts from other rules and verify
  * those producing rules actually exist.
+ *
+ * @param registry - The Praxis registry containing all rules with contracts
+ * @returns Array of {@link CrossReference} objects describing inter-rule fact dependencies
  */
 export function crossReferenceContracts<TContext = unknown>(
   registry: PraxisRegistry<TContext>,

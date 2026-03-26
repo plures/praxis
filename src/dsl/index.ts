@@ -27,6 +27,9 @@ export interface FactDefinition<TTag extends string, TPayload> {
 /**
  * Define a typed fact
  *
+ * @param tag - The fact type tag (e.g. `"UserLoggedIn"`) — must be a string literal type for full type safety
+ * @returns A {@link FactDefinition} with `create()` and `is()` helpers
+ *
  * @example
  * const UserLoggedIn = defineFact<"UserLoggedIn", { userId: string }>("UserLoggedIn");
  * const fact = UserLoggedIn.create({ userId: "123" });
@@ -59,6 +62,9 @@ export interface EventDefinition<TTag extends string, TPayload> {
 
 /**
  * Define a typed event
+ *
+ * @param tag - The event type tag (e.g. `"LOGIN"`) — must be a string literal type for full type safety
+ * @returns An {@link EventDefinition} with `create()` and `is()` helpers
  *
  * @example
  * const Login = defineEvent<"LOGIN", { username: string; password: string }>("LOGIN");
@@ -109,6 +115,9 @@ export interface DefineRuleOptions<TContext = unknown> {
  *     return [];
  *   }
  * });
+ *
+ * @param options - Rule definition options: `id`, `description`, `impl`, optional `eventTypes`, `contract`, and `meta`
+ * @returns A fully constructed {@link RuleDescriptor}
  */
 export function defineRule<TContext = unknown>(
   options: DefineRuleOptions<TContext>
@@ -149,6 +158,9 @@ export interface DefineConstraintOptions<TContext = unknown> {
  *     return itemCount <= 100 || `Cart has ${itemCount} items, maximum is 100`;
  *   }
  * });
+ *
+ * @param options - Constraint definition options: `id`, `description`, `impl`, optional `contract` and `meta`
+ * @returns A fully constructed {@link ConstraintDescriptor}
  */
 export function defineConstraint<TContext = unknown>(
   options: DefineConstraintOptions<TContext>
@@ -183,6 +195,9 @@ export interface DefineModuleOptions<TContext = unknown> {
  *   constraints: [maxSessionsConstraint],
  *   meta: { version: "1.0.0" }
  * });
+ *
+ * @param options - Module options: optional `rules`, `constraints`, and `meta`
+ * @returns A {@link PraxisModule} with the given rules and constraints
  */
 export function defineModule<TContext = unknown>(
   options: DefineModuleOptions<TContext>
@@ -196,6 +211,10 @@ export function defineModule<TContext = unknown>(
 
 /**
  * Helper to filter events by definition
+ *
+ * @param events - Array of events to filter
+ * @param definition - Typed event definition created by {@link defineEvent}
+ * @returns All events in the array that match the given type definition
  */
 export function filterEvents<TTag extends string, TPayload>(
   events: PraxisEvent[],
@@ -206,6 +225,10 @@ export function filterEvents<TTag extends string, TPayload>(
 
 /**
  * Helper to filter facts by definition
+ *
+ * @param facts - Array of facts to filter
+ * @param definition - Typed fact definition created by {@link defineFact}
+ * @returns All facts in the array that match the given type definition
  */
 export function filterFacts<TTag extends string, TPayload>(
   facts: PraxisFact[],
@@ -216,6 +239,10 @@ export function filterFacts<TTag extends string, TPayload>(
 
 /**
  * Helper to find first event matching definition
+ *
+ * @param events - Array of events to search
+ * @param definition - Typed event definition created by {@link defineEvent}
+ * @returns The first matching event, or `undefined` if none found
  */
 export function findEvent<TTag extends string, TPayload>(
   events: PraxisEvent[],
@@ -226,6 +253,10 @@ export function findEvent<TTag extends string, TPayload>(
 
 /**
  * Helper to find first fact matching definition
+ *
+ * @param facts - Array of facts to search
+ * @param definition - Typed fact definition created by {@link defineFact}
+ * @returns The first matching fact, or `undefined` if none found
  */
 export function findFact<TTag extends string, TPayload>(
   facts: PraxisFact[],
