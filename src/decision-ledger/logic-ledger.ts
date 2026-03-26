@@ -9,6 +9,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { Contract, Assumption } from './types.js';
 
+/** An immutable ledger entry recording a rule's canonical behavior at a point in time. */
 export interface LogicLedgerEntry {
   ruleId: string;
   version: number;
@@ -32,6 +33,7 @@ export interface LogicLedgerEntry {
   };
 }
 
+/** Options for writing a new logic ledger entry to disk. */
 export interface LogicLedgerWriteOptions {
   rootDir: string;
   author: string;
@@ -39,6 +41,7 @@ export interface LogicLedgerWriteOptions {
   specPresent?: boolean;
 }
 
+/** Top-level index mapping rule IDs to their ledger directory paths. */
 export interface LogicLedgerIndex {
   byRuleId: Record<string, string>;
 }

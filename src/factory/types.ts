@@ -6,8 +6,10 @@
 
 // ─── Input Rules ────────────────────────────────────────────────────────────
 
+/** The kind of sanitization to apply to user input. */
 export type SanitizationType = 'sql-injection' | 'xss' | 'path-traversal' | 'command-injection';
 
+/** Configuration for the pre-built input validation rule module. */
 export interface InputRulesConfig {
   /** Sanitization checks to apply */
   sanitize?: SanitizationType[];
@@ -21,6 +23,7 @@ export interface InputRulesConfig {
 
 // ─── Toast Rules ────────────────────────────────────────────────────────────
 
+/** Configuration for the pre-built toast notification rule module. */
 export interface ToastRulesConfig {
   /** Only show toast if there's a meaningful diff */
   requireDiff?: boolean;
@@ -32,6 +35,7 @@ export interface ToastRulesConfig {
 
 // ─── Form Rules ─────────────────────────────────────────────────────────────
 
+/** Configuration for the pre-built form validation and submission rule module. */
 export interface FormRulesConfig {
   /** Validate fields on blur */
   validateOnBlur?: boolean;
@@ -43,6 +47,7 @@ export interface FormRulesConfig {
 
 // ─── Navigation Rules ───────────────────────────────────────────────────────
 
+/** Configuration for the pre-built navigation guard rule module. */
 export interface NavigationRulesConfig {
   /** Warn/block navigation when form has unsaved changes */
   dirtyGuard?: boolean;
@@ -52,6 +57,7 @@ export interface NavigationRulesConfig {
 
 // ─── Data Rules ─────────────────────────────────────────────────────────────
 
+/** Configuration for the pre-built data-loading and cache rule module. */
 export interface DataRulesConfig {
   /** Enable optimistic UI updates */
   optimisticUpdate?: boolean;

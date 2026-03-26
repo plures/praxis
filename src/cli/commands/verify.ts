@@ -6,7 +6,9 @@
 
 import { verifyImplementation } from '../../../ui/canvas-inspector/src/verify-fsm-implementation.js';
 
+/** Options for the `verify` CLI command. */
 export interface VerifyOptions {
+  /** Show detailed output for each verification step */
   detailed?: boolean;
 }
 

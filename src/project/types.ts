@@ -7,8 +7,10 @@
 
 // ─── Gates ──────────────────────────────────────────────────────────────────
 
+/** Lifecycle state of a project gate. */
 export type GateStatus = 'open' | 'closed' | 'blocked';
 
+/** Configuration for a project gate — what expectations must be met. */
 export interface GateConfig {
   /** Expectations that must be satisfied for the gate to open */
   expects: string[];
@@ -18,6 +20,7 @@ export interface GateConfig {
   onViolation?: string;
 }
 
+/** Runtime state of a gate — which expectations are satisfied or pending. */
 export interface GateState {
   name: string;
   status: GateStatus;
@@ -31,6 +34,7 @@ export interface GateState {
 
 // ─── Semver Contract ────────────────────────────────────────────────────────
 
+/** Configuration for the semantic version consistency contract. */
 export interface SemverContractConfig {
   /** Files/sources that contain version strings */
   sources: string[];
@@ -38,6 +42,7 @@ export interface SemverContractConfig {
   invariants: string[];
 }
 
+/** Result of a semantic version consistency check. */
 export interface SemverReport {
   /** Whether all sources have consistent versions */
   consistent: boolean;
@@ -49,6 +54,7 @@ export interface SemverReport {
 
 // ─── Commit Generation ──────────────────────────────────────────────────────
 
+/** Diff of rules, contracts, and expectations since the last commit. */
 export interface PraxisDiff {
   /** Rules added since last commit */
   rulesAdded: string[];
@@ -70,6 +76,7 @@ export interface PraxisDiff {
 
 // ─── Branch Rules ───────────────────────────────────────────────────────────
 
+/** Naming and merge-condition rules for project branches. */
 export interface BranchRulesConfig {
   /** Naming convention pattern (e.g., 'feat/{name}', 'fix/{issue}') */
   naming: string;
@@ -79,6 +86,7 @@ export interface BranchRulesConfig {
 
 // ─── Predefined Gate Configs ────────────────────────────────────────────────
 
+/** Options for enabling and extending a predefined gate. */
 export interface PredefinedGateConfig {
   /** Whether to enable this gate */
   enabled?: boolean;

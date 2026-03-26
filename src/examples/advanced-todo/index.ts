@@ -177,6 +177,7 @@ const clearCompletedRule = defineRule<TodoContext>({
 // Engine Factory
 // ============================================================================
 
+/** Create and configure a fully wired todo engine with all todo rules registered. */
 export function createTodoEngine() {
   const registry = new PraxisRegistry<TodoContext>();
 
@@ -201,6 +202,13 @@ export function createTodoEngine() {
 // Helper Functions for Svelte
 // ============================================================================
 
+/**
+ * Filter a list of todo items by the current filter mode.
+ *
+ * @param todos - All todo items.
+ * @param filter - One of `'all'`, `'active'`, or `'completed'`.
+ * @returns The filtered subset of todos.
+ */
 export function getFilteredTodos(todos: TodoItem[], filter: string): TodoItem[] {
   switch (filter) {
     case 'active':
@@ -212,6 +220,12 @@ export function getFilteredTodos(todos: TodoItem[], filter: string): TodoItem[] 
   }
 }
 
+/**
+ * Compute summary statistics (total, active, completed counts) for a todo list.
+ *
+ * @param todos - All todo items.
+ * @returns An object with `total`, `active`, and `completed` counts.
+ */
 export function getStats(todos: TodoItem[]) {
   const total = todos.length;
   const active = todos.filter((t) => !t.completed).length;

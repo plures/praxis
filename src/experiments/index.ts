@@ -71,7 +71,9 @@ function cloneRegistryWithPatch<TContext>(
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
+/** Lifecycle status of an experiment from drafting through archiving. */
 export type ExperimentStatus = 'draft' | 'approved' | 'running' | 'completed' | 'failed' | 'archived';
+/** Category of experiment — what aspect of the system is being tested. */
 export type ExperimentKind = 
   | 'fact-verification'    // Test whether a fact is still true
   | 'rule-modification'    // Test a rule change in isolation
@@ -82,6 +84,7 @@ export type ExperimentKind =
   | 'chaos'                // Deliberately break things to test resilience
   ;
 
+/** A sandboxed experiment definition with hypothesis, design, and results. */
 export interface Experiment {
   id: string;
   name: string;
@@ -113,6 +116,7 @@ export interface Experiment {
   tags: string[];
 }
 
+/** Steps, metrics, and resource budget for running an experiment. */
 export interface ExperimentDesign {
   /** Steps to execute */
   steps: ExperimentStep[];
@@ -131,6 +135,7 @@ export interface ExperimentDesign {
   };
 }
 
+/** A single step in an experiment — inject, run, observe, assert, or wait. */
 export type ExperimentStep =
   | { kind: 'inject-facts'; facts: Array<{ claim: string; confidence: number }> }
   | { kind: 'inject-events'; events: Array<{ tag: string; payload: Record<string, unknown> }> }
@@ -143,6 +148,7 @@ export type ExperimentStep =
   | { kind: 'model-prompt'; prompt: string; expectedPattern?: string; temperature?: number }
   ;
 
+/** Isolation and resource limits for the experiment sandbox. */
 export interface SandboxConfig {
   /** Isolation level */
   isolation: 'full' | 'shared-read' | 'none';
@@ -158,6 +164,7 @@ export interface SandboxConfig {
   snapshotProductionState: boolean;
 }
 
+/** Outcomes, observations, and resource usage produced by a completed experiment. */
 export interface ExperimentResults {
   /** Did the hypothesis hold? */
   hypothesisSupported: boolean | null;  // null = inconclusive
@@ -192,6 +199,7 @@ export interface ExperimentResults {
 
 // ── Experiment Registry ────────────────────────────────────────────────────
 
+/** In-memory registry for tracking and querying experiments by status or kind. */
 export class ExperimentRegistry {
   private experiments: Map<string, Experiment> = new Map();
 
@@ -236,6 +244,7 @@ export class ExperimentRegistry {
 
 // ── Sandbox Runner ─────────────────────────────────────────────────────────
 
+/** Interface for a sandbox runner that executes experiments in isolation. */
 export interface SandboxRunner {
   /**
    * Execute an experiment in a sandboxed environment.

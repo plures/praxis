@@ -18,9 +18,12 @@
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
+/** Lifecycle status of a research question. */
 export type ResearchStatus = 'proposed' | 'approved' | 'in-progress' | 'completed' | 'abandoned';
+/** What triggered this research question to be generated. */
 export type ResearchOrigin = 'analysis-gap' | 'anomaly' | 'prediction-failure' | 'user-question' | 'self-improvement';
 
+/** A research question generated from analysis gaps, anomalies, or prediction failures. */
 export interface ResearchQuestion {
   id: string;
   /** The question being investigated */
@@ -59,6 +62,7 @@ export interface ResearchQuestion {
   updatedAt: string;
 }
 
+/** A prioritised collection of research questions grouped by theme. */
 export interface ResearchAgenda {
   questions: ResearchQuestion[];
   /** Auto-generated from analysis */

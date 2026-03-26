@@ -48,8 +48,11 @@ export interface CausalExpectation {
 
 // ── Events ─────────────────────────────────────────────────────────────────
 
+/** Event tag for when a new timeline event is received for causal analysis. */
 export const TIMELINE_EVENT = 'causal.timelineEvent';
+/** Event tag for when an expected cause is missing from the timeline (causal gap). */
 export const CAUSAL_GAP = 'causal.gap';
+/** Event tag for when an action is performed by an actor not in the known-actors set. */
 export const UNKNOWN_ACTOR = 'causal.unknownActor';
 
 // ── Rules ──────────────────────────────────────────────────────────────────
@@ -178,6 +181,7 @@ export const unknownActorRule = defineRule({
 
 // ── Module ─────────────────────────────────────────────────────────────────
 
+/** Praxis module containing the causal-gap and unknown-actor rules. */
 export const causalAnomalyModule = defineModule({
   rules: [causalGapRule, unknownActorRule],
   constraints: [],

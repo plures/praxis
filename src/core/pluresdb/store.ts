@@ -106,6 +106,12 @@ const defaultErrorHandler: RuleErrorHandler = (ruleId, error) => {
   }
 };
 
+/**
+ * A reactive Praxis engine backed by a PluresDB store.
+ *
+ * Subscribes to PluresDB paths, runs rules on state changes, and writes
+ * emitted facts back to the database. Supports Chronicle causal tracking.
+ */
 export class PraxisDBStore<TContext = unknown> {
   private db: PraxisDB;
   private registry: PraxisRegistry<TContext>;
