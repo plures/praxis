@@ -38,7 +38,9 @@ jobs:
     - name: 'Build TypeScript'
       shell: bash
       run: |
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
         npm run build
+        popd
 
     - name: 'Deploy to Azure Functions'
       uses: Azure/functions-action@v1
