@@ -202,11 +202,8 @@ describe('PluresDBPraxisAdapter', () => {
 describe('createPraxisLocalFirst', () => {
   it('resolves to a PluresDBPraxisAdapter when local-first module is available', async () => {
     const { createPraxisLocalFirst: cpf, PluresDBPraxisAdapter: Adapter } = await import('../core/pluresdb/adapter.js');
-    const result = await cpf().catch(() => null);
-    // Either succeeds with an adapter or fails gracefully (module might not have a real backend)
-    if (result !== null) {
-      expect(result).toBeInstanceOf(Adapter);
-    }
+    const result = await cpf();
+    expect(result).toBeInstanceOf(Adapter);
   });
 });
 
@@ -306,14 +303,13 @@ models:
     expect(result.errors).toHaveLength(0);
   });
 
-  it('returns errors for invalid YAML', () => {
-    // Intentionally invalid YAML with a tab character after colon
-    const result = loadSchemaFromYaml('key:\tvalue');
-    // js-yaml may or may not error on this, but test the invalid input path
-    // Use truly invalid YAML
-    const result2 = loadSchemaFromYaml(': bad: yaml: {');
-    // The function should either succeed or add an error
-    expect(result2).toBeDefined();
+  it('returns errors for invalid YAML (malformed input)', () => {
+    // Truly invalid YAML: mismatched braces
+    const result = loadSchemaFromYaml(': bad: yaml: {');
+    // The function should add a parse error
+    expect(result.schema).toBeUndefined();
+    expect(result.errors.length).toBeGreaterThan(0);
+    expect(result.errors[0]).toContain('Failed to parse YAML');
   });
 
   it('adds validation errors to result.errors for invalid schema', () => {
@@ -438,10 +434,7 @@ describe('github.createIssue', () => {
     expect(result.error).toBe('Missing expectation');
   });
 
-  it('returns success when execSync succeeds', async () => {
-    const execSyncMock = vi.fn().mockReturnValue('https://github.com/org/repo/issues/1');
-    vi.doMock('node:child_process', () => ({ execSync: execSyncMock }));
-
+  it('exercises the execute path with a valid expectation (verifies structural result)', async () => {
     const action = github.createIssue({ owner: 'org', repo: 'repo', labels: ['bug'] });
     const ctx = makeTriggerCtx({
       id: 'exp-1',
@@ -453,10 +446,11 @@ describe('github.createIssue', () => {
       labels: ['p0'],
     } as never);
     const result = await action.execute(makeEvent(), ctx);
-    // execSync is dynamically imported; in test environment it may not be mocked correctly.
-    // The action either succeeds or returns a failure — we just verify the structure.
+    // In test environments without an authenticated gh CLI, execSync will throw,
+    // so the error handling path returns success: false. Verify the result shape.
     expect(result).toHaveProperty('success');
     expect(result).toHaveProperty('message');
+    expect(typeof result.success).toBe('boolean');
     vi.doUnmock('node:child_process');
   });
 
