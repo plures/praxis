@@ -26,6 +26,9 @@ export { RuleResult, fact };
  *     return RuleResult.emit([fact('sprint.behind', { pace, work })]);
  *   }
  * });
+ *
+ * @param rule - The unified rule descriptor with `id`, `watch`, `description`, and `evaluate`
+ * @returns The rule descriptor unchanged (identity function — used for type inference)
  */
 export function defineRule(rule: UnifiedRule): UnifiedRule {
   return rule;
@@ -46,6 +49,9 @@ export function defineRule(rule: UnifiedRule): UnifiedRule {
  *     return true;
  *   }
  * });
+ *
+ * @param constraint - The constraint descriptor with `id`, `description`, `watch`, and `validate`
+ * @returns The constraint descriptor unchanged (identity function — used for type inference)
  */
 export function defineConstraint(constraint: UnifiedConstraint): UnifiedConstraint {
   return constraint;
@@ -60,6 +66,10 @@ export function defineConstraint(constraint: UnifiedConstraint): UnifiedConstrai
  *   capacityRule,
  *   endNearRule,
  * ]);
+ *
+ * @param name - Human-readable module name (used for logging and introspection)
+ * @param rules - Rules to group together in this module
+ * @returns A module descriptor object with `name` and `rules`
  */
 export function defineModule(name: string, rules: UnifiedRule[]): { name: string; rules: UnifiedRule[] } {
   return { name, rules };

@@ -69,6 +69,10 @@ export interface NormalizationOptions {
 
 /**
  * Normalize a Praxis schema for code generation
+ *
+ * @param schema - The raw Praxis schema to normalize
+ * @param options - Optional normalization options: prefix, expand references, include metadata
+ * @returns A {@link NormalizedSchema} with fully resolved models, fields, and relationships
  */
 export function normalizeSchema(
   schema: PraxisSchema,
@@ -189,6 +193,10 @@ function normalizeLogic(
 
 /**
  * Expand field type to fully qualified type string
+ *
+ * @param fieldType - The field type to expand (string, array, object, or reference)
+ * @param schemaPrefix - Optional prefix to qualify reference types (e.g. schema name)
+ * @returns A fully qualified type string (e.g. `'string'`, `'User[]'`, `'MySchema.Address'`)
  */
 export function expandFieldType(fieldType: FieldType, schemaPrefix: string = ''): string {
   if (typeof fieldType === 'string') {
@@ -216,6 +224,9 @@ export function expandFieldType(fieldType: FieldType, schemaPrefix: string = '')
 
 /**
  * Generate TypeScript type from field type
+ *
+ * @param fieldType - The schema field type to convert
+ * @returns A TypeScript type string (e.g. `'string'`, `'number'`, `'boolean[]'`, `'Record<string, unknown>'`)
  */
 export function fieldTypeToTypeScript(fieldType: FieldType): string {
   if (typeof fieldType === 'string') {
@@ -264,6 +275,9 @@ export function fieldTypeToTypeScript(fieldType: FieldType): string {
 
 /**
  * Sort models by dependency order (models with no dependencies first)
+ *
+ * @param models - Array of normalized models to sort topologically
+ * @returns Models sorted so that dependencies come before their dependents
  */
 export function sortModelsByDependencies(models: NormalizedModel[]): NormalizedModel[] {
   const sorted: NormalizedModel[] = [];

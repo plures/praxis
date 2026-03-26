@@ -70,6 +70,10 @@ export interface FullBehavioralDiff {
  *
  * Detects rules/constraints that were added, removed, or modified
  * (description or contract changed).
+ *
+ * @param before - The baseline registry snapshot
+ * @param after - The current registry snapshot
+ * @returns A {@link RegistryDiff} with lists of added, removed, and modified rules and constraints
  */
 export function diffRegistries(before: RegistrySnapshot, after: RegistrySnapshot): RegistryDiff {
   const beforeRules = toIdMap(before.rules);
@@ -91,6 +95,10 @@ export function diffRegistries(before: RegistrySnapshot, after: RegistrySnapshot
 
 /**
  * Compare contract coverage between two snapshots.
+ *
+ * @param before - The baseline contract coverage snapshot
+ * @param after - The current contract coverage snapshot
+ * @returns A {@link ContractDiff} listing contracts added, removed, and the change in coverage percentage
  */
 export function diffContracts(before: ContractCoverage, after: ContractCoverage): ContractDiff {
   const beforeMap = toRecord(before.coverage);
@@ -130,6 +138,10 @@ export function diffContracts(before: ContractCoverage, after: ContractCoverage)
 
 /**
  * Compare expectation satisfaction between two snapshots.
+ *
+ * @param before - The baseline expectation snapshot
+ * @param after - The current expectation snapshot
+ * @returns An {@link ExpectationDiff} listing newly satisfied, newly violated, and unchanged expectations
  */
 export function diffExpectations(
   before: ExpectationSnapshot,
@@ -162,6 +174,9 @@ export function diffExpectations(
 
 /**
  * Format a RegistryDiff as a human-readable delta string.
+ *
+ * @param diff - The registry diff to format
+ * @returns A multi-line string listing added, removed, and modified rules and constraints
  */
 export function formatDelta(diff: RegistryDiff): string {
   const lines: string[] = [];
@@ -187,6 +202,9 @@ export function formatDelta(diff: RegistryDiff): string {
  *
  * Uses the same logic as `commitFromState` in `project/` but works
  * directly from a RegistryDiff.
+ *
+ * @param diff - The registry diff to generate a commit message from
+ * @returns A conventional commit message string (e.g. `"feat(rules): add sprint.behind rule"`)
  */
 export function formatCommitMessage(diff: RegistryDiff): string {
   const praxisDiff: PraxisDiff = {
@@ -205,6 +223,9 @@ export function formatCommitMessage(diff: RegistryDiff): string {
 
 /**
  * Aggregate multiple diffs into release notes.
+ *
+ * @param diffs - Array of registry diffs to aggregate (e.g. one per merged PR)
+ * @returns A markdown string summarizing all added, removed, and modified rules across the diffs
  */
 export function formatReleaseNotes(diffs: RegistryDiff[]): string {
   const sections: string[] = [];

@@ -323,6 +323,9 @@ export class RegistryIntrospector<TContext = unknown> {
 
 /**
  * Create a registry introspector
+ *
+ * @param registry - The Praxis registry to introspect
+ * @returns A {@link RegistryIntrospector} for analyzing rules, constraints, and generating schemas
  */
 export function createIntrospector<TContext = unknown>(
   registry: PraxisRegistry<TContext>

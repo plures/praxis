@@ -61,6 +61,9 @@ export type ConfidenceLevel = 'verified' | 'high' | 'medium' | 'low' | 'speculat
 
 /**
  * Compute confidence level from numeric score.
+ *
+ * @param score - Numeric confidence score in range `[0.0, 1.0]`
+ * @returns A human-readable {@link ConfidenceLevel}: `'verified'`, `'high'`, `'medium'`, `'low'`, or `'speculative'`
  */
 export function confidenceLevel(score: number): ConfidenceLevel {
   if (score >= 0.95) return 'verified';
@@ -73,6 +76,10 @@ export function confidenceLevel(score: number): ConfidenceLevel {
 /**
  * Propagate confidence through a dependency chain.
  * Uses the weakest-link principle: confidence(B) ≤ min(deps) × own_confidence
+ *
+ * @param fact - The fact whose propagated confidence to compute
+ * @param factStore - Map of all facts by ID (used to look up dependencies recursively)
+ * @returns The propagated confidence score `[0.0, 1.0]`, reduced by weak dependency chains
  */
 export function propagateConfidence(
   fact: UncertainFact,
@@ -94,6 +101,10 @@ export function propagateConfidence(
  * Compute fact confidence from evidence using a simple Bayesian update.
  * Prior: 0.5 (maximum ignorance)
  * Each piece of evidence shifts the posterior.
+ *
+ * @param evidence - Array of supporting evidence with weights `[0.0, 1.0]`
+ * @param contraEvidence - Array of counter-evidence with weights `[0.0, 1.0]`
+ * @returns The posterior probability `[0.0, 1.0]` after applying all evidence
  */
 export function computeConfidenceFromEvidence(
   evidence: Evidence[],

@@ -82,6 +82,9 @@ import type { AnalysisReport, Recommendation } from '../analysis/index.js';
 /**
  * Generate research questions from an analysis report.
  * Each recommendation category maps to a different research strategy.
+ *
+ * @param analysis - The system analysis report from {@link analyze}
+ * @returns Array of {@link ResearchQuestion} objects sorted by priority (impact × feasibility)
  */
 export function generateResearchQuestions(analysis: AnalysisReport): ResearchQuestion[] {
   const questions: ResearchQuestion[] = [];
@@ -213,6 +216,9 @@ function recommendationToQuestion(rec: Recommendation, now: string): ResearchQue
 
 /**
  * Build a research agenda by grouping questions into themes.
+ *
+ * @param questions - Array of research questions to group and prioritize
+ * @returns A {@link ResearchAgenda} with questions organized by theme and sorted by priority
  */
 export function buildAgenda(questions: ResearchQuestion[]): ResearchAgenda {
   const themes = new Map<string, string[]>();

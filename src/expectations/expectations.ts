@@ -116,6 +116,9 @@ export class ExpectationSet {
 /**
  * Create a new behavioral expectation.
  *
+ * @param name - Unique name for this expectation (e.g. `'settings-saved-toast'`)
+ * @returns A chainable {@link Expectation} builder with `onlyWhen()`, `never()`, and `always()` methods
+ *
  * @example
  * ```ts
  * expectBehavior('settings-saved-toast')
@@ -135,6 +138,10 @@ export function expectBehavior(name: string): Expectation {
  *
  * Walks the rule graph to determine if expectations are satisfied,
  * violated, or unverifiable given the registered rules and contracts.
+ *
+ * @param registry - The verifiable registry containing rules and constraints
+ * @param expectations - The expectation set to verify against the registry
+ * @returns A {@link VerificationReport} with per-expectation status and an overall summary
  */
 export function verify(
   registry: VerifiableRegistry,
@@ -432,6 +439,9 @@ function findRelatedDescriptors(
 
 /**
  * Format a verification report as human-readable text.
+ *
+ * @param report - The verification report from {@link verify}
+ * @returns A multi-line string with per-expectation status suitable for console output
  */
 export function formatVerificationReport(report: VerificationReport): string {
   const lines: string[] = [];

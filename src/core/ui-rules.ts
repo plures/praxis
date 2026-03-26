@@ -285,6 +285,9 @@ export const uiModule: PraxisModule<UIContext> = {
 /**
  * Create a customized UI module with only the rules you need.
  *
+ * @param options - Selection options: which rule/constraint IDs to include, plus optional extra rules/constraints
+ * @returns A {@link PraxisModule} with only the selected UI rules and constraints
+ *
  * @example
  * const myUI = createUIModule({
  *   rules: ['ui/loading-gate', 'ui/dirty-guard'],
@@ -320,6 +323,9 @@ export function createUIModule<TContext extends UIContext>(options: {
 
 /**
  * Create a UI state change event. Fire this when UIContext fields change.
+ *
+ * @param changes - Optional map of changed fields (can be any UIContext subset)
+ * @returns A `ui.state-change` {@link PraxisEvent} with the changed fields as payload
  */
 export function uiStateChanged(changes?: Record<string, unknown>): PraxisEvent {
   return { tag: 'ui.state-change', payload: changes ?? {} };
@@ -327,6 +333,9 @@ export function uiStateChanged(changes?: Record<string, unknown>): PraxisEvent {
 
 /**
  * Create a navigation request event. Used with dirty guard.
+ *
+ * @param to - The destination route or URL the user wants to navigate to
+ * @returns A `navigation.request` {@link PraxisEvent} with `to` as payload
  */
 export function navigationRequest(to: string): PraxisEvent {
   return { tag: 'navigation.request', payload: { to } };
@@ -334,6 +343,10 @@ export function navigationRequest(to: string): PraxisEvent {
 
 /**
  * Create a resize event. Used with viewport rule.
+ *
+ * @param width - New viewport width in pixels
+ * @param height - New viewport height in pixels
+ * @returns A `ui.resize` {@link PraxisEvent} with `{ width, height }` as payload
  */
 export function resizeEvent(width: number, height: number): PraxisEvent {
   return { tag: 'ui.resize', payload: { width, height } };

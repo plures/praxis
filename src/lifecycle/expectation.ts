@@ -107,6 +107,9 @@ export class ExpectationBuilder {
 /**
  * Create a lifecycle expectation — the single entry point for all work.
  *
+ * @param id - Unique identifier for this expectation (e.g. `'user-oauth-flow'`)
+ * @returns A chainable {@link ExpectationBuilder} to add type, title, description, and acceptance criteria
+ *
  * @example
  * ```ts
  * const auth = expectation('user-oauth-flow')
@@ -117,9 +120,6 @@ export class ExpectationBuilder {
  *   .given('a valid OAuth token')
  *     .when('login is attempted')
  *     .then('session is created')
- *   .given('an expired token')
- *     .when('login is attempted')
- *     .then('refresh is triggered')
  *   .accept('Error shown for invalid tokens')
  *   .build();
  * ```
@@ -130,6 +130,9 @@ export function expectation(id: string): ExpectationBuilder {
 
 /**
  * Shorthand — create expectation from a plain object.
+ *
+ * @param exp - The expectation object with required fields: `id`, `type`, `title`, `description`
+ * @returns A validated and normalized {@link LifecycleExpectation}
  *
  * @example
  * ```ts
@@ -184,6 +187,9 @@ const PRIORITY_SIGNALS: Record<ExpectationPriority, string[]> = {
  *
  * Uses keyword matching against title + description + acceptance criteria.
  * In the future, this could use an LLM for more nuanced classification.
+ *
+ * @param exp - The lifecycle expectation to classify
+ * @returns A {@link ClassificationResult} with suggested type, priority, confidence, and labels
  */
 export function classifyExpectation(exp: LifecycleExpectation): ClassificationResult {
   const text = [
@@ -253,6 +259,9 @@ export function classifyExpectation(exp: LifecycleExpectation): ClassificationRe
  *
  * Note: In Node.js, this uses dynamic import(). In CLI context, expectations
  * are loaded via the config loader.
+ *
+ * @param dir - Directory path to scan for expectation files
+ * @returns Array of all valid {@link LifecycleExpectation} objects found in the directory
  */
 export async function loadExpectations(dir: string): Promise<LifecycleExpectation[]> {
   const { readdir } = await import('node:fs/promises');

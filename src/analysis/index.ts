@@ -149,6 +149,9 @@ export interface Prediction {
 
 /**
  * Run a full analysis of the Praxis system.
+ *
+ * @param ctx - Analysis context containing facts, rules, predictions, and experiment results
+ * @returns A comprehensive {@link AnalysisReport} with coverage, recommendations, and predictions
  */
 export function analyze(ctx: AnalysisContext): AnalysisReport {
   const now = new Date();

@@ -47,6 +47,10 @@ interface GateContext {
  * Define a feature gate — a condition that must be satisfied before
  * proceeding with a workflow step (deploy, merge, release, etc.).
  *
+ * @param name - Gate name (used as part of the rule ID `gate/<name>`)
+ * @param config - Gate configuration: expected fact IDs, and satisfied/violation event names
+ * @returns A {@link PraxisModule} containing the gate rule and constraint
+ *
  * @example
  * ```ts
  * const testGate = defineGate('test', {
@@ -157,6 +161,9 @@ export function defineGate(name: string, config: GateConfig): PraxisModule<GateC
  * Create a semver contract module that checks version consistency
  * across multiple sources (package.json, Cargo.toml, etc.).
  *
+ * @param config - Configuration with `sources` (list of files) and `invariants` to enforce
+ * @returns A {@link PraxisModule} with a version-check rule and consistency constraint
+ *
  * @example
  * ```ts
  * const version = semverContract({
@@ -228,6 +235,9 @@ export function semverContract(config: SemverContractConfig): PraxisModule {
  *
  * Unlike file-based commit messages, this describes WHAT behavioral
  * changes occurred — rule additions, contract changes, expectation shifts.
+ *
+ * @param diff - The behavioral diff describing added, removed, and modified rules/contracts/expectations
+ * @returns A conventional commit message string (e.g. `"feat(rules): add auth/login"`)
  *
  * @example
  * ```ts
@@ -316,6 +326,9 @@ function formatIds(ids: string[]): string {
 /**
  * Create branch management rules.
  *
+ * @param config - Branch rules configuration: naming pattern and merge conditions
+ * @returns A {@link PraxisModule} with rules enforcing branch naming and merge preconditions
+ *
  * @example
  * ```ts
  * const branches = branchRules({
@@ -388,6 +401,9 @@ export function branchRules(config: BranchRulesConfig): PraxisModule {
 
 /**
  * Create a lint gate — blocks workflow until linting passes.
+ *
+ * @param config - Optional configuration for additional expected facts and gate overrides
+ * @returns A {@link PraxisModule} with a `gate/lint` rule that enforces lint passing
  */
 export function lintGate(config: PredefinedGateConfig = {}): PraxisModule<GateContext> {
   const expects = ['lint-passes', ...(config.additionalExpects ?? [])];
@@ -400,6 +416,9 @@ export function lintGate(config: PredefinedGateConfig = {}): PraxisModule<GateCo
 
 /**
  * Create a format gate — blocks workflow until formatting is correct.
+ *
+ * @param config - Optional configuration for additional expected facts and gate overrides
+ * @returns A {@link PraxisModule} with a `gate/format` rule that enforces formatting
  */
 export function formatGate(config: PredefinedGateConfig = {}): PraxisModule<GateContext> {
   const expects = ['format-passes', ...(config.additionalExpects ?? [])];
@@ -412,6 +431,9 @@ export function formatGate(config: PredefinedGateConfig = {}): PraxisModule<Gate
 
 /**
  * Create an expectation gate — blocks workflow until expectations are verified.
+ *
+ * @param config - Optional configuration for additional expected facts and gate overrides
+ * @returns A {@link PraxisModule} with a `gate/expectations` rule that enforces expectation verification
  */
 export function expectationGate(config: PredefinedGateConfig = {}): PraxisModule<GateContext> {
   const expects = ['expectations-verified', ...(config.additionalExpects ?? [])];

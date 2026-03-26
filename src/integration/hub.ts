@@ -126,6 +126,12 @@ export interface HubConfig {
 
 /**
  * Create the Praxis integration hub.
+ *
+ * The hub connects analysis, research, experiments, uncertainty, and Chronos
+ * into a self-improving feedback loop.
+ *
+ * @param config - Hub configuration: registry, engine, fact store, and feature toggles
+ * @returns A live {@link PraxisHub} instance with `runCycle()`, `predict()`, `health()`, and other methods
  */
 export function createHub(config: HubConfig): PraxisHub {
   const ruleStats = new Map<string, { fires: number; noops: number; lastFired: string | null }>();

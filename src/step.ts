@@ -24,6 +24,9 @@ export interface StepOptions<
 /**
  * Create a step function that integrates with the registry.
  * This is the main entry point for creating state transition logic.
+ *
+ * @param options - Step options: optional registry, constraint checking flag, and reducer
+ * @returns A {@link StepFunction} that processes events and produces state transitions
  */
 export function createStepFunction<
   S extends PraxisState = PraxisState,
@@ -93,6 +96,9 @@ export function createStepFunction<
 /**
  * Simple step function that just applies a reducer.
  * Useful for basic state transitions without rules or constraints.
+ *
+ * @param reducer - The reducer function to apply: `(state, event) => newState`
+ * @returns A {@link StepFunction} that applies the reducer and returns a {@link StepResult}
  */
 export function step<S extends PraxisState = PraxisState, E extends PraxisEvent = PraxisEvent>(
   reducer: (state: S, event: E) => S
@@ -114,6 +120,9 @@ export function step<S extends PraxisState = PraxisState, E extends PraxisEvent 
  * Compose multiple step functions into a single step function.
  * Each step function is applied in sequence, with the output of one
  * becoming the input to the next.
+ *
+ * @param steps - Step functions to compose in order
+ * @returns A new {@link StepFunction} that applies all steps in sequence
  */
 export function compose<S extends PraxisState = PraxisState, E extends PraxisEvent = PraxisEvent>(
   ...steps: StepFunction<S, E>[]

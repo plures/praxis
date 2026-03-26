@@ -100,6 +100,9 @@ const GWT_RE = /^Given\s+(.+?),?\s+when\s+(.+?),?\s+then\s+(.+)$/i;
  *
  * Each acceptance criterion becomes a test case. Given/When/Then
  * criteria are parsed into structured steps.
+ *
+ * @param expectations - Array of lifecycle expectations with acceptance criteria
+ * @returns Array of {@link TestCase} objects, one per acceptance criterion
  */
 export function generateTestCases(expectations: LifecycleExpectation[]): TestCase[] {
   const cases: TestCase[] = [];
@@ -136,6 +139,10 @@ export function generateTestCases(expectations: LifecycleExpectation[]): TestCas
  * Format test cases as a test file template.
  *
  * Generates a vitest/jest-compatible test file skeleton.
+ *
+ * @param cases - Test cases to format as code
+ * @param framework - Test framework to target (`'vitest'` or `'jest'`; defaults to `'vitest'`)
+ * @returns A string containing the auto-generated test file skeleton
  */
 export function formatTestCasesAsCode(cases: TestCase[], framework: 'vitest' | 'jest' = 'vitest'): string {
   const imports = framework === 'vitest'
@@ -192,6 +199,11 @@ export function formatTestCasesAsCode(cases: TestCase[], framework: 'vitest' | '
 
 /**
  * Create a test matrix from axes.
+ *
+ * @param name - Name for this test matrix
+ * @param axes - Record of axis names to their possible values (e.g. `{ browser: ['chrome', 'firefox'] }`)
+ * @param testCaseIds - IDs of test cases this matrix applies to
+ * @returns A {@link TestMatrix} with pre-computed `totalCombinations`
  */
 export function createTestMatrix(
   name: string,
@@ -208,6 +220,9 @@ export function createTestMatrix(
 
 /**
  * Expand a matrix into all combinations.
+ *
+ * @param matrix - The test matrix to expand
+ * @returns Array of records, each representing one combination of axis values
  */
 export function expandMatrix(matrix: TestMatrix): Record<string, string>[] {
   const keys = Object.keys(matrix.axes);
@@ -335,6 +350,10 @@ export interface QASummary {
 
 /**
  * Summarize QA results for a specific version.
+ *
+ * @param results - Array of QA run results to summarize
+ * @param version - Optional version string to filter results (e.g. `"2.0.0-rc.1"`); omit for all versions
+ * @returns A {@link QASummary} with overall pass/fail status and aggregated test counts
  */
 export function summarizeQA(results: QARunResult[], version?: string): QASummary {
   const filtered = version ? results.filter(r => r.version === version) : results;
@@ -371,6 +390,9 @@ export function summarizeQA(results: QARunResult[], version?: string): QASummary
 
 /**
  * Format QA summary as markdown.
+ *
+ * @param summary - The QA summary from {@link summarizeQA}
+ * @returns A markdown-formatted string with pass/fail status and failing test list
  */
 export function formatQASummary(summary: QASummary): string {
   const icon = summary.overallPassed ? '✅' : '❌';

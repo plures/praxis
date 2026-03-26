@@ -13,6 +13,17 @@ import { join } from 'node:path';
 import { execSync } from 'node:child_process';
 import type { GitHookName } from '../../hooks/types.js';
 
+/**
+ * Install Praxis reactive git hooks into the current repository.
+ *
+ * Creates a `.praxis.hooks.json` config (if one doesn't exist), then
+ * installs the configured hooks into `.git/hooks/`. Existing hooks are
+ * chained rather than overwritten unless `--force` is passed.
+ *
+ * @param options - Installation options
+ * @param options.force - Overwrite existing hooks without chaining
+ * @param options.verbose - Print detailed output for each hook action
+ */
 export async function hooksInstall(options: { force?: boolean; verbose?: boolean }) {
   const { installHooks, loadConfig, initConfig } = await import('../../hooks/install.js');
 
@@ -41,6 +52,14 @@ export async function hooksInstall(options: { force?: boolean; verbose?: boolean
   console.log('✅ Praxis hooks ready. Git events will now flow through Praxis.');
 }
 
+/**
+ * Remove Praxis reactive git hooks from the current repository.
+ *
+ * Removes installed hooks and restores any previously chained hooks that
+ * existed before installation.
+ *
+ * @param _options - Uninstall options (currently unused, reserved for future use)
+ */
 export async function hooksUninstall(_options: { verbose?: boolean }) {
   const { uninstallHooks, loadConfig } = await import('../../hooks/install.js');
 
@@ -54,6 +73,12 @@ export async function hooksUninstall(_options: { verbose?: boolean }) {
   console.log(`   Restored: ${result.restored.length}`);
 }
 
+/**
+ * Create the default `.praxis.hooks.json` configuration file.
+ *
+ * Writes a starter config to the repo root if one does not already exist.
+ * Prints the path to the created file so developers can edit it.
+ */
 export async function hooksInit() {
   const { initConfig } = await import('../../hooks/install.js');
 
@@ -62,6 +87,17 @@ export async function hooksInit() {
   console.log('   Edit this file to configure hooks, auto-push, patterns, etc.');
 }
 
+/**
+ * Execute Praxis rule evaluation for a specific git hook event.
+ *
+ * This function is called automatically by the installed git hook scripts.
+ * It loads the config, builds the hook context from the current git state,
+ * evaluates all configured rules, and executes any resulting actions
+ * (such as auto-push). Exits with code 1 if a blocking rule fires.
+ *
+ * @param hookName - The name of the git hook being fired (e.g. `"pre-commit"`)
+ * @param args - Arguments passed by git to the hook script
+ */
 export async function hooksRun(hookName: string, args: string[]) {
   const { buildHookContext } = await import('../../hooks/context.js');
   const { evaluateHook, executeActions } = await import('../../hooks/evaluate.js');
@@ -87,6 +123,13 @@ export async function hooksRun(hookName: string, args: string[]) {
   }
 }
 
+/**
+ * Print a status table showing which git hooks are installed and configured.
+ *
+ * Reads the current `.praxis.hooks.json` config and checks `.git/hooks/`
+ * to determine whether each hook is installed. Also reports auto-push
+ * settings and meaningful-work thresholds.
+ */
 export async function hooksStatus() {
   const { loadConfig } = await import('../../hooks/install.js');
 

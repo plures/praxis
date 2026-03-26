@@ -146,6 +146,9 @@ function buildDelta(from: number, to: number, events: ProjectEvent[]): Behaviora
 
 /**
  * Create a Timeline for a given chronicle.
+ *
+ * @param chronicle - The {@link ProjectChronicle} instance to build the queryable timeline from
+ * @returns A {@link Timeline} with filter and delta query methods
  */
 export function createTimeline(chronicle: ProjectChronicle): Timeline {
   return new Timeline(chronicle);

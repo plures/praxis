@@ -117,6 +117,9 @@ function nextId(): string {
  * app.mutate('sprint/current', sprintData);
  * // Constraints validated, rules re-evaluated, Chronos logged — all automatic
  * ```
+ *
+ * @param config - Application configuration: name, schema paths, rules, constraints, and liveness settings
+ * @returns A live {@link PraxisApp} instance with `query()`, `mutate()`, `batch()`, and lifecycle methods
  */
 export function createApp(config: PraxisAppConfig): PraxisApp {
   // ── Path Registry ──

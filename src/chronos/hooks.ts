@@ -40,6 +40,9 @@ export interface EnableChronicleOptions {
  * Wraps registry's `registerRule`, `registerModule` and engine's `step`,
  * `checkConstraints` methods to automatically record events.
  *
+ * @param registry - The Praxis registry to instrument for auto-recording
+ * @param engine - The logic engine to instrument for step and constraint recording
+ * @param options - Chronicle options: existing chronicle instance and feature toggles
  * @returns A handle with the chronicle and a `disconnect()` to undo all hooks.
  *
  * @example
@@ -199,6 +202,10 @@ export function enableProjectChronicle<TContext = unknown>(
  * Record a completeness audit result into the chronicle.
  *
  * Standalone utility — call after `auditCompleteness()`.
+ *
+ * @param chronicle - The project chronicle to record into
+ * @param report - The completeness report from {@link auditCompleteness}
+ * @param previousScore - Optional previous score to compute a delta for the audit event
  */
 export function recordAudit(
   chronicle: ProjectChronicle,

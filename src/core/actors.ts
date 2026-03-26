@@ -179,6 +179,11 @@ export class ActorManager<TContext = unknown> {
 
 /**
  * Helper to create a simple actor that dispatches events on a timer
+ *
+ * @param id - Unique identifier for the actor
+ * @param intervalMs - Timer interval in milliseconds
+ * @param createEvent - Factory function that creates the event to dispatch on each tick
+ * @returns An {@link Actor} that starts a timer on `onStart` and clears it on `onStop`
  */
 export function createTimerActor<TContext = unknown>(
   id: string,

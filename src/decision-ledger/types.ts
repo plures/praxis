@@ -74,6 +74,9 @@ export interface Contract {
 
 /**
  * Type guard to check if an object is a valid Contract.
+ *
+ * @param obj - The value to test
+ * @returns `true` if `obj` satisfies the {@link Contract} shape with required fields
  */
 export function isContract(obj: unknown): obj is Contract {
   if (typeof obj !== 'object' || obj === null) {
@@ -136,6 +139,9 @@ export interface DefineContractOptions {
  *   ],
  *   invariants: ['Session must have unique ID']
  * });
+ *
+ * @param options - Contract definition options including `ruleId`, `behavior`, `examples`, and `invariants`
+ * @returns A fully constructed {@link Contract} with a generated timestamp and default version
  */
 export function defineContract(options: DefineContractOptions): Contract {
   if (options.examples.length === 0) {
@@ -167,6 +173,9 @@ export function defineContract(options: DefineContractOptions): Contract {
 
 /**
  * Extract contract from rule/constraint metadata.
+ *
+ * @param meta - The `meta` object from a rule or constraint descriptor
+ * @returns The attached {@link Contract} if present and valid, or `undefined`
  */
 export function getContract(meta?: Record<string, unknown>): Contract | undefined {
   if (!meta || !meta.contract) {
@@ -182,6 +191,11 @@ export function getContract(meta?: Record<string, unknown>): Contract | undefine
 
 /**
  * Extract contract from a rule or constraint descriptor.
+ *
+ * Checks both `descriptor.contract` and `descriptor.meta.contract`.
+ *
+ * @param descriptor - The rule or constraint descriptor object (optional)
+ * @returns The attached {@link Contract} if found and valid, or `undefined`
  */
 export function getContractFromDescriptor(descriptor?: {
   contract?: Contract;

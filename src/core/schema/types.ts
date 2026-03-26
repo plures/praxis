@@ -392,6 +392,9 @@ export interface ValidationError {
 
 /**
  * Validate a Praxis schema
+ *
+ * @param schema - The schema object to validate
+ * @returns A {@link ValidationResult} with `valid` flag and array of `errors`
  */
 export function validateSchema(schema: PraxisSchema): ValidationResult {
   const errors: ValidationError[] = [];
@@ -580,6 +583,9 @@ function isValidIdentifier(str: string): boolean {
 
 /**
  * Create a basic schema template
+ *
+ * @param name - The schema name (used as template's `name` field and description)
+ * @returns A minimal valid {@link PraxisSchema} with empty models, components, and logic arrays
  */
 export function createSchemaTemplate(name: string): PraxisSchema {
   return {
