@@ -207,6 +207,8 @@ export class Registry<S extends PraxisState = PraxisState, E extends PraxisEvent
 
 /**
  * Create a new registry instance.
+ *
+ * @returns An empty {@link Registry} instance for registering rules and constraints
  */
 export function createRegistry<
   S extends PraxisState = PraxisState,

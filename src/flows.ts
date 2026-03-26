@@ -58,6 +58,11 @@ export interface Actor<S extends PraxisState = PraxisState, E extends PraxisEven
 
 /**
  * Create a new flow.
+ *
+ * @param id - Unique identifier for the flow
+ * @param steps - Ordered array of steps the flow must pass through
+ * @param description - Optional human-readable description of the flow
+ * @returns A new {@link Flow} initialized at step 0
  */
 export function createFlow<E extends PraxisEvent = PraxisEvent>(
   id: string,
@@ -76,6 +81,10 @@ export function createFlow<E extends PraxisEvent = PraxisEvent>(
 /**
  * Advance a flow with an event.
  * Returns an updated flow and whether the flow accepted the event.
+ *
+ * @param flow - The current flow state
+ * @param event - The event to process against the current step
+ * @returns An object with the updated `flow` and `accepted` flag
  */
 export function advanceFlow<E extends PraxisEvent = PraxisEvent>(
   flow: Flow<E>,
@@ -115,6 +124,10 @@ export function advanceFlow<E extends PraxisEvent = PraxisEvent>(
 
 /**
  * Check if a flow is waiting for a specific event type.
+ *
+ * @param flow - The flow to check
+ * @param eventType - The event type tag to check for (e.g. `'USER_SUBMITTED'`)
+ * @returns `true` if the flow is incomplete and its current step expects this event type
  */
 export function isFlowWaitingFor<E extends PraxisEvent = PraxisEvent>(
   flow: Flow<E>,
@@ -129,6 +142,12 @@ export function isFlowWaitingFor<E extends PraxisEvent = PraxisEvent>(
 
 /**
  * Create a new actor.
+ *
+ * @param id - Unique identifier for the actor
+ * @param initialState - The actor's initial state
+ * @param stepFunction - The step function that processes events and returns updated state + effects
+ * @param type - Optional actor type classification
+ * @returns A new {@link Actor} with the given configuration
  */
 export function createActor<
   S extends PraxisState = PraxisState,
@@ -148,6 +167,10 @@ export function createActor<
 /**
  * Process an event through an actor.
  * Returns the updated actor and any effects.
+ *
+ * @param actor - The actor to process the event through
+ * @param event - The event to pass to the actor's step function
+ * @returns An object with the updated `actor` and `effects` array
  */
 export function processActorEvent<
   S extends PraxisState = PraxisState,
@@ -248,6 +271,8 @@ export class ActorSystem<S extends PraxisState = PraxisState, E extends PraxisEv
 
 /**
  * Create a new actor system.
+ *
+ * @returns An empty {@link ActorSystem} instance for registering and managing actors
  */
 export function createActorSystem<
   S extends PraxisState = PraxisState,

@@ -46,6 +46,10 @@ export function createSchema(name: string): PraxisSchema {
 
 /**
  * Load schema from JSON string
+ *
+ * @param json - The JSON string to parse as a {@link PraxisSchema}
+ * @param options - Optional loader options (validation, normalization)
+ * @returns A {@link LoaderResult} with the parsed schema, validation result, and any errors
  */
 export function loadSchemaFromJson(json: string, options: LoaderOptions = {}): LoaderResult {
   const errors: string[] = [];
@@ -82,6 +86,10 @@ export function loadSchemaFromJson(json: string, options: LoaderOptions = {}): L
 
 /**
  * Load schema from YAML string
+ *
+ * @param yaml - The YAML string to parse as a {@link PraxisSchema}
+ * @param options - Optional loader options (validation, normalization)
+ * @returns A {@link LoaderResult} with the parsed schema, validation result, and any errors
  */
 export function loadSchemaFromYaml(yaml: string, options: LoaderOptions = {}): LoaderResult {
   const errors: string[] = [];
@@ -118,6 +126,9 @@ export function loadSchemaFromYaml(yaml: string, options: LoaderOptions = {}): L
 
 /**
  * Validate that a loaded schema has required fields for generation
+ *
+ * @param schema - The schema to validate for code generation compatibility
+ * @returns A {@link ValidationResult} with `valid` flag and any generation-specific errors
  */
 export function validateForGeneration(schema: PraxisSchema): ValidationResult {
   const errors: string[] = [];

@@ -20,6 +20,9 @@ export type TriggerMap = Partial<Record<LifecycleEventName, TriggerAction | Trig
 /**
  * Define triggers for a project.
  *
+ * @param map - A {@link TriggerMap} mapping lifecycle event names to arrays of trigger actions
+ * @returns Array of {@link TriggerDefinition} objects, one per event name
+ *
  * @example
  * ```ts
  * import { defineTriggers, triggers } from '@plures/praxis/lifecycle';
@@ -29,13 +32,8 @@ export type TriggerMap = Partial<Record<LifecycleEventName, TriggerAction | Trig
  *     triggers.github.createIssue({ owner: 'my-org', repo: 'my-app', assignee: 'copilot' }),
  *     triggers.consoleLog('📝'),
  *   ],
- *   'lifecycle/integrate/merge.executed': [
- *     triggers.version.bumpSemver(),
- *     triggers.release.tagPrerelease(),
- *   ],
  *   'lifecycle/qa/qa.passed': [
  *     triggers.release.promoteToStable(),
- *     triggers.registry.publishStable({ registries: ['npm'] }),
  *   ],
  * });
  * ```
@@ -57,6 +55,9 @@ export function defineTriggers(map: TriggerMap): TriggerDefinition[] {
 
 /**
  * Define a complete lifecycle configuration for a project.
+ *
+ * @param config - The lifecycle configuration object with name, triggers, versioning, and QA settings
+ * @returns The fully normalized {@link LifecycleConfig} with defaults applied
  *
  * @example
  * ```ts

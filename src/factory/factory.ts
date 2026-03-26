@@ -50,6 +50,9 @@ interface InputContext {
  *
  * Generates rules for sanitizing user input, enforcing length limits,
  * and requiring non-empty values.
+ *
+ * @param config - Optional input rules configuration: sanitization types, max length, required flag
+ * @returns A {@link PraxisModule} with input validation rules and constraints
  */
 export function inputRules(config: InputRulesConfig = {}): PraxisModule<InputContext> {
   const {
@@ -176,6 +179,9 @@ interface ToastContext {
  *
  * Generates rules that ensure toasts only appear with meaningful content,
  * auto-dismiss after a timeout, and avoid duplicates.
+ *
+ * @param config - Optional toast rules configuration: requireDiff, autoDismissMs, deduplicate
+ * @returns A {@link PraxisModule} with toast notification rules
  */
 export function toastRules(config: ToastRulesConfig = {}): PraxisModule<ToastContext> {
   const {
@@ -276,6 +282,9 @@ interface FormContext {
  *
  * Generates rules for field validation on blur, submit gating,
  * and form state management.
+ *
+ * @param config - Optional form rules configuration: validateOnBlur, submitGate, formName
+ * @returns A {@link PraxisModule} with form lifecycle rules and constraints
  */
 export function formRules(config: FormRulesConfig = {}): PraxisModule<FormContext> {
   const {
@@ -396,6 +405,9 @@ interface NavigationContext {
  *
  * Generates rules for dirty-data navigation guards and
  * authentication-required route protection.
+ *
+ * @param config - Optional navigation rules configuration: dirtyGuard, authRequired
+ * @returns A {@link PraxisModule} with navigation guard rules and constraints
  */
 export function navigationRules(config: NavigationRulesConfig = {}): PraxisModule<NavigationContext> {
   const {
@@ -491,6 +503,9 @@ interface DataContext {
  * Create data lifecycle rules.
  *
  * Generates rules for optimistic updates, error rollback, and cache invalidation.
+ *
+ * @param config - Optional data rules configuration: optimisticUpdate, rollbackOnError, cacheInvalidation
+ * @returns A {@link PraxisModule} with data lifecycle rules
  */
 export function dataRules(config: DataRulesConfig = {}): PraxisModule<DataContext> {
   const {
