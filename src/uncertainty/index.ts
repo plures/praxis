@@ -315,6 +315,12 @@ export const evidenceRequiredConstraint = defineConstraint({
 
 // ── Module ─────────────────────────────────────────────────────────────────
 
+/**
+ * Praxis module bundling all uncertainty rules and constraints.
+ *
+ * Includes {@link confidenceDegradationRule}, {@link expectationAnomalyRule},
+ * and {@link evidenceRequiredConstraint}.
+ */
 export const uncertaintyModule = defineModule({
   rules: [confidenceDegradationRule, expectationAnomalyRule],
   constraints: [evidenceRequiredConstraint],
