@@ -7,6 +7,7 @@
 
 // ─── Hook Events ────────────────────────────────────────────────────────────
 
+/** Name of a git lifecycle hook handled by the Praxis hooks integration. */
 export type GitHookName =
   | 'pre-commit'
   | 'commit-msg'
@@ -52,6 +53,7 @@ export interface GitHookContext {
   timestamp: number;
 }
 
+/** Diff statistics for a single file changed in a git operation. */
 export interface DiffStat {
   file: string;
   added: number;
@@ -60,6 +62,7 @@ export interface DiffStat {
 
 // ─── Hook Actions ───────────────────────────────────────────────────────────
 
+/** An action the hooks integration should perform in response to rule evaluation. */
 export type HookAction =
   | { type: 'block'; reason: string }
   | { type: 'allow' }
@@ -85,6 +88,7 @@ export interface HookEvalResult {
 
 // ─── Config ─────────────────────────────────────────────────────────────────
 
+/** Configuration for the Praxis git hooks integration. */
 export interface PraxisHooksConfig {
   /** Which hooks to install */
   hooks: GitHookName[];

@@ -11,6 +11,7 @@ import type { Contract } from '../decision-ledger/types.js';
 
 // ─── Tool Input Types ───────────────────────────────────────────────────────
 
+/** Input for the `inspect` MCP tool — list rules and constraints in the registry. */
 export interface InspectInput {
   /** Filter by rule/constraint ID pattern (glob-like) */
   filter?: string;
@@ -18,6 +19,7 @@ export interface InspectInput {
   includeContracts?: boolean;
 }
 
+/** Input for the `evaluate` MCP tool — run a single rule against provided events. */
 export interface EvaluateInput {
   /** Rule ID to evaluate */
   ruleId: string;
@@ -25,6 +27,7 @@ export interface EvaluateInput {
   events: PraxisEvent[];
 }
 
+/** Input for the `audit` MCP tool — check completeness against a manifest. */
 export interface AuditInput {
   /** Completeness manifest */
   manifest: {
@@ -37,11 +40,13 @@ export interface AuditInput {
   threshold?: number;
 }
 
+/** Input for the `check-expectations` MCP tool — verify declared expectations. */
 export interface CheckExpectationsInput {
   /** Expectation set name to verify */
   setName?: string;
 }
 
+/** Input for the `suggest` MCP tool — generate rule/constraint/contract suggestions. */
 export interface SuggestInput {
   /** Description of the gap or failing expectation */
   gap: string;
@@ -49,16 +54,19 @@ export interface SuggestInput {
   context?: Record<string, unknown>;
 }
 
+/** Input for the `step` MCP tool — advance the engine with a set of events. */
 export interface StepInput {
   /** Events to step the engine with */
   events: PraxisEvent[];
 }
 
+/** Input for the `contracts` MCP tool — list contract coverage details. */
 export interface ContractsInput {
   /** Filter by rule ID pattern */
   filter?: string;
 }
 
+/** Input for the `gates` MCP tool — query project gate states. */
 export interface GatesInput {
   /** Filter by gate name */
   filter?: string;
@@ -66,6 +74,7 @@ export interface GatesInput {
 
 // ─── Tool Output Types ──────────────────────────────────────────────────────
 
+/** Summary information about a single rule exposed via MCP tools. */
 export interface RuleInfo {
   id: string;
   description: string;
@@ -75,6 +84,7 @@ export interface RuleInfo {
   meta?: Record<string, unknown>;
 }
 
+/** Summary information about a single constraint exposed via MCP tools. */
 export interface ConstraintInfo {
   id: string;
   description: string;
@@ -83,6 +93,7 @@ export interface ConstraintInfo {
   meta?: Record<string, unknown>;
 }
 
+/** Output of the `inspect` MCP tool — full registry snapshot. */
 export interface InspectOutput {
   rules: RuleInfo[];
   constraints: ConstraintInfo[];
@@ -94,6 +105,7 @@ export interface InspectOutput {
   };
 }
 
+/** Output of the `evaluate` MCP tool — result of running a single rule. */
 export interface EvaluateOutput {
   ruleId: string;
   resultKind: 'emit' | 'noop' | 'skip' | 'retract';
@@ -103,11 +115,13 @@ export interface EvaluateOutput {
   diagnostics: PraxisDiagnostics[];
 }
 
+/** Output of the `audit` MCP tool — completeness report and formatted summary. */
 export interface AuditOutput {
   report: CompletenessReport;
   formatted: string;
 }
 
+/** Output of the `suggest` MCP tool — list of generated rule/contract suggestions. */
 export interface SuggestOutput {
   suggestions: Array<{
     type: 'rule' | 'constraint' | 'contract' | 'event';
@@ -117,12 +131,14 @@ export interface SuggestOutput {
   }>;
 }
 
+/** Output of the `step` MCP tool — facts and diagnostics after one engine step. */
 export interface StepOutput {
   facts: PraxisFact[];
   diagnostics: PraxisDiagnostics[];
   factCount: number;
 }
 
+/** Contract coverage information for a single rule or constraint. */
 export interface ContractInfo {
   ruleId: string;
   hasContract: boolean;
@@ -130,6 +146,7 @@ export interface ContractInfo {
   type: 'rule' | 'constraint';
 }
 
+/** Output of the `contracts` MCP tool — contract coverage across the registry. */
 export interface ContractsOutput {
   contracts: ContractInfo[];
   coverage: {
@@ -139,6 +156,7 @@ export interface ContractsOutput {
   };
 }
 
+/** Output of the `facts` MCP tool — all current facts held by the engine. */
 export interface FactsOutput {
   facts: PraxisFact[];
   count: number;

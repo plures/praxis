@@ -29,6 +29,7 @@ import { ProjectChronicle, createTimeline } from '../chronos/index.js';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
+/** Public interface for the Praxis integration hub — analysis, research, and experiment orchestrator. */
 export interface PraxisHub {
   /** Run a full analysis → research → experiment planning cycle */
   runCycle(): Promise<CycleResult>;
@@ -58,6 +59,7 @@ export interface PraxisHub {
   getCausalChain(factId: string): CausalChainLink[];
 }
 
+/** Result of a full hub analysis–research–experiment planning cycle. */
 export interface CycleResult {
   analysis: AnalysisReport;
   agenda: ResearchAgenda;
@@ -67,6 +69,7 @@ export interface CycleResult {
   timestamp: string;
 }
 
+/** Overall health snapshot for the Praxis system — score, status, and key metrics. */
 export interface SystemHealth {
   /** Overall health score [0.0-1.0] */
   score: number;
@@ -103,6 +106,7 @@ export interface CausalChainLink {
 
 // ── Hub Implementation ─────────────────────────────────────────────────────
 
+/** Configuration for creating a {@link PraxisHub} instance. */
 export interface HubConfig {
   /** Fact store (shared with uncertainty module) */
   facts: Map<string, UncertainFact>;

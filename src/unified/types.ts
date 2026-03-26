@@ -55,6 +55,7 @@ export function definePath<T>(
 
 // ── Query Options ───────────────────────────────────────────────────────────
 
+/** Options for filtering, mapping, and sorting query results. */
 export interface QueryOptions<T> {
   /** Filter function for collections */
   where?: (item: T extends (infer U)[] ? U : T) => boolean;
@@ -81,6 +82,7 @@ export interface ReactiveRef<T> extends Subscribable<T> {
 
 // ── Mutation Result ─────────────────────────────────────────────────────────
 
+/** Result returned by `app.mutate()` — accepted status, violations, and emitted facts. */
 export interface MutationResult {
   /** Whether the mutation was accepted */
   accepted: boolean;
@@ -92,6 +94,7 @@ export interface MutationResult {
 
 // ── Rule Definition (v2) ────────────────────────────────────────────────────
 
+/** A reactive rule definition for the unified API — watches graph paths and emits facts. */
 export interface UnifiedRule {
   /** Unique rule ID */
   id: string;
@@ -105,6 +108,7 @@ export interface UnifiedRule {
 
 // ── Constraint Definition (v2) ──────────────────────────────────────────────
 
+/** A reactive constraint definition for the unified API — validates graph path values. */
 export interface UnifiedConstraint {
   /** Unique constraint ID */
   id: string;
@@ -118,6 +122,7 @@ export interface UnifiedConstraint {
 
 // ── Liveness Monitor ────────────────────────────────────────────────────────
 
+/** Liveness monitoring configuration — detect stale paths after initialization. */
 export interface LivenessConfig {
   /** Paths that must update within `timeoutMs` after init */
   expect: string[];
@@ -129,6 +134,7 @@ export interface LivenessConfig {
 
 // ── App Definition ──────────────────────────────────────────────────────────
 
+/** Configuration passed to `createApp()` — schema, rules, constraints, and liveness options. */
 export interface PraxisAppConfig {
   /** App name (used in Chronos context) */
   name: string;

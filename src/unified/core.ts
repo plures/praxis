@@ -59,6 +59,7 @@ interface TimelineEntry {
 
 // ── Praxis App Instance ─────────────────────────────────────────────────────
 
+/** The live app instance returned by `createApp()` — query, mutate, inspect, and destroy. */
 export interface PraxisApp {
   /** Reactive query — returns a Svelte-compatible store */
   query: <T>(path: string, opts?: QueryOptions<T>) => ReactiveRef<T>;

@@ -14,6 +14,7 @@ import { LogicEngine, createPraxisEngine } from '../core/engine.js';
 // is provided by the Svelte compiler when processing .svelte.ts files
 declare function $state<T>(initial: T): T;
 
+/** Options for initializing the Svelte 5 reactive logic engine. */
 export interface ReactiveEngineOptions<TContext> {
     initialContext: TContext;
     initialFacts?: unknown[];

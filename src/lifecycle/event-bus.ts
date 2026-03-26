@@ -17,6 +17,7 @@ import type {
 
 // ─── Event Bus ──────────────────────────────────────────────────────────────
 
+/** Options for creating a lifecycle event bus. */
 export interface EventBusOptions {
   /** Lifecycle configuration */
   config: LifecycleConfig;
@@ -28,6 +29,7 @@ export interface EventBusOptions {
   onEvent?: (event: LifecycleEvent) => void;
 }
 
+/** A reactive lifecycle event bus — events fire synchronously, triggers execute immediately. */
 export interface EventBus {
   /** Emit a lifecycle event — triggers fire synchronously */
   emit: (name: LifecycleEventName, data?: Record<string, unknown>, source?: string) => Promise<DispatchResult>;
@@ -65,6 +67,12 @@ export interface DispatchResult {
 
 // ─── Implementation ─────────────────────────────────────────────────────────
 
+/**
+ * Create a lifecycle event bus from a configuration.
+ *
+ * @param options - Bus options including lifecycle config and event callbacks.
+ * @returns A fully-initialized event bus ready to accept events.
+ */
 export function createEventBus(options: EventBusOptions): EventBus {
   const { config, onTrigger, onEvent } = options;
 

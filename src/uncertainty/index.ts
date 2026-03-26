@@ -18,6 +18,7 @@ import { RuleResult } from '../core/rule-result.js';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
+/** A fact tracked by the uncertainty module with a confidence score and evidence chain. */
 export interface UncertainFact {
   /** Unique fact identifier */
   id: string;
@@ -41,6 +42,7 @@ export interface UncertainFact {
   tags: string[];
 }
 
+/** A single piece of evidence supporting or contradicting an uncertain fact. */
 export interface Evidence {
   /** What was observed */
   observation: string;
@@ -52,6 +54,7 @@ export interface Evidence {
   weight: number;
 }
 
+/** Human-readable confidence level derived from a numeric score. */
 export type ConfidenceLevel = 'verified' | 'high' | 'medium' | 'low' | 'speculative';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -112,9 +115,13 @@ export function computeConfidenceFromEvidence(
 
 // ── Events ─────────────────────────────────────────────────────────────────
 
+/** Event tag emitted when a new uncertain fact is asserted. */
 export const FACT_ASSERTED = 'praxis.uncertainty.factAsserted';
+/** Event tag emitted when existing evidence contradicts a fact. */
 export const FACT_CHALLENGED = 'praxis.uncertainty.factChallenged';
+/** Event tag emitted when a fact's confidence drops below a threshold. */
 export const CONFIDENCE_DEGRADED = 'praxis.uncertainty.confidenceDegraded';
+/** Event tag emitted when statistical anomaly is detected in the fact store. */
 export const ANOMALY_DETECTED = 'praxis.uncertainty.anomalyDetected';
 
 // ── Rules ──────────────────────────────────────────────────────────────────

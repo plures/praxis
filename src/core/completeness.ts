@@ -71,6 +71,7 @@
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
+/** A conditional branch in application logic — domain, invariant, UI, etc. */
 export interface LogicBranch {
   /** Source file + line */
   location: string;
@@ -84,6 +85,7 @@ export interface LogicBranch {
   note?: string;
 }
 
+/** A state field that may or may not be wired into the Praxis context. */
 export interface StateField {
   /** Store or source name */
   source: string;
@@ -95,6 +97,7 @@ export interface StateField {
   usedByRule: boolean;
 }
 
+/** A state transition that should be modelled as a Praxis event. */
 export interface StateTransition {
   /** What changes */
   description: string;
@@ -104,6 +107,7 @@ export interface StateTransition {
   location: string;
 }
 
+/** Completeness audit report — coverage across rules, constraints, contracts, context, and events. */
 export interface CompletenessReport {
   /** Overall score (0-100) */
   score: number;
@@ -137,6 +141,7 @@ export interface CompletenessReport {
   };
 }
 
+/** Options for the completeness audit — threshold and strict mode. */
 export interface CompletenessConfig {
   /** Minimum score to pass (default: 90) */
   threshold?: number;
