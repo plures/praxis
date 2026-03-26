@@ -45,3 +45,4 @@ csharp/*.suo
 csharp/*/TestResults/
 *.nupkg
 .demo/
+coverage-v8/
