@@ -6,7 +6,9 @@ We release patches for security vulnerabilities in the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+| 2.x.x   | :white_check_mark: |
+| 1.x.x   | :x:                |
+| < 1.0   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -84,4 +86,4 @@ For non-security issues, please use the [GitHub issue tracker](https://github.co
 
 ---
 
-**Last Updated**: 2025-01-18
+**Last Updated**: 2026-03-26
