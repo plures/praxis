@@ -5,7 +5,7 @@
  * Integrates with PluresDB for real-time synchronization.
  */
 
-import type { PSFSchema, PSFPosition } from '../../core/schema-engine/psf.js';
+import type { PSFSchema, PSFRule, PSFPosition } from '../../core/schema-engine/psf.js';
 import type { SchemaSyncEngine, SchemaChangeEvent } from '../../core/db-adapter/sync-engine.js';
 
 /**
@@ -235,9 +235,9 @@ export class CanvasStateManager {
       }
 
       // Create edges to output events (from logic.events)
-      const ruleData = rule as any;
-      if (ruleData.logic && ruleData.logic.events) {
-        for (const outputEventId of ruleData.logic.events) {
+      const ruleWithLogic = rule as PSFRule & { logic?: { events?: string[] } };
+      if (ruleWithLogic.logic?.events) {
+        for (const outputEventId of ruleWithLogic.logic.events) {
           const eventNode = schema.events.find(
             (e) => e.id === outputEventId || e.tag === outputEventId
           );

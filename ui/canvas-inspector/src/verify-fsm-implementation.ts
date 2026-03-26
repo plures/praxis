@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { analyzeRuleFile } from '../../../tools/ast-analyzer/src/ast-analyzer.js';
+import { analyzeRuleFile, type RuleAnalysis } from '../../../tools/ast-analyzer/src/ast-analyzer.js';
 
 export function verifyImplementation() {
   const projectRoot = process.cwd();
@@ -14,7 +14,7 @@ export function verifyImplementation() {
   }
 
   const ruleFiles = findRuleFiles(srcDir);
-  const allRules: any[] = [];
+  const allRules: RuleAnalysis[] = [];
 
   for (const file of ruleFiles) {
     try {

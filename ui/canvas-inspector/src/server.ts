@@ -5,6 +5,27 @@ import { fileURLToPath } from 'url';
 import { WebSocketServer, WebSocket } from 'ws';
 import { verifyImplementation } from './verify-fsm-implementation.js';
 
+interface CanvasNode {
+  id: string;
+  label?: string;
+  type?: string;
+  position?: { x: number; y: number };
+  data?: Record<string, unknown>;
+}
+
+interface CanvasEdge {
+  id: string;
+  source: string;
+  target: string;
+  label?: string;
+  type?: string;
+}
+
+interface CanvasData {
+  nodes: CanvasNode[];
+  edges: CanvasEdge[];
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -89,15 +110,15 @@ async function startServer() {
   const server = http.createServer((req, res) => {
     if (req.url === '/') {
       try {
-        let canvasData: any = { nodes: [], edges: [] };
+        let canvasData: CanvasData = { nodes: [], edges: [] };
         if (fs.existsSync(CANVAS_JSON_PATH)) {
-          canvasData = JSON.parse(fs.readFileSync(CANVAS_JSON_PATH, 'utf-8'));
+          canvasData = JSON.parse(fs.readFileSync(CANVAS_JSON_PATH, 'utf-8')) as CanvasData;
         }
 
         let html = fs.readFileSync(HTML_TEMPLATE_PATH, 'utf-8');
 
         // Transform Praxis Canvas format to Cytoscape format
-        const nodes = canvasData.nodes.map((n: any) => {
+        const nodes = canvasData.nodes.map((n: CanvasNode) => {
           const { id: dataId, ...restData } = n.data || {};
           return {
             data: {
@@ -114,8 +135,8 @@ async function startServer() {
 
         // Create parent nodes for domains
         const domains = new Set<string>();
-        nodes.forEach((n: any) => {
-          if (n.data.parent) domains.add(n.data.parent);
+        nodes.forEach((n) => {
+          if (n.data.parent) domains.add(String(n.data.parent));
         });
 
         const parentNodes = Array.from(domains).map((domain) => ({
@@ -129,7 +150,7 @@ async function startServer() {
         const cyElements = [
           ...parentNodes,
           ...nodes,
-          ...canvasData.edges.map((e: any) => ({
+          ...canvasData.edges.map((e: CanvasEdge) => ({
             data: {
               id: e.id,
               source: e.source,
