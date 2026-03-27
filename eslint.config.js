@@ -32,7 +32,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['ui/**/*.svelte'],
+    files: ['src/**/*.svelte', 'ui/**/*.svelte'],
     plugins: {
       '@typescript-eslint': tseslint.plugin,
       svelte: sveltePlugin,
