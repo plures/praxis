@@ -17,6 +17,10 @@ Node 18+ recommended.
 npm install @plures/praxis   # or: pnpm add @plures/praxis
 ```
 
+## API Reference
+
+See [`docs/API.md`](./docs/API.md) for the exported public API surface.
+
 ## Quick Start — Unified App (v2.0)
 
 The fastest way to build with Praxis. Define paths (state), rules, and constraints — Praxis handles the rest.
