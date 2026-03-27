@@ -247,5 +247,12 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plures/praxis.git"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
