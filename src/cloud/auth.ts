@@ -175,6 +175,9 @@ export class GitHubOAuth {
 
 /**
  * Create a GitHub OAuth client
+ *
+ * @param config - GitHub OAuth configuration including client ID and redirect URI
+ * @returns A new {@link GitHubOAuth} client instance
  */
 export function createGitHubOAuth(config: GitHubOAuthConfig): GitHubOAuth {
   return new GitHubOAuth(config);
@@ -182,6 +185,9 @@ export function createGitHubOAuth(config: GitHubOAuthConfig): GitHubOAuth {
 
 /**
  * Authenticate with GitHub OAuth device flow (for CLI)
+ *
+ * @param clientId - The GitHub OAuth App client ID
+ * @returns A promise resolving to an {@link AuthResult} containing the access token and user info
  */
 export async function authenticateWithDeviceFlow(clientId: string): Promise<AuthResult> {
   try {

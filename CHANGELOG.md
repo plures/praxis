@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **API Documentation**: Raised `api-documented` dimension from 0% to 100% with `@param`/`@returns` tags
+  - Added `@param`/`@returns` JSDoc across 38 source files (68 functions)
+  - Covers `conversations/`, `cli/commands/`, `cloud/`, `core/` submodules, `integrations/`, `lifecycle/`, `hooks/`, `dsl.ts`, `vite/`, `examples/`, and `chronos-bridge/` modules
+  - All changes are additive JSDoc only — no runtime behavior modified
+
 ## [2.4.31] - 2026-03-26
 
 ### Fixed

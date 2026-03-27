@@ -68,6 +68,9 @@ function gateHasMetadata(candidate: Candidate): GateResult {
 
 /**
  * Apply all gates to a candidate
+ *
+ * @param candidate - The candidate to evaluate against all registered gates
+ * @returns A new candidate object with the `gateStatus` field populated
  */
 export function applyGates(candidate: Candidate): Candidate {
   const gates: GateResult[] = [
@@ -96,6 +99,9 @@ export function applyGates(candidate: Candidate): Candidate {
 
 /**
  * Check if a candidate passed all gates
+ *
+ * @param candidate - The candidate whose gate status to check
+ * @returns `true` if all gates passed, `false` otherwise
  */
 export function candidatePassed(candidate: Candidate): boolean {
   return candidate.gateStatus?.passed || false;

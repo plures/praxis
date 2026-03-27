@@ -15,6 +15,9 @@ import type {
 
 /**
  * Create a cloud relay client
+ *
+ * @param config - Cloud relay configuration including endpoint URL and authentication details
+ * @returns A new {@link CloudRelayClient} connected to the specified endpoint
  */
 export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
   const status: RelayStatus = {

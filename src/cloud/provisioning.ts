@@ -57,6 +57,10 @@ export interface Tenant {
  *
  * Namespace format: gh-{login}-{hash}
  * This ensures uniqueness and follows Azure Blob Storage naming rules.
+ *
+ * @param githubLogin - The GitHub user login (username)
+ * @param userId - The GitHub numeric user ID used to create a unique hash suffix
+ * @returns A storage namespace string safe for use as an Azure Blob Storage container name
  */
 export function generateStorageNamespace(githubLogin: string, userId: number): string {
   // Sanitize login: lowercase, replace non-alphanumeric with hyphens
@@ -71,6 +75,9 @@ export function generateStorageNamespace(githubLogin: string, userId: number): s
 
 /**
  * Generate tenant ID from GitHub user
+ *
+ * @param githubUser - The GitHub user object containing the numeric ID
+ * @returns A stable tenant ID string of the form `"github-{userId}"`
  */
 export function generateTenantId(githubUser: GitHubUser): string {
   return `github-${githubUser.id}`;
@@ -78,6 +85,10 @@ export function generateTenantId(githubUser: GitHubUser): string {
 
 /**
  * Create a tenant from GitHub user
+ *
+ * @param githubUser - The authenticated GitHub user whose tenant is being created
+ * @param subscription - The subscription tier to associate with this tenant
+ * @returns A new {@link Tenant} object with storage namespace and timestamps set
  */
 export function createTenant(githubUser: GitHubUser, subscription: Subscription): Tenant {
   const tenantId = generateTenantId(githubUser);
@@ -103,6 +114,9 @@ export function createTenant(githubUser: GitHubUser, subscription: Subscription)
  * - lowercase letters, numbers, and hyphens only
  * - must start with letter or number
  * - no consecutive hyphens
+ *
+ * @param namespace - The storage namespace string to validate
+ * @returns An object with `valid: true` on success, or `valid: false` and an `error` message on failure
  */
 export function validateStorageNamespace(namespace: string): {
   valid: boolean;
@@ -141,6 +155,10 @@ export function validateStorageNamespace(namespace: string): {
 
 /**
  * Get storage container name for an app
+ *
+ * @param tenantNamespace - The tenant's storage namespace (from {@link generateStorageNamespace})
+ * @param appId - The application identifier
+ * @returns A storage container name combining the tenant namespace and sanitized app ID
  */
 export function getAppStorageContainer(tenantNamespace: string, appId: string): string {
   // Sanitize app ID

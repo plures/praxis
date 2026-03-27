@@ -22,6 +22,9 @@ export interface DevOptions {
 
 /**
  * Start development server
+ *
+ * @param options - Dev server options such as port and host binding
+ * @returns A promise that resolves when the dev server exits
  */
 export async function dev(options: DevOptions): Promise<void> {
   const port = options.port || '5173';

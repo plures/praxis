@@ -32,6 +32,9 @@ export interface LoaderResult {
 
 /**
  * Create a new empty schema
+ *
+ * @param name - The name for the new schema
+ * @returns A new {@link PraxisSchema} with default values and no models or components
  */
 export function createSchema(name: string): PraxisSchema {
   return {

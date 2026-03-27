@@ -229,6 +229,7 @@ export async function evaluateHook(
  * Called by the hook handler after evaluation.
  *
  * @param result - The hook evaluation result from {@link evaluateHook}
+ * @returns void — side effects (push, etc.) are executed synchronously
  */
 export function executeActions(result: HookEvalResult): void {
   for (const action of result.actions) {

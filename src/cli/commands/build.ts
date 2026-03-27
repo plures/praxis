@@ -24,6 +24,9 @@ export interface BuildOptions {
 
 /**
  * Build application for production
+ *
+ * @param options - Build configuration including target platform and output directory
+ * @returns A promise that resolves when the build completes
  */
 export async function build(options: BuildOptions): Promise<void> {
   const output = options.output || './dist';

@@ -288,6 +288,9 @@ export class GitHubMarketplaceClient {
 
 /**
  * Create a GitHub Marketplace client
+ *
+ * @param token - A GitHub personal access token or OAuth token with marketplace read permissions
+ * @returns A new {@link GitHubMarketplaceClient} instance
  */
 export function createMarketplaceClient(token: string): GitHubMarketplaceClient {
   return new GitHubMarketplaceClient(token);

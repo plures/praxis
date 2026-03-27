@@ -38,6 +38,9 @@ export function captureConversation(input: {
 
 /**
  * Load a conversation from JSON
+ *
+ * @param json - A JSON string previously produced by {@link serializeConversation}
+ * @returns The deserialized {@link Conversation} object
  */
 export function loadConversation(json: string): Conversation {
   const data = JSON.parse(json);
@@ -50,6 +53,9 @@ export function loadConversation(json: string): Conversation {
 
 /**
  * Serialize a conversation to JSON
+ *
+ * @param conversation - The conversation to serialize
+ * @returns A formatted JSON string representation of the conversation
  */
 export function serializeConversation(conversation: Conversation): string {
   return JSON.stringify(conversation, null, 2);

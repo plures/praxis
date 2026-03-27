@@ -177,7 +177,10 @@ const clearCompletedRule = defineRule<TodoContext>({
 // Engine Factory
 // ============================================================================
 
-/** Create and configure a fully wired todo engine with all todo rules registered. */
+/** Create and configure a fully wired todo engine with all todo rules registered.
+ *
+ * @returns A new {@link LogicEngine} instance with `addTodo`, `toggleTodo`, `removeTodo`, `setFilter`, and `completeAll` rules pre-registered
+ */
 export function createTodoEngine() {
   const registry = new PraxisRegistry<TodoContext>();
 

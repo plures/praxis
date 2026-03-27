@@ -38,6 +38,9 @@ function normalizeTurn(content: string): string {
 
 /**
  * Normalize a conversation
+ *
+ * @param conversation - The raw conversation to normalize
+ * @returns A new conversation object with whitespace, line endings, and code-block formatting normalized
  */
 export function normalizeConversation(conversation: Conversation): Conversation {
   return {

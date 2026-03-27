@@ -23,6 +23,7 @@ import type { GitHookName } from '../../hooks/types.js';
  * @param options - Installation options
  * @param options.force - Overwrite existing hooks without chaining
  * @param options.verbose - Print detailed output for each hook action
+ * @returns A promise that resolves when all hooks have been installed
  */
 export async function hooksInstall(options: { force?: boolean; verbose?: boolean }) {
   const { installHooks, loadConfig, initConfig } = await import('../../hooks/install.js');
@@ -59,6 +60,7 @@ export async function hooksInstall(options: { force?: boolean; verbose?: boolean
  * existed before installation.
  *
  * @param _options - Uninstall options (currently unused, reserved for future use)
+ * @returns A promise that resolves when all hooks have been removed
  */
 export async function hooksUninstall(_options: { verbose?: boolean }) {
   const { uninstallHooks, loadConfig } = await import('../../hooks/install.js');
@@ -78,6 +80,8 @@ export async function hooksUninstall(_options: { verbose?: boolean }) {
  *
  * Writes a starter config to the repo root if one does not already exist.
  * Prints the path to the created file so developers can edit it.
+ *
+ * @returns A promise that resolves after the config file is created
  */
 export async function hooksInit() {
   const { initConfig } = await import('../../hooks/install.js');
@@ -97,6 +101,7 @@ export async function hooksInit() {
  *
  * @param hookName - The name of the git hook being fired (e.g. `"pre-commit"`)
  * @param args - Arguments passed by git to the hook script
+ * @returns A promise that resolves when hook evaluation and all resulting actions complete
  */
 export async function hooksRun(hookName: string, args: string[]) {
   const { buildHookContext } = await import('../../hooks/context.js');
@@ -129,6 +134,8 @@ export async function hooksRun(hookName: string, args: string[]) {
  * Reads the current `.praxis.hooks.json` config and checks `.git/hooks/`
  * to determine whether each hook is installed. Also reports auto-push
  * settings and meaningful-work thresholds.
+ *
+ * @returns A promise that resolves after the status table is printed
  */
 export async function hooksStatus() {
   const { loadConfig } = await import('../../hooks/install.js');

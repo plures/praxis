@@ -314,6 +314,10 @@ export function writeQARunResult(
 
 /**
  * Load all QA run results from artifacts directory.
+ *
+ * @param rootDir - The root directory of the project
+ * @param config - QA configuration specifying the artifacts directory
+ * @returns An array of {@link QARunResult} objects loaded from disk
  */
 export function loadQARunResults(rootDir: string, config: QAConfig): QARunResult[] {
   const dir = join(rootDir, config.artifactsDir);

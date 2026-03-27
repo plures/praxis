@@ -47,6 +47,9 @@ export interface PraxisCompletenessPluginOptions {
  *
  * The plugin loads the manifest at build time, evaluates coverage, and
  * prints a summary. In strict mode, it fails the build if below threshold.
+ *
+ * @param _options - Optional plugin configuration (threshold, manifest path, strict mode, silent)
+ * @returns A Vite plugin object compatible with Vite 5+
  */
 export function praxisCompletenessPlugin(_options?: PraxisCompletenessPluginOptions) {
   const options = _options ?? {};

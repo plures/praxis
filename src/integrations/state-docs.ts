@@ -682,6 +682,9 @@ export class StateDocsGenerator {
 /**
  * Create a State-Docs generator instance
  *
+ * @param config - Generator configuration including project title and output target directory
+ * @returns A new {@link StateDocsGenerator} instance
+ *
  * @example
  * ```typescript
  * import { createStateDocsGenerator } from '@plures/praxis/integrations/state-docs';
@@ -703,6 +706,10 @@ export function createStateDocsGenerator(config: StateDocsConfig): StateDocsGene
 
 /**
  * Generate documentation from a schema (convenience function)
+ *
+ * @param schema - The Praxis schema to generate documentation for
+ * @param config - Generator configuration including project title and output directory
+ * @returns An array of {@link GeneratedDoc} objects ready to be written to disk
  */
 export function generateDocs(schema: PraxisSchema, config: StateDocsConfig): GeneratedDoc[] {
   const generator = createStateDocsGenerator(config);

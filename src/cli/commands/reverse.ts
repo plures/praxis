@@ -38,7 +38,8 @@ interface ReverseOptions {
 /**
  * Reverse command implementation.
  *
- * @param options Command options
+ * @param options - Command options specifying input directory, AI provider, output format, and flags
+ * @returns A promise that resolves when the reverse-engineering output is written
  */
 export async function reverseCommand(options: ReverseOptions): Promise<void> {
   const rootDir = options.dir || process.cwd();

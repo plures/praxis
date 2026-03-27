@@ -30,6 +30,9 @@ export interface GenerateOptions {
 
 /**
  * Execute the generate command
+ *
+ * @param options - Code generation options including schema path, output directory, and target language
+ * @returns A promise that resolves when code generation completes
  */
 export async function generate(options: GenerateOptions): Promise<void> {
   try {

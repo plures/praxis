@@ -33,7 +33,8 @@ interface ValidateOptions {
 /**
  * Validate command implementation.
  *
- * @param options Command options
+ * @param options - Command options specifying output format, strict mode, and input paths
+ * @returns A promise that resolves when contract validation completes
  */
 export async function validateCommand(options: ValidateOptions): Promise<void> {
   const outputFormat = options.output || 'console';
