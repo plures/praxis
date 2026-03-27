@@ -23,7 +23,9 @@
     "paths": {
       "@praxis/core/*": ["./core/*"],
       "@praxis/ui/*": ["./ui/*"],
-      "@praxis/tools/*": ["./tools/*"]
+      "@praxis/tools/*": ["./tools/*"],
+      "@plures/praxis-core": ["./packages/praxis-core/src/index.ts"],
+      "@plures/praxis-core/*": ["./packages/praxis-core/src/*"]
     }
   },
   "include": ["src/**/*", "core/**/*", "ui/**/*", "tools/**/*"],
