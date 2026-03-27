@@ -22,8 +22,17 @@ export interface ReleaseState {
 
 // ─── Release Triggers ───────────────────────────────────────────────────────
 
+/** Shape of the release pipeline trigger adapter. */
+interface ReleasePipelineTriggerAdapter {
+  gitTag(opts?: { sign?: boolean; push?: boolean }): TriggerAction;
+  githubRelease(opts?: { draft?: boolean; prerelease?: boolean; repo?: string }): TriggerAction;
+  npmPublish(opts?: { tag?: string; access?: 'public' | 'restricted' }): TriggerAction;
+  qaGate(): TriggerAction;
+  notify(channel?: string): TriggerAction;
+}
+
 /** Built-in trigger actions for the release lifecycle phase (git tagging, QA gating, and stable promotion). */
-export const releasePipeline = {
+export const releasePipeline: ReleasePipelineTriggerAdapter = {
   /**
    * Create a git tag for a release.
    */

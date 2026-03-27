@@ -429,8 +429,16 @@ export function validateAgainstTemplate(
 
 // ─── Trigger Actions ────────────────────────────────────────────────────────
 
+/** Shape of the docs trigger adapter. */
+interface DocsTriggerAdapter {
+  audit(config: DocsConfig): TriggerAction;
+  plan(config: DocsConfig): TriggerAction;
+  validate(config: DocsConfig): TriggerAction;
+  gate(): TriggerAction;
+}
+
 /** Built-in trigger actions for the documentation lifecycle phase (auditing, updating, and validating project docs). */
-export const docs = {
+export const docs: DocsTriggerAdapter = {
   /**
    * Audit documentation and report status.
    */

@@ -144,8 +144,16 @@ export function incidentToExpectation(incident: Incident): LifecycleExpectation 
 
 // ─── Maintenance Triggers ───────────────────────────────────────────────────
 
+/** Shape of the maintenance trigger adapter. */
+interface MaintenanceTriggerAdapter {
+  auditDependencies(): TriggerAction;
+  checkOutdated(): TriggerAction;
+  processCustomerReport(): TriggerAction;
+  processIncident(): TriggerAction;
+}
+
 /** Built-in trigger actions for the maintenance lifecycle phase (vulnerability scanning, dependency updates, and incident response). */
-export const maintenance = {
+export const maintenance: MaintenanceTriggerAdapter = {
   /**
    * Scan for vulnerabilities and create expectations.
    */

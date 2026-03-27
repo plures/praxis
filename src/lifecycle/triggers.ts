@@ -48,8 +48,15 @@ export function custom(
 
 // ─── GitHub Adapter ─────────────────────────────────────────────────────────
 
+/** Shape of the GitHub trigger adapter. */
+interface GitHubTriggerAdapter {
+  createIssue(options: GitHubTriggerOptions & { assignee?: string; labels?: string[] }): TriggerAction;
+  createBranch(options: GitHubTriggerOptions & { prefix?: string; from?: string }): TriggerAction;
+  requestReview(options: GitHubTriggerOptions & { reviewer?: string }): TriggerAction;
+}
+
 /** GitHub trigger adapter for creating issues, branches, and requesting reviews via the GitHub API. */
-export const github = {
+export const github: GitHubTriggerAdapter = {
   /** Create a GitHub issue from an expectation */
   createIssue(options: GitHubTriggerOptions & { assignee?: string; labels?: string[] }): TriggerAction {
     return {
@@ -162,8 +169,14 @@ export const github = {
 
 // ─── Version Adapter ────────────────────────────────────────────────────────
 
+/** Shape of the version trigger adapter. */
+interface VersionTriggerAdapter {
+  bumpSemver(options?: { strategy?: 'conventional' | 'expectation-driven' }): TriggerAction;
+  syncFiles(files?: string[]): TriggerAction;
+}
+
 /** Version trigger adapter for calculating semver bumps and syncing version strings across project files. */
-export const version = {
+export const version: VersionTriggerAdapter = {
   /** Calculate and bump semver based on expectations */
   bumpSemver(options?: { strategy?: 'conventional' | 'expectation-driven' }): TriggerAction {
     return {
@@ -208,8 +221,14 @@ export const version = {
 
 // ─── Release Adapter ────────────────────────────────────────────────────────
 
+/** Shape of the release trigger adapter. */
+interface ReleaseTriggerAdapter {
+  tagPrerelease(options?: { tag?: string }): TriggerAction;
+  promoteToStable(): TriggerAction;
+}
+
 /** Release trigger adapter for creating prerelease and stable git tags and promoting releases through the pipeline. */
-export const release = {
+export const release: ReleaseTriggerAdapter = {
   /** Tag a prerelease */
   tagPrerelease(options?: { tag?: string }): TriggerAction {
     return {
@@ -248,8 +267,14 @@ export const release = {
 
 // ─── Registry Adapter ───────────────────────────────────────────────────────
 
+/** Shape of the registry trigger adapter. */
+interface RegistryTriggerAdapter {
+  publishPrerelease(options: RegistryPublishOptions): TriggerAction;
+  publishStable(options: RegistryPublishOptions): TriggerAction;
+}
+
 /** Registry trigger adapter for publishing prerelease and stable packages to npm or other registries. */
-export const registry = {
+export const registry: RegistryTriggerAdapter = {
   /** Publish to package registries */
   publishPrerelease(options: RegistryPublishOptions): TriggerAction {
     return {
@@ -283,8 +308,13 @@ export const registry = {
 
 // ─── Expectation Adapter ────────────────────────────────────────────────────
 
+/** Shape of the expectations trigger adapter. */
+interface ExpectationsTriggerAdapter {
+  createFromQAResults(): TriggerAction;
+}
+
 /** Expectations trigger adapter for creating new lifecycle expectations derived from QA results or other sources. */
-export const expectations = {
+export const expectations: ExpectationsTriggerAdapter = {
   /** Create new expectations from QA results */
   createFromQAResults(): TriggerAction {
     return {

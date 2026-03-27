@@ -5,6 +5,7 @@
  */
 
 import { defineFact, defineEvent } from '../dsl/index.js';
+import type { FactDefinition, EventDefinition } from '../dsl/index.js';
 import type { MissingArtifact, Severity } from './types.js';
 
 /**
@@ -12,7 +13,7 @@ import type { MissingArtifact, Severity } from './types.js';
  *
  * Indicates that a rule or constraint is missing contract artifacts.
  */
-export const ContractMissing = defineFact<
+export const ContractMissing: FactDefinition<
   'ContractMissing',
   {
     ruleId: string;
@@ -20,28 +21,28 @@ export const ContractMissing = defineFact<
     severity: Severity;
     message?: string;
   }
->('ContractMissing');
+> = defineFact('ContractMissing');
 
 /**
  * Fact: ContractValidated
  *
  * Indicates that a rule or constraint has been validated and has a complete contract.
  */
-export const ContractValidated = defineFact<
+export const ContractValidated: FactDefinition<
   'ContractValidated',
   {
     ruleId: string;
     version: string;
     timestamp: string;
   }
->('ContractValidated');
+> = defineFact('ContractValidated');
 
 /**
  * Event: ACKNOWLEDGE_CONTRACT_GAP
  *
  * Acknowledges a known contract gap with justification.
  */
-export const AcknowledgeContractGap = defineEvent<
+export const AcknowledgeContractGap: EventDefinition<
   'ACKNOWLEDGE_CONTRACT_GAP',
   {
     ruleId: string;
@@ -49,26 +50,26 @@ export const AcknowledgeContractGap = defineEvent<
     justification: string;
     expiresAt?: string;
   }
->('ACKNOWLEDGE_CONTRACT_GAP');
+> = defineEvent('ACKNOWLEDGE_CONTRACT_GAP');
 
 /**
  * Event: VALIDATE_CONTRACTS
  *
  * Triggers validation of all registered contracts.
  */
-export const ValidateContracts = defineEvent<
+export const ValidateContracts: EventDefinition<
   'VALIDATE_CONTRACTS',
   {
     strict?: boolean;
   }
->('VALIDATE_CONTRACTS');
+> = defineEvent('VALIDATE_CONTRACTS');
 
 /**
  * Fact: ContractGapAcknowledged
  *
  * Records that a contract gap has been acknowledged.
  */
-export const ContractGapAcknowledged = defineFact<
+export const ContractGapAcknowledged: FactDefinition<
   'ContractGapAcknowledged',
   {
     ruleId: string;
@@ -77,45 +78,45 @@ export const ContractGapAcknowledged = defineFact<
     acknowledgedAt: string;
     expiresAt?: string;
   }
->('ContractGapAcknowledged');
+> = defineFact('ContractGapAcknowledged');
 
 /**
  * Event: CONTRACT_ADDED
  *
  * Emitted when a contract is added to a rule or constraint.
  */
-export const ContractAdded = defineEvent<
+export const ContractAdded: EventDefinition<
   'CONTRACT_ADDED',
   {
     ruleId: string;
     version: string;
   }
->('CONTRACT_ADDED');
+> = defineEvent('CONTRACT_ADDED');
 
 /**
  * Event: CONTRACT_UPDATED
  *
  * Emitted when a contract is updated.
  */
-export const ContractUpdated = defineEvent<
+export const ContractUpdated: EventDefinition<
   'CONTRACT_UPDATED',
   {
     ruleId: string;
     previousVersion: string;
     newVersion: string;
   }
->('CONTRACT_UPDATED');
+> = defineEvent('CONTRACT_UPDATED');
 
 /**
  * Event: CONTRACT_GAP_EMITTED
  *
  * Emitted when contract gaps are surfaced during validation.
  */
-export const ContractGapEmitted = defineEvent<
+export const ContractGapEmitted: EventDefinition<
   'CONTRACT_GAP_EMITTED',
   {
     ruleId: string;
     missing: MissingArtifact[];
     severity: Severity;
   }
->('CONTRACT_GAP_EMITTED');
+> = defineEvent('CONTRACT_GAP_EMITTED');

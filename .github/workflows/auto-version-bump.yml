@@ -51,12 +51,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Bump version and tag
+      - name: Bump version (no auto-commit/tag)
         env:
           LEVEL: ${{ steps.bump.outputs.level }}
         run: |
           git pull --rebase origin main
-          npm version "$LEVEL" -m "chore: release v%s"
+          npm version "$LEVEL" --no-git-tag-version
 
       - name: Sync version to jsr.json and deno.json
         run: |
@@ -69,7 +69,6 @@ jobs:
               jsr.version = '${NEW_VERSION}';
               fs.writeFileSync('jsr.json', JSON.stringify(jsr, null, 2) + '\n');
             "
-            git add jsr.json
           fi
           # Update deno.json version
           if [ -f deno.json ]; then
@@ -79,12 +78,14 @@ jobs:
               deno.version = '${NEW_VERSION}';
               fs.writeFileSync('deno.json', JSON.stringify(deno, null, 2) + '\n');
             "
-            git add deno.json
           fi
-          # Commit version sync if there are changes
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: sync jsr.json and deno.json to v${NEW_VERSION}"
-          fi
+
+      - name: Commit and tag release
+        run: |
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          git add package.json jsr.json deno.json
+          git commit -m "chore: release v${NEW_VERSION}"
+          git tag "v${NEW_VERSION}"
 
       - name: Push changes and tags
         env:

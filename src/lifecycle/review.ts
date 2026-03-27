@@ -45,8 +45,15 @@ export interface ReviewCycleState {
 
 // ─── Review Triggers ────────────────────────────────────────────────────────
 
+/** Shape of the review trigger adapter. */
+interface ReviewTriggerAdapter {
+  requireCI(): TriggerAction;
+  autoApplyRecommendations(opts?: { maxRounds?: number }): TriggerAction;
+  mergeGate(conditions?: string[]): TriggerAction;
+}
+
 /** Built-in trigger actions for the review lifecycle phase (CI gating, requesting reviews, and re-review cycles). */
-export const review = {
+export const review: ReviewTriggerAdapter = {
   /**
    * Gate that requires all CI checks to pass before review.
    */
