@@ -470,6 +470,9 @@ export function schemaToCanvas(
 
 /**
  * Convert a canvas document back to a Praxis schema
+ *
+ * @param canvas - The canvas document to convert
+ * @returns A {@link PSFSchema} equivalent to the visual canvas representation
  */
 export function canvasToSchema(canvas: CanvasDocument): PSFSchema {
   const models: PSFModel[] = [];
@@ -534,6 +537,9 @@ export function canvasToSchema(canvas: CanvasDocument): PSFSchema {
 
 /**
  * Export canvas to YAML format (compatible with Obsidian Canvas)
+ *
+ * @param canvas - The canvas document to serialize
+ * @returns A YAML string representation of the canvas document
  */
 export function canvasToYaml(canvas: CanvasDocument): string {
   const lines: string[] = [
@@ -577,6 +583,9 @@ export function canvasToYaml(canvas: CanvasDocument): string {
 
 /**
  * Export canvas to Mermaid diagram format
+ *
+ * @param canvas - The canvas document to render as a Mermaid diagram
+ * @returns A Mermaid `graph TD` diagram string
  */
 export function canvasToMermaid(canvas: CanvasDocument): string {
   const lines: string[] = ['graph TD'];
@@ -677,6 +686,9 @@ export function validateWithGuardian(
  *
  * Note: This is a placeholder for the visual editor integration.
  * The actual visual editor requires a browser environment.
+ *
+ * @param config - Editor configuration including the initial canvas document
+ * @returns An editor object with methods to add/remove nodes and edges and export the canvas
  */
 export function createCanvasEditor(config: CanvasEditorConfig): {
   document: CanvasDocument;

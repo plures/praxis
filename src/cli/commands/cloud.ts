@@ -156,6 +156,8 @@ export async function cloudInit(options: {
 
 /**
  * Check cloud connection status
+ *
+ * @returns A promise that resolves after the cloud connection status is printed
  */
 export async function cloudStatus(): Promise<void> {
   const config = loadConfig();
@@ -202,6 +204,8 @@ export async function cloudStatus(): Promise<void> {
 
 /**
  * Manually trigger cloud sync
+ *
+ * @returns A promise that resolves when the sync operation completes
  */
 export async function cloudSync(): Promise<void> {
   const config = loadConfig();
@@ -239,6 +243,8 @@ export async function cloudSync(): Promise<void> {
 
 /**
  * View cloud usage metrics
+ *
+ * @returns A promise that resolves after the usage metrics are printed
  */
 export async function cloudUsage(): Promise<void> {
   const config = loadConfig();

@@ -79,6 +79,9 @@ function calculateScores(conversation: Conversation): Record<string, number> {
 
 /**
  * Classify a conversation using deterministic keyword matching
+ *
+ * @param conversation - The conversation to classify
+ * @returns A new conversation object with the `classification` field populated and `classified` set to `true`
  */
 export function classifyConversation(conversation: Conversation): Conversation {
   const scores = calculateScores(conversation);

@@ -139,6 +139,9 @@ export interface UnumAdapter {
 /**
  * Create a Unum adapter for Praxis engine integration
  *
+ * @param config - Adapter configuration including the PluresDB instance, optional identity, and realtime flag
+ * @returns A promise resolving to a {@link UnumAdapter} connected to the given database
+ *
  * @example
  * ```typescript
  * import { createUnumAdapter } from '@plures/praxis/integrations/unum';

@@ -82,6 +82,9 @@ function deleteAuth(): void {
 
 /**
  * Login command
+ *
+ * @param options - Login options; pass `token` to skip the device-flow OAuth prompt
+ * @returns A promise that resolves when the login flow completes
  */
 export async function loginCommand(options: { token?: string }): Promise<void> {
   console.log('\n╔═══════════════════════════════════════════════════╗');
@@ -189,6 +192,8 @@ export async function loginCommand(options: { token?: string }): Promise<void> {
 
 /**
  * Logout command
+ *
+ * @returns A promise that resolves after the stored credentials are removed
  */
 export async function logoutCommand(): Promise<void> {
   const auth = loadAuth();
@@ -208,6 +213,8 @@ export async function logoutCommand(): Promise<void> {
 
 /**
  * Whoami command
+ *
+ * @returns A promise that resolves after printing the current user's authentication information
  */
 export async function whoamiCommand(): Promise<void> {
   const auth = loadAuth();
@@ -277,6 +284,8 @@ export async function whoamiCommand(): Promise<void> {
  * Get stored authentication token
  *
  * Used by other commands that need authentication
+ *
+ * @returns The stored OAuth token, or `null` if the user is not authenticated
  */
 export function getAuthToken(): string | null {
   const auth = loadAuth();

@@ -26,6 +26,9 @@ const PII_PATTERNS = [
 
 /**
  * Redact PII from a text string using deterministic patterns
+ *
+ * @param text - The input text that may contain PII
+ * @returns A new string with emails, phone numbers, credit-card numbers, SSNs, and IP addresses replaced by redaction tokens
  */
 export function redactText(text: string): string {
   let redacted = text;
@@ -37,6 +40,9 @@ export function redactText(text: string): string {
 
 /**
  * Redact PII from a conversation
+ *
+ * @param conversation - The conversation whose turn content and metadata should be redacted
+ * @returns A new conversation object with PII removed and `redacted` set to `true`
  */
 export function redactConversation(conversation: Conversation): Conversation {
   return {

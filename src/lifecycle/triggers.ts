@@ -19,7 +19,11 @@ import type {
 
 // ─── Console Adapter (logging, always available) ────────────────────────────
 
-/** Log the event to console — useful for debugging and dry runs */
+/** Log the event to console — useful for debugging and dry runs
+ *
+ * @param prefix - Optional prefix string or emoji to prepend to each log message
+ * @returns A {@link TriggerAction} that logs lifecycle events to the console
+ */
 export function consoleLog(prefix?: string): TriggerAction {
   return {
     id: 'console.log',

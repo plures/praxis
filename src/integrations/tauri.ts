@@ -335,6 +335,8 @@ export interface TauriPraxisAdapter<TContext = unknown> {
  * Create a mock Tauri bridge for development/testing
  *
  * This provides a mock implementation that works without Tauri runtime.
+ *
+ * @returns A {@link TauriBridge} mock with in-memory storage and event handling
  */
 export function createMockTauriBridge(): TauriBridge {
   const eventHandlers = new Map<string, Set<(event: TauriEvent) => void>>();
@@ -602,6 +604,9 @@ export function attachTauriToEngine<TContext>(
 
 /**
  * Generate Tauri configuration from Praxis app config
+ *
+ * @param config - Tauri application configuration including name, version, identifier, and window settings
+ * @returns A Tauri v2 configuration object ready to be written to `tauri.conf.json`
  */
 export function generateTauriConfig(config: TauriAppConfig): Record<string, unknown> {
   return {

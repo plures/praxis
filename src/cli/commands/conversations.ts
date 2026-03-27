@@ -50,6 +50,9 @@ interface EmitOptions {
 
 /**
  * Capture command: Capture a conversation from input
+ *
+ * @param options - Capture options including input file, output path, and capture flags
+ * @returns A promise that resolves when the conversation is captured and saved
  */
 export async function captureCommand(options: CaptureOptions): Promise<void> {
   console.log('📝 Capturing conversation...');
@@ -89,6 +92,9 @@ export async function captureCommand(options: CaptureOptions): Promise<void> {
 
 /**
  * Push command: Process conversation through pipeline (capture -> redact -> normalize)
+ *
+ * @param options - Pipeline options including input source, output path, and token
+ * @returns A promise that resolves when the conversation has been processed and saved
  */
 export async function pushCommand(options: PushOptions): Promise<void> {
   console.log('🔄 Processing conversation through pipeline...');
@@ -125,6 +131,9 @@ export async function pushCommand(options: PushOptions): Promise<void> {
 
 /**
  * Classify command: Classify a conversation and generate candidate
+ *
+ * @param options - Classification options including input path and output destination
+ * @returns A promise that resolves when the conversation is classified and a candidate is generated
  */
 export async function classifyCommand(options: ClassifyOptions): Promise<void> {
   console.log('🏷️  Classifying conversation...');
@@ -184,6 +193,9 @@ export async function classifyCommand(options: ClassifyOptions): Promise<void> {
 
 /**
  * Emit command: Emit a candidate to a destination
+ *
+ * @param options - Emission options including input candidate path, destination type, and credentials
+ * @returns A promise that resolves when the candidate has been emitted
  */
 export async function emitCommand(options: EmitOptions): Promise<void> {
   console.log('📤 Emitting candidate...');

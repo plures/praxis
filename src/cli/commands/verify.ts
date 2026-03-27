@@ -20,6 +20,7 @@ export interface VerifyOptions {
  *
  * @param type - The verification type to run (e.g. `"implementation"`)
  * @param _options - Verification options
+ * @returns A promise that resolves when verification passes, or exits with code 1 on failure
  */
 export async function verify(type: string, _options: VerifyOptions): Promise<void> {
   if (type !== 'implementation') {

@@ -44,6 +44,9 @@ export interface OrchestrateOptions {
 
 /**
  * Manage orchestration
+ *
+ * @param options - Orchestration options including the action to perform (start/stop/status/init)
+ * @returns A promise that resolves when the orchestration action completes
  */
 export async function orchestrate(options: OrchestrateOptions): Promise<void> {
   const action = options.action || 'status';

@@ -11,7 +11,9 @@ import { PRAXIS_PATHS } from './store.js';
 
 /**
  * Get the path for a schema in PluresDB
- * @param schemaName The schema name
+ *
+ * @param schemaName - The schema name
+ * @returns The full PluresDB key path for the given schema
  */
 export function getSchemaPath(schemaName: string): string {
   return `${PRAXIS_PATHS.SCHEMAS}/${schemaName}`;
@@ -130,8 +132,9 @@ export class PraxisSchemaRegistry {
  *
  * Convenience function for one-off schema registration.
  *
- * @param db The PraxisDB instance
- * @param schema The schema to register
+ * @param db - The PraxisDB instance
+ * @param schema - The schema to register
+ * @returns A promise that resolves when the schema has been stored and indexed
  *
  * @example
  * ```typescript

@@ -8,6 +8,9 @@ import { randomUUID } from 'node:crypto';
 
 /**
  * Generate a candidate from a conversation
+ *
+ * @param conversation - A classified conversation to generate an emission candidate from
+ * @returns A {@link Candidate} ready for gating and emission, or `null` if the conversation has no user turns
  */
 export function generateCandidate(conversation: Conversation): Candidate | null {
   if (!conversation.classified || !conversation.classification) {

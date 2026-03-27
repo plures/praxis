@@ -202,6 +202,8 @@ export function rule<
 
 /**
  * Create a new constraint using the fluent builder API.
+ *
+ * @returns A new {@link ConstraintBuilder} for constructing type-safe constraints
  */
 export function constraint<S extends PraxisState = PraxisState>(): ConstraintBuilder<S> {
   return new ConstraintBuilder<S>();

@@ -56,6 +56,10 @@ export interface Alert {
 
 /**
  * Convert a GitHub webhook event into a Praxis TimelineEvent.
+ *
+ * @param event - The raw GitHub webhook payload to convert
+ * @param receivedAt - Unix millisecond timestamp when the event was received
+ * @returns A {@link TimelineEvent} if the event type is recognized, or `null` otherwise
  */
 export function githubToTimeline(event: GitHubEvent, receivedAt: number): TimelineEvent | null {
   const repo = event.repository.name;
@@ -282,6 +286,9 @@ export interface BridgeConfig {
 /**
  * Create the full bridge pipeline.
  * Feed GitHub events in → get timeline events + alerts out.
+ *
+ * @param config - Bridge configuration including rate monitor and alert thresholds
+ * @returns An object with `ingest`, `getTimeline`, and `getAlerts` methods
  */
 export function createBridge(config: BridgeConfig) {
   const timeline: TimelineEvent[] = [];

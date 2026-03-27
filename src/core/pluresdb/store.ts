@@ -31,8 +31,10 @@ export const PRAXIS_PATHS = {
 
 /**
  * Generate a fact key path
- * @param factTag The fact type tag
- * @param id Optional unique identifier for the fact instance
+ *
+ * @param factTag - The fact type tag
+ * @param id - Optional unique identifier for the fact instance
+ * @returns The full PluresDB key path for the fact
  */
 export function getFactPath(factTag: string, id?: string): string {
   if (id) {
@@ -43,7 +45,9 @@ export function getFactPath(factTag: string, id?: string): string {
 
 /**
  * Generate an event stream key path
- * @param eventTag The event type tag
+ *
+ * @param eventTag - The event type tag
+ * @returns The full PluresDB key path for the event stream
  */
 export function getEventPath(eventTag: string): string {
   return `${PRAXIS_PATHS.EVENTS}/${eventTag}`;
@@ -52,6 +56,8 @@ export function getEventPath(eventTag: string): string {
 /**
  * Generate a unique ID for facts or events
  * Uses timestamp and random string for uniqueness
+ *
+ * @returns A unique string ID combining the current timestamp and a random base-36 suffix
  */
 export function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;

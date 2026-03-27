@@ -292,6 +292,8 @@ export function checkUsageLimits(
 
 /**
  * Create a free tier subscription
+ *
+ * @returns A new {@link Subscription} object with FREE tier and ACTIVE status
  */
 export function createFreeSubscription(): Subscription {
   return {

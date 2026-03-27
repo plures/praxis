@@ -208,6 +208,10 @@ export const defaultTemplates: DocumentTemplate[] = [
 
 /**
  * Scan a repository and audit its documentation state.
+ *
+ * @param rootDir - The root directory of the repository to scan
+ * @param config - Documentation configuration specifying which files and templates to track
+ * @returns A {@link DocsAuditResult} with coverage scores and per-document status
  */
 export function auditDocs(rootDir: string, config: DocsConfig): DocsAuditResult {
   const documents: TrackedDocument[] = [];
@@ -652,7 +656,11 @@ function findFilesForTemplate(rootDir: string, template: DocumentTemplate, _conf
 
 // ─── Default Config ─────────────────────────────────────────────────────────
 
-/** Create a default {@link DocsConfig} with sensible defaults, merged with any provided overrides. */
+/** Create a default {@link DocsConfig} with sensible defaults, merged with any provided overrides.
+ *
+ * @param overrides - Optional partial config to merge into the defaults
+ * @returns A complete {@link DocsConfig} with all fields populated
+ */
 export function defaultDocsConfig(overrides?: Partial<DocsConfig>): DocsConfig {
   return {
     docsDir: overrides?.docsDir ?? 'docs',

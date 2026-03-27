@@ -220,7 +220,8 @@ export class PluresDbChronicle implements Chronicle {
 /**
  * Create a PluresDB-backed Chronicle instance.
  *
- * @param db The PraxisDB instance to store causal graph data in
+ * @param db - The PraxisDB instance to store causal graph data in
+ * @returns A new {@link PluresDbChronicle} backed by the given database
  */
 export function createChronicle(db: PraxisDB): PluresDbChronicle {
   return new PluresDbChronicle(db);
