@@ -288,7 +288,7 @@ async function generateWithHeuristics(
   // Calculate confidence based on what we found
   // Use a normalized approach to avoid exceeding cap
   let confidence = 0.5; // Base confidence for heuristic
-  const bonuses = [];
+  const bonuses: number[] = [];
   
   if (sourceFile) bonuses.push(0.1);
   if (testFiles.length > 0) bonuses.push(0.2);
