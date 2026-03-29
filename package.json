@@ -166,7 +166,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "pnpm --filter @plures/praxis-core build && tsup",
     "bench": "vitest bench",
     "bench:run": "vitest bench --run",
     "test": "vitest run",

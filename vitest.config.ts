@@ -1,6 +1,21 @@
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import { defineConfig } from 'vitest/config';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 export default defineConfig({
+  resolve: {
+    alias: [
+      // More-specific subpaths must come before the bare package alias so they
+      // are not swallowed by the '@plures/praxis-core' prefix match.
+      { find: /^@plures\/praxis-core\/decision-ledger$/, replacement: path.resolve(__dirname, 'packages/praxis-core/src/decision-ledger/index.ts') },
+      { find: /^@plures\/praxis-core\/logic$/, replacement: path.resolve(__dirname, 'packages/praxis-core/src/logic/index.ts') },
+      { find: /^@plures\/praxis-core\/schema-engine$/, replacement: path.resolve(__dirname, 'packages/praxis-core/src/schema-engine/index.ts') },
+      { find: /^@plures\/praxis-core\/dsl$/, replacement: path.resolve(__dirname, 'packages/praxis-core/src/dsl/index.ts') },
+      { find: /^@plures\/praxis-core$/, replacement: path.resolve(__dirname, 'packages/praxis-core/src/index.ts') },
+    ],
+  },
   test: {
     globals: true,
     environment: 'node',
