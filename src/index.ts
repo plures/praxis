@@ -74,7 +74,8 @@ export { PraxisRegistry } from './core/rules.js';
 // Engine
 export type { PraxisEngineOptions } from './core/engine.js';
 export { LogicEngine, createPraxisEngine } from './core/engine.js';
-export * from './core/reactive-engine.svelte.js';
+// Svelte reactive engine moved to browser entrypoint and @plures/praxis/svelte subpath.
+// Importing it here crashes Node consumers without Svelte. See #317.
 
 // Framework-agnostic Reactive Engine
 export {
