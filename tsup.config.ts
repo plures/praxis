@@ -7,6 +7,7 @@ export default defineConfig([
     name: 'node',
     entry: {
       index: 'src/index.ts',
+      'core/index': 'src/index.core.ts',
       'integrations/svelte': 'src/integrations/svelte.ts',
       schema: 'src/core/schema/types.ts',
       component: 'src/core/component/generator.ts',
@@ -40,6 +41,7 @@ export default defineConfig([
     name: 'browser',
     entry: {
       index: 'src/index.browser.ts',
+      'core/index': 'src/index.core.browser.ts',
       'integrations/svelte': 'src/integrations/svelte.ts',
       'expectations/index': 'src/expectations/index.ts',
       'factory/index': 'src/factory/index.ts',

@@ -26,6 +26,18 @@
       },
       "default": "./dist/node/index.js"
     },
+    "./core": {
+      "node": {
+        "types": "./dist/node/core/index.d.ts",
+        "import": "./dist/node/core/index.js",
+        "require": "./dist/node/core/index.cjs"
+      },
+      "browser": {
+        "types": "./dist/browser/core/index.d.ts",
+        "import": "./dist/browser/core/index.js"
+      },
+      "default": "./dist/node/core/index.js"
+    },
     "./svelte": {
       "node": {
         "types": "./dist/node/integrations/svelte.d.ts",
