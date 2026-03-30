@@ -264,3 +264,7 @@ export {
 // Unified Integration Helpers
 export type { UnifiedAppConfig, UnifiedApp } from './integrations/unified.js';
 export { createUnifiedApp, attachAllIntegrations } from './integrations/unified.js';
+
+// Rule result helpers
+export { RuleResult, fact } from './core/rule-result.js';
+export type { TypedRuleFn } from './core/rule-result.js';
