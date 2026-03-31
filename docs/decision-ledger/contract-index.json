@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-03-26T13:47:26.447Z",
+  "generatedAt": "2026-03-31T07:12:04.563Z",
   "root": "/home/runner/work/praxis/praxis",
   "summary": {
     "rules": 49,
     "constraints": 9,
-    "files": 192
+    "files": 194
   },
   "rules": [
     {
