@@ -10,6 +10,26 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./logic": {
+      "types": "./dist/logic/index.d.ts",
+      "import": "./dist/logic/index.js",
+      "require": "./dist/logic/index.cjs"
+    },
+    "./decision-ledger": {
+      "types": "./dist/decision-ledger/index.d.ts",
+      "import": "./dist/decision-ledger/index.js",
+      "require": "./dist/decision-ledger/index.cjs"
+    },
+    "./schema-engine": {
+      "types": "./dist/schema-engine/index.d.ts",
+      "import": "./dist/schema-engine/index.js",
+      "require": "./dist/schema-engine/index.cjs"
+    },
+    "./dsl": {
+      "types": "./dist/dsl/index.d.ts",
+      "import": "./dist/dsl/index.js",
+      "require": "./dist/dsl/index.cjs"
     }
   },
   "files": [

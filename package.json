@@ -178,7 +178,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "pnpm --filter @plures/praxis-core build && tsup",
     "bench": "vitest bench",
     "bench:run": "vitest bench --run",
     "test": "vitest run",
@@ -237,6 +237,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
     "@plures/pluresdb": "^2.9.7",
+    "@plures/praxis-core": "workspace:*",
     "commander": "^14.0.2",
     "js-yaml": "^4.1.1",
     "zod": "^4.3.6"
