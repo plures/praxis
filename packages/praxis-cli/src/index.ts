@@ -1,0 +1,480 @@
+#!/usr/bin/env node
+
+/**
+ * Praxis CLI
+ *
+ * Command-line interface for the Praxis framework.
+ */
+
+import { Command } from 'commander';
+import { generate } from './commands/generate.js';
+
+const program = new Command();
+
+program
+  .name('praxis')
+  .description('Praxis Framework - Full-stack application development')
+  .version('0.2.1');
+
+// Authentication command
+program
+  .command('login')
+  .description('Authenticate with GitHub for Praxis Cloud access')
+  .option('--token <token>', 'Use a personal access token instead of device flow')
+  .action(async (options) => {
+    try {
+      const { loginCommand } = await import('./commands/auth.js');
+      await loginCommand(options);
+    } catch (error) {
+      console.error('Error during login:', error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('logout')
+  .description('Log out from Praxis Cloud')
+  .action(async () => {
+    try {
+      const { logoutCommand } = await import('./commands/auth.js');
+      await logoutCommand();
+    } catch (error) {
+      console.error('Error during logout:', error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('whoami')
+  .description('Show current authenticated user')
+  .action(async () => {
+    try {
+      const { whoamiCommand } = await import('./commands/auth.js');
+      await whoamiCommand();
+    } catch (error) {
+      console.error('Error checking authentication:', error);
+      process.exit(1);
+    }
+  });
+
+// Create commands
+program
+  .command('create <type> [name]')
+  .description('Create a new Praxis project or component')
+  .option('-t, --template <template>', 'Template to use', 'basic')
+  .option('-d, --directory <dir>', 'Output directory')
+  .option('--features <features...>', 'Features to include')
+  .action(async (type, name, options) => {
+    try {
+      const { create } = await import('./commands/create.js');
+      await create(type, name, options);
+    } catch (error) {
+      console.error('Error creating:', error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('generate')
+  .description('Generate code from schemas')
+  .option('-s, --schema <file>', 'Schema file path')
+  .option('-t, --target <target>', 'Generation target (all, logic, components, pluresdb)', 'all')
+  .option('-o, --output <dir>', 'Output directory', './generated')
+  .option('-w, --watch', 'Watch for changes')
+  .option(
+    '--auto-index <strategy>',
+    'Auto-indexing strategy for PluresDB (all, explicit, none)',
+    'all'
+  )
+  .action(async (options) => {
+    await generate(options);
+  });
+
+program
+  .command('docs [schema]')
+  .description('Generate documentation from schemas or registries')
+  .option('-o, --output <dir>', 'Output directory', './docs')
+  .option('--title <title>', 'Documentation title')
+  .option('--format <format>', 'Diagram format (mermaid, dot)', 'mermaid')
+  .option('--no-toc', 'Disable table of contents')
+  .option('--no-timestamp', 'Disable timestamp')
+  .option('--from-registry', 'Generate from registry instead of schema')
+  .option('--header <content>', 'Custom header content')
+  .option('--footer <content>', 'Custom footer content')
+  .action(async (schema, options) => {
+    try {
+      const { docs } = await import('./commands/docs.js');
+      await docs(schema, options);
+    } catch (error) {
+      console.error('Error generating documentation:', error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('canvas [schema]')
+  .description('Open CodeCanvas for visual editing')
+  .option('-p, --port <port>', 'Port for Canvas server', '3000')
+  .option('-m, --mode <mode>', 'Mode (edit, view, present)', 'edit')
+  .option('-e, --export <format>', 'Export format (yaml, mermaid, json)')
+  .option('-o, --output <file>', 'Output file for export')
+  .action(async (schema, options) => {
+    try {
+      const { canvas } = await import('./commands/canvas.js');
+      await canvas(schema, options);
+    } catch (error) {
+      console.error('Error with canvas:', error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('orchestrate')
+  .description('Manage orchestration and distributed coordination')
+  .option('-c, --config <file>', 'Orchestration configuration file')
+  .option('-n, --nodes <count>', 'Number of nodes', '1')
+  .option('-a, --action <action>', 'Action (init, start, stop, status)', 'status')
+  .action(async (options) => {
+    try {
+      const { orchestrate } = await import('./commands/orchestrate.js');
+      await orchestrate(options);
+    } catch (error) {
+      console.error('Error with orchestration:', error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('dev')
+  .description('Start development server')
+  .option('-p, --port <port>', 'Port number', '5173')
+  .option('-h, --host <host>', 'Host to bind to', 'localhost')
+  .option('-o, --open', 'Open browser')
+  .action(async (options) => {
+    try {
+      const { dev } = await import('./commands/dev.js');
+      await dev(options);
+    } catch (error) {
+      console.error('Error starting dev server:', error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('build')
+  .description('Build application for production')
+  .option('-o, --output <dir>', 'Output directory', './dist')
+  .option('--target <target>', 'Build target (web, desktop, mobile)', 'web')
+  .option('--minify', 'Minify output', true)
+  .option('--sourcemap', 'Generate source maps', false)
+  .action(async (options) => {
+    try {
+      const { build } = await import('./commands/build.js');
+      await build(options);
+    } catch (error) {
+      console.error('Error building:', error);
+      process.exit(1);
+    }
+  });
+
+// Cloud commands
+const cloudCmd = program
+  .command('cloud')
+  .description('Manage Praxis Cloud connection and synchronization');
+
+cloudCmd
+  .command('init')
+  .description('Connect to Praxis Cloud (setup wizard)')
+  .option('-e, --endpoint <url>', 'Azure Function App endpoint URL')
+  .option('-a, --app-id <id>', 'Application identifier')
+  .option('--auto-sync', 'Enable automatic synchronization', false)
+  .option('--interval <ms>', 'Sync interval in milliseconds', '5000')
+  .action(async (options) => {
+    try {
+      // Dynamic import to avoid loading cloud module unless needed
+      const { cloudInit } = await import('./commands/cloud.js');
+      await cloudInit(options);
+    } catch (error) {
+      console.error('Error initializing cloud connection:', error);
+      process.exit(1);
+    }
+  });
+
+cloudCmd
+  .command('status')
+  .description('Check Praxis Cloud connection status')
+  .action(async () => {
+    try {
+      const { cloudStatus } = await import('./commands/cloud.js');
+      await cloudStatus();
+    } catch (error) {
+      console.error('Error checking cloud status:', error);
+      process.exit(1);
+    }
+  });
+
+cloudCmd
+  .command('sync')
+  .description('Manually trigger cloud synchronization')
+  .action(async () => {
+    try {
+      const { cloudSync } = await import('./commands/cloud.js');
+      await cloudSync();
+    } catch (error) {
+      console.error('Error syncing to cloud:', error);
+      process.exit(1);
+    }
+  });
+
+cloudCmd
+  .command('usage')
+  .description('View cloud usage metrics')
+  .action(async () => {
+    try {
+      const { cloudUsage } = await import('./commands/cloud.js');
+      await cloudUsage();
+    } catch (error) {
+      console.error('Error retrieving usage metrics:', error);
+      process.exit(1);
+    }
+  });
+
+// MCP server command
+program
+  .command('mcp')
+  .description('Start the Praxis MCP server (Model Context Protocol) for AI assistant integration')
+  .option('--name <name>', 'Server name', '@plures/praxis')
+  .option('--version <version>', 'Server version', '1.0.0')
+  .action(async (options) => {
+    try {
+      const { createPraxisMcpServer } = await import('@plures/praxis/mcp');
+      const { PraxisRegistry } = await import('@plures/praxis');
+
+      const registry = new PraxisRegistry({
+        compliance: { enabled: false },
+      });
+      const server = createPraxisMcpServer({
+        name: options.name,
+        version: options.version,
+        initialContext: {},
+        registry,
+      });
+
+      await server.start();
+    } catch (error) {
+      console.error('Error starting MCP server:', error);
+      process.exit(1);
+    }
+  });
+
+// Verify command
+program
+  .command('verify <type>')
+  .description('Verify project implementation (e.g., implementation)')
+  .option('-d, --detailed', 'Show detailed analysis')
+  .action(async (type, options) => {
+    try {
+      const { verify } = await import('./commands/verify.js');
+      await verify(type, options);
+    } catch (error) {
+      console.error('Error verifying:', error);
+      process.exit(1);
+    }
+  });
+
+// Validate command (Decision Ledger)
+program
+  .command('validate')
+  .description('Validate contract coverage for rules and constraints')
+  .option('--output <format>', 'Output format (console, json, sarif)', 'console')
+  .option('--strict', 'Exit with error if contracts are missing', false)
+  .option('--registry <path>', 'Path to registry module')
+  .option('--tests', 'Check for tests for each rule/constraint', true)
+  .option('--spec', 'Check for specs for each rule/constraint', true)
+  .option('--emit-facts', 'Emit ContractMissing facts JSON payload', false)
+  .option('--gap-output <file>', 'Write contract-gap payload to file')
+  .option('--ledger <dir>', 'Write logic ledger snapshots to directory')
+  .option('--author <name>', 'Author name for ledger entries', 'system')
+  .action(async (options) => {
+    try {
+      const { validateCommand } = await import('./commands/validate.js');
+      await validateCommand(options);
+    } catch (error) {
+      console.error('Error validating contracts:', error);
+      process.exit(1);
+    }
+  });
+
+// Reverse command (Decision Ledger - Reverse Engineering)
+program
+  .command('reverse')
+  .description('Reverse engineer contracts from existing codebase')
+  .option('-d, --dir <path>', 'Root directory to scan', process.cwd())
+  .option('--ai <provider>', 'AI provider (none, github-copilot, openai, auto)', 'none')
+  .option('-o, --output <dir>', 'Output directory for contracts', './contracts')
+  .option('--ledger', 'Write to logic ledger', false)
+  .option('--dry-run', 'Dry run mode (no files written)', false)
+  .option('-i, --interactive', 'Interactive mode (prompt for each)', false)
+  .option('--confidence <threshold>', 'Confidence threshold (0.0-1.0)', '0.7')
+  .option('--limit <n>', 'Max number of rules to process')
+  .option('--author <name>', 'Author name for ledger entries', 'reverse-engineer')
+  .option('--format <format>', 'Output format (json, yaml)', 'json')
+  .action(async (options) => {
+    try {
+      const { reverseCommand } = await import('./commands/reverse.js');
+      await reverseCommand(options);
+    } catch (error) {
+      console.error('Error reverse engineering contracts:', error);
+      process.exit(1);
+    }
+  });
+
+// Conversations commands (praxis-conversations subsystem)
+const conversationsCmd = program
+  .command('conversations')
+  .description('Conversation ingestion subsystem (capture -> redact -> normalize -> classify -> emit)');
+
+conversationsCmd
+  .command('capture')
+  .description('Capture a conversation from input')
+  .option('-i, --input <file>', 'Input conversation file')
+  .option('-o, --output <file>', 'Output file for captured conversation')
+  .action(async (options) => {
+    try {
+      const { captureCommand } = await import('./commands/conversations.js');
+      await captureCommand(options);
+    } catch (error) {
+      console.error('Error capturing conversation:', error);
+      process.exit(1);
+    }
+  });
+
+conversationsCmd
+  .command('push')
+  .description('Process conversation through pipeline (redact -> normalize)')
+  .requiredOption('-i, --input <file>', 'Input conversation file')
+  .option('-o, --output <file>', 'Output file for processed conversation')
+  .option('--skip-redaction', 'Skip PII redaction', false)
+  .option('--skip-normalization', 'Skip normalization', false)
+  .action(async (options) => {
+    try {
+      const { pushCommand } = await import('./commands/conversations.js');
+      await pushCommand(options);
+    } catch (error) {
+      console.error('Error processing conversation:', error);
+      process.exit(1);
+    }
+  });
+
+conversationsCmd
+  .command('classify')
+  .description('Classify conversation and generate candidate')
+  .requiredOption('-i, --input <file>', 'Input conversation file')
+  .option('-o, --output <file>', 'Output file for candidate')
+  .action(async (options) => {
+    try {
+      const { classifyCommand } = await import('./commands/conversations.js');
+      await classifyCommand(options);
+    } catch (error) {
+      console.error('Error classifying conversation:', error);
+      process.exit(1);
+    }
+  });
+
+conversationsCmd
+  .command('emit')
+  .description('Emit candidate to destination (fs or github)')
+  .requiredOption('-i, --input <file>', 'Input candidate file')
+  .requiredOption('-e, --emitter <type>', 'Emitter type (fs, github)')
+  .option('--output-dir <dir>', 'Output directory (for fs emitter)', './output/candidates')
+  .option('--owner <owner>', 'GitHub repository owner (for github emitter)')
+  .option('--repo <repo>', 'GitHub repository name (for github emitter)')
+  .option('--token <token>', 'GitHub token (for github emitter)')
+  .option('--dry-run', 'Dry run mode (no actual emission)', false)
+  .option('--commit-intent', 'REQUIRED: Explicit commit intent for GitHub emission', false)
+  .action(async (options) => {
+    try {
+      const { emitCommand } = await import('./commands/conversations.js');
+      await emitCommand(options);
+    } catch (error) {
+      console.error('Error emitting candidate:', error);
+      process.exit(1);
+    }
+  });
+
+// ─── Hooks commands (reactive git integration) ─────────────────────────────
+
+const hooksCmd = program
+  .command('hooks')
+  .description('Reactive git hook integration — Praxis evaluates when git fires');
+
+hooksCmd
+  .command('install')
+  .description('Install Praxis hooks into .git/hooks/')
+  .option('-f, --force', 'Overwrite existing Praxis hooks', false)
+  .option('-v, --verbose', 'Show detailed output', false)
+  .action(async (options) => {
+    try {
+      const { hooksInstall } = await import('./commands/hooks.js');
+      await hooksInstall(options);
+    } catch (error) {
+      console.error('Error installing hooks:', error);
+      process.exit(1);
+    }
+  });
+
+hooksCmd
+  .command('uninstall')
+  .description('Remove Praxis hooks and restore backups')
+  .option('-v, --verbose', 'Show detailed output', false)
+  .action(async (options) => {
+    try {
+      const { hooksUninstall } = await import('./commands/hooks.js');
+      await hooksUninstall(options);
+    } catch (error) {
+      console.error('Error uninstalling hooks:', error);
+      process.exit(1);
+    }
+  });
+
+hooksCmd
+  .command('init')
+  .description('Create .praxis.hooks.json config file')
+  .action(async () => {
+    try {
+      const { hooksInit } = await import('./commands/hooks.js');
+      await hooksInit();
+    } catch (error) {
+      console.error('Error initializing config:', error);
+      process.exit(1);
+    }
+  });
+
+hooksCmd
+  .command('run <hook>')
+  .description('Run hook evaluation (called by git, not manually)')
+  .argument('[args...]', 'Hook arguments from git')
+  .action(async (hook, args) => {
+    try {
+      const { hooksRun } = await import('./commands/hooks.js');
+      await hooksRun(hook, args);
+    } catch (error) {
+      console.error('Error running hook:', error);
+      process.exit(1);
+    }
+  });
+
+hooksCmd
+  .command('status')
+  .description('Show installed hooks and configuration')
+  .action(async () => {
+    try {
+      const { hooksStatus } = await import('./commands/hooks.js');
+      await hooksStatus();
+    } catch (error) {
+      console.error('Error checking status:', error);
+      process.exit(1);
+    }
+  });
+
+program.parse();

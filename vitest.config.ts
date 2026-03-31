@@ -14,6 +14,12 @@ export default defineConfig({
       { find: /^@plures\/praxis-core\/schema-engine$/, replacement: path.resolve(__dirname, 'packages/praxis-core/src/schema-engine/index.ts') },
       { find: /^@plures\/praxis-core\/dsl$/, replacement: path.resolve(__dirname, 'packages/praxis-core/src/dsl/index.ts') },
       { find: /^@plures\/praxis-core$/, replacement: path.resolve(__dirname, 'packages/praxis-core/src/index.ts') },
+      // Subpath exports for @plures/praxis (must come before bare alias)
+      { find: /^@plures\/praxis\/cloud$/, replacement: path.resolve(__dirname, 'src/cloud/index.ts') },
+      { find: /^@plures\/praxis\/hooks$/, replacement: path.resolve(__dirname, 'src/hooks/index.ts') },
+      { find: /^@plures\/praxis\/mcp$/, replacement: path.resolve(__dirname, 'src/mcp/index.ts') },
+      { find: /^@plures\/praxis\/component$/, replacement: path.resolve(__dirname, 'src/core/component/generator.ts') },
+      { find: /^@plures\/praxis$/, replacement: path.resolve(__dirname, 'src/index.ts') },
     ],
   },
   test: {

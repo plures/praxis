@@ -78,7 +78,7 @@ export async function emitToGitHub(
     });
     
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json() as { message?: string };
       throw new Error(`GitHub API error: ${errorData.message || response.statusText}`);
     }
     

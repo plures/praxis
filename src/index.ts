@@ -240,6 +240,28 @@ export {
   validateForGeneration,
 } from './core/schema/loader.js';
 
+// Schema Normalization (used by code generators)
+export type {
+  NormalizedSchema,
+  NormalizedModel,
+  NormalizedComponent,
+  NormalizedLogic,
+  NormalizationOptions,
+} from './core/schema/normalize.js';
+export {
+  normalizeSchema,
+  expandFieldType,
+  fieldTypeToTypeScript,
+  sortModelsByDependencies,
+} from './core/schema/normalize.js';
+
+// Logic Generator
+export type {
+  LogicGeneratorOptions,
+  GeneratedLogicFile,
+} from './core/logic/generator.js';
+export { LogicGenerator, createLogicGenerator } from './core/logic/generator.js';
+
 // PluresDB Integration
 export type {
   PraxisDB,
@@ -692,3 +714,24 @@ export type {
   HubConfig,
   CausalChainLink,
 } from './integration/hub.js';
+
+// ── Conversations Subsystem ─────────────────────────────────────────────────
+// Conversation ingestion pipeline: capture → redact → normalize → classify → emit
+export type { Conversation, Candidate } from './conversations/index.js';
+export {
+  loadConversation,
+  captureConversation,
+  serializeConversation,
+  redactConversation,
+  redactText,
+  normalizeConversation,
+  classifyConversation,
+  generateCandidate,
+  applyGates,
+  candidatePassed,
+  emitToFS,
+  emitToGitHub,
+} from './conversations/index.js';
+
+// ── FSM Verification (CLI tooling) ─────────────────────────────────────────
+export { verifyImplementation } from '../ui/canvas-inspector/src/verify-fsm-implementation.js';
