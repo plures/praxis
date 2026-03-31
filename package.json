@@ -1,6 +1,6 @@
 {
   "name": "@plures/praxis",
-  "version": "2.4.39",
+  "version": "2.5.0",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "type": "module",
   "packageManager": "pnpm@9.15.1",
@@ -223,7 +223,7 @@
     "@vitest/coverage-v8": "^4.1.0",
     "@vitest/ui": "^4.0.15",
     "esbuild-svelte": "^0.9.4",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-plugin-svelte": "3.16.0",
     "svelte": "^5.55.0",
     "svelte-preprocess": "^6.0.3",
