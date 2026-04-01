@@ -9,7 +9,7 @@ import {
   defineRule,
   defineConstraint,
   defineContract,
-} from '../dist/node/index.js';
+} from '../dist/node/core/index.js';
 
 // Define a contract for the login rule
 const loginContract = defineContract({
