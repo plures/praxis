@@ -33,44 +33,44 @@ npm install --save-dev @plures/praxis-cli
 
 ```bash
 # Interactive project creation
-praxis-cli init my-app
+praxis create app my-app
 
 # With options
-praxis-cli init my-app --template basic
-praxis-cli init my-app --template fullstack --svelte
+praxis create app my-app --template basic
+praxis create app my-app --template fullstack
 ```
 
 ### Generate Components
 
 ```bash
-# Generate a Svelte component from schema
-praxis-cli generate component User --schema user.schema.yaml
+# Generate code from a schema file
+praxis generate --schema app.schema.yaml
 
 # Generate multiple components
-praxis-cli generate components --schema app.schema.yaml
+praxis generate --schema app.schema.yaml --target components
 ```
 
 ### Validate Contracts
 
 ```bash
 # Validate all contracts in the project
-praxis-cli validate
+praxis validate
 
 # Validate with console output
-praxis-cli validate --output console
+praxis validate --output console
 
 # Validate with SARIF output (for CI/CD)
-praxis-cli validate --output sarif
+praxis validate --output sarif
 ```
 
 ### Analyze Application
 
 ```bash
 # Analyze logic dependencies
-praxis-cli analyze
+praxis analyze
 
 # Generate dependency graph
-praxis-cli analyze --graph
+praxis analyze --graph
 ```
 
 ## Commands
@@ -80,7 +80,7 @@ praxis-cli analyze --graph
 Scaffold a new Praxis project.
 
 ```bash
-praxis-cli init <project-name> [options]
+praxis create app <project-name> [options]
 
 Options:
   --template <name>   Project template (basic, fullstack)
@@ -95,7 +95,7 @@ Options:
 Generate code from templates.
 
 ```bash
-praxis-cli generate <type> <name> [options]
+praxis generate <type> <name> [options]
 
 Types:
   component     Generate a Svelte component
@@ -115,7 +115,7 @@ Options:
 Validate contracts and behavior specifications.
 
 ```bash
-praxis-cli validate [options]
+praxis validate [options]
 
 Options:
   --output <format>  Output format (console, sarif, json)
@@ -129,7 +129,7 @@ Options:
 Analyze application logic and dependencies.
 
 ```bash
-praxis-cli analyze [options]
+praxis analyze [options]
 
 Options:
   --graph            Generate dependency graph
@@ -146,7 +146,7 @@ The CLI includes several project templates:
 A minimal Praxis application with logic engine and schemas.
 
 ```bash
-praxis-cli init my-app --template basic
+praxis create app my-app --template basic
 ```
 
 ### fullstack
@@ -154,7 +154,7 @@ praxis-cli init my-app --template basic
 A full-stack application with Svelte UI, logic engine, and PluresDB.
 
 ```bash
-praxis-cli init my-app --template fullstack
+praxis create app my-app --template fullstack
 ```
 
 ## Configuration

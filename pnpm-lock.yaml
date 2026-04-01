@@ -125,6 +125,9 @@ importers:
 
   packages/praxis-cli:
     dependencies:
+      '@plures/praxis':
+        specifier: workspace:*
+        version: link:../..
       '@plures/praxis-core':
         specifier: workspace:*
         version: link:../praxis-core

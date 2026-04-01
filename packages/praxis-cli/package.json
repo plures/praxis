@@ -4,16 +4,8 @@
   "description": "Command-line interface for the Praxis application framework - scaffolding, generators, and validation tools",
   "type": "module",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "bin": {
-    "praxis-cli": "./dist/index.js"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
+    "praxis": "./dist/index.js"
   },
   "files": [
     "dist",
@@ -39,6 +31,7 @@
   "author": "Plures",
   "license": "MIT",
   "dependencies": {
+    "@plures/praxis": "workspace:*",
     "@plures/praxis-core": "workspace:*",
     "commander": "^14.0.2",
     "js-yaml": "^4.1.1"
