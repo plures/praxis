@@ -733,7 +733,7 @@ describe('maintenance.checkOutdated', () => {
 import {
   createTerminalAdapter,
   TerminalAdapter,
-} from '../runtime/terminal-adapter.js';
+} from '@plures/praxis-svelte/components';
 
 describe('TerminalAdapter — setCwd and setEnv', () => {
   it('setCwd updates working directory', () => {

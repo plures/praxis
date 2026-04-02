@@ -31,7 +31,6 @@ export { PraxisRegistry } from './core/rules.js';
 // Engine
 export type { PraxisEngineOptions } from './core/engine.js';
 export { LogicEngine, createPraxisEngine } from './core/engine.js';
-export * from './core/reactive-engine.svelte.js';
 
 // Framework-agnostic Reactive Engine
 export {
@@ -78,9 +77,8 @@ export type {
   DefineModuleOptions,
 } from './dsl/index.js';
 
-// Terminal Node Runtime - EXCLUDED FOR BROWSER (uses child_process)
-// export type { ... } from './runtime/terminal-adapter.js';
-// export { ... } from './runtime/terminal-adapter.js';
+// Terminal Node Runtime - extracted to @plures/praxis-svelte/components
+// Use `import { createTerminalAdapter } from '@plures/praxis-svelte/components'` instead.
 
 // Schema Types (including Terminal Node types)
 export type {

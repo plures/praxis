@@ -22,7 +22,7 @@ import {
   usePraxisContext,
   HistoryStateManager,
   createHistoryEngine,
-} from '../integrations/svelte.js';
+} from '@plures/praxis-svelte';
 
 // Test context and events
 interface CounterContext {

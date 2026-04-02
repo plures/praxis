@@ -13,15 +13,15 @@
  * - Automatic cleanup and subscription management
  */
 
-import type { LogicEngine } from '../core/engine.js';
-import type { PraxisEvent, PraxisState } from '../core/protocol.js';
+import type { LogicEngine } from '@plures/praxis';
+import type { PraxisEvent, PraxisState } from '@plures/praxis';
 
 // Re-export the Svelte 5 reactive engine
 export {
   ReactiveLogicEngine,
   createReactiveEngine,
   type ReactiveEngineOptions,
-} from '../core/reactive-engine.svelte.js';
+} from './runtime/reactive-engine.svelte.js';
 
 /**
  * Writable store interface (Svelte-compatible)
@@ -228,7 +228,7 @@ export interface PraxisEngineBinding<TContext = unknown> {
  *
  * @example
  * <script>
- *   import { usePraxisEngine } from '@plures/praxis/svelte';
+ *   import { usePraxisEngine } from '@plures/praxis-svelte';
  *   import { createMyEngine } from './my-engine';
  *
  *   const engine = createMyEngine();
@@ -359,7 +359,7 @@ export function usePraxisEngine<TContext = unknown>(
  *
  * @example
  * <script>
- *   import { usePraxisContext } from '@plures/praxis/svelte';
+ *   import { usePraxisContext } from '@plures/praxis-svelte';
  *
  *   const engine = createMyEngine();
  *   const count = usePraxisContext(engine, (ctx) => ctx.count);
@@ -387,7 +387,7 @@ export function usePraxisContext<TContext = unknown, TDerived = unknown>(
  *
  * @example
  * <script>
- *   import { usePraxisSubscription } from '@plures/praxis/svelte';
+ *   import { usePraxisSubscription } from '@plures/praxis-svelte';
  *
  *   const engine = createMyEngine();
  *

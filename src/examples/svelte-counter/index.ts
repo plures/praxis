@@ -13,7 +13,7 @@ import {
   defineRule,
   findEvent,
 } from '../../index.js';
-import { createPraxisStore, createDerivedStore } from '../../integrations/svelte.js';
+import { createPraxisStore, createDerivedStore } from '@plures/praxis-svelte';
 
 // Define the context type
 interface CounterContext {

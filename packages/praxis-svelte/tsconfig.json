@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node", "svelte"],
+    "moduleResolution": "bundler",
+    "declaration": false,
+    "sourceMap": false,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    "noEmit": true,
+    "paths": {
+      "@plures/praxis": ["../../src/index.ts"],
+      "@plures/praxis/schema": ["../../src/core/schema/types.ts"],
+      "@plures/praxis-core": ["../praxis-core/src/index.ts"],
+      "@plures/praxis-core/decision-ledger": ["../praxis-core/src/decision-ledger/index.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

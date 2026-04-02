@@ -5,9 +5,9 @@
  * The state object is automatically reactive when used in Svelte components.
  */
 
-import { PraxisRegistry } from '../core/rules.js';
-import type { PraxisEvent } from '../core/protocol.js';
-import { LogicEngine, createPraxisEngine } from '../core/engine.js';
+import { PraxisRegistry } from '@plures/praxis';
+import type { PraxisEvent } from '@plures/praxis';
+import { LogicEngine, createPraxisEngine } from '@plures/praxis';
 
 // Type declaration for Svelte 5 $state rune
 // This is needed for TypeScript compilation; the actual implementation
@@ -114,7 +114,7 @@ export class ReactiveLogicEngine<TContext extends object> {
  * @example
  * ```svelte
  * <script lang="ts">
- *   import { createReactiveEngine } from '@plures/praxis/svelte';
+ *   import { createReactiveEngine } from '@plures/praxis-svelte';
  * 
  *   const engine = createReactiveEngine({
  *     initialContext: { count: 0 },

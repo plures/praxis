@@ -5,11 +5,9 @@
   "license": "MIT",
   "exports": {
     ".": "./src/index.ts",
-    "./svelte": "./src/integrations/svelte.ts",
     "./schema": "./src/core/schema/types.ts",
     "./component": "./src/core/component/generator.ts",
-    "./cloud": "./src/cloud/index.ts",
-    "./components": "./src/components/index.ts"
+    "./cloud": "./src/cloud/index.ts"
   },
   "publish": {
     "exclude": [

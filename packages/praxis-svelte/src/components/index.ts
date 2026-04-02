@@ -9,7 +9,7 @@
  * @example
  * ```svelte
  * <script>
- *   import { TerminalNode } from '@plures/praxis/components/TerminalNode.svelte';
+ *   import { TerminalNode } from '@plures/praxis-svelte/components/TerminalNode.svelte';
  * </script>
  * ```
  */
@@ -42,4 +42,14 @@ export interface TerminalNodeProps {
  * Re-export TerminalAdapter for convenience
  */
 export type { TerminalAdapter } from '../runtime/terminal-adapter.js';
-export { createTerminalAdapter } from '../runtime/terminal-adapter.js';
+export {
+  createTerminalAdapter,
+  runTerminalCommand,
+  createMockExecutor,
+} from '../runtime/terminal-adapter.js';
+export type {
+  TerminalExecutionResult,
+  TerminalNodeState,
+  TerminalAdapterOptions,
+  CommandExecutor,
+} from '../runtime/terminal-adapter.js';

@@ -74,8 +74,8 @@ export { PraxisRegistry } from './core/rules.js';
 // Engine
 export type { PraxisEngineOptions } from './core/engine.js';
 export { LogicEngine, createPraxisEngine } from './core/engine.js';
-// Svelte reactive engine moved to browser entrypoint and @plures/praxis/svelte subpath.
-// Importing it here crashes Node consumers without Svelte. See #317.
+// Svelte reactive engine extracted to @plures/praxis-svelte package.
+// Use `import { createReactiveEngine } from '@plures/praxis-svelte'` instead.
 
 // Framework-agnostic Reactive Engine
 export {
@@ -200,20 +200,6 @@ export type {
   LedgerDiffEntry,
   LedgerDiff,
 } from './decision-ledger/index.js';
-
-// Terminal Node Runtime
-export type {
-  TerminalExecutionResult,
-  TerminalNodeState,
-  TerminalAdapterOptions,
-  CommandExecutor,
-} from './runtime/terminal-adapter.js';
-export {
-  TerminalAdapter,
-  createTerminalAdapter,
-  runTerminalCommand,
-  createMockExecutor,
-} from './runtime/terminal-adapter.js';
 
 // Schema Types (including Terminal Node types)
 export type {
