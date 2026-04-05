@@ -72,7 +72,8 @@
     "@plures/praxis-core": "workspace:*",
     "@plures/praxis-cli": "workspace:*",
     "@plures/praxis-svelte": "workspace:*",
-    "@plures/praxis-cloud": "workspace:*"
+    "@plures/praxis-cloud": "workspace:*",
+    "@plures/praxis-db": "workspace:*"
   },
   "peerDependencies": {
     "svelte": "^5.53.5"
