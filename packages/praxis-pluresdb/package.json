@@ -18,10 +18,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@plures/pluresdb": "^3.2.0"
-  },
   "peerDependencies": {
+    "@plures/pluresdb": ">=2.9.0",
     "@plures/praxis-core": ">=0.1.0"
   },
   "devDependencies": {
