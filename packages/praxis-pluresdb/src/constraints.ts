@@ -9,7 +9,7 @@
  * constraints become stored procedures that run against the live DB.
  */
 
-import type { PluresDatabase } from '@plures/pluresdb';
+import type { PluresDatabaseLike as PluresDatabase } from './adapter.js';
 import { executeProcedure, type TsProcedureStep } from './procedure-bridge.js';
 
 /**

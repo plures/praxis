@@ -11,7 +11,7 @@
  */
 
 // Adapter
-export { PluresDBNativeAdapter, type NativeAdapterConfig, type PraxisDB, type UnsubscribeFn } from './adapter.js';
+export { PluresDBNativeAdapter, type NativeAdapterConfig, type PraxisDB, type UnsubscribeFn, type PluresDatabaseLike } from './adapter.js';
 
 // Procedure bridge
 export { executeProcedure, canExecuteNatively, type TsProcedureStep, type TsStepKind } from './procedure-bridge.js';

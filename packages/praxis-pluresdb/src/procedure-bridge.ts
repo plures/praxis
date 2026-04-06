@@ -12,7 +12,7 @@
  * - Atomic multi-step execution
  */
 
-import type { PluresDatabase } from '@plures/pluresdb';
+import type { PluresDatabaseLike as PluresDatabase } from './adapter.js';
 
 /**
  * Step kind from pluresLM-mcp's TypeScript ProcedureEngine

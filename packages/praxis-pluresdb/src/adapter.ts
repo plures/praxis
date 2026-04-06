@@ -11,7 +11,23 @@
  * - Direct NAPI calls — no intermediate abstraction layers
  */
 
-import type { PluresDatabase, AgensEventJson, AgensStateEntry } from '@plures/pluresdb';
+/**
+ * Minimal PluresDatabase interface — matches the NAPI class shape
+ * without requiring the actual @plures/pluresdb package at build time.
+ * The real PluresDatabase class from @plures/pluresdb satisfies this interface.
+ */
+export interface PluresDatabaseLike {
+  get(key: string): unknown;
+  put(key: string, value: unknown): void;
+  delete(key: string): void;
+  query(q: string): unknown;
+  listByType(type: string): Array<{ id: string; data: unknown }>;
+  execDsl(dsl: string): unknown;
+  execIr(steps: unknown[]): unknown;
+  agensStateGet(key: string): unknown;
+  agensStateSet(key: string, value: unknown): void;
+  agensStateWatch(since: string): Array<{ key: string; value: unknown }>;
+}
 
 /**
  * Function to unsubscribe from a watch.
@@ -34,7 +50,7 @@ export interface PraxisDB {
  */
 export interface NativeAdapterConfig {
   /** PluresDB NAPI instance */
-  db: PluresDatabase;
+  db: PluresDatabaseLike;
   /** Polling interval for watch fallback in ms (default: 500) */
   watchPollMs?: number;
 }
@@ -46,7 +62,7 @@ export interface NativeAdapterConfig {
  * for reactive state watching.
  */
 export class PluresDBNativeAdapter implements PraxisDB {
-  private db: PluresDatabase;
+  private db: PluresDatabaseLike;
   private watchers = new Map<string, Set<(val: unknown) => void>>();
   private watchPollMs: number;
   private pollTimers = new Map<string, ReturnType<typeof setInterval>>();
@@ -142,7 +158,7 @@ export class PluresDBNativeAdapter implements PraxisDB {
   }
 
   /** Access the underlying PluresDatabase instance */
-  get native(): PluresDatabase {
+  get native(): PluresDatabaseLike {
     return this.db;
   }
 
