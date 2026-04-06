@@ -23,7 +23,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '22.x'
+          node-version: 'lts/*'
 
       - name: Analyze PR overlap
         id: overlap_analysis

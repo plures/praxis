@@ -21,7 +21,7 @@ jobs:
     
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [lts/*]
     
     steps:
       - name: Checkout code
@@ -56,14 +56,14 @@ jobs:
 
       - name: Run coverage
         run: pnpm run test:coverage
-        if: matrix.node-version == '22.x'
+        if: matrix.node-version == 'lts/*'
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage/
-        if: matrix.node-version == '22.x'
+        if: matrix.node-version == 'lts/*'
 
       - name: Decision ledger scan
         run: pnpm run scan:rules
@@ -73,7 +73,7 @@ jobs:
         with:
           name: contract-index
           path: docs/decision-ledger/contract-index.json
-        if: matrix.node-version == '22.x'
+        if: matrix.node-version == 'lts/*'
   
   test-csharp:
     name: Test C# on .NET 8
