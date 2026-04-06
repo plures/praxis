@@ -282,6 +282,7 @@ export class PluresDBPraxisAdapter implements PraxisDB {
  * });
  * ```
  */
+/** @deprecated Use PluresDBNativeAdapter from @plures/praxis-pluresdb instead */
 export function createPluresDB(config: PluresDBAdapterConfig | PluresDBInstance): PluresDBPraxisAdapter {
   return new PluresDBPraxisAdapter(config);
 }
@@ -306,6 +307,7 @@ export interface PraxisLocalFirstOptions extends LocalFirstOptions {
  * await db.set('/_praxis/facts/user/1', { id: '1', name: 'Alice' });
  * ```
  */
+/** @deprecated Use PluresDBNativeAdapter from @plures/praxis-pluresdb instead */
 export async function createPraxisLocalFirst(
   options: PraxisLocalFirstOptions = {}
 ): Promise<PluresDBPraxisAdapter> {
