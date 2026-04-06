@@ -1,6 +1,8 @@
 {
   "imports": {
     "commander": "npm:commander@^14.0.2",
-    "pluresdb": "npm:pluresdb@^1.0.1"
+    "pluresdb": "npm:pluresdb@^1.0.1",
+    "@plures/praxis-core": "./packages/praxis-core/src/index.ts",
+    "@plures/praxis-core/decision-ledger": "./packages/praxis-core/src/decision-ledger/index.ts"
   }
 }
