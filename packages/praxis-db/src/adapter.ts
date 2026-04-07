@@ -39,7 +39,7 @@ export class PluresDBAdapter {
     return (node as Record<string, unknown>).data as T;
   }
 
-  storeFact(tag: string, id: string, data: unknown): void {
+  async storeFact(tag: string, id: string, data: unknown): Promise<void> {
     const path = getFactPath(tag, id);
     await this.db.put(path, {
       type: 'praxis:fact',
@@ -64,7 +64,7 @@ export class PluresDBAdapter {
 
   // -- Events --
 
-  appendEvent(tag: string, payload: unknown): string {
+  async appendEvent(tag: string, payload: unknown): Promise<string> {
     const eventId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const path = `${getEventPath(tag)}/${eventId}`;
     await this.db.put(path, {

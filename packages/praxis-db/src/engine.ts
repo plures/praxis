@@ -89,11 +89,9 @@ export class PraxisDBEngine<TContext = unknown> {
 
     // Persist events (best-effort, non-blocking)
     for (const event of events) {
-      try {
-        this.adapter.appendEvent(event.tag, event.payload);
-      } catch {
+      void this.adapter.appendEvent(event.tag, event.payload).catch(() => {
         // Event persistence is best-effort; do not surface errors to callers
-      }
+      });
     }
 
     return result;
@@ -110,11 +108,9 @@ export class PraxisDBEngine<TContext = unknown> {
     this.persistState(result);
 
     for (const event of events) {
-      try {
-        this.adapter.appendEvent(event.tag, event.payload);
-      } catch {
+      void this.adapter.appendEvent(event.tag, event.payload).catch(() => {
         // Event persistence is best-effort; do not surface errors to callers
-      }
+      });
     }
 
     return result;
