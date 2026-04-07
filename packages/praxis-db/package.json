@@ -1,0 +1,25 @@
+{
+  "name": "@plures/praxis-db",
+  "version": "0.1.0",
+  "description": "PluresDB-backed persistence for @plures/praxis-core. Bridges the in-memory Praxis engine to PluresDB's CRDT store and Agens reactive runtime.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@plures/praxis-core": "workspace:*",
+    "@plures/pluresdb": "^3.2.0"
+  },
+  "keywords": ["praxis", "pluresdb", "logic-engine", "persistence"],
+  "license": "MIT"
+}
