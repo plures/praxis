@@ -32,14 +32,14 @@ export class PluresDBAdapter {
 
   // -- Facts --
 
-  async getFact<T>(tag: string, id: string): Promise<T | undefined> {
+  getFact<T>(tag: string, id: string): T | undefined {
     const path = getFactPath(tag, id);
     const node = this.db.get(path);
     if (!node) return undefined;
     return (node as Record<string, unknown>).data as T;
   }
 
-  async storeFact(tag: string, id: string, data: unknown): Promise<void> {
+  storeFact(tag: string, id: string, data: unknown): void {
     const path = getFactPath(tag, id);
     await this.db.put(path, {
       type: 'praxis:fact',
@@ -64,7 +64,7 @@ export class PluresDBAdapter {
 
   // -- Events --
 
-  async appendEvent(tag: string, payload: unknown): Promise<string> {
+  appendEvent(tag: string, payload: unknown): string {
     const eventId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const path = `${getEventPath(tag)}/${eventId}`;
     await this.db.put(path, {

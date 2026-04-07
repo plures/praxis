@@ -87,11 +87,13 @@ export class PraxisDBEngine<TContext = unknown> {
     // Persist facts to PluresDB
     this.persistState(result);
 
-    // Persist events
+    // Persist events (best-effort, non-blocking)
     for (const event of events) {
-      this.adapter.appendEvent(event.tag, event.payload).catch(() => {
-        // Non-blocking — event persistence is best-effort
-      });
+      try {
+        this.adapter.appendEvent(event.tag, event.payload);
+      } catch {
+        // Event persistence is best-effort; do not surface errors to callers
+      }
     }
 
     return result;
@@ -108,7 +110,11 @@ export class PraxisDBEngine<TContext = unknown> {
     this.persistState(result);
 
     for (const event of events) {
-      this.adapter.appendEvent(event.tag, event.payload).catch(() => {});
+      try {
+        this.adapter.appendEvent(event.tag, event.payload);
+      } catch {
+        // Event persistence is best-effort; do not surface errors to callers
+      }
     }
 
     return result;
