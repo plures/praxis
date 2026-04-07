@@ -6,7 +6,7 @@
  */
 
 import type { PluresDatabase } from '@plures/pluresdb';
-import { getFactPath, getEventPath, PRAXIS_PATHS } from './paths.js';
+import { getFactPath, getEventPath } from './paths.js';
 
 export interface PluresDBAdapterOptions {
   /** PluresDB database instance */
