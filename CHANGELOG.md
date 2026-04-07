@@ -1,3 +1,10 @@
+## [2.5.8] — 2026-04-07
+
+- chore: centralize release to org-wide reusable workflow (15a2856)
+- chore: centralize CI to org-wide reusable workflow (85b88be)
+- fix: resolve @plures/praxis-core for JSR publish via import map (82260ef)
+- chore: sync jsr.json and deno.json to v2.5.7 (cea5020)
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
