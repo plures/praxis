@@ -1,3 +1,12 @@
+## [2.7.0] — 2026-04-07
+
+- Merge pull request #331 from plures/feat/praxis-db-package (a04a162)
+- fix: restore async/await on storeFact and appendEvent; use void+catch for best-effort persistence (16249ea)
+- fix: use actorId in CRDT writes and make adapter methods synchronous (5ebc8f8)
+- fix: include actorId in CRDT write payloads and await db.put() calls in PluresDBAdapter (6169500)
+- Update packages/praxis-db/src/adapter.ts (df174a8)
+- feat: add @plures/praxis-db — PluresDB persistence for praxis-core (aef4a4a)
+
 ## [2.6.0] — 2026-04-07
 
 - Merge pull request #329 from plures/copilot/extract-svelte-integration (cff36cb)
