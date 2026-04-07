@@ -41,11 +41,12 @@ export class PluresDBAdapter {
 
   async storeFact(tag: string, id: string, data: unknown): Promise<void> {
     const path = getFactPath(tag, id);
-    this.db.put(path, {
+    await this.db.put(path, {
       type: 'praxis:fact',
       tag,
       id,
       data,
+      actorId: this.actorId,
       storedAt: new Date().toISOString(),
     });
   }
@@ -66,10 +67,11 @@ export class PluresDBAdapter {
   async appendEvent(tag: string, payload: unknown): Promise<string> {
     const eventId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const path = `${getEventPath(tag)}/${eventId}`;
-    this.db.put(path, {
+    await this.db.put(path, {
       type: 'praxis:event',
       tag,
       payload,
+      actorId: this.actorId,
       timestamp: new Date().toISOString(),
     });
 
