@@ -8,8 +8,8 @@
 // Declare process for TypeScript in non-Node environments (e.g., Deno)
 declare const process: { env: { [key: string]: string | undefined } } | undefined;
 
-import type { TerminalNodeProps } from '../core/schema/types.js';
-import type { PraxisDB } from '../core/pluresdb/adapter.js';
+import type { TerminalNodeProps } from '@plures/praxis';
+import type { PraxisDB } from '@plures/praxis';
 
 /**
  * Terminal command execution result

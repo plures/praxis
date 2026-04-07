@@ -22,8 +22,8 @@ A terminal interface component with command execution, history, and canvas integ
 
 ```svelte
 <script>
-  import TerminalNode from '@plures/praxis/components/TerminalNode.svelte';
-  import { createTerminalAdapter } from '@plures/praxis';
+  import TerminalNode from '@plures/praxis-svelte/components/TerminalNode.svelte';
+  import { createTerminalAdapter } from '@plures/praxis-svelte/components';
 
   const adapter = createTerminalAdapter({
     nodeId: 'my-terminal',
@@ -63,8 +63,8 @@ The component is designed for canvas-based applications where multiple terminal 
 
 ```svelte
 <script>
-  import TerminalNode from '@plures/praxis/components/TerminalNode.svelte';
-  import { createTerminalAdapter } from '@plures/praxis';
+  import TerminalNode from '@plures/praxis-svelte/components/TerminalNode.svelte';
+  import { createTerminalAdapter } from '@plures/praxis-svelte/components';
 
   const terminals = [
     {

@@ -8,13 +8,11 @@ export default defineConfig([
     entry: {
       index: 'src/index.ts',
       'core/index': 'src/index.core.ts',
-      'integrations/svelte': 'src/integrations/svelte.ts',
       schema: 'src/core/schema/types.ts',
       component: 'src/core/component/generator.ts',
       'cloud/index': 'src/cloud/index.ts',
       'hooks/index': 'src/hooks/index.ts',
       'lifecycle/index': 'src/lifecycle/index.ts',
-      'components/index': 'src/components/index.ts',
       'cli/index': 'src/cli/index.ts',
       'unified/index': 'src/unified/index.ts',
     },
@@ -42,7 +40,6 @@ export default defineConfig([
     entry: {
       index: 'src/index.browser.ts',
       'core/index': 'src/index.core.browser.ts',
-      'integrations/svelte': 'src/integrations/svelte.ts',
       'expectations/index': 'src/expectations/index.ts',
       'factory/index': 'src/factory/index.ts',
       'project/index': 'src/project/index.ts',

@@ -38,18 +38,6 @@
       },
       "default": "./dist/node/core/index.js"
     },
-    "./svelte": {
-      "node": {
-        "types": "./dist/node/integrations/svelte.d.ts",
-        "import": "./dist/node/integrations/svelte.js",
-        "require": "./dist/node/integrations/svelte.cjs"
-      },
-      "browser": {
-        "types": "./dist/browser/integrations/svelte.d.ts",
-        "import": "./dist/browser/integrations/svelte.js"
-      },
-      "default": "./dist/node/integrations/svelte.js"
-    },
     "./schema": {
       "types": "./dist/node/schema.d.ts",
       "import": "./dist/node/schema.js",
@@ -67,13 +55,6 @@
       "import": "./dist/node/cloud/index.js",
       "require": "./dist/node/cloud/index.cjs",
       "default": "./dist/node/cloud/index.js"
-    },
-    "./components": {
-      "types": "./dist/node/components/index.d.ts",
-      "svelte": "./src/components/TerminalNode.svelte",
-      "import": "./dist/node/components/index.js",
-      "require": "./dist/node/components/index.cjs",
-      "default": "./dist/node/components/index.js"
     },
     "./mcp": {
       "types": "./dist/node/mcp/index.d.ts",

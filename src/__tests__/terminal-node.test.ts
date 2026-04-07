@@ -6,7 +6,7 @@ import {
   runTerminalCommand,
   createMockExecutor,
   type TerminalExecutionResult,
-} from '../runtime/terminal-adapter.js';
+} from '@plures/praxis-svelte/components';
 import type { PraxisSchema } from '../core/schema/types.js';
 
 describe('Terminal Node', () => {

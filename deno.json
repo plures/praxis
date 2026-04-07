@@ -3,7 +3,6 @@
   "version": "2.5.7",
   "exports": {
     ".": "./src/index.ts",
-    "./svelte": "./src/integrations/svelte.ts",
     "./schema": "./src/core/schema/types.ts",
     "./component": "./src/core/component/generator.ts"
   },
