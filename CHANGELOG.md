@@ -1,3 +1,18 @@
+## [2.6.0] — 2026-04-07
+
+- Merge pull request #329 from plures/copilot/extract-svelte-integration (cff36cb)
+- Merge pull request #332 from plures/dependabot/npm_and_yarn/npm-production-9c3178020a (3a72c29)
+- chore: remove redundant workflow — handled by release-reusable.yml (079ca84)
+- chore: remove redundant workflow — handled by release-reusable.yml (1226655)
+- chore: remove redundant workflow — handled by release-reusable.yml (6d6734b)
+- chore: centralize release to org-wide reusable workflow (15a2856)
+- chore: centralize CI to org-wide reusable workflow (85b88be)
+- fix: resolve @plures/praxis-core for JSR publish via import map (82260ef)
+- chore: sync jsr.json and deno.json to v2.5.7 (cea5020)
+- chore(deps)(deps-dev): bump the npm-production group with 2 updates (b9535bb)
+- feat: extract Svelte integration into praxis-svelte package (f90275d)
+- Initial plan (0ea3fa2)
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
