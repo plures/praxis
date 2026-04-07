@@ -103,6 +103,9 @@ importers:
       '@plures/praxis-core':
         specifier: workspace:*
         version: link:../praxis-core
+      '@plures/praxis-db':
+        specifier: workspace:*
+        version: link:../praxis-db
       '@plures/praxis-svelte':
         specifier: workspace:*
         version: link:../praxis-svelte
@@ -190,6 +193,15 @@ importers:
       vitest:
         specifier: ^4.0.15
         version: 4.1.2(@types/node@25.5.0)(@vitest/ui@4.1.2)(vite@7.3.2(@types/node@25.5.0)(tsx@4.21.0))
+
+  packages/praxis-db:
+    dependencies:
+      '@plures/pluresdb':
+        specifier: ^2.9.7
+        version: 2.9.7
+      '@plures/praxis-core':
+        specifier: workspace:*
+        version: link:../praxis-core
 
   packages/praxis-pluresdb:
     dependencies:

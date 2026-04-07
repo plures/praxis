@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@plures/praxis-core": "workspace:*",
-    "@plures/pluresdb": "^3.2.0"
+    "@plures/pluresdb": "^2.9.7"
   },
   "keywords": ["praxis", "pluresdb", "logic-engine", "persistence"],
   "license": "MIT"
