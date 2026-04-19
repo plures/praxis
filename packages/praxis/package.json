@@ -33,6 +33,11 @@
       "types": "./dist/cloud.d.ts",
       "import": "./dist/cloud.js",
       "require": "./dist/cloud.cjs"
+    },
+    "./unified": {
+      "types": "./dist/unified.d.ts",
+      "import": "./dist/unified.js",
+      "require": "./dist/unified.cjs"
     }
   },
   "files": [
