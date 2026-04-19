@@ -12,9 +12,9 @@ import {
   validateStorageNamespace,
   getAppStorageContainer,
   provisionTenant,
-} from '../cloud/provisioning.js';
-import { createFreeSubscription } from '../cloud/billing.js';
-import type { GitHubUser } from '../cloud/types.js';
+  createFreeSubscription,
+  type GitHubUser,
+} from '@plures/praxis-cloud';
 
 describe('Provisioning', () => {
   const mockUser: GitHubUser = {

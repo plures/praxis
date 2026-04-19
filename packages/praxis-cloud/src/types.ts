@@ -4,7 +4,15 @@
  * Type definitions for Praxis Cloud Relay service.
  */
 
-import type { PraxisFact, PraxisEvent } from '../core/protocol.js';
+type PraxisFact = {
+  tag: string;
+  payload: unknown;
+};
+
+type PraxisEvent = {
+  tag: string;
+  payload: unknown;
+};
 
 /**
  * Cloud relay configuration

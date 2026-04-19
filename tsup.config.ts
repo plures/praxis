@@ -10,7 +10,7 @@ export default defineConfig([
       'core/index': 'src/index.core.ts',
       schema: 'src/core/schema/types.ts',
       component: 'src/core/component/generator.ts',
-      'cloud/index': 'src/cloud/index.ts',
+      'cloud/index': 'packages/praxis-cloud/src/index.ts',
       'hooks/index': 'src/hooks/index.ts',
       'lifecycle/index': 'src/lifecycle/index.ts',
       'cli/index': 'src/cli/index.ts',

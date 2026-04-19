@@ -218,6 +218,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
     "@plures/pluresdb": "^2.9.7",
+    "@plures/praxis-cloud": "workspace:*",
     "@plures/praxis-core": "workspace:*",
     "commander": "^14.0.2",
     "js-yaml": "^4.1.1",

@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createCloudRelay } from '../cloud/client.js';
-import type { CloudRelayConfig, HealthCheckResponse, UsageMetrics } from '../cloud/types.js';
+import { createCloudRelay } from '@plures/praxis-cloud';
+import type { CloudRelayConfig, HealthCheckResponse, UsageMetrics } from '@plures/praxis-cloud';
 
 describe('Cloud Relay Client', () => {
   let config: CloudRelayConfig;

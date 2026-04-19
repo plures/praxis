@@ -14,7 +14,7 @@ import {
   checkUsageLimits,
   createFreeSubscription,
   createSponsorSubscription,
-} from '../cloud/billing.js';
+} from '@plures/praxis-cloud';
 
 describe('Billing', () => {
   describe('Tier Limits', () => {
