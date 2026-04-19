@@ -10,7 +10,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@plures/praxis/cloud': resolve(root, 'src/cloud/index.ts'),
+      '@plures/praxis-cloud': resolve(root, 'packages/praxis-cloud/src/index.ts'),
       '@plures/praxis/hooks': resolve(root, 'src/hooks/index.ts'),
       '@plures/praxis/mcp': resolve(root, 'src/mcp/index.ts'),
       '@plures/praxis/component': resolve(root, 'src/core/component/generator.ts'),

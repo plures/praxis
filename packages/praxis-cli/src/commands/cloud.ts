@@ -6,9 +6,9 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { authenticateWithDeviceFlow } from '@plures/praxis/cloud';
-import { connectRelay } from '@plures/praxis/cloud';
-import type { CloudRelayConfig } from '@plures/praxis/cloud';
+import { authenticateWithDeviceFlow } from '@plures/praxis-cloud';
+import { connectRelay } from '@plures/praxis-cloud';
+import type { CloudRelayConfig } from '@plures/praxis-cloud';
 
 const CONFIG_FILE = '.praxis-cloud.json';
 const GITHUB_CLIENT_ID = 'Ov23liQxF7P0BqUxVXHk'; // Demo client ID (replace in production)
@@ -142,7 +142,7 @@ export async function cloudInit(options: {
     console.log("  • Use 'praxis cloud sync' to manually sync");
     console.log("  • Use 'praxis cloud usage' to view metrics");
     console.log('\nIn your code:');
-    console.log('  import { connectRelay } from "@plures/praxis/cloud";');
+    console.log('  import { connectRelay } from "@plures/praxis-cloud";');
     console.log(`  const relay = await connectRelay("${endpoint}", {`);
     console.log(`    appId: "${appId}",`);
     console.log(`    authToken: "<your-token>"`);

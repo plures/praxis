@@ -12,7 +12,7 @@ import {
   checkUsageLimits,
   hasAccessToTier,
   SubscriptionTier,
-} from '@plures/praxis/cloud';
+} from '@plures/praxis-cloud';
 
 /**
  * Example: Authenticate user and check their subscription

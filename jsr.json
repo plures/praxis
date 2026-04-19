@@ -7,7 +7,7 @@
     ".": "./src/index.ts",
     "./schema": "./src/core/schema/types.ts",
     "./component": "./src/core/component/generator.ts",
-    "./cloud": "./src/cloud/index.ts"
+    "./cloud": "./packages/praxis-cloud/src/index.ts"
   },
   "publish": {
     "exclude": [

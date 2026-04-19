@@ -7,7 +7,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { authenticateWithDeviceFlow } from '@plures/praxis/cloud';
+import { authenticateWithDeviceFlow } from '@plures/praxis-cloud';
 
 /** GitHub user info API response (from /user endpoint) */
 interface GitHubUserApiResponse {
@@ -17,8 +17,8 @@ interface GitHubUserApiResponse {
   name?: string | null;
   avatar_url?: string;
 }
-import { createSponsorsClient } from '@plures/praxis/cloud';
-import type { AuthResult } from '@plures/praxis/cloud';
+import { createSponsorsClient } from '@plures/praxis-cloud';
+import type { AuthResult } from '@plures/praxis-cloud';
 
 const AUTH_DIR = path.join(os.homedir(), '.praxis');
 const AUTH_FILE = path.join(AUTH_DIR, 'auth.json');

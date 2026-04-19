@@ -31,6 +31,7 @@
   "author": "Plures",
   "license": "MIT",
   "dependencies": {
+    "@plures/praxis-cloud": "workspace:*",
     "@plures/praxis": "workspace:*",
     "@plures/praxis-core": "workspace:*",
     "commander": "^14.0.2",

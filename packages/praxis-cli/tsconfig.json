@@ -19,7 +19,7 @@
     "noEmit": true,
     "paths": {
       "@plures/praxis": ["../../src/index.ts"],
-      "@plures/praxis/cloud": ["../../src/cloud/index.ts"],
+      "@plures/praxis-cloud": ["../praxis-cloud/src/index.ts"],
       "@plures/praxis/hooks": ["../../src/hooks/index.ts"],
       "@plures/praxis/mcp": ["../../src/mcp/index.ts"],
       "@plures/praxis/component": ["../../src/core/component/generator.ts"],
