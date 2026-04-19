@@ -24,6 +24,7 @@
       "@praxis/core/*": ["./core/*"],
       "@praxis/ui/*": ["./ui/*"],
       "@praxis/tools/*": ["./tools/*"],
+      "@plures/praxis-svelte": ["./packages/praxis-svelte/src/index.ts"],
       "@plures/praxis-core": ["./packages/praxis-core/src/index.ts"],
       "@plures/praxis-core/*": ["./packages/praxis-core/src/*"]
     }
