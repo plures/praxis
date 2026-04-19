@@ -185,7 +185,7 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
  *
  * @example
  * ```typescript
- * import { connectRelay } from "@plures/praxis/cloud";
+ * import { connectRelay } from "@plures/praxis-cloud";
  *
  * const relay = await connectRelay("https://my-app.azurewebsites.net", {
  *   appId: "my-app",

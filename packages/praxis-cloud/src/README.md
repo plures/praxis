@@ -33,7 +33,7 @@ The wizard will:
 ### 2. Use in Your Application
 
 ```typescript
-import { connectRelay } from '@plures/praxis/cloud';
+import { connectRelay } from '@plures/praxis-cloud';
 
 // Connect to cloud relay
 const relay = await connectRelay('https://praxis-relay.azurewebsites.net', {
@@ -324,7 +324,7 @@ Praxis Cloud uses GitHub OAuth for authentication.
 The CLI uses GitHub's device flow for authentication:
 
 ```typescript
-import { authenticateWithDeviceFlow } from '@plures/praxis/cloud';
+import { authenticateWithDeviceFlow } from '@plures/praxis-cloud';
 
 const result = await authenticateWithDeviceFlow('your-client-id');
 
@@ -339,7 +339,7 @@ if (result.success) {
 For web applications, use the standard OAuth flow:
 
 ```typescript
-import { createGitHubOAuth } from '@plures/praxis/cloud';
+import { createGitHubOAuth } from '@plures/praxis-cloud';
 
 const oauth = createGitHubOAuth({
   clientId: 'your-client-id',
