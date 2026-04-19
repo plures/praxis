@@ -103,6 +103,9 @@ importers:
       '@plures/praxis-core':
         specifier: workspace:*
         version: link:../praxis-core
+      '@plures/praxis-db':
+        specifier: workspace:*
+        version: link:../praxis-db
       '@plures/praxis-svelte':
         specifier: workspace:*
         version: link:../praxis-svelte
@@ -190,6 +193,15 @@ importers:
       vitest:
         specifier: ^4.0.15
         version: 4.1.2(@types/node@25.5.0)(@vitest/ui@4.1.2)(vite@7.3.2(@types/node@25.5.0)(tsx@4.21.0))
+
+  packages/praxis-db:
+    dependencies:
+      '@plures/pluresdb':
+        specifier: ^3.2.0
+        version: 3.9.0
+      '@plures/praxis-core':
+        specifier: workspace:*
+        version: link:../praxis-core
 
   packages/praxis-pluresdb:
     dependencies:
@@ -511,6 +523,10 @@ packages:
     resolution: {integrity: sha512-q706q/PyGUsQ7lNecpkMck50aNcy+TdSEcFJIDNC11hp47ad9wQa6OZ7j2zGxiIc28o5/EZasIsa95LuVb6AfQ==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
+
+  '@plures/pluresdb@3.9.0':
+    resolution: {integrity: sha512-LfbbPNLw3XU+botk4xerH03CmKO2KjUq2AKKyRA/2Bg5RvR/dsXsh3XWb1vy6FmsMe1UEhfnGhWktkp193rzcQ==}
+    engines: {node: '>=24'}
 
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
@@ -2334,6 +2350,8 @@ snapshots:
       - sodium-javascript
       - supports-color
       - utf-8-validate
+
+  '@plures/pluresdb@3.9.0': {}
 
   '@polka/url@1.0.0-next.29': {}
 
