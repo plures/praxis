@@ -98,39 +98,213 @@ export interface MarketplaceAccount {
 }
 
 /**
- * Marketplace webhook event
+ * Marketplace purchase payload from webhook events
  */
-export interface MarketplaceWebhookEvent {
-  /**
-   * Action type
-   */
-  action: 'purchased' | 'cancelled' | 'changed' | 'pending_change' | 'pending_change_cancelled';
+export interface MarketplacePurchase {
+  account: MarketplaceAccount;
+  billingCycle: 'monthly' | 'yearly';
+  unitCount?: number;
+  onFreeTrial: boolean;
+  freeTrialEndsOn?: string;
+  nextBillingDate?: string;
+}
 
-  /**
-   * Effective date
-   */
+/**
+ * Purchased subscription webhook payload
+ */
+export interface MarketplacePurchasedWebhookEvent {
+  action: 'purchased';
   effectiveDate?: string;
+  marketplacePurchase: MarketplacePurchase;
+}
 
-  /**
-   * Marketplace purchase
-   */
-  marketplacePurchase: {
-    account: MarketplaceAccount;
-    billingCycle: 'monthly' | 'yearly';
-    unitCount?: number;
-    onFreeTrial: boolean;
-    freeTrialEndsOn?: string;
-    nextBillingDate?: string;
-  };
+/**
+ * Changed subscription webhook payload
+ */
+export interface MarketplaceChangedWebhookEvent {
+  action: 'changed';
+  effectiveDate?: string;
+  marketplacePurchase: MarketplacePurchase;
+  previousMarketplacePurchase: MarketplacePurchase;
+}
 
-  /**
-   * Previous plan (for changes)
-   */
-  previousMarketplacePurchase?: {
-    account: MarketplaceAccount;
-    billingCycle: 'monthly' | 'yearly';
-    unitCount?: number;
+/**
+ * Cancelled subscription webhook payload
+ */
+export interface MarketplaceCancelledWebhookEvent {
+  action: 'cancelled';
+  effectiveDate?: string;
+  marketplacePurchase: MarketplacePurchase;
+}
+
+/**
+ * Supported GitHub Marketplace webhook events
+ */
+export type MarketplaceWebhookEvent =
+  | MarketplacePurchasedWebhookEvent
+  | MarketplaceChangedWebhookEvent
+  | MarketplaceCancelledWebhookEvent;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function parseMarketplacePurchase(value: unknown): MarketplacePurchase | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const { account, billingCycle, unitCount, onFreeTrial, freeTrialEndsOn, nextBillingDate } = value;
+  if (!isRecord(account) || (billingCycle !== 'monthly' && billingCycle !== 'yearly')) {
+    return null;
+  }
+
+  const { id, login, type, plan, onFreeTrial: accountOnFreeTrial } = account;
+  if (
+    typeof id !== 'number' ||
+    typeof login !== 'string' ||
+    (type !== 'User' && type !== 'Organization') ||
+    typeof accountOnFreeTrial !== 'boolean' ||
+    !isRecord(plan)
+  ) {
+    return null;
+  }
+
+  const {
+    id: planId,
+    name,
+    description,
+    monthlyPriceInCents,
+    yearlyPriceInCents,
+    priceModel,
+    hasFreeTrial,
+    unitName,
+    bullets,
+  } = plan;
+
+  if (
+    typeof planId !== 'number' ||
+    typeof name !== 'string' ||
+    typeof description !== 'string' ||
+    typeof monthlyPriceInCents !== 'number' ||
+    typeof yearlyPriceInCents !== 'number' ||
+    (priceModel !== 'FLAT_RATE' && priceModel !== 'PER_UNIT') ||
+    typeof hasFreeTrial !== 'boolean' ||
+    !Array.isArray(bullets) ||
+    bullets.some((bullet) => typeof bullet !== 'string')
+  ) {
+    return null;
+  }
+
+  if (unitName !== undefined && typeof unitName !== 'string') {
+    return null;
+  }
+
+  if (unitCount !== undefined && typeof unitCount !== 'number') {
+    return null;
+  }
+
+  if (typeof onFreeTrial !== 'boolean') {
+    return null;
+  }
+
+  if (freeTrialEndsOn !== undefined && typeof freeTrialEndsOn !== 'string') {
+    return null;
+  }
+
+  if (nextBillingDate !== undefined && typeof nextBillingDate !== 'string') {
+    return null;
+  }
+
+  return {
+    account: {
+      id,
+      login,
+      type,
+      plan: {
+        id: planId,
+        name,
+        description,
+        monthlyPriceInCents,
+        yearlyPriceInCents,
+        priceModel,
+        hasFreeTrial,
+        unitName,
+        bullets,
+      },
+      onFreeTrial: accountOnFreeTrial,
+      freeTrialEndsOn:
+        typeof account.freeTrialEndsOn === 'string' ? account.freeTrialEndsOn : undefined,
+      nextBillingDate:
+        typeof account.nextBillingDate === 'string' ? account.nextBillingDate : undefined,
+    },
+    billingCycle,
+    unitCount,
+    onFreeTrial,
+    freeTrialEndsOn,
+    nextBillingDate,
   };
+}
+
+/**
+ * Parse and validate supported Marketplace webhook events.
+ */
+export function parseMarketplaceWebhookEvent(payload: unknown): MarketplaceWebhookEvent | null {
+  if (!isRecord(payload)) {
+    return null;
+  }
+
+  const action = payload.action;
+  if (action !== 'purchased' && action !== 'changed' && action !== 'cancelled') {
+    return null;
+  }
+
+  const marketplacePurchase = parseMarketplacePurchase(payload.marketplacePurchase);
+  if (!marketplacePurchase) {
+    return null;
+  }
+
+  const effectiveDate =
+    typeof payload.effectiveDate === 'string' ? payload.effectiveDate : undefined;
+
+  if (action === 'changed') {
+    const previousMarketplacePurchase = parseMarketplacePurchase(payload.previousMarketplacePurchase);
+    if (!previousMarketplacePurchase) {
+      return null;
+    }
+
+    return {
+      action,
+      effectiveDate,
+      marketplacePurchase,
+      previousMarketplacePurchase,
+    };
+  }
+
+  return {
+    action,
+    effectiveDate,
+    marketplacePurchase,
+  };
+}
+
+/**
+ * Map a Marketplace plan to a Praxis subscription tier.
+ */
+export function mapMarketplacePlanToTier(plan: MarketplacePlan): SubscriptionTier {
+  if (plan.monthlyPriceInCents >= 5000) {
+    return SubscriptionTier.ENTERPRISE;
+  }
+
+  if (plan.monthlyPriceInCents >= 2000) {
+    return SubscriptionTier.TEAM;
+  }
+
+  if (plan.monthlyPriceInCents >= 500) {
+    return SubscriptionTier.SOLO;
+  }
+
+  return SubscriptionTier.FREE;
 }
 
 /**
@@ -217,15 +391,7 @@ export class GitHubMarketplaceClient {
       return null;
     }
 
-    // Map plan to tier
-    let tier = SubscriptionTier.FREE;
-    if (account.plan.monthlyPriceInCents >= 5000) {
-      tier = SubscriptionTier.ENTERPRISE;
-    } else if (account.plan.monthlyPriceInCents >= 2000) {
-      tier = SubscriptionTier.TEAM;
-    } else if (account.plan.monthlyPriceInCents >= 500) {
-      tier = SubscriptionTier.SOLO;
-    }
+    const tier = mapMarketplacePlanToTier(account.plan);
 
     return {
       tier,
@@ -257,15 +423,7 @@ export class GitHubMarketplaceClient {
       return null;
     }
 
-    // Map plan to tier
-    let tier = SubscriptionTier.FREE;
-    if (account.plan.monthlyPriceInCents >= 5000) {
-      tier = SubscriptionTier.ENTERPRISE;
-    } else if (account.plan.monthlyPriceInCents >= 2000) {
-      tier = SubscriptionTier.TEAM;
-    } else if (account.plan.monthlyPriceInCents >= 500) {
-      tier = SubscriptionTier.SOLO;
-    }
+    const tier = mapMarketplacePlanToTier(account.plan);
 
     return {
       userId: account.id,

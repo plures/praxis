@@ -190,7 +190,7 @@ Webhook payload example:
 
 ### Marketplace Plans
 
-Plans are pre-configured in `src/cloud/marketplace.ts`:
+Plans are pre-configured in `packages/praxis-cloud/src/marketplace.ts`:
 
 - **Praxis Cloud Solo**: $5/month or $50/year
 - **Praxis Cloud Team**: $20/month or $200/year
@@ -200,25 +200,27 @@ Plans are pre-configured in `src/cloud/marketplace.ts`:
 
 See `github/marketplace/` for listing templates and screenshots.
 
-### Webhook Handler
+### Webhook Handler (Azure Functions relay)
+
+The cloud relay exposes `POST /marketplace/webhook` in `packages/praxis-cloud/src/relay/marketplace-webhook`.
+
+End-to-end webhook flow:
+
+1. Verify GitHub HMAC signature (`X-Hub-Signature-256` or `X-Hub-Signature`) with `GITHUB_MARKETPLACE_WEBHOOK_SECRET`
+2. Validate payload schema for `purchased`, `changed`, and `cancelled`
+3. Map Marketplace plan to subscription tier
+4. Provision/update tenant and marketplace billing state
+
+```bash
+GITHUB_MARKETPLACE_WEBHOOK_SECRET=your-marketplace-webhook-secret
+```
 
 ```typescript
-import { createMarketplaceClient } from '@plures/praxis/cloud';
+import { marketplaceWebhookEndpoint } from '@plures/praxis/cloud';
 
-const client = createMarketplaceClient(githubToken);
-
-// Handle webhook event
-app.post('/webhook/marketplace', (req, res) => {
-  const event = req.body;
-  const result = client.handleWebhookEvent(event);
-
-  if (result) {
-    // Provision or update tenant
-    console.log(`User ${result.userLogin} subscribed to ${result.subscription.tier}`);
-  }
-
-  res.status(200).send('OK');
-});
+export default async function (context, req) {
+  context.res = await marketplaceWebhookEndpoint(context, req);
+}
 ```
 
 ## Auto-Provisioning

@@ -5,6 +5,12 @@
  */
 
 import type { CRDTSyncMessage, UsageMetrics, HealthCheckResponse } from '../types.js';
+import type { Subscription } from '../billing.js';
+import { BillingProvider, SubscriptionStatus, TIER_LIMITS } from '../billing.js';
+import type { Tenant } from '../provisioning.js';
+import { createTenant } from '../provisioning.js';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import { mapMarketplacePlanToTier, parseMarketplaceWebhookEvent } from '../marketplace.js';
 
 /**
  * Azure Function context (simplified interface)
@@ -42,7 +48,72 @@ export interface AzureHttpResponse {
 const storage = {
   syncs: new Map<string, CRDTSyncMessage[]>(),
   usage: new Map<string, UsageMetrics>(),
+  tenants: new Map<string, Tenant>(),
+  marketplaceBilling: new Map<number, Subscription>(),
 };
+
+function getHeaderValue(headers: Record<string, string>, headerName: string): string | undefined {
+  const target = headerName.toLowerCase();
+  for (const [key, value] of Object.entries(headers)) {
+    if (key.toLowerCase() === target) {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
+function verifyMarketplaceSignature(
+  body: string,
+  signatureHeader: string,
+  secret: string
+): boolean {
+  const [algorithm, digest] = signatureHeader.split('=');
+  if (!algorithm || !digest) {
+    return false;
+  }
+
+  const normalizedAlgorithm = algorithm.toLowerCase();
+  if (normalizedAlgorithm !== 'sha256' && normalizedAlgorithm !== 'sha1') {
+    return false;
+  }
+
+  const expectedDigest = createHmac(normalizedAlgorithm, secret).update(body, 'utf8').digest('hex');
+  const expectedValue = `${normalizedAlgorithm}=${expectedDigest}`;
+  const providedBuffer = Buffer.from(signatureHeader, 'utf8');
+  const expectedBuffer = Buffer.from(expectedValue, 'utf8');
+
+  if (providedBuffer.length !== expectedBuffer.length) {
+    return false;
+  }
+
+  return timingSafeEqual(providedBuffer, expectedBuffer);
+}
+
+function buildMarketplaceSubscription(
+  event: ReturnType<typeof parseMarketplaceWebhookEvent>
+): Subscription {
+  if (!event) {
+    throw new Error('Cannot build subscription from invalid event');
+  }
+
+  const tier = mapMarketplacePlanToTier(event.marketplacePurchase.account.plan);
+  const fallbackPeriodEnd = event.marketplacePurchase.nextBillingDate
+    ? new Date(event.marketplacePurchase.nextBillingDate).getTime()
+    : undefined;
+  const cancelledAt = event.effectiveDate ? new Date(event.effectiveDate).getTime() : fallbackPeriodEnd;
+
+  return {
+    tier,
+    status: event.action === 'cancelled' ? SubscriptionStatus.CANCELLED : SubscriptionStatus.ACTIVE,
+    provider: BillingProvider.MARKETPLACE,
+    marketplacePlanId: event.marketplacePurchase.account.plan.id,
+    startDate: Date.now(),
+    periodEnd: event.action === 'cancelled' ? cancelledAt : fallbackPeriodEnd,
+    autoRenew: event.action !== 'cancelled',
+    limits: TIER_LIMITS[tier],
+  };
+}
 
 /**
  * Health check endpoint
@@ -300,6 +371,90 @@ export async function schemaEndpoint(
       appId,
       schema: null,
       message: 'Schema not found',
+    },
+  };
+}
+
+/**
+ * GitHub Marketplace webhook endpoint
+ * POST /marketplace/webhook
+ */
+export async function marketplaceWebhookEndpoint(
+  context: AzureContext,
+  req: AzureHttpRequest & { rawBody?: string }
+): Promise<AzureHttpResponse> {
+  context.log('Marketplace webhook received');
+
+  if (req.method !== 'POST') {
+    return {
+      status: 405,
+      body: { error: 'Method not allowed' },
+    };
+  }
+
+  const signature =
+    getHeaderValue(req.headers, 'x-hub-signature-256') ??
+    getHeaderValue(req.headers, 'x-hub-signature');
+  const secret = process.env.GITHUB_MARKETPLACE_WEBHOOK_SECRET;
+
+  if (!signature || !secret) {
+    return {
+      status: 401,
+      body: { error: 'Missing webhook signature or configured secret' },
+    };
+  }
+
+  const body = req.rawBody ?? JSON.stringify(req.body ?? {});
+  if (!verifyMarketplaceSignature(body, signature, secret)) {
+    return {
+      status: 401,
+      body: { error: 'Invalid webhook signature' },
+    };
+  }
+
+  const event = parseMarketplaceWebhookEvent(req.body);
+  if (!event) {
+    return {
+      status: 400,
+      body: { error: 'Invalid marketplace webhook payload' },
+    };
+  }
+
+  const account = event.marketplacePurchase.account;
+  const tenantId = `github-${account.id}`;
+  const subscription = buildMarketplaceSubscription(event);
+  const existingTenant = storage.tenants.get(tenantId);
+
+  if (existingTenant) {
+    existingTenant.subscription = subscription;
+    existingTenant.lastAccessedAt = Date.now();
+    storage.tenants.set(tenantId, existingTenant);
+  } else {
+    const tenant = createTenant(
+      {
+        id: account.id,
+        login: account.login,
+      },
+      subscription
+    );
+    storage.tenants.set(tenant.id, tenant);
+  }
+
+  storage.marketplaceBilling.set(account.id, subscription);
+
+  return {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+    body: {
+      success: true,
+      action: event.action,
+      tenantId,
+      subscription: {
+        tier: subscription.tier,
+        status: subscription.status,
+        provider: subscription.provider,
+        marketplacePlanId: subscription.marketplacePlanId,
+      },
     },
   };
 }

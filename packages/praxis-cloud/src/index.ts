@@ -68,11 +68,17 @@ export type { SponsorTier, Sponsorship } from './sponsors.js';
 export {
   GitHubMarketplaceClient,
   createMarketplaceClient,
+  parseMarketplaceWebhookEvent,
+  mapMarketplacePlanToTier,
   MARKETPLACE_PLANS,
 } from './marketplace.js';
 export type {
   MarketplacePlan,
   MarketplaceAccount,
+  MarketplacePurchase,
+  MarketplacePurchasedWebhookEvent,
+  MarketplaceChangedWebhookEvent,
+  MarketplaceCancelledWebhookEvent,
   MarketplaceWebhookEvent,
 } from './marketplace.js';
 
@@ -96,5 +102,6 @@ export {
   statsEndpoint,
   eventsEndpoint,
   schemaEndpoint,
+  marketplaceWebhookEndpoint,
 } from './relay/endpoints.js';
 export type { AzureContext, AzureHttpRequest, AzureHttpResponse } from './relay/endpoints.js';
