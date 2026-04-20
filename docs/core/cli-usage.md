@@ -289,6 +289,35 @@ praxis cloud usage
 # Apps: 3 / 10
 ```
 
+#### `praxis cloud team list`
+
+List team members.
+
+```bash
+praxis cloud team list --actor alice
+# Team: my-app
+# Members:
+#   - alice (owner)
+#   - bob (admin)
+#   - carol (member)
+```
+
+#### `praxis cloud team add <userId>`
+
+Add or update a team member role.
+
+```bash
+praxis cloud team add bob --actor alice --role admin
+```
+
+#### `praxis cloud team remove <userId>`
+
+Remove a team member.
+
+```bash
+praxis cloud team remove carol --actor alice
+```
+
 ## Configuration
 
 ### praxis.config.ts

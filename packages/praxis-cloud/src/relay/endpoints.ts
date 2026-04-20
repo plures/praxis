@@ -4,7 +4,16 @@
  * HTTP-triggered Azure Functions for Praxis Cloud Relay.
  */
 
-import type { CRDTSyncMessage, UsageMetrics, HealthCheckResponse } from '../types.js';
+import type {
+  AddTeamMemberRequest,
+  CRDTSyncMessage,
+  HealthCheckResponse,
+  RemoveTeamMemberRequest,
+  Team,
+  TeamMember,
+  TeamRole,
+  UsageMetrics,
+} from '../types.js';
 import type { Subscription } from '../billing.js';
 import { BillingProvider, SubscriptionStatus, TIER_LIMITS } from '../billing.js';
 import type { Tenant } from '../provisioning.js';
@@ -50,7 +59,44 @@ const storage = {
   usage: new Map<string, UsageMetrics>(),
   tenants: new Map<string, Tenant>(),
   marketplaceBilling: new Map<number, Subscription>(),
+  teams: new Map<string, Team>(),
 };
+
+function isTeamRole(value: unknown): value is TeamRole {
+  return value === 'owner' || value === 'admin' || value === 'member';
+}
+
+function getTeamMember(team: Team, userId: string): TeamMember | undefined {
+  return team.members.find((member) => member.userId === userId);
+}
+
+function canManageMembers(actorRole: TeamRole): boolean {
+  return actorRole === 'owner' || actorRole === 'admin';
+}
+
+function canAssignRole(actorRole: TeamRole, targetRole: TeamRole): boolean {
+  if (actorRole === 'owner') {
+    return true;
+  }
+
+  if (actorRole === 'admin') {
+    return targetRole === 'member';
+  }
+
+  return false;
+}
+
+function canRemoveRole(actorRole: TeamRole, targetRole: TeamRole): boolean {
+  if (actorRole === 'owner') {
+    return true;
+  }
+
+  if (actorRole === 'admin') {
+    return targetRole === 'member';
+  }
+
+  return false;
+}
 
 function getHeaderValue(headers: Record<string, string>, headerName: string): string | undefined {
   const target = headerName.toLowerCase();
@@ -458,5 +504,189 @@ export async function marketplaceWebhookEndpoint(
         marketplacePlanId: subscription.marketplacePlanId,
       },
     },
+  };
+}
+
+/**
+ * Team members endpoint
+ * GET /teams/members?teamId=<teamId>&actorId=<actorId>
+ * POST /teams/members
+ * DELETE /teams/members
+ */
+export async function teamMembersEndpoint(
+  context: AzureContext,
+  req: AzureHttpRequest
+): Promise<AzureHttpResponse> {
+  context.log('Team membership request received');
+
+  if (req.method === 'GET') {
+    const teamId = req.query.teamId;
+    const actorId = req.query.actorId;
+
+    if (!teamId || !actorId) {
+      return {
+        status: 400,
+        body: { error: 'teamId and actorId query parameters are required' },
+      };
+    }
+
+    const team = storage.teams.get(teamId);
+    if (!team) {
+      return {
+        status: 404,
+        body: { error: 'Team not found' },
+      };
+    }
+
+    if (!getTeamMember(team, actorId)) {
+      return {
+        status: 403,
+        body: { error: 'Only team members can list members' },
+      };
+    }
+
+    return {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: { team, members: team.members },
+    };
+  }
+
+  if (req.method === 'POST') {
+    const message = req.body as AddTeamMemberRequest;
+    const { teamId, actorId, userId } = message;
+    const role = message.role ?? 'member';
+
+    if (!teamId || !actorId || !userId || !isTeamRole(role)) {
+      return {
+        status: 400,
+        body: { error: 'teamId, actorId, userId, and a valid role are required' },
+      };
+    }
+
+    let team = storage.teams.get(teamId);
+
+    if (!team) {
+      const createdAt = Date.now();
+      team = {
+        id: teamId,
+        appId: message.appId ?? teamId,
+        name: message.teamName ?? teamId,
+        createdAt,
+        createdBy: actorId,
+        members: [
+          {
+            userId: actorId,
+            role: 'owner',
+            addedAt: createdAt,
+            addedBy: actorId,
+          },
+        ],
+      };
+    }
+
+    const actor = getTeamMember(team, actorId);
+    if (!actor || !canManageMembers(actor.role)) {
+      return {
+        status: 403,
+        body: { error: 'Only owners and admins can modify team members' },
+      };
+    }
+
+    if (!canAssignRole(actor.role, role)) {
+      return {
+        status: 403,
+        body: { error: 'Insufficient permission to assign that role' },
+      };
+    }
+
+    const existingMember = getTeamMember(team, userId);
+    if (existingMember) {
+      existingMember.role = role;
+      existingMember.addedBy = actorId;
+      existingMember.addedAt = Date.now();
+    } else {
+      team.members.push({
+        userId,
+        role,
+        addedBy: actorId,
+        addedAt: Date.now(),
+      });
+    }
+
+    storage.teams.set(team.id, team);
+
+    return {
+      status: existingMember ? 200 : 201,
+      headers: { 'Content-Type': 'application/json' },
+      body: { team, members: team.members },
+    };
+  }
+
+  if (req.method === 'DELETE') {
+    const message = req.body as RemoveTeamMemberRequest;
+    const { teamId, actorId, userId } = message;
+
+    if (!teamId || !actorId || !userId) {
+      return {
+        status: 400,
+        body: { error: 'teamId, actorId, and userId are required' },
+      };
+    }
+
+    const team = storage.teams.get(teamId);
+    if (!team) {
+      return {
+        status: 404,
+        body: { error: 'Team not found' },
+      };
+    }
+
+    const actor = getTeamMember(team, actorId);
+    if (!actor || !canManageMembers(actor.role)) {
+      return {
+        status: 403,
+        body: { error: 'Only owners and admins can modify team members' },
+      };
+    }
+
+    const target = getTeamMember(team, userId);
+    if (!target) {
+      return {
+        status: 404,
+        body: { error: 'Team member not found' },
+      };
+    }
+
+    if (!canRemoveRole(actor.role, target.role)) {
+      return {
+        status: 403,
+        body: { error: 'Insufficient permission to remove that role' },
+      };
+    }
+
+    if (target.role === 'owner') {
+      const ownerCount = team.members.filter((member) => member.role === 'owner').length;
+      if (ownerCount <= 1) {
+        return {
+          status: 400,
+          body: { error: 'Team must have at least one owner' },
+        };
+      }
+    }
+
+    team.members = team.members.filter((member) => member.userId !== userId);
+    storage.teams.set(team.id, team);
+
+    return {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: { team, members: team.members },
+    };
+  }
+
+  return {
+    status: 405,
+    body: { error: 'Method not allowed' },
   };
 }

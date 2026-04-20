@@ -9,6 +9,7 @@ import * as path from 'path';
 import { authenticateWithDeviceFlow } from '@plures/praxis-cloud';
 import { connectRelay } from '@plures/praxis-cloud';
 import type { CloudRelayConfig } from '@plures/praxis-cloud';
+import type { TeamRole } from '@plures/praxis-cloud';
 
 const CONFIG_FILE = '.praxis-cloud.json';
 const GITHUB_CLIENT_ID = 'Ov23liQxF7P0BqUxVXHk'; // Demo client ID (replace in production)
@@ -19,6 +20,26 @@ interface StoredConfig {
   authToken?: string;
   autoSync?: boolean;
   syncInterval?: number;
+}
+
+function isTeamRole(value: string): value is TeamRole {
+  return value === 'owner' || value === 'admin' || value === 'member';
+}
+
+async function connectFromConfig(): Promise<{
+  client: Awaited<ReturnType<typeof connectRelay>>;
+  config: StoredConfig;
+}> {
+  const config = loadConfig();
+
+  if (!config) {
+    console.log('\n✗ No cloud configuration found');
+    console.log("  Run 'praxis cloud init' to set up cloud connection\n");
+    process.exit(1);
+  }
+
+  const client = await connectRelay(config.endpoint, config);
+  return { client, config };
 }
 
 /**
@@ -283,5 +304,97 @@ export async function cloudUsage(): Promise<void> {
     console.error('\n✗ Failed to retrieve usage metrics');
     console.error(`  Error: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exit(1);
+  }
+}
+
+/**
+ * List team members
+ */
+export async function cloudTeamList(options: { teamId?: string; actor: string }): Promise<void> {
+  const { client, config } = await connectFromConfig();
+  const teamId = options.teamId ?? config.appId;
+
+  try {
+    const members = await client.listTeamMembers({
+      teamId,
+      actorId: options.actor,
+    });
+
+    console.log(`\nTeam: ${teamId}`);
+    console.log('\nMembers:');
+    for (const member of members) {
+      console.log(`  - ${member.userId} (${member.role})`);
+    }
+    console.log();
+  } catch (error) {
+    console.error('\n✗ Failed to list team members');
+    console.error(`  Error: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exit(1);
+  } finally {
+    await client.disconnect();
+  }
+}
+
+/**
+ * Add a team member
+ */
+export async function cloudTeamAdd(
+  userId: string,
+  options: { teamId?: string; actor: string; role: string }
+): Promise<void> {
+  if (!isTeamRole(options.role)) {
+    console.error(`\n✗ Invalid role '${options.role}'. Use owner, admin, or member.\n`);
+    process.exit(1);
+  }
+
+  const { client, config } = await connectFromConfig();
+  const teamId = options.teamId ?? config.appId;
+
+  try {
+    const members = await client.addTeamMember({
+      teamId,
+      actorId: options.actor,
+      userId,
+      role: options.role,
+      appId: config.appId,
+      teamName: config.appId,
+    });
+
+    console.log(`\n✓ Added ${userId} as ${options.role} to team ${teamId}`);
+    console.log(`  Total members: ${members.length}\n`);
+  } catch (error) {
+    console.error('\n✗ Failed to add team member');
+    console.error(`  Error: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exit(1);
+  } finally {
+    await client.disconnect();
+  }
+}
+
+/**
+ * Remove a team member
+ */
+export async function cloudTeamRemove(
+  userId: string,
+  options: { teamId?: string; actor: string }
+): Promise<void> {
+  const { client, config } = await connectFromConfig();
+  const teamId = options.teamId ?? config.appId;
+
+  try {
+    const members = await client.removeTeamMember({
+      teamId,
+      actorId: options.actor,
+      userId,
+    });
+
+    console.log(`\n✓ Removed ${userId} from team ${teamId}`);
+    console.log(`  Total members: ${members.length}\n`);
+  } catch (error) {
+    console.error('\n✗ Failed to remove team member');
+    console.error(`  Error: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exit(1);
+  } finally {
+    await client.disconnect();
   }
 }

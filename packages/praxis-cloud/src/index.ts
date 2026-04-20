@@ -41,6 +41,12 @@ export type {
   HealthCheckResponse,
   GitHubUser,
   AuthResult,
+  TeamRole,
+  TeamMember,
+  Team,
+  ListTeamMembersRequest,
+  AddTeamMemberRequest,
+  RemoveTeamMemberRequest,
 } from './types.js';
 
 // Authentication
@@ -103,5 +109,6 @@ export {
   eventsEndpoint,
   schemaEndpoint,
   marketplaceWebhookEndpoint,
+  teamMembersEndpoint,
 } from './relay/endpoints.js';
 export type { AzureContext, AzureHttpRequest, AzureHttpResponse } from './relay/endpoints.js';

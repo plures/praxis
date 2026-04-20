@@ -239,6 +239,54 @@ cloudCmd
     }
   });
 
+const cloudTeamCmd = cloudCmd.command('team').description('Manage team members and roles');
+
+cloudTeamCmd
+  .command('list')
+  .description('List team members')
+  .requiredOption('--actor <id>', 'Actor user ID performing the action')
+  .option('--team-id <id>', 'Team identifier (defaults to configured app ID)')
+  .action(async (options) => {
+    try {
+      const { cloudTeamList } = await import('./commands/cloud.js');
+      await cloudTeamList(options);
+    } catch (error) {
+      console.error('Error listing team members:', error);
+      process.exit(1);
+    }
+  });
+
+cloudTeamCmd
+  .command('add <userId>')
+  .description('Add or update a team member')
+  .requiredOption('--actor <id>', 'Actor user ID performing the action')
+  .option('--team-id <id>', 'Team identifier (defaults to configured app ID)')
+  .option('--role <role>', 'Team role (owner, admin, member)', 'member')
+  .action(async (userId, options) => {
+    try {
+      const { cloudTeamAdd } = await import('./commands/cloud.js');
+      await cloudTeamAdd(userId, options);
+    } catch (error) {
+      console.error('Error adding team member:', error);
+      process.exit(1);
+    }
+  });
+
+cloudTeamCmd
+  .command('remove <userId>')
+  .description('Remove a team member')
+  .requiredOption('--actor <id>', 'Actor user ID performing the action')
+  .option('--team-id <id>', 'Team identifier (defaults to configured app ID)')
+  .action(async (userId, options) => {
+    try {
+      const { cloudTeamRemove } = await import('./commands/cloud.js');
+      await cloudTeamRemove(userId, options);
+    } catch (error) {
+      console.error('Error removing team member:', error);
+      process.exit(1);
+    }
+  });
+
 // MCP server command
 program
   .command('mcp')
