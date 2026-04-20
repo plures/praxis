@@ -91,7 +91,8 @@ function verifyMarketplaceSignature(
 }
 
 function buildMarketplaceSubscription(
-  event: ReturnType<typeof parseMarketplaceWebhookEvent>
+  event: ReturnType<typeof parseMarketplaceWebhookEvent>,
+  existingStartDate?: number
 ): Subscription {
   if (!event) {
     throw new Error('Cannot build subscription from invalid event');
@@ -102,13 +103,14 @@ function buildMarketplaceSubscription(
     ? new Date(event.marketplacePurchase.nextBillingDate).getTime()
     : undefined;
   const cancelledAt = event.effectiveDate ? new Date(event.effectiveDate).getTime() : fallbackPeriodEnd;
+  const effectiveStartDate = event.effectiveDate ? new Date(event.effectiveDate).getTime() : Date.now();
 
   return {
     tier,
     status: event.action === 'cancelled' ? SubscriptionStatus.CANCELLED : SubscriptionStatus.ACTIVE,
     provider: BillingProvider.MARKETPLACE,
     marketplacePlanId: event.marketplacePurchase.account.plan.id,
-    startDate: Date.now(),
+    startDate: existingStartDate ?? effectiveStartDate,
     periodEnd: event.action === 'cancelled' ? cancelledAt : fallbackPeriodEnd,
     autoRenew: event.action !== 'cancelled',
     limits: TIER_LIMITS[tier],
@@ -422,8 +424,8 @@ export async function marketplaceWebhookEndpoint(
 
   const account = event.marketplacePurchase.account;
   const tenantId = `github-${account.id}`;
-  const subscription = buildMarketplaceSubscription(event);
   const existingTenant = storage.tenants.get(tenantId);
+  const subscription = buildMarketplaceSubscription(event, existingTenant?.subscription.startDate);
 
   if (existingTenant) {
     existingTenant.subscription = subscription;
