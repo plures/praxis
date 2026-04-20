@@ -98,6 +98,16 @@ function canRemoveRole(actorRole: TeamRole, targetRole: TeamRole): boolean {
   return false;
 }
 
+function wouldLeaveTeamWithoutOwner(team: Team, userId: string): boolean {
+  const target = getTeamMember(team, userId);
+  if (!target || target.role !== 'owner') {
+    return false;
+  }
+
+  const ownerCount = team.members.filter((member) => member.role === 'owner').length;
+  return ownerCount <= 1;
+}
+
 function getHeaderValue(headers: Record<string, string>, headerName: string): string | undefined {
   const target = headerName.toLowerCase();
   for (const [key, value] of Object.entries(headers)) {
@@ -567,6 +577,13 @@ export async function teamMembersEndpoint(
     let team = storage.teams.get(teamId);
 
     if (!team) {
+      if (actorId !== userId || role !== 'owner') {
+        return {
+          status: 400,
+          body: { error: 'New teams must be initialized by adding yourself as owner' },
+        };
+      }
+
       const createdAt = Date.now();
       team = {
         id: teamId,
@@ -602,6 +619,15 @@ export async function teamMembersEndpoint(
 
     const existingMember = getTeamMember(team, userId);
     if (existingMember) {
+      if (existingMember.role === 'owner' && role !== 'owner') {
+        if (wouldLeaveTeamWithoutOwner(team, userId)) {
+          return {
+            status: 400,
+            body: { error: 'Team must have at least one owner' },
+          };
+        }
+      }
+
       existingMember.role = role;
       existingMember.addedBy = actorId;
       existingMember.addedAt = Date.now();
@@ -665,14 +691,11 @@ export async function teamMembersEndpoint(
       };
     }
 
-    if (target.role === 'owner') {
-      const ownerCount = team.members.filter((member) => member.role === 'owner').length;
-      if (ownerCount <= 1) {
-        return {
-          status: 400,
-          body: { error: 'Team must have at least one owner' },
-        };
-      }
+    if (wouldLeaveTeamWithoutOwner(team, userId)) {
+      return {
+        status: 400,
+        body: { error: 'Team must have at least one owner' },
+      };
     }
 
     team.members = team.members.filter((member) => member.userId !== userId);
