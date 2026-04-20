@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "../..",
+    "rootDir": "../..",
+    "paths": {
+      "@plures/praxis": ["src/index.ts"],
+      "@plures/praxis/*": ["src/*"],
+      "@plures/praxis-core": ["packages/praxis-core/src/index.ts"],
+      "@plures/praxis-svelte": ["packages/praxis-svelte/src/index.ts"],
+      "@plures/praxis-cloud": ["packages/praxis-cloud/src/index.ts"],
+      "@plures/praxis-cli": ["packages/praxis-cli/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "../../src/unified/**/*"]
+}

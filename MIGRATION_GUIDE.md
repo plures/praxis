@@ -83,6 +83,15 @@ Praxis 2.0 adds several new subpath exports:
 
 Existing import paths (`.`, `./svelte`, `./schema`, `./component`, `./cloud`, `./components`) continue to work unchanged.
 
+### Compatibility Layer Strategy (`packages/praxis`)
+
+The monorepo now ships `packages/praxis` as a compatibility layer:
+
+- `@plures/praxis`, `@plures/praxis/core`, `@plures/praxis/svelte`, `@plures/praxis/cloud`, and `@plures/praxis/cli` are re-exported from the extracted workspace packages.
+- `@plures/praxis/unified` remains available as a legacy subpath export to keep existing 1.x/2.x import paths stable during migration.
+
+This lets existing consumers upgrade without rewriting imports while package internals continue moving into focused sub-packages.
+
 ### PluresDB: Official NPM Package
 
 Praxis now uses the official `@plures/pluresdb` package from npm instead of the built-in adapter:
