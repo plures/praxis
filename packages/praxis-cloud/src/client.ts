@@ -5,12 +5,16 @@
  */
 
 import type {
+  AddTeamMemberRequest,
   CloudRelayConfig,
   CloudRelayClient,
   RelayStatus,
   CRDTSyncMessage,
   UsageMetrics,
   HealthCheckResponse,
+  ListTeamMembersRequest,
+  RemoveTeamMemberRequest,
+  TeamMember,
 } from './types.js';
 
 /**
@@ -166,6 +170,100 @@ export function createCloudRelay(config: CloudRelayConfig): CloudRelayClient {
       } catch (error) {
         throw new Error(
           `Failed to get health status: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    },
+
+    async listTeamMembers(request: ListTeamMembersRequest): Promise<TeamMember[]> {
+      if (!status.connected) {
+        throw new Error('Not connected to cloud relay');
+      }
+
+      const query = new URLSearchParams({
+        teamId: request.teamId,
+        actorId: request.actorId,
+      });
+
+      try {
+        const response = await fetch(`${config.endpoint}/teams/members?${query.toString()}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(config.authToken && {
+              Authorization: `Bearer ${config.authToken}`,
+            }),
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to list team members: ${response.statusText}`);
+        }
+
+        const result = (await response.json()) as { members: TeamMember[] };
+        return result.members;
+      } catch (error) {
+        throw new Error(
+          `Failed to list team members: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    },
+
+    async addTeamMember(request: AddTeamMemberRequest): Promise<TeamMember[]> {
+      if (!status.connected) {
+        throw new Error('Not connected to cloud relay');
+      }
+
+      try {
+        const response = await fetch(`${config.endpoint}/teams/members`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(config.authToken && {
+              Authorization: `Bearer ${config.authToken}`,
+            }),
+          },
+          body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to add team member: ${response.statusText}`);
+        }
+
+        const result = (await response.json()) as { members: TeamMember[] };
+        return result.members;
+      } catch (error) {
+        throw new Error(
+          `Failed to add team member: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    },
+
+    async removeTeamMember(request: RemoveTeamMemberRequest): Promise<TeamMember[]> {
+      if (!status.connected) {
+        throw new Error('Not connected to cloud relay');
+      }
+
+      try {
+        const response = await fetch(`${config.endpoint}/teams/members`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(config.authToken && {
+              Authorization: `Bearer ${config.authToken}`,
+            }),
+          },
+          body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to remove team member: ${response.statusText}`);
+        }
+
+        const result = (await response.json()) as { members: TeamMember[] };
+        return result.members;
+      } catch (error) {
+        throw new Error(
+          `Failed to remove team member: ${error instanceof Error ? error.message : String(error)}`
         );
       }
     },

@@ -24,13 +24,22 @@ describe('praxis-cli command modules', () => {
   });
 
   it('exports cloud commands', async () => {
-    const { cloudInit, cloudStatus, cloudSync, cloudUsage } = await import(
-      '../commands/cloud.js'
-    );
+    const {
+      cloudInit,
+      cloudStatus,
+      cloudSync,
+      cloudUsage,
+      cloudTeamList,
+      cloudTeamAdd,
+      cloudTeamRemove,
+    } = await import('../commands/cloud.js');
     expect(typeof cloudInit).toBe('function');
     expect(typeof cloudStatus).toBe('function');
     expect(typeof cloudSync).toBe('function');
     expect(typeof cloudUsage).toBe('function');
+    expect(typeof cloudTeamList).toBe('function');
+    expect(typeof cloudTeamAdd).toBe('function');
+    expect(typeof cloudTeamRemove).toBe('function');
   });
 
   it('exports conversations commands', async () => {

@@ -158,6 +158,39 @@ Create a distributed Praxis engine with automatic sync.
 
 **Returns:** `Promise<DistributedEngine>` - Distributed engine instance
 
+### Team Management API
+
+Enterprise teams can be managed through the relay client:
+
+```typescript
+import { connectRelay } from '@plures/praxis-cloud';
+
+const client = await connectRelay('https://relay.example.com', {
+  appId: 'my-app',
+  authToken: 'token',
+});
+
+await client.addTeamMember({
+  teamId: 'my-app',
+  actorId: 'alice',
+  userId: 'bob',
+  role: 'admin',
+});
+
+const members = await client.listTeamMembers({
+  teamId: 'my-app',
+  actorId: 'alice',
+});
+
+await client.removeTeamMember({
+  teamId: 'my-app',
+  actorId: 'alice',
+  userId: 'bob',
+});
+
+console.log(members);
+```
+
 ## Configuration
 
 ### Relay Server Configuration

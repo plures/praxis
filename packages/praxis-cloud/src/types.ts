@@ -150,6 +150,62 @@ export interface HealthCheckResponse {
 }
 
 /**
+ * Team member roles for enterprise collaboration
+ */
+export type TeamRole = 'owner' | 'admin' | 'member';
+
+/**
+ * Team member model
+ */
+export interface TeamMember {
+  userId: string;
+  role: TeamRole;
+  addedAt: number;
+  addedBy: string;
+}
+
+/**
+ * Team model
+ */
+export interface Team {
+  id: string;
+  appId: string;
+  name: string;
+  createdAt: number;
+  createdBy: string;
+  members: TeamMember[];
+}
+
+/**
+ * List members API request
+ */
+export interface ListTeamMembersRequest {
+  teamId: string;
+  actorId: string;
+}
+
+/**
+ * Add member API request
+ */
+export interface AddTeamMemberRequest {
+  teamId: string;
+  actorId: string;
+  userId: string;
+  role?: TeamRole;
+  appId?: string;
+  teamName?: string;
+}
+
+/**
+ * Remove member API request
+ */
+export interface RemoveTeamMemberRequest {
+  teamId: string;
+  actorId: string;
+  userId: string;
+}
+
+/**
  * Cloud relay client interface
  */
 export interface CloudRelayClient {
@@ -177,6 +233,21 @@ export interface CloudRelayClient {
    * Get health status
    */
   getHealth(): Promise<HealthCheckResponse>;
+
+  /**
+   * List team members
+   */
+  listTeamMembers(request: ListTeamMembersRequest): Promise<TeamMember[]>;
+
+  /**
+   * Add or update a team member
+   */
+  addTeamMember(request: AddTeamMemberRequest): Promise<TeamMember[]>;
+
+  /**
+   * Remove a team member
+   */
+  removeTeamMember(request: RemoveTeamMemberRequest): Promise<TeamMember[]>;
 
   /**
    * Get connection status
