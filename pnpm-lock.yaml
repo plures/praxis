@@ -19,8 +19,8 @@ importers:
         specifier: ^1.27.1
         version: 1.29.0(zod@4.3.6)
       '@plures/pluresdb':
-        specifier: ^2.9.7
-        version: 2.9.7
+        specifier: ^3.9.1
+        version: 3.9.1
       '@plures/praxis-cloud':
         specifier: workspace:*
         version: link:packages/praxis-cloud
@@ -204,7 +204,7 @@ importers:
     dependencies:
       '@plures/pluresdb':
         specifier: ^3.2.0
-        version: 3.9.0
+        version: 3.9.1
       '@plures/praxis-core':
         specifier: workspace:*
         version: link:../praxis-core
@@ -530,8 +530,8 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
-  '@plures/pluresdb@3.9.0':
-    resolution: {integrity: sha512-LfbbPNLw3XU+botk4xerH03CmKO2KjUq2AKKyRA/2Bg5RvR/dsXsh3XWb1vy6FmsMe1UEhfnGhWktkp193rzcQ==}
+  '@plures/pluresdb@3.9.1':
+    resolution: {integrity: sha512-Y+m8A/wBmMCIWQvv1lObfDe+ksyx59kOTeMZBv208rBtEUO9tqSdMCTON3mYWXkFG+R+A+gOk9N1fBEAsa1Jeg==}
     engines: {node: '>=24'}
 
   '@polka/url@1.0.0-next.29':
@@ -2367,7 +2367,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@plures/pluresdb@3.9.0': {}
+  '@plures/pluresdb@3.9.1': {}
 
   '@polka/url@1.0.0-next.29': {}
 
