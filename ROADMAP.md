@@ -1,10 +1,12 @@
 # Praxis Roadmap
 
 ## Role in OASIS
-Praxis is the rules and decision ledger layer for OASIS. It enforces consent, policy, lifecycle constraints, and guarantees that agent actions in OASIS remain verifiable and compliant across devices and organizations.
+Praxis is the rules and decision‑ledger layer for OASIS. It enforces consent, policy, lifecycle constraints, and guarantees that agent actions remain verifiable and compliant across devices and organizations.
 
 ## Current State
-v2.6.0 is published with the unified reactive layer, Decision Ledger contracts, rule execution primitives, and PluresDB integration. Recent work added enterprise team management APIs and cloud package extraction; docs and performance initiatives are queued as open issues.
+- **v2.6.0** published with the unified reactive layer, Decision Ledger contracts, rule execution primitives, and PluresDB integration.
+- Recent work added enterprise team management APIs and CLI support.
+- Open issues center on the Praxis Intent Language (.px), API docs, tutorials, billing, and CI noise.
 
 ## Milestones
 
@@ -13,6 +15,7 @@ v2.6.0 is published with the unified reactive layer, Decision Ledger contracts, 
 - Generate API reference docs from TypeScript sources (#307).
 - Publish focused tutorials (getting started, rules, cloud sync) (#308).
 - Finish org‑level billing for GitHub Marketplace enterprise plans (#306).
+- Resolve current CI failures to unblock releases.
 
 ### Phase 2 — Performance + Packaging
 - Bundle size optimization and tree‑shaking across packages (#310).
