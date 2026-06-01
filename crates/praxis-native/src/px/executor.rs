@@ -183,6 +183,9 @@ fn execute_step(
         "emit" => execute_emit(step, index, vars, handler),
         "try" => execute_try(step, index, vars, handler),
         "parallel" => execute_parallel(step, index, vars, handler),
+        "assign" => execute_assign(step, index, vars, handler),
+        "if" => execute_if(step, index, vars, handler),
+        "for" => execute_for(step, index, vars, handler),
         "return" => {
             let value = step.get("value").cloned();
             Ok(StepResult {
@@ -899,6 +902,238 @@ fn execute_parallel(
     Ok(StepResult {
         index,
         kind: "parallel".into(),
+        output: Some(output),
+        skipped: false,
+    })
+}
+
+/// Execute an `assign` step: evaluate an expression and bind it to a variable.
+///
+/// The expression is resolved with $variable substitution. If the expression
+/// resolves to a variable reference, the variable's value is used. Otherwise,
+/// the expression is stored as a string value.
+fn execute_assign(
+    step: &Value,
+    index: usize,
+    vars: &mut HashMap<String, Value>,
+    _handler: &dyn ActionHandler,
+) -> Result<StepResult, ExecutionError> {
+    let var_name = step
+        .get("var")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| ExecutionError::InvalidStructure("assign step missing 'var'".into()))?;
+
+    let expr_str = step
+        .get("value")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| ExecutionError::InvalidStructure("assign step missing 'value'".into()))?;
+
+    // Resolve the expression value
+    let resolved = resolve_assign_expr(expr_str, vars);
+
+    vars.insert(var_name.to_string(), resolved.clone());
+
+    Ok(StepResult {
+        index,
+        kind: "assign".into(),
+        output: Some(resolved),
+        skipped: false,
+    })
+}
+
+/// Resolve an assignment expression to a JSON Value.
+/// Attempts: variable reference → numeric literal → boolean → string.
+fn resolve_assign_expr(expr: &str, vars: &HashMap<String, Value>) -> Value {
+    let expr = expr.trim();
+
+    // Variable reference: $name or dotted
+    if let Some(val) = resolve_var(expr, vars) {
+        return val;
+    }
+
+    // Try as integer
+    if let Ok(n) = expr.parse::<i64>() {
+        return Value::Number(serde_json::Number::from(n));
+    }
+
+    // Try as float
+    if let Ok(n) = expr.parse::<f64>() {
+        if let Some(num) = serde_json::Number::from_f64(n) {
+            return Value::Number(num);
+        }
+    }
+
+    // Boolean
+    match expr {
+        "true" => return Value::Bool(true),
+        "false" => return Value::Bool(false),
+        "null" => return Value::Null,
+        _ => {}
+    }
+
+    // Quoted string
+    if (expr.starts_with('"') && expr.ends_with('"'))
+        || (expr.starts_with('\'') && expr.ends_with('\''))
+    {
+        let inner = &expr[1..expr.len() - 1];
+        if inner.contains("${") {
+            return Value::String(interpolate_string(inner, vars));
+        }
+        return Value::String(inner.to_string());
+    }
+
+    // Try simple arithmetic
+    if let Some(result) = eval_numeric_expr(expr, vars) {
+        if result.fract() == 0.0 && result.abs() < i64::MAX as f64 {
+            return Value::Number(serde_json::Number::from(result as i64));
+        }
+        if let Some(num) = serde_json::Number::from_f64(result) {
+            return Value::Number(num);
+        }
+    }
+
+    // Fallback: store as string
+    Value::String(expr.to_string())
+}
+
+/// Execute an `if` step: evaluate condition, run then_steps or else_steps.
+fn execute_if(
+    step: &Value,
+    index: usize,
+    vars: &mut HashMap<String, Value>,
+    handler: &dyn ActionHandler,
+) -> Result<StepResult, ExecutionError> {
+    let condition = step
+        .get("condition")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| ExecutionError::InvalidStructure("if step missing 'condition'".into()))?;
+
+    let cond_result = handler.evaluate_condition(condition, vars);
+
+    let branch_steps = if cond_result {
+        step.get("then").and_then(|v| v.as_array())
+    } else {
+        step.get("else").and_then(|v| v.as_array())
+    };
+
+    let Some(steps) = branch_steps else {
+        return Ok(StepResult {
+            index,
+            kind: "if".into(),
+            output: None,
+            skipped: !cond_result,
+        });
+    };
+
+    let mut last_output = None;
+    for (i, nested) in steps.iter().enumerate() {
+        let result = execute_step(nested, i, vars, handler)?;
+        if result.kind == "return" {
+            return Ok(StepResult {
+                index,
+                kind: "return".into(),
+                output: result.output,
+                skipped: false,
+            });
+        }
+        last_output = result.output;
+    }
+
+    Ok(StepResult {
+        index,
+        kind: "if".into(),
+        output: last_output,
+        skipped: false,
+    })
+}
+
+/// Execute a `for` step: resolve iterable, iterate, execute steps per item.
+///
+/// The iterable is resolved from variables. Supports:
+/// - Array values: iterates elements
+/// - Object values: iterates values (key bound to `$key`)
+/// - Variable references (`$name` or `name`)
+fn execute_for(
+    step: &Value,
+    index: usize,
+    vars: &mut HashMap<String, Value>,
+    handler: &dyn ActionHandler,
+) -> Result<StepResult, ExecutionError> {
+    let var_name = step
+        .get("var")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| ExecutionError::InvalidStructure("for step missing 'var'".into()))?;
+
+    let iterable_expr = step
+        .get("iterable")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| ExecutionError::InvalidStructure("for step missing 'iterable'".into()))?;
+
+    let nested_steps = step
+        .get("steps")
+        .and_then(|v| v.as_array())
+        .ok_or_else(|| ExecutionError::InvalidStructure("for step missing 'steps'".into()))?;
+
+    // Resolve the iterable from vars
+    let iter_var = iterable_expr.strip_prefix('$').unwrap_or(iterable_expr);
+    let iterable_val = vars.get(iter_var).cloned();
+
+    let iterations: Vec<(Option<String>, Value)> = match &iterable_val {
+        Some(Value::Array(arr)) => arr.iter().map(|v| (None, v.clone())).collect(),
+        Some(Value::Object(map)) => map
+            .iter()
+            .map(|(k, v)| (Some(k.clone()), v.clone()))
+            .collect(),
+        Some(other) => vec![(None, other.clone())],
+        None => {
+            return Ok(StepResult {
+                index,
+                kind: "for".into(),
+                output: None,
+                skipped: true,
+            })
+        }
+    };
+
+    let mut results: Vec<Value> = Vec::new();
+
+    for (iter_index, (key, item)) in iterations.into_iter().enumerate() {
+        vars.insert(var_name.to_string(), item);
+        vars.insert("index".to_string(), Value::Number(iter_index.into()));
+        if let Some(k) = key {
+            vars.insert("key".to_string(), Value::String(k));
+        }
+
+        for nested in nested_steps {
+            let result = execute_step(nested, iter_index, vars, handler)?;
+            if result.kind == "return" {
+                // Clean up loop vars before propagating return
+                vars.remove(var_name);
+                vars.remove("index");
+                vars.remove("key");
+                return Ok(StepResult {
+                    index,
+                    kind: "return".into(),
+                    output: result.output,
+                    skipped: false,
+                });
+            }
+            if let Some(output) = &result.output {
+                results.push(output.clone());
+            }
+        }
+    }
+
+    // Clean up loop variables
+    vars.remove(var_name);
+    vars.remove("index");
+    vars.remove("key");
+
+    let output = Value::Array(results);
+
+    Ok(StepResult {
+        index,
+        kind: "for".into(),
         output: Some(output),
         skipped: false,
     })
@@ -2446,7 +2681,7 @@ fn split_comparison<'a>(expr: &'a str, op: &str) -> Option<(&'a str, &'a str)> {
 
 /// Resolve a variable (direct lookup or dotted path).
 /// Supports `$variable` prefix notation — the `$` is stripped before lookup.
-fn resolve_var(name: &str, vars: &HashMap<String, Value>) -> Option<Value> {
+pub(crate) fn resolve_var(name: &str, vars: &HashMap<String, Value>) -> Option<Value> {
     // Strip leading `$` if present (common in .px procedure expressions)
     let name = name.strip_prefix('$').unwrap_or(name);
     if let Some(val) = vars.get(name) {
@@ -2581,7 +2816,7 @@ fn compare_ord(
 
 /// Evaluate a numeric expression that may contain simple arithmetic.
 /// Supports: literal numbers, variable references, and `var +/- N` or `N +/- var`.
-fn eval_numeric_expr(expr: &str, vars: &HashMap<String, Value>) -> Option<f64> {
+pub(crate) fn eval_numeric_expr(expr: &str, vars: &HashMap<String, Value>) -> Option<f64> {
     let expr = expr.trim();
 
     // Try as a plain number literal first
@@ -7257,5 +7492,244 @@ mod tests {
         let expr = r#"match status { "ok" => "good", _ => "Unexpected: ${status}" }"#;
         let result = try_match_expr(expr, &vars);
         assert_eq!(result, Some("Unexpected: weird".to_string()));
+    }
+
+    // === Assign / If / For Step Tests ===
+
+    #[test]
+    fn test_assign_variable() {
+        use serde_json::json;
+
+        struct NoopHandler;
+        impl ActionHandler for NoopHandler {
+            fn call(&self, _name: &str, _params: &Value) -> Result<Value, ExecutionError> {
+                Ok(Value::Null)
+            }
+        }
+
+        // Test assigning a literal number
+        let procedure = json!({
+            "type": "procedure",
+            "name": "test_assign",
+            "steps": [
+                {"kind": "assign", "var": "x", "value": "42"},
+                {"kind": "assign", "var": "name", "value": "\"hello\""},
+                {"kind": "assign", "var": "flag", "value": "true"}
+            ]
+        });
+
+        let result = execute(&procedure, &NoopHandler).unwrap();
+        assert!(result.success);
+        assert_eq!(result.variables.get("x"), Some(&json!(42)));
+        assert_eq!(result.variables.get("name"), Some(&json!("hello")));
+        assert_eq!(result.variables.get("flag"), Some(&json!(true)));
+    }
+
+    #[test]
+    fn test_assign_with_var_substitution() {
+        use serde_json::json;
+
+        struct NoopHandler;
+        impl ActionHandler for NoopHandler {
+            fn call(&self, _name: &str, _params: &Value) -> Result<Value, ExecutionError> {
+                Ok(Value::Null)
+            }
+        }
+
+        let procedure = json!({
+            "type": "procedure",
+            "name": "test_assign_var",
+            "steps": [
+                {"kind": "assign", "var": "a", "value": "10"},
+                {"kind": "assign", "var": "b", "value": "$a"}
+            ]
+        });
+
+        let result = execute(&procedure, &NoopHandler).unwrap();
+        assert!(result.success);
+        assert_eq!(result.variables.get("a"), Some(&json!(10)));
+        assert_eq!(result.variables.get("b"), Some(&json!(10)));
+    }
+
+    #[test]
+    fn test_if_condition_true_branch() {
+        use serde_json::json;
+
+        struct TestHandler;
+        impl ActionHandler for TestHandler {
+            fn call(&self, name: &str, _params: &Value) -> Result<Value, ExecutionError> {
+                match name {
+                    "set_result" => Ok(json!("executed")),
+                    _ => Err(ExecutionError::UnknownAction(name.to_string())),
+                }
+            }
+        }
+
+        // Condition is true → then branch executes
+        let procedure = json!({
+            "type": "procedure",
+            "name": "test_if_true",
+            "steps": [
+                {"kind": "assign", "var": "status", "value": "\"active\""},
+                {
+                    "kind": "if",
+                    "condition": "status == active",
+                    "then": [
+                        {"kind": "call", "name": "set_result", "params": {}, "output_var": "res"}
+                    ],
+                    "else": [
+                        {"kind": "call", "name": "should_not_run", "params": {}, "output_var": "res"}
+                    ]
+                }
+            ]
+        });
+
+        let result = execute(&procedure, &TestHandler).unwrap();
+        assert!(result.success);
+        assert_eq!(result.variables.get("res"), Some(&json!("executed")));
+    }
+
+    #[test]
+    fn test_if_condition_false_branch() {
+        use serde_json::json;
+
+        struct TestHandler;
+        impl ActionHandler for TestHandler {
+            fn call(&self, name: &str, _params: &Value) -> Result<Value, ExecutionError> {
+                match name {
+                    "else_action" => Ok(json!("else_ran")),
+                    _ => Err(ExecutionError::UnknownAction(name.to_string())),
+                }
+            }
+        }
+
+        // Condition is false → else branch executes
+        let procedure = json!({
+            "type": "procedure",
+            "name": "test_if_false",
+            "steps": [
+                {"kind": "assign", "var": "count", "value": "0"},
+                {
+                    "kind": "if",
+                    "condition": "count > 5",
+                    "then": [
+                        {"kind": "call", "name": "should_not_run", "params": {}, "output_var": "res"}
+                    ],
+                    "else": [
+                        {"kind": "call", "name": "else_action", "params": {}, "output_var": "res"}
+                    ]
+                }
+            ]
+        });
+
+        let result = execute(&procedure, &TestHandler).unwrap();
+        assert!(result.success);
+        assert_eq!(result.variables.get("res"), Some(&json!("else_ran")));
+    }
+
+    #[test]
+    fn test_for_loop_iteration() {
+        use serde_json::json;
+
+        struct TransformHandler;
+        impl ActionHandler for TransformHandler {
+            fn call(&self, name: &str, params: &Value) -> Result<Value, ExecutionError> {
+                match name {
+                    "double" => {
+                        let n = params.get("n").and_then(|v| v.as_i64()).unwrap_or(0);
+                        Ok(json!(n * 2))
+                    }
+                    _ => Err(ExecutionError::UnknownAction(name.to_string())),
+                }
+            }
+        }
+
+        let procedure = json!({
+            "type": "procedure",
+            "name": "test_for",
+            "steps": [
+                {
+                    "kind": "for",
+                    "var": "item",
+                    "iterable": "$numbers",
+                    "steps": [
+                        {"kind": "call", "name": "double", "params": {"n": "$item"}, "output_var": "doubled"}
+                    ]
+                }
+            ]
+        });
+
+        let mut vars = HashMap::new();
+        vars.insert("numbers".to_string(), json!([1, 2, 3]));
+
+        let result = execute_with_vars(&procedure, &TransformHandler, vars).unwrap();
+        assert!(result.success);
+        // The for step's output is [2, 4, 6] — each iteration's last output
+        let for_result = &result.step_results[0];
+        assert_eq!(for_result.kind, "for");
+        assert_eq!(for_result.output, Some(json!([2, 4, 6])));
+    }
+
+    #[test]
+    fn test_for_loop_empty_iterable() {
+        use serde_json::json;
+
+        struct NoopHandler;
+        impl ActionHandler for NoopHandler {
+            fn call(&self, _name: &str, _params: &Value) -> Result<Value, ExecutionError> {
+                Ok(Value::Null)
+            }
+        }
+
+        // Iterable var doesn't exist → for step is skipped
+        let procedure = json!({
+            "type": "procedure",
+            "name": "test_for_empty",
+            "steps": [
+                {
+                    "kind": "for",
+                    "var": "item",
+                    "iterable": "$missing",
+                    "steps": [
+                        {"kind": "call", "name": "should_not_run", "params": {}}
+                    ]
+                }
+            ]
+        });
+
+        let result = execute(&procedure, &NoopHandler).unwrap();
+        assert!(result.success);
+        assert!(result.step_results[0].skipped);
+    }
+
+    #[test]
+    fn test_full_pipeline_assign_if_for() {
+        // Integration: Parse → Compile → Execute with assign + if + for
+        use crate::px::compiler::compile;
+        use crate::px;
+
+        struct PipeHandler;
+        impl ActionHandler for PipeHandler {
+            fn call(&self, name: &str, params: &Value) -> Result<Value, ExecutionError> {
+                match name {
+                    "process" => {
+                        let val = params.get("val").and_then(|v| v.as_str()).unwrap_or("");
+                        Ok(json!(format!("processed_{}", val)))
+                    }
+                    _ => Err(ExecutionError::UnknownAction(name.to_string())),
+                }
+            }
+        }
+
+        let source = "procedure control_flow_test:\n  trigger: manual\n  $count = 3\n\n  if $count > 0:\n    process {val: \"ok\"} -> $result\n  end\n";
+
+        let doc = px::parse(source).expect("parse failed");
+        let records = compile(&doc);
+        assert_eq!(records.len(), 1);
+
+        let result = execute(&records[0].data, &PipeHandler).unwrap();
+        assert!(result.success);
+        assert_eq!(result.variables.get("count"), Some(&json!(3)));
+        assert_eq!(result.variables.get("result"), Some(&json!("processed_ok")));
     }
 }

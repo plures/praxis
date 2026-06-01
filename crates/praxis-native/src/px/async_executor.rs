@@ -40,7 +40,7 @@ use async_trait::async_trait;
 use serde_json::Value;
 use tokio::time::timeout;
 
-use super::executor::{default_evaluate_condition, ExecutionError, ExecutionResult, StepResult};
+use super::executor::{default_evaluate_condition, eval_numeric_expr, resolve_var, interpolate_string, ExecutionError, ExecutionResult, StepResult};
 
 // ── Async Action Handler Trait ────────────────────────────────────────────────
 
@@ -159,6 +159,9 @@ fn execute_step_async<'a>(
             "emit" => execute_emit_async(step, index, vars),
             "try" => execute_try_async(step, index, vars, handler).await,
             "parallel" => execute_parallel_async(step, index, vars, handler).await,
+            "assign" => execute_assign_async(step, index, vars, handler),
+            "if" => execute_if_async(step, index, vars, handler).await,
+            "for" => execute_for_async(step, index, vars, handler).await,
             "return" => {
                 let value = step.get("value").cloned();
                 Ok(StepResult {
@@ -874,6 +877,211 @@ impl<H: ActionHandler + 'static> AsyncActionHandler for SyncAdapter<H> {
     fn evaluate_condition(&self, expr: &str, vars: &HashMap<String, Value>) -> bool {
         self.0.evaluate_condition(expr, vars)
     }
+}
+
+// ── Assign / If / For (async wrappers) ────────────────────────────────────────
+
+/// Execute an `assign` step (sync — no async needed).
+fn execute_assign_async(
+    step: &Value,
+    index: usize,
+    vars: &mut HashMap<String, Value>,
+    _handler: &dyn AsyncActionHandler,
+) -> Result<StepResult, ExecutionError> {
+    let var_name = step
+        .get("var")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| ExecutionError::InvalidStructure("assign step missing 'var'".into()))?;
+
+    let expr_str = step
+        .get("value")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| ExecutionError::InvalidStructure("assign step missing 'value'".into()))?;
+
+    let resolved = resolve_assign_value(expr_str, vars);
+    vars.insert(var_name.to_string(), resolved.clone());
+
+    Ok(StepResult {
+        index,
+        kind: "assign".into(),
+        output: Some(resolved),
+        skipped: false,
+    })
+}
+
+/// Resolve an assignment expression to a JSON Value.
+fn resolve_assign_value(expr: &str, vars: &HashMap<String, Value>) -> Value {
+    let expr = expr.trim();
+    if let Some(val) = resolve_var(expr, vars) {
+        return val;
+    }
+    if let Ok(n) = expr.parse::<i64>() {
+        return Value::Number(serde_json::Number::from(n));
+    }
+    if let Ok(n) = expr.parse::<f64>() {
+        if let Some(num) = serde_json::Number::from_f64(n) {
+            return Value::Number(num);
+        }
+    }
+    match expr {
+        "true" => return Value::Bool(true),
+        "false" => return Value::Bool(false),
+        "null" => return Value::Null,
+        _ => {}
+    }
+    if (expr.starts_with('"') && expr.ends_with('"'))
+        || (expr.starts_with('\'') && expr.ends_with('\''))
+    {
+        let inner = &expr[1..expr.len() - 1];
+        if inner.contains("${") {
+            return Value::String(interpolate_string(inner, vars));
+        }
+        return Value::String(inner.to_string());
+    }
+    if let Some(result) = eval_numeric_expr(expr, vars) {
+        if result.fract() == 0.0 && result.abs() < i64::MAX as f64 {
+            return Value::Number(serde_json::Number::from(result as i64));
+        }
+        if let Some(num) = serde_json::Number::from_f64(result) {
+            return Value::Number(num);
+        }
+    }
+    Value::String(expr.to_string())
+}
+
+/// Execute an `if` step: evaluate condition, run then or else branch.
+async fn execute_if_async(
+    step: &Value,
+    index: usize,
+    vars: &mut HashMap<String, Value>,
+    handler: &dyn AsyncActionHandler,
+) -> Result<StepResult, ExecutionError> {
+    let condition = step
+        .get("condition")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| ExecutionError::InvalidStructure("if step missing 'condition'".into()))?;
+
+    let cond_result = handler.evaluate_condition(condition, vars);
+
+    let branch_steps = if cond_result {
+        step.get("then").and_then(|v| v.as_array())
+    } else {
+        step.get("else").and_then(|v| v.as_array())
+    };
+
+    let Some(steps) = branch_steps else {
+        return Ok(StepResult {
+            index,
+            kind: "if".into(),
+            output: None,
+            skipped: !cond_result,
+        });
+    };
+
+    let mut last_output = None;
+    for (i, nested) in steps.iter().enumerate() {
+        let result = execute_step_async(nested, i, vars, handler).await?;
+        if result.kind == "return" {
+            return Ok(StepResult {
+                index,
+                kind: "return".into(),
+                output: result.output,
+                skipped: false,
+            });
+        }
+        last_output = result.output;
+    }
+
+    Ok(StepResult {
+        index,
+        kind: "if".into(),
+        output: last_output,
+        skipped: false,
+    })
+}
+
+/// Execute a `for` step: resolve iterable, iterate, execute steps per item.
+async fn execute_for_async(
+    step: &Value,
+    index: usize,
+    vars: &mut HashMap<String, Value>,
+    handler: &dyn AsyncActionHandler,
+) -> Result<StepResult, ExecutionError> {
+    let var_name = step
+        .get("var")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| ExecutionError::InvalidStructure("for step missing 'var'".into()))?;
+
+    let iterable_expr = step
+        .get("iterable")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| ExecutionError::InvalidStructure("for step missing 'iterable'".into()))?;
+
+    let nested_steps = step
+        .get("steps")
+        .and_then(|v| v.as_array())
+        .ok_or_else(|| ExecutionError::InvalidStructure("for step missing 'steps'".into()))?;
+
+    let iter_var = iterable_expr.strip_prefix('$').unwrap_or(iterable_expr);
+    let iterable_val = vars.get(iter_var).cloned();
+
+    let iterations: Vec<(Option<String>, Value)> = match &iterable_val {
+        Some(Value::Array(arr)) => arr.iter().map(|v| (None, v.clone())).collect(),
+        Some(Value::Object(map)) => map
+            .iter()
+            .map(|(k, v)| (Some(k.clone()), v.clone()))
+            .collect(),
+        Some(other) => vec![(None, other.clone())],
+        None => {
+            return Ok(StepResult {
+                index,
+                kind: "for".into(),
+                output: None,
+                skipped: true,
+            })
+        }
+    };
+
+    let mut results: Vec<Value> = Vec::new();
+
+    for (iter_index, (key, item)) in iterations.into_iter().enumerate() {
+        vars.insert(var_name.to_string(), item);
+        vars.insert("index".to_string(), Value::Number(iter_index.into()));
+        if let Some(k) = key {
+            vars.insert("key".to_string(), Value::String(k));
+        }
+
+        for nested in nested_steps {
+            let result = execute_step_async(nested, iter_index, vars, handler).await?;
+            if result.kind == "return" {
+                vars.remove(var_name);
+                vars.remove("index");
+                vars.remove("key");
+                return Ok(StepResult {
+                    index,
+                    kind: "return".into(),
+                    output: result.output,
+                    skipped: false,
+                });
+            }
+            if let Some(output) = &result.output {
+                results.push(output.clone());
+            }
+        }
+    }
+
+    vars.remove(var_name);
+    vars.remove("index");
+    vars.remove("key");
+
+    let output = Value::Array(results);
+
+    Ok(StepResult {
+        index,
+        kind: "for".into(),
+        output: Some(output),
+        skipped: false,
+    })
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────

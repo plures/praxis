@@ -204,6 +204,23 @@ pub enum PxStep {
         /// Optional variable to collect results into (map of branch_name → last output).
         output_var: Option<String>,
     },
+    /// Assign an expression result to a variable.
+    Assign {
+        var: String,
+        value: String,
+    },
+    /// Conditional execution with if/else branches.
+    If {
+        condition: String,
+        then_steps: Vec<PxStep>,
+        else_steps: Vec<PxStep>,
+    },
+    /// For-loop iteration over a collection.
+    For {
+        var: String,
+        iterable: String,
+        steps: Vec<PxStep>,
+    },
     /// Early return from the procedure with an optional value.
     Return {
         value: Option<serde_json::Value>,

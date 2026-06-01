@@ -908,6 +908,77 @@ fn build_step(pair: Pair<'_, Rule>) -> PxStep {
                 output_var,
             }
         }
+        Rule::step_assign => {
+            let mut parts = inner.into_inner();
+            // var_ref is "$name" — strip the $ prefix
+            let var_raw = next_str(&mut parts);
+            let var = var_raw.strip_prefix('$').unwrap_or(&var_raw).to_string();
+            let value = parts
+                .next()
+                .map(|p| p.as_str().to_string())
+                .unwrap_or_default();
+            PxStep::Assign { var, value }
+        }
+        Rule::step_if => {
+            let mut parts = inner.into_inner();
+            let condition = parts
+                .next()
+                .map(|p| p.as_str().to_string())
+                .unwrap_or_default();
+            let then_steps = parts
+                .find(|p| p.as_rule() == Rule::block_step_list)
+                .map(|sl| {
+                    sl.into_inner()
+                        .filter(|p| p.as_rule() == Rule::step_decl)
+                        .map(build_step)
+                        .collect()
+                })
+                .unwrap_or_default();
+            let else_steps = parts
+                .find(|p| p.as_rule() == Rule::step_else)
+                .map(|se| {
+                    se.into_inner()
+                        .find(|p| p.as_rule() == Rule::block_step_list)
+                        .map(|sl| {
+                            sl.into_inner()
+                                .filter(|p| p.as_rule() == Rule::step_decl)
+                                .map(build_step)
+                                .collect()
+                        })
+                        .unwrap_or_default()
+                })
+                .unwrap_or_default();
+            PxStep::If {
+                condition,
+                then_steps,
+                else_steps,
+            }
+        }
+        Rule::step_for => {
+            let mut parts = inner.into_inner();
+            // var_ref is "$name" — strip the $ prefix
+            let var_raw = next_str(&mut parts);
+            let var = var_raw.strip_prefix('$').unwrap_or(&var_raw).to_string();
+            // iterable is a call_expr, var_ref, or dotted_ident
+            let iterable = parts
+                .next()
+                .map(|p| p.as_str().to_string())
+                .unwrap_or_default();
+            let steps = parts
+                .find(|p| p.as_rule() == Rule::block_step_list)
+                .map(|sl| {
+                    sl.into_inner()
+                        .filter(|p| p.as_rule() == Rule::step_decl)
+                        .map(build_step)
+                        .collect()
+                })
+                .unwrap_or_default();
+            PxStep::For {
+                var,
+                iterable,
+                steps,
+            }
+        }
         Rule::step_return => {
             let value = inner.into_inner().next().map(|p| parse_value(p));
             PxStep::Return { value }
