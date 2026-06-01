@@ -7,8 +7,8 @@
 use serde_json::json;
 
 use super::{
-    FunctionMode, PxConstraint, PxContract, PxDocument, PxFact, PxFunction, PxImport, PxProcedure,
-    PxRule, PxScenario, PxStep, PxTrigger,
+    FunctionMode, PxConfig, PxConstraint, PxContract, PxDocument, PxEntity, PxFact, PxFunction,
+    PxImport, PxProcedure, PxRule, PxScenario, PxStep, PxTrigger,
 };
 
 /// A compiled PluresDB record ready for storage.
@@ -28,6 +28,12 @@ pub fn compile(doc: &PxDocument) -> Vec<CompiledRecord> {
 
     for import in &doc.imports {
         records.push(compile_import(import));
+    }
+    for config in &doc.configs {
+        records.push(compile_config(config));
+    }
+    for entity in &doc.entities {
+        records.push(compile_entity(entity));
     }
     for fact in &doc.facts {
         records.push(compile_fact(fact));
@@ -67,6 +73,43 @@ fn compile_import(import: &PxImport) -> CompiledRecord {
             "type": "import",
             "path": import.path,
             "alias": import.alias,
+        }),
+        embed: false,
+    }
+}
+
+fn compile_config(config: &PxConfig) -> CompiledRecord {
+    let entries: serde_json::Map<String, serde_json::Value> = config
+        .entries
+        .iter()
+        .map(|e| (e.key.clone(), e.value.clone()))
+        .collect();
+
+    CompiledRecord {
+        key: format!("px:config/{}", config.name),
+        data: json!({
+            "type": "config",
+            "name": config.name,
+            "entries": entries,
+        }),
+        embed: false,
+    }
+}
+
+fn compile_entity(entity: &PxEntity) -> CompiledRecord {
+    let fields: Vec<serde_json::Value> = entity
+        .fields
+        .iter()
+        .map(|f| json!({ "name": f.name, "type": f.type_expr }))
+        .collect();
+
+    CompiledRecord {
+        key: format!("px:entity/{}", entity.name),
+        data: json!({
+            "type": "entity",
+            "name": entity.name,
+            "prefix": entity.prefix,
+            "fields": fields,
         }),
         embed: false,
     }
@@ -432,6 +475,8 @@ pub struct CompileResult {
 #[derive(Debug)]
 pub struct CompileStats {
     pub imports: usize,
+    pub configs: usize,
+    pub entities: usize,
     pub facts: usize,
     pub rules: usize,
     pub constraints: usize,
@@ -448,6 +493,8 @@ pub fn compile_with_stats(doc: &PxDocument) -> CompileResult {
     let records = compile(doc);
     let stats = CompileStats {
         imports: doc.imports.len(),
+        configs: doc.configs.len(),
+        entities: doc.entities.len(),
         facts: doc.facts.len(),
         rules: doc.rules.len(),
         constraints: doc.constraints.len(),
@@ -489,6 +536,8 @@ mod tests {
     fn empty_doc() -> PxDocument {
         PxDocument {
             imports: vec![],
+            configs: vec![],
+            entities: vec![],
             facts: vec![],
             rules: vec![],
             constraints: vec![],
