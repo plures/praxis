@@ -994,9 +994,10 @@ fn build_step(pair: Pair<'_, Rule>) -> PxStep {
             // var_ref is "$name" — strip the $ prefix
             let var_raw = next_str(&mut parts);
             let var = var_raw.strip_prefix('$').unwrap_or(&var_raw).to_string();
+            // assign_value captures everything until newline as raw text
             let value = parts
                 .next()
-                .map(|p| p.as_str().to_string())
+                .map(|p| p.as_str().trim().to_string())
                 .unwrap_or_default();
             PxStep::Assign { var, value }
         }
