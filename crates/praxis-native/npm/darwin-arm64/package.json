@@ -1,0 +1,20 @@
+{
+  "name": "@plures/praxis-native-darwin-arm64",
+  "version": "0.1.0",
+  "os": ["darwin"],
+  "cpu": ["arm64"],
+  
+  "main": "praxis-native.darwin-arm64.node",
+  "files": ["praxis-native.darwin-arm64.node"],
+  "description": "praxis-native native binding for macOS ARM64 (Apple Silicon)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plures/praxis.git",
+    "directory": "crates/praxis-native"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

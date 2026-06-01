@@ -1,0 +1,20 @@
+{
+  "name": "@plures/praxis-native-linux-arm64-musl",
+  "version": "0.1.0",
+  "os": ["linux"],
+  "cpu": ["arm64"],
+  "libc": ["musl"],
+  "main": "praxis-native.linux-arm64-musl.node",
+  "files": ["praxis-native.linux-arm64-musl.node"],
+  "description": "praxis-native native binding for Linux ARM64 (musl)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plures/praxis.git",
+    "directory": "crates/praxis-native"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}
