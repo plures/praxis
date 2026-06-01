@@ -1,0 +1,83 @@
+name: Mutation Testing (praxis-native)
+on:
+  schedule:
+    - cron: '0 4 * * 0'  # Weekly, Sunday 4am UTC
+  workflow_dispatch:
+    inputs:
+      target_file:
+        description: 'Specific file to test (e.g. src/px/executor.rs)'
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+env:
+  CARGO_INCREMENTAL: '0'
+  CARGO_TERM_COLOR: always
+
+jobs:
+  mutants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - name: executor
+            file: src/px/executor.rs
+          - name: compiler
+            file: src/px/compiler.rs
+          - name: lint
+            file: src/px/lint.rs
+          - name: native-functions
+            file: src/native_functions.rs
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-mutants
+        run: cargo install cargo-mutants
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            crates/praxis-native/target
+          key: mutants-${{ matrix.module.name }}-${{ hashFiles('crates/praxis-native/Cargo.lock', 'crates/praxis-native/Cargo.toml') }}
+
+      - name: Run mutation testing
+        working-directory: crates/praxis-native
+        run: |
+          FILE="${{ inputs.target_file || matrix.module.file }}"
+          echo "Testing mutations in: $FILE"
+          cargo mutants --no-default-features -f "$FILE" --timeout 120 -j 2 2>&1 | tee results.txt
+          
+          # Parse results
+          CAUGHT=$(grep -oP '\d+ caught' results.txt | grep -oP '\d+' || echo "0")
+          MISSED=$(grep -oP '\d+ missed' results.txt | grep -oP '\d+' || echo "0")
+          UNVIABLE=$(grep -oP '\d+ unviable' results.txt | grep -oP '\d+' || echo "0")
+          
+          echo "## Mutation Results: ${{ matrix.module.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Caught | $CAUGHT |" >> $GITHUB_STEP_SUMMARY
+          echo "| Missed | $MISSED |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unviable | $UNVIABLE |" >> $GITHUB_STEP_SUMMARY
+          
+          # Fail if any non-equivalent mutants were missed
+          if [ "$MISSED" -gt "0" ]; then
+            echo "::error::$MISSED mutants survived in ${{ matrix.module.name }}!"
+            exit 1
+          fi
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutants-${{ matrix.module.name }}
+          path: crates/praxis-native/mutants.out/
