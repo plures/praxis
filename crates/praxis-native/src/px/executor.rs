@@ -24,6 +24,8 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use crate::native_functions::NativeFunctionRegistry;
+
 // ── Action Handler Trait ──────────────────────────────────────────────────────
 
 /// Trait for handling procedure step calls.
@@ -2311,7 +2313,7 @@ fn eval_atom(expr: &str, vars: &HashMap<String, Value>) -> bool {
     }
 
     // Function-call syntax: `len(items)`, `is_empty(name)`, etc.
-    if let Some(result) = resolve_function_call(expr, vars) {
+    if let Some(result) = resolve_function_call(expr, vars, None) {
         return is_truthy(&result);
     }
 
@@ -2490,8 +2492,8 @@ fn resolve_value_with_pipes(expr: &str, vars: &HashMap<String, Value>) -> Option
 /// Compare for equality. Supports arithmetic expressions.
 fn compare_eq(lhs: &str, rhs: &str, vars: &HashMap<String, Value>) -> bool {
     // Try function-call syntax on lhs: `trim(name) == "hello"`, `upper(x) == "FOO"`
-    if let Some(lhs_val) = resolve_function_call(lhs, vars) {
-        let rhs_val = resolve_function_call(rhs, vars)
+    if let Some(lhs_val) = resolve_function_call(lhs, vars, None) {
+        let rhs_val = resolve_function_call(rhs, vars, None)
             .map(|v| value_to_interpolation_string(&v))
             .or_else(|| resolve_value_with_pipes(rhs, vars))
             .unwrap_or_else(|| rhs.trim_matches('"').to_string());
@@ -2588,7 +2590,7 @@ fn eval_numeric_expr(expr: &str, vars: &HashMap<String, Value>) -> Option<f64> {
     }
 
     // Try function-call syntax: len(items), length(name), etc.
-    if let Some(result) = resolve_function_call(expr, vars) {
+    if let Some(result) = resolve_function_call(expr, vars, None) {
         return match &result {
             Value::Number(n) => n.as_f64(),
             Value::String(s) => s.parse::<f64>().ok(),
@@ -2658,10 +2660,10 @@ fn eval_numeric_expr(expr: &str, vars: &HashMap<String, Value>) -> Option<f64> {
 
 /// Resolve a function argument: try nested function call first, then variable lookup, then literal.
 /// This enables expressions like `len(trim(name))` where inner functions resolve first.
-fn resolve_arg(arg: &str, vars: &HashMap<String, Value>) -> Option<Value> {
+fn resolve_arg(arg: &str, vars: &HashMap<String, Value>, registry: Option<&NativeFunctionRegistry>) -> Option<Value> {
     let arg = arg.trim();
     // Try as nested function call first
-    if let Some(val) = resolve_function_call(arg, vars) {
+    if let Some(val) = resolve_function_call(arg, vars, registry) {
         return Some(val);
     }
     // Try as variable
@@ -2699,7 +2701,7 @@ fn resolve_arg(arg: &str, vars: &HashMap<String, Value>) -> Option<Value> {
 /// Resolve a function-call expression like `len(items)`, `is_empty(name)`, `trim(value)`, etc.
 /// Supports nested calls like `len(trim(name))` via recursive `resolve_arg`.
 /// Returns the result as a JSON Value, or None if not a recognized function call.
-fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Value> {
+fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>, registry: Option<&NativeFunctionRegistry>) -> Option<Value> {
     let expr = expr.trim();
     // Match pattern: identifier( ... )
     // Use rfind-based matching to handle nested parens: find the FIRST '(' that matches the last ')'
@@ -2725,7 +2727,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let arg = args[0].trim();
-            if let Some(val) = resolve_arg(arg, vars) {
+            if let Some(val) = resolve_arg(arg, vars, registry) {
                 let n = match &val {
                     Value::String(s) => s.len(),
                     Value::Array(a) => a.len(),
@@ -2744,7 +2746,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let arg = args[0].trim();
-            if let Some(val) = resolve_arg(arg, vars) {
+            if let Some(val) = resolve_arg(arg, vars, registry) {
                 let empty = match &val {
                     Value::Null => true,
                     Value::String(s) => s.is_empty(),
@@ -2765,7 +2767,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let arg = args[0].trim();
-            if let Some(val) = resolve_arg(arg, vars) {
+            if let Some(val) = resolve_arg(arg, vars, registry) {
                 let empty = match &val {
                     Value::Null => true,
                     Value::String(s) => s.is_empty(),
@@ -2786,9 +2788,9 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
             }
             let haystack_arg = args[0].trim();
             let needle_arg = args[1].trim();
-            let haystack_val = resolve_arg(haystack_arg, vars)?;
+            let haystack_val = resolve_arg(haystack_arg, vars, registry)?;
             // Resolve needle: try as arg first, fall back to raw string
-            let needle_str = if let Some(nval) = resolve_arg(needle_arg, vars) {
+            let needle_str = if let Some(nval) = resolve_arg(needle_arg, vars, registry) {
                 value_to_interpolation_string(&nval)
             } else {
                 needle_arg.trim_matches('"').to_string()
@@ -2810,9 +2812,9 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
             }
             let var_arg = args[0].trim();
             let prefix_arg = args[1].trim();
-            let val = resolve_arg(var_arg, vars)?;
+            let val = resolve_arg(var_arg, vars, registry)?;
             let s = value_to_interpolation_string(&val);
-            let prefix = if let Some(pval) = resolve_arg(prefix_arg, vars) {
+            let prefix = if let Some(pval) = resolve_arg(prefix_arg, vars, registry) {
                 value_to_interpolation_string(&pval)
             } else {
                 prefix_arg.trim_matches('"').to_string()
@@ -2827,9 +2829,9 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
             }
             let var_arg = args[0].trim();
             let suffix_arg = args[1].trim();
-            let val = resolve_arg(var_arg, vars)?;
+            let val = resolve_arg(var_arg, vars, registry)?;
             let s = value_to_interpolation_string(&val);
-            let suffix = if let Some(sval) = resolve_arg(suffix_arg, vars) {
+            let suffix = if let Some(sval) = resolve_arg(suffix_arg, vars, registry) {
                 value_to_interpolation_string(&sval)
             } else {
                 suffix_arg.trim_matches('"').to_string()
@@ -2843,7 +2845,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let arg = args[0].trim();
-            let val = resolve_arg(arg, vars)?;
+            let val = resolve_arg(arg, vars, registry)?;
             let s = value_to_interpolation_string(&val);
             Some(Value::String(s.trim().to_string()))
         }
@@ -2854,7 +2856,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let arg = args[0].trim();
-            let val = resolve_arg(arg, vars)?;
+            let val = resolve_arg(arg, vars, registry)?;
             let s = value_to_interpolation_string(&val);
             Some(Value::String(s.to_uppercase()))
         }
@@ -2865,7 +2867,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let arg = args[0].trim();
-            let val = resolve_arg(arg, vars)?;
+            let val = resolve_arg(arg, vars, registry)?;
             let s = value_to_interpolation_string(&val);
             Some(Value::String(s.to_lowercase()))
         }
@@ -2876,7 +2878,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let arg = args[0].trim();
-            let val = resolve_arg(arg, vars)?;
+            let val = resolve_arg(arg, vars, registry)?;
             let s = value_to_interpolation_string(&val);
             let mut chars = s.chars();
             let result = match chars.next() {
@@ -2895,7 +2897,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let arg = args[0].trim();
-            let val = resolve_arg(arg, vars)?;
+            let val = resolve_arg(arg, vars, registry)?;
             let s = value_to_interpolation_string(&val);
             Some(Value::String(s.chars().rev().collect()))
         }
@@ -2907,13 +2909,13 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
             }
             let var_arg = args[0].trim();
             let fallback_arg = args[1].trim();
-            if let Some(val) = resolve_arg(var_arg, vars) {
+            if let Some(val) = resolve_arg(var_arg, vars, registry) {
                 if is_truthy(&val) {
                     return Some(val);
                 }
             }
             // Resolve fallback as arg too
-            if let Some(fb) = resolve_arg(fallback_arg, vars) {
+            if let Some(fb) = resolve_arg(fallback_arg, vars, registry) {
                 return Some(fb);
             }
             Some(Value::String(fallback_arg.trim_matches('"').to_string()))
@@ -2925,7 +2927,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let arg = args[0].trim();
-            if let Some(val) = resolve_arg(arg, vars) {
+            if let Some(val) = resolve_arg(arg, vars, registry) {
                 let type_name = match &val {
                     Value::Null => "null",
                     Value::Bool(_) => "boolean",
@@ -2946,11 +2948,11 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let var_arg = args[0].trim();
-            let var_val = resolve_arg(var_arg, vars)?;
+            let var_val = resolve_arg(var_arg, vars, registry)?;
             let var_str = value_to_interpolation_string(&var_val);
             for candidate in &args[1..] {
                 let candidate = candidate.trim();
-                if let Some(cval) = resolve_arg(candidate, vars) {
+                if let Some(cval) = resolve_arg(candidate, vars, registry) {
                     if value_to_interpolation_string(&cval) == var_str {
                         return Some(Value::Bool(true));
                     }
@@ -2971,11 +2973,11 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let var_arg = args[0].trim();
-            let var_val = resolve_arg(var_arg, vars)?;
+            let var_val = resolve_arg(var_arg, vars, registry)?;
             let var_str = value_to_interpolation_string(&var_val);
             for candidate in &args[1..] {
                 let candidate = candidate.trim();
-                if let Some(cval) = resolve_arg(candidate, vars) {
+                if let Some(cval) = resolve_arg(candidate, vars, registry) {
                     if value_to_interpolation_string(&cval) == var_str {
                         return Some(Value::Bool(false));
                     }
@@ -2999,18 +3001,18 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
             let then_arg = args[1].trim();
             let else_arg = args[2].trim();
             // Evaluate condition: try as function call, then as variable truthy check
-            let cond_result = if let Some(val) = resolve_arg(cond_arg, vars) {
+            let cond_result = if let Some(val) = resolve_arg(cond_arg, vars, registry) {
                 is_truthy(&val)
             } else {
                 // Try evaluating as a sub-expression
                 default_evaluate_condition(cond_arg, vars)
             };
             if cond_result {
-                resolve_arg(then_arg, vars).or_else(|| {
+                resolve_arg(then_arg, vars, registry).or_else(|| {
                     Some(Value::String(then_arg.trim_matches('"').to_string()))
                 })
             } else {
-                resolve_arg(else_arg, vars).or_else(|| {
+                resolve_arg(else_arg, vars, registry).or_else(|| {
                     Some(Value::String(else_arg.trim_matches('"').to_string()))
                 })
             }
@@ -3024,7 +3026,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
             }
             for arg in &args {
                 let arg = arg.trim();
-                if let Some(val) = resolve_arg(arg, vars) {
+                if let Some(val) = resolve_arg(arg, vars, registry) {
                     if is_truthy(&val) {
                         return Some(val);
                     }
@@ -3042,7 +3044,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
             let mut min_val: Option<f64> = None;
             for arg in &args {
                 let arg = arg.trim();
-                if let Some(val) = resolve_arg(arg, vars) {
+                if let Some(val) = resolve_arg(arg, vars, registry) {
                     if let Some(n) = value_to_f64(&val) {
                         min_val = Some(match min_val {
                             None => n,
@@ -3068,7 +3070,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
             let mut max_val: Option<f64> = None;
             for arg in &args {
                 let arg = arg.trim();
-                if let Some(val) = resolve_arg(arg, vars) {
+                if let Some(val) = resolve_arg(arg, vars, registry) {
                     if let Some(n) = value_to_f64(&val) {
                         max_val = Some(match max_val {
                             None => n,
@@ -3092,7 +3094,7 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
                 return None;
             }
             let arg = args[0].trim();
-            let val = resolve_arg(arg, vars)?;
+            let val = resolve_arg(arg, vars, registry)?;
             let n = value_to_f64(&val)?;
             let abs_n = n.abs();
             if abs_n == abs_n.floor() && abs_n >= 0.0 && abs_n <= i64::MAX as f64 {
@@ -3107,9 +3109,9 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
             if args.len() != 3 {
                 return None;
             }
-            let val = resolve_arg(args[0].trim(), vars)?;
-            let min_val = resolve_arg(args[1].trim(), vars)?;
-            let max_val = resolve_arg(args[2].trim(), vars)?;
+            let val = resolve_arg(args[0].trim(), vars, registry)?;
+            let min_val = resolve_arg(args[1].trim(), vars, registry)?;
+            let max_val = resolve_arg(args[2].trim(), vars, registry)?;
             let n = value_to_f64(&val)?;
             let lo = value_to_f64(&min_val)?;
             let hi = value_to_f64(&max_val)?;
@@ -3122,7 +3124,17 @@ fn resolve_function_call(expr: &str, vars: &HashMap<String, Value>) -> Option<Va
             }
         }
 
-        _ => None,
+        _ => {
+            // Fallback: try the NativeFunctionRegistry
+            if let Some(reg) = registry {
+                let evaluated_args: Vec<Value> = args.iter()
+                    .filter_map(|a| resolve_arg(a.trim(), vars, registry))
+                    .collect();
+                reg.call(fn_name, &evaluated_args).ok()
+            } else {
+                None
+            }
+        }
     }
 }
 
@@ -6041,7 +6053,7 @@ mod tests {
         let mut vars = HashMap::new();
         vars.insert("is_admin".to_string(), json!(true));
         // if_else returns "full" when condition is truthy
-        let result = resolve_function_call(r#"if_else(is_admin, "full", "limited")"#, &vars);
+        let result = resolve_function_call(r#"if_else(is_admin, "full", "limited")"#, &vars, None);
         assert_eq!(result, Some(json!("full")));
     }
 
@@ -6049,7 +6061,7 @@ mod tests {
     fn test_if_else_false_branch() {
         let mut vars = HashMap::new();
         vars.insert("is_admin".to_string(), json!(false));
-        let result = resolve_function_call(r#"if_else(is_admin, "full", "limited")"#, &vars);
+        let result = resolve_function_call(r#"if_else(is_admin, "full", "limited")"#, &vars, None);
         assert_eq!(result, Some(json!("limited")));
     }
 
@@ -6058,7 +6070,7 @@ mod tests {
         let mut vars = HashMap::new();
         vars.insert("count".to_string(), json!(5));
         // Uses a nested function as condition
-        let result = resolve_function_call(r#"if_else(count, "has items", "empty")"#, &vars);
+        let result = resolve_function_call(r#"if_else(count, "has items", "empty")"#, &vars, None);
         assert_eq!(result, Some(json!("has items")));
     }
 
@@ -6069,7 +6081,7 @@ mod tests {
         let mut vars = HashMap::new();
         vars.insert("name".to_string(), json!("Alice"));
         vars.insert("fallback".to_string(), json!("Unknown"));
-        let result = resolve_function_call("coalesce(name, fallback)", &vars);
+        let result = resolve_function_call("coalesce(name, fallback)", &vars, None);
         assert_eq!(result, Some(json!("Alice")));
     }
 
@@ -6078,7 +6090,7 @@ mod tests {
         let mut vars = HashMap::new();
         vars.insert("name".to_string(), json!(""));
         vars.insert("nick".to_string(), json!("Bob"));
-        let result = resolve_function_call("coalesce(name, nick)", &vars);
+        let result = resolve_function_call("coalesce(name, nick)", &vars, None);
         assert_eq!(result, Some(json!("Bob")));
     }
 
@@ -6087,7 +6099,7 @@ mod tests {
         let mut vars = HashMap::new();
         vars.insert("a".to_string(), json!(null));
         vars.insert("b".to_string(), json!(""));
-        let result = resolve_function_call("coalesce(a, b)", &vars);
+        let result = resolve_function_call("coalesce(a, b)", &vars, None);
         assert_eq!(result, Some(Value::Null));
     }
 
@@ -6099,7 +6111,7 @@ mod tests {
         vars.insert("a".to_string(), json!(10));
         vars.insert("b".to_string(), json!(3));
         vars.insert("c".to_string(), json!(7));
-        let result = resolve_function_call("min(a, b, c)", &vars);
+        let result = resolve_function_call("min(a, b, c)", &vars, None);
         assert_eq!(result, Some(json!(3)));
     }
 
@@ -6109,7 +6121,7 @@ mod tests {
         vars.insert("a".to_string(), json!(10));
         vars.insert("b".to_string(), json!(3));
         vars.insert("c".to_string(), json!(7));
-        let result = resolve_function_call("max(a, b, c)", &vars);
+        let result = resolve_function_call("max(a, b, c)", &vars, None);
         assert_eq!(result, Some(json!(10)));
     }
 
@@ -6117,7 +6129,7 @@ mod tests {
     fn test_abs_negative() {
         let mut vars = HashMap::new();
         vars.insert("x".to_string(), json!(-42));
-        let result = resolve_function_call("abs(x)", &vars);
+        let result = resolve_function_call("abs(x)", &vars, None);
         assert_eq!(result, Some(json!(42)));
     }
 
@@ -6125,7 +6137,7 @@ mod tests {
     fn test_abs_positive() {
         let mut vars = HashMap::new();
         vars.insert("x".to_string(), json!(7));
-        let result = resolve_function_call("abs(x)", &vars);
+        let result = resolve_function_call("abs(x)", &vars, None);
         assert_eq!(result, Some(json!(7)));
     }
 
@@ -6133,7 +6145,7 @@ mod tests {
     fn test_clamp_within_range() {
         let mut vars = HashMap::new();
         vars.insert("val".to_string(), json!(5));
-        let result = resolve_function_call("clamp(val, 0, 10)", &vars);
+        let result = resolve_function_call("clamp(val, 0, 10)", &vars, None);
         assert_eq!(result, Some(json!(5)));
     }
 
@@ -6141,7 +6153,7 @@ mod tests {
     fn test_clamp_below_min() {
         let mut vars = HashMap::new();
         vars.insert("val".to_string(), json!(-3));
-        let result = resolve_function_call("clamp(val, 0, 10)", &vars);
+        let result = resolve_function_call("clamp(val, 0, 10)", &vars, None);
         assert_eq!(result, Some(json!(0)));
     }
 
@@ -6149,7 +6161,7 @@ mod tests {
     fn test_clamp_above_max() {
         let mut vars = HashMap::new();
         vars.insert("val".to_string(), json!(15));
-        let result = resolve_function_call("clamp(val, 0, 10)", &vars);
+        let result = resolve_function_call("clamp(val, 0, 10)", &vars, None);
         assert_eq!(result, Some(json!(10)));
     }
 
