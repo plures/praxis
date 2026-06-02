@@ -6,6 +6,7 @@ pub mod async_executor;
 pub mod builder;
 pub mod compiler;
 pub mod compose;
+pub mod eval;
 pub mod executor;
 pub mod lint;
 pub mod resolver;
