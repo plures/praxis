@@ -1323,6 +1323,73 @@ fn build_code_stmt(pair: Pair<'_, Rule>) -> PxStep {
                 output_var: None,
             }
         }
+        Rule::code_match_stmt => {
+            let mut parts = inner.into_inner();
+            let _subject = parts.next().map(|p| expr_to_string(p)).unwrap_or_default();
+            let mut arms = Vec::new();
+            for arm_pair in parts {
+                if arm_pair.as_rule() == Rule::code_match_arm {
+                    let mut arm_parts = arm_pair.into_inner();
+                    let pattern = arm_parts.next().map(|p| p.as_str().trim().to_string()).unwrap_or_default();
+                    let result = arm_parts.next().map(|p| {
+                        if p.as_rule() == Rule::code_block {
+                            "__block__".to_string()
+                        } else {
+                            expr_to_string(p)
+                        }
+                    }).unwrap_or_default();
+                    arms.push(PxMatchArm {
+                        condition: pattern,
+                        result,
+                    });
+                }
+            }
+            PxStep::Match { arms }
+        }
+        Rule::code_try_stmt => {
+            let mut parts = inner.into_inner();
+            let try_block = parts.next()
+                .filter(|p| p.as_rule() == Rule::code_block)
+                .map(build_code_block)
+                .unwrap_or_default();
+            let _catch_var = parts.next().filter(|p| p.as_rule() == Rule::ident).map(|p| p.as_str().to_string());
+            let catch_block = parts.next()
+                .filter(|p| p.as_rule() == Rule::code_block)
+                .map(build_code_block)
+                .unwrap_or_default();
+            PxStep::Try {
+                steps: try_block,
+                catch: catch_block,
+                retry: None,
+                retry_delay_ms: None,
+                retry_backoff: None,
+                retry_max_delay_ms: None,
+                retry_jitter: None,
+            }
+        }
+        Rule::code_parallel_stmt => {
+            let mut branches = Vec::new();
+            for branch_pair in inner.into_inner() {
+                if branch_pair.as_rule() == Rule::code_parallel_branch {
+                    let mut bp = branch_pair.into_inner();
+                    let branch_name = next_str(&mut bp);
+                    let branch_steps = bp.next()
+                        .filter(|p| p.as_rule() == Rule::code_block)
+                        .map(build_code_block)
+                        .unwrap_or_default();
+                    branches.push(PxParallelBranch {
+                        name: branch_name,
+                        steps: branch_steps,
+                        retry: None,
+                        retry_delay_ms: None,
+                        retry_backoff: None,
+                        retry_max_delay_ms: None,
+                        retry_jitter: None,
+                    });
+                }
+            }
+            PxStep::Parallel { branches, output_var: None }
+        }
         _ => PxStep::Call {
             name: format!("__unknown_{:?}", inner.as_rule()),
             params: serde_json::Value::Object(serde_json::Map::new()),

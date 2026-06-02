@@ -113,7 +113,13 @@ retry_jitter_opt = { "jitter" }
 
 // === V2 Code Block (Rust-style imperative body) ===
 code_block = { "{" ~ NEWLINE* ~ (code_stmt ~ NEWLINE*)* ~ "}" }
-code_stmt = { code_let_stmt | code_if_stmt | code_for_stmt | code_return_stmt | code_emit_stmt | code_assign_stmt | code_expr_stmt }
+code_stmt = { code_let_stmt | code_if_stmt | code_for_stmt | code_match_stmt | code_try_stmt | code_parallel_stmt | code_return_stmt | code_emit_stmt | code_assign_stmt | code_expr_stmt }
+code_match_stmt = { "match" ~ code_expr ~ "{" ~ NEWLINE* ~ (code_match_arm ~ NEWLINE*)+ ~ "}" }
+code_match_arm = { code_match_pattern ~ "=>" ~ (code_block | code_expr ~ ","?) }
+code_match_pattern = { "_" | code_expr }
+code_try_stmt = { "try" ~ code_block ~ ("catch" ~ ident? ~ code_block)? }
+code_parallel_stmt = { "parallel" ~ "{" ~ NEWLINE* ~ (code_parallel_branch ~ NEWLINE*)+ ~ "}" }
+code_parallel_branch = { ident ~ ":" ~ code_block }
 code_let_stmt = { "let" ~ ident ~ "=" ~ code_expr ~ ";" }
 code_assign_stmt = { code_lvalue ~ code_assign_op ~ code_expr ~ ";" }
 code_assign_op = { "+=" | "-=" | "=" }
@@ -139,7 +145,8 @@ code_power = { code_unary ~ ("^" ~ code_unary)* }
 code_unary = { code_neg | code_not | code_atom }
 code_neg = { "-" ~ code_atom }
 code_not = { "!" ~ code_atom }
-code_atom = { code_object_literal | code_closure | code_call_expr | code_float | code_integer | code_string | code_boolean | code_null | "(" ~ code_expr ~ ")" | code_access_expr }
+code_atom = { code_parallel_expr | code_object_literal | code_closure | code_call_expr | code_float | code_integer | code_string | code_boolean | code_null | "(" ~ code_expr ~ ")" | code_access_expr }
+code_parallel_expr = { "parallel" ~ "{" ~ NEWLINE* ~ (code_parallel_branch ~ NEWLINE*)+ ~ "}" }
 code_call_expr = { ident ~ "(" ~ (code_expr ~ ("," ~ code_expr)*)? ~ ")" ~ code_access_chain? }
 code_access_expr = { code_dotted_ident ~ code_access_chain? }
 code_access_chain = { (code_bracket_access | code_dot_access)+ }
