@@ -1006,3 +1006,7 @@ scenario ttl_enforced:
         assert_eq!(doc.scenarios.len(), 1);
     }
 }
+
+#[cfg(test)]
+#[path = "tests_new_features.rs"]
+mod tests_new_features;

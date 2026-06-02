@@ -71,6 +71,26 @@ fn build_import(pair: Pair<'_, Rule>) -> PxImport {
     PxImport { path, alias }
 }
 
+fn parse_config_value(pair: Pair<'_, Rule>) -> serde_json::Value {
+    match pair.as_rule() {
+        Rule::config_nested => {
+            // Recursively parse nested config into a map
+            let mut map = serde_json::Map::new();
+            for kv in pair.into_inner() {
+                if kv.as_rule() == Rule::config_kv {
+                    let mut kvi = kv.into_inner();
+                    let k = next_str(&mut kvi);
+                    // Recursively handle nested values
+                    let v = kvi.next().map(parse_config_value).unwrap_or(serde_json::Value::Null);
+                    map.insert(k, v);
+                }
+            }
+            serde_json::Value::Object(map)
+        }
+        _ => parse_value(pair),
+    }
+}
+
 fn build_config(pair: Pair<'_, Rule>) -> PxConfig {
     let mut inner = pair.into_inner();
     let name = next_str(&mut inner);
@@ -85,24 +105,9 @@ fn build_config(pair: Pair<'_, Rule>) -> PxConfig {
             let mut ei = entry_pair.into_inner();
             let key = next_str(&mut ei);
             
-            // Parse config_nested or config_value
+            // Parse config_nested or config_value recursively
             if let Some(value_pair) = ei.next() {
-                let value = match value_pair.as_rule() {
-                    Rule::config_nested => {
-                        // Nested object: parse all config_kv into a map
-                        let mut map = serde_json::Map::new();
-                        for kv in value_pair.into_inner() {
-                            if kv.as_rule() == Rule::config_kv {
-                                let mut kvi = kv.into_inner();
-                                let k = next_str(&mut kvi);
-                                let v = kvi.next().map(parse_value).unwrap_or(serde_json::Value::Null);
-                                map.insert(k, v);
-                            }
-                        }
-                        serde_json::Value::Object(map)
-                    }
-                    _ => parse_value(value_pair),
-                };
+                let value = parse_config_value(value_pair);
                 entries.push(super::PxConfigEntry { key, value });
             }
         }
@@ -642,20 +647,47 @@ fn build_procedure(pair: Pair<'_, Rule>) -> PxProcedure {
                     .find(|p| p.as_rule() == Rule::procedure_trigger_kind)
                 {
                     let kind_text = kind_pair.as_str().to_string();
-                    let mut ki = kind_pair.into_inner();
-                    // For compound triggers like `on_write {...}` or `cron {...}`,
-                    // the map_val is an inner pair. For bare keywords like `manual`,
-                    // inner pairs are empty.
-                    let params = ki.find(|p| p.as_rule() == Rule::map_val).map(parse_value);
-                    // Extract just the keyword part (before any params)
+                    let ki = kind_pair.into_inner();
+                    
+                    // Extract the keyword (first part, before space or '(')
                     let kind_str = kind_text
-                        .split_whitespace()
+                        .split(&['(', ' '][..])
                         .next()
                         .unwrap_or(&kind_text)
                         .to_string();
+                    
+                    let mut params_value = None;
+                    
+                    // Handle trigger-specific parameters
+                    for part in ki {
+                        match part.as_rule() {
+                            Rule::trigger_pattern => {
+                                // Extract the pattern string for on_write(pattern)
+                                if let Some(pattern_str) = part.into_inner().next() {
+                                    let pattern = unquote(pattern_str.as_str());
+                                    let mut map = serde_json::Map::new();
+                                    map.insert("pattern".to_string(), serde_json::Value::String(pattern));
+                                    params_value = Some(serde_json::Value::Object(map));
+                                }
+                            }
+                            Rule::string => {
+                                // For on_event("event_name"), extract the event name
+                                let event_name = unquote(part.as_str());
+                                let mut map = serde_json::Map::new();
+                                map.insert("event".to_string(), serde_json::Value::String(event_name));
+                                params_value = Some(serde_json::Value::Object(map));
+                            }
+                            Rule::map_val => {
+                                // For periodic {interval: "33ms"} or cron {schedule: "..."}
+                                params_value = Some(parse_value(part));
+                            }
+                            _ => {}
+                        }
+                    }
+                    
                     trigger = Some(PxProcedureTrigger {
                         kind: kind_str,
-                        params,
+                        params: params_value,
                     });
                 }
             }
