@@ -20,11 +20,16 @@
 //! etc.) provides concrete implementations.
 
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use super::eval;
 use crate::native_functions::NativeFunctionRegistry;
+
+/// Shared registry instance for the executor — constructed once, reused across all evaluations.
+static REGISTRY: LazyLock<NativeFunctionRegistry> = LazyLock::new(NativeFunctionRegistry::default);
 
 // ── Action Handler Trait ──────────────────────────────────────────────────────
 
@@ -928,8 +933,11 @@ fn execute_assign(
         .and_then(|v| v.as_str())
         .ok_or_else(|| ExecutionError::InvalidStructure("assign step missing 'value'".into()))?;
 
-    // Resolve the expression value
-    let resolved = resolve_assign_expr(expr_str, vars);
+    // Try the unified expression evaluator first; fall back to legacy resolver
+    let resolved = match eval::evaluate_with_registry(expr_str, vars, &REGISTRY) {
+        Ok(val) => val,
+        Err(_) => resolve_assign_expr(expr_str, vars),
+    };
 
     vars.insert(var_name.to_string(), resolved.clone());
 
@@ -1150,8 +1158,16 @@ fn resolve_vars(value: &Value, vars: &HashMap<String, Value>) -> Value {
     match value {
         Value::String(s) if s.starts_with('$') && !s.contains("${") => {
             // Whole-string variable reference: "$name" → value of name
+            // Try eval.rs first for expressions like "$a + $b"
             let var_name = &s[1..];
-            vars.get(var_name).cloned().unwrap_or_else(|| value.clone())
+            if let Some(val) = vars.get(var_name) {
+                return val.clone();
+            }
+            // Might be an expression — try eval
+            if let Ok(val) = eval::evaluate_with_registry(s, vars, &REGISTRY) {
+                return val;
+            }
+            value.clone()
         }
         Value::String(s) if s.contains("${") => {
             // String interpolation: "Hello, ${name}!" → "Hello, world!"
@@ -1222,6 +1238,13 @@ pub(crate) fn interpolate_string(s: &str, vars: &HashMap<String, Value>) -> Stri
 /// - Arithmetic: `count + 1`, `total - 5`
 /// - Pipe filters: `name | uppercase`, `value | trim | lowercase`
 fn resolve_interpolation_expr(expr: &str, vars: &HashMap<String, Value>) -> String {
+    // Try eval.rs for expressions with function calls or power operator
+    if should_use_eval_for_interpolation(expr) {
+        if let Ok(val) = eval::evaluate_with_registry(expr, vars, &REGISTRY) {
+            return value_to_interpolation_string(&val);
+        }
+    }
+
     // Check for pipe operator: `value | filter`
     // Must distinguish from logical OR `||` in ternary conditions
     if let Some(result) = try_pipe_expr(expr, vars) {
@@ -1240,6 +1263,25 @@ fn resolve_interpolation_expr(expr: &str, vars: &HashMap<String, Value>) -> Stri
 
     // Unresolved — return original
     format!("${{{}}}", expr)
+}
+
+/// Heuristic: does this interpolation expression need eval.rs?
+fn should_use_eval_for_interpolation(expr: &str) -> bool {
+    // Function call pattern (but not pipe filters)
+    if expr.contains('^') {
+        return true;
+    }
+    // Check for function calls: alphanumeric followed by (
+    // but exclude pipe-like patterns
+    if !expr.contains('|') {
+        let has_func = expr.chars().enumerate().any(|(i, c)| {
+            c == '(' && i > 0 && expr[..i].chars().last().is_some_and(|ch| ch.is_alphanumeric() || ch == '_')
+        });
+        if has_func {
+            return true;
+        }
+    }
+    false
 }
 
 /// Apply pipe filters to a value expression.
@@ -2423,7 +2465,45 @@ fn value_to_interpolation_string(val: &Value) -> String {
 /// - Bare truthiness checks
 pub fn default_evaluate_condition(expr: &str, vars: &HashMap<String, Value>) -> bool {
     let expr = expr.trim();
+
+    // Use eval.rs only for expressions with function calls or complex arithmetic
+    // that the legacy evaluator can't handle
+    if should_use_eval_for_condition(expr) {
+        if let Ok(val) = eval::evaluate_with_registry(expr, vars, &REGISTRY) {
+            // Only trust eval.rs result if it produced a boolean
+            // (comparison/logic result). Otherwise fall through to legacy
+            // which handles type_of(...) == "null" style comparisons.
+            if val.is_boolean() {
+                return is_truthy(&val);
+            }
+        }
+    }
+
+    // Fall back to legacy condition evaluator
     eval_or(expr, vars)
+}
+
+/// Heuristic: does this condition expression need the full eval.rs evaluator?
+/// We look for function calls, power operator, or complex math that the legacy
+/// evaluator can't handle.
+fn should_use_eval_for_condition(expr: &str) -> bool {
+    // Legacy evaluator already handles these functions with bare-ident args
+    let legacy_funcs = ["type_of(", "default(", "len(", "contains(", "starts_with(", "ends_with(", "matches(", "upper(", "lowercase(", "str("];
+    if legacy_funcs.iter().any(|f| expr.contains(f)) {
+        return false;
+    }
+    // Contains a function call pattern: word(
+    let has_func_call = expr.chars().enumerate().any(|(i, c)| {
+        c == '(' && i > 0 && expr[..i].chars().last().is_some_and(|ch| ch.is_alphanumeric() || ch == '_')
+    });
+    if has_func_call {
+        return true;
+    }
+    // Power operator
+    if expr.contains('^') {
+        return true;
+    }
+    false
 }
 
 // ── Expression Parser (recursive descent) ─────────────────────────────────────
@@ -7555,8 +7635,8 @@ mod tests {
     fn test_if_condition_true_branch() {
         use serde_json::json;
 
-        struct TestHandler;
-        impl ActionHandler for TestHandler {
+        struct MockHandler;
+        impl ActionHandler for MockHandler {
             fn call(&self, name: &str, _params: &Value) -> Result<Value, ExecutionError> {
                 match name {
                     "set_result" => Ok(json!("executed")),
@@ -7584,7 +7664,7 @@ mod tests {
             ]
         });
 
-        let result = execute(&procedure, &TestHandler).unwrap();
+        let result = execute(&procedure, &MockHandler).unwrap();
         assert!(result.success);
         assert_eq!(result.variables.get("res"), Some(&json!("executed")));
     }
@@ -7593,8 +7673,8 @@ mod tests {
     fn test_if_condition_false_branch() {
         use serde_json::json;
 
-        struct TestHandler;
-        impl ActionHandler for TestHandler {
+        struct MockHandler;
+        impl ActionHandler for MockHandler {
             fn call(&self, name: &str, _params: &Value) -> Result<Value, ExecutionError> {
                 match name {
                     "else_action" => Ok(json!("else_ran")),
@@ -7622,7 +7702,7 @@ mod tests {
             ]
         });
 
-        let result = execute(&procedure, &TestHandler).unwrap();
+        let result = execute(&procedure, &MockHandler).unwrap();
         assert!(result.success);
         assert_eq!(result.variables.get("res"), Some(&json!("else_ran")));
     }
@@ -7731,5 +7811,98 @@ mod tests {
         assert!(result.success);
         assert_eq!(result.variables.get("count"), Some(&json!(3)));
         assert_eq!(result.variables.get("result"), Some(&json!("processed_ok")));
+    }
+
+    // ── eval.rs integration tests ─────────────────────────────────────────
+
+    #[test]
+    fn test_assign_with_eval_sqrt_expression() {
+        // assign x = sqrt($a^2 + $b^2) should use eval.rs
+        let handler = MockHandler::new();
+        let procedure = json!({
+            "name": "pythagoras",
+            "steps": [
+                {"kind": "assign", "var": "x", "value": "sqrt($a^2 + $b^2)"}
+            ]
+        });
+        let mut vars = HashMap::new();
+        vars.insert("a".to_string(), json!(3));
+        vars.insert("b".to_string(), json!(4));
+        let result = execute_with_vars(&procedure, &handler, vars).unwrap();
+        assert!(result.success);
+        // sqrt(9 + 16) = sqrt(25) = 5
+        let x = result.variables.get("x").unwrap();
+        assert_eq!(x.as_f64().unwrap(), 5.0);
+    }
+
+    #[test]
+    fn test_assign_with_eval_function_call() {
+        let handler = MockHandler::new();
+        let procedure = json!({
+            "name": "math",
+            "steps": [
+                {"kind": "assign", "var": "result", "value": "pow($base, $exp)"}
+            ]
+        });
+        let mut vars = HashMap::new();
+        vars.insert("base".to_string(), json!(2));
+        vars.insert("exp".to_string(), json!(10));
+        let result = execute_with_vars(&procedure, &handler, vars).unwrap();
+        assert!(result.success);
+        let r = result.variables.get("result").unwrap();
+        assert_eq!(r.as_f64().unwrap(), 1024.0);
+    }
+
+    #[test]
+    fn test_condition_guard_with_function_call() {
+        // Condition with sqrt function call should use eval.rs
+        let mut vars = HashMap::new();
+        vars.insert("x".to_string(), json!(25));
+        // sqrt(25) > 4 → sqrt returns 5.0, 5.0 > 4 → true
+        assert!(default_evaluate_condition("sqrt($x) > 4", &vars));
+        assert!(!default_evaluate_condition("sqrt($x) > 6", &vars));
+    }
+
+    #[test]
+    fn test_action_params_with_expressions() {
+        // When params contain $var references, resolve_vars should handle them
+        let mut vars = HashMap::new();
+        vars.insert("speed".to_string(), json!(10));
+        vars.insert("name".to_string(), json!("ship"));
+
+        let params = json!({"target": "$name", "msg": "Speed is ${speed}"});
+        let resolved = resolve_vars(&params, &vars);
+        assert_eq!(resolved.get("target").unwrap(), &json!("ship"));
+        assert_eq!(resolved.get("msg").unwrap(), &json!("Speed is 10"));
+    }
+
+    #[test]
+    fn test_interpolation_with_function_call() {
+        let mut vars = HashMap::new();
+        vars.insert("x".to_string(), json!(16));
+        // ${sqrt($x)} should use eval.rs
+        let result = interpolate_string("Result: ${sqrt($x)}", &vars);
+        assert_eq!(result, "Result: 4");
+    }
+
+    #[test]
+    fn test_assign_preserves_backward_compat() {
+        // Simple assigns still work without eval.rs
+        let handler = MockHandler::new();
+        let procedure = json!({
+            "name": "simple",
+            "steps": [
+                {"kind": "assign", "var": "a", "value": "42"},
+                {"kind": "assign", "var": "b", "value": "$a"},
+                {"kind": "assign", "var": "c", "value": "\"hello\""},
+                {"kind": "assign", "var": "d", "value": "true"}
+            ]
+        });
+        let result = execute(&procedure, &handler).unwrap();
+        assert!(result.success);
+        assert_eq!(result.variables.get("a"), Some(&json!(42)));
+        assert_eq!(result.variables.get("b"), Some(&json!(42)));
+        assert_eq!(result.variables.get("c"), Some(&json!("hello")));
+        assert_eq!(result.variables.get("d"), Some(&json!(true)));
     }
 }
