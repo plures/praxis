@@ -1036,4 +1036,27 @@ mod v2_grammar_tests {
         let result = PxParser::parse(Rule::document, source);
         assert!(result.is_ok(), "Failed: {}", result.err().unwrap());
     }
+
+    #[test]
+    fn test_wind_chess_v2_builds() {
+        let source = include_str!("../../examples/wind-chess-v2.px");
+        let doc = parse(source).expect("wind-chess-v2.px should parse with new grammar");
+        assert!(doc.procedures.len() >= 5, "Expected >=5 procedures, got {}", doc.procedures.len());
+        assert!(doc.entities.len() >= 3, "Expected >=3 entities, got {}", doc.entities.len());
+        assert!(doc.constraints.len() >= 3, "Expected >=3 constraints, got {}", doc.constraints.len());
+        
+        // Verify procedure triggers parsed correctly
+        let physics = doc.procedures.iter().find(|p| p.name == "physics_tick").unwrap();
+        let trigger = physics.trigger.as_ref().unwrap();
+        assert_eq!(trigger.kind, "periodic");
+        let params = trigger.params.as_ref().unwrap();
+        assert_eq!(params["interval"], "33ms");
+
+        // Verify code block steps
+        assert!(!physics.steps.is_empty(), "physics_tick should have steps from code block");
+        
+        // Verify tick_ship has params
+        let tick_ship = doc.procedures.iter().find(|p| p.name == "tick_ship").unwrap();
+        assert!(!tick_ship.steps.is_empty(), "tick_ship should have steps");
+    }
 }

@@ -138,7 +138,7 @@ impl NativeFunctionRegistry {
         self.register("split", Box::new(|args| {
             let s = args.first().and_then(|v| v.as_str()).ok_or("split: expected string")?;
             let delim = args.get(1).and_then(|v| v.as_str()).ok_or("split: expected delimiter")?;
-            let parts: Vec<Value> = s.split(delim).map(|p| Value::from(p)).collect();
+            let parts: Vec<Value> = s.split(delim).map(Value::from).collect();
             Ok(Value::Array(parts))
         }));
         self.register("join", Box::new(|args| {
