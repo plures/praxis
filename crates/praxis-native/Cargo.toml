@@ -36,6 +36,3 @@ napi-build = { version = "2", optional = true }
 tempfile = "3"
 tokio = { version = "1", features = ["rt", "macros", "time"] }
 
-[[example]]
-name = "validate_migrated"
-path = "/tmp/validate_migrated.rs"
