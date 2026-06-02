@@ -22,16 +22,35 @@
 
 ## Integration Steps (after streams land)
 
-1. [ ] Validate grammar compiles (`cargo build --no-default-features`)
-2. [ ] Run all unit tests (`cargo test --no-default-features`)
-3. [ ] Parse wind-chess.px with new grammar
-4. [ ] Compile wind-chess.px to executor records
-5. [ ] Execute tick_ship procedure with mock state
-6. [ ] Validate all 35 migrated .px files parse
-7. [ ] Schema generation produces valid px-schema.yaml
-8. [ ] CI freshness check works (generate → diff)
-9. [ ] Update docs (language guide, tutorials)
-10. [ ] Full `cargo test --workspace` + `cargo clippy --workspace -- -D warnings`
+1. [x] Validate grammar compiles (`cargo build --no-default-features`)
+2. [x] Run all unit tests (`cargo test --no-default-features`) — 558 pass
+3. [x] Parse wind-chess-v2.px with new grammar
+4. [x] Compile wind-chess-v2.px to executor records
+5. [x] Execute tick_ship procedure with mock state
+6. [x] Validate migrated .px files — **26/34 pass** (8 are non-.px TOML/custom-DSL files marked for migration)
+7. [x] Schema generation crate produces valid px-schema.yaml
+8. [ ] CI freshness check wired (after merge to main)
+9. [ ] Update docs (language guide, tutorials) — needs dedicated pass
+10. [x] Full `cargo test --workspace` + `cargo clippy --workspace -- -D warnings` — CLEAN
+
+## Final State
+
+**Branches pushed:**
+- `feat/px-grammar-v2` (praxis) — grammar + builder + match/try/parallel + schema crates
+- `feat/px-syntax-v2` (pares-radix) — 20 .px files migrated, 2 TOML files renamed
+- `feat/px-syntax-v2` (inner-space) — wind-chess migrated, 6 game DSL files marked for migration
+
+**Test results:**
+- praxis-native: 558 tests pass, 0 failures, clippy clean
+- px-schema: 12 tests pass, clippy clean
+- px-schema-derive: 1 test passes, clippy clean
+- wind-chess-v2.px: parses ✅ compiles ✅ executes ✅
+
+**Remaining work (non-blocking):**
+- 6 inner-space game DSL files need full creative rewrite to .px v2
+- Language reference doc update
+- Wire schema generation into CI freshness check
+- Merge branches to main after review
 
 ## Rollback Plan
 
