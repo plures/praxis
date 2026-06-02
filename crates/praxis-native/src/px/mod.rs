@@ -1059,4 +1059,66 @@ mod v2_grammar_tests {
         let tick_ship = doc.procedures.iter().find(|p| p.name == "tick_ship").unwrap();
         assert!(!tick_ship.steps.is_empty(), "tick_ship should have steps");
     }
+
+    #[test]
+    fn test_wind_chess_v2_compiles_and_executes() {
+        use super::compiler;
+        use super::executor;
+        use super::executor::ActionHandler;
+        use std::collections::HashMap;
+
+        let source = include_str!("../../examples/wind-chess-v2.px");
+        let doc = parse(source).unwrap();
+        let records = compiler::compile(&doc);
+
+        // Find tick_ship compiled record
+        let tick_ship_record = records.iter()
+            .find(|r| r.key == "px:procedure/tick_ship")
+            .expect("tick_ship should be compiled");
+
+        // Verify it has steps
+        let steps = tick_ship_record.data["steps"].as_array().unwrap();
+        assert!(!steps.is_empty(), "tick_ship compiled should have steps");
+        
+        // Check first step is a let assignment
+        assert_eq!(steps[0]["kind"], "assign");
+        assert_eq!(steps[0]["var"], "cfg");
+
+        // Verify physics_tick compiles with on_write trigger sub-keys
+        let check_cp = records.iter()
+            .find(|r| r.key == "px:procedure/check_checkpoints")
+            .expect("check_checkpoints should be compiled");
+        let trigger = &check_cp.data["trigger"];
+        assert_eq!(trigger["kind"], "on_write");
+        assert_eq!(trigger["params"]["pattern"], "game:ship:*");
+
+        // Try executing tick_ship with mock handler
+        struct MockHandler;
+        impl ActionHandler for MockHandler {
+            fn call(
+                &self,
+                _name: &str,
+                _params: &serde_json::Value,
+            ) -> Result<serde_json::Value, executor::ExecutionError> {
+                Ok(serde_json::json!({}))
+            }
+        }
+
+        let mut initial_vars = HashMap::new();
+        initial_vars.insert("ship".to_string(), serde_json::json!({
+            "class": "gnat", "thrust_x": 0.5, "thrust_y": 0.0,
+            "energy": 80.0, "vx": 0.0, "vy": 0.0,
+            "x": 100.0, "y": 100.0, "id": "s1", "alive": true
+        }));
+        initial_vars.insert("wind".to_string(), serde_json::json!({"x": 5.0, "y": 2.0}));
+        initial_vars.insert("dt".to_string(), serde_json::json!(0.033));
+        initial_vars.insert("arena".to_string(), serde_json::json!({"width": 800.0, "height": 600.0}));
+        initial_vars.insert("config".to_string(), serde_json::json!({
+            "ship_classes": {"gnat": {"thrust": 600, "drag": 12.0, "wind_factor": 1.5, "energy_max": 100, "energy_regen": 8, "thrust_cost": 15, "radius": 8}}
+        }));
+
+        let result = executor::execute_with_vars(&tick_ship_record.data, &MockHandler, initial_vars);
+        // It should at least start executing without structural errors
+        assert!(result.is_ok(), "Execution failed: {:?}", result.err());
+    }
 }
