@@ -1010,3 +1010,30 @@ scenario ttl_enforced:
 #[cfg(test)]
 #[path = "tests_new_features.rs"]
 mod tests_new_features;
+
+#[cfg(test)]
+mod v2_grammar_tests {
+    use super::*;
+    use pest::Parser;
+
+    #[test]
+    fn test_simple_v2_procedure_parses() {
+        let source = "procedure test:\n  given: \"test\"\n{\n    let x = 5;\n}\n";
+        let result = PxParser::parse(Rule::document, source);
+        assert!(result.is_ok(), "Failed: {:?}", result.err());
+    }
+
+    #[test]
+    fn test_tick_ship_parses() {
+        let source = include_str!("/tmp/test_v2_parse.px");
+        let result = PxParser::parse(Rule::document, source);
+        assert!(result.is_ok(), "Failed: {}", result.err().unwrap());
+    }
+
+    #[test]
+    fn test_wind_chess_v2_parses() {
+        let source = include_str!("../../examples/wind-chess-v2.px");
+        let result = PxParser::parse(Rule::document, source);
+        assert!(result.is_ok(), "Failed: {}", result.err().unwrap());
+    }
+}
