@@ -1423,18 +1423,54 @@ fn build_code_if(pair: Pair<'_, Rule>) -> PxStep {
 fn build_code_call(pair: Pair<'_, Rule>, output_var: Option<String>) -> PxStep {
     let mut parts = pair.into_inner();
     let name = next_str(&mut parts);
-    let args: Vec<String> = parts
+    let arg_pairs: Vec<Pair<'_, Rule>> = parts
         .filter(|p| p.as_rule() == Rule::code_expr)
-        .map(|p| expr_to_string(p))
         .collect();
-    
-    let params = if args.is_empty() {
+
+    let params = if arg_pairs.is_empty() {
         serde_json::Value::Object(serde_json::Map::new())
+    } else if arg_pairs.len() == 1 {
+        // Single argument: check if it's an object literal → extract named keys
+        let arg = arg_pairs.into_iter().next().unwrap();
+        if let Some(obj) = find_object_literal(arg.clone()) {
+            // Parse object fields into a proper JSON object
+            let mut map = serde_json::Map::new();
+            for field in obj.into_inner() {
+                if field.as_rule() == Rule::code_obj_field {
+                    let mut field_parts = field.into_inner();
+                    let key = next_str(&mut field_parts);
+                    let val = field_parts.next()
+                        .map(|p| expr_to_string(p))
+                        .unwrap_or_default();
+                    map.insert(key, serde_json::Value::String(val));
+                }
+            }
+            serde_json::Value::Object(map)
+        } else {
+            let s = expr_to_string(arg);
+            serde_json::Value::Array(vec![serde_json::Value::String(s)])
+        }
     } else {
+        let args: Vec<String> = arg_pairs.into_iter()
+            .map(|p| expr_to_string(p))
+            .collect();
         serde_json::Value::Array(args.into_iter().map(serde_json::Value::String).collect())
     };
 
     PxStep::Call { name, params, output_var }
+}
+
+/// Find a code_object_literal within a code_expr (unwrapping intermediate rules)
+fn find_object_literal(pair: Pair<'_, Rule>) -> Option<Pair<'_, Rule>> {
+    if pair.as_rule() == Rule::code_object_literal {
+        return Some(pair);
+    }
+    for inner in pair.into_inner() {
+        if let Some(found) = find_object_literal(inner) {
+            return Some(found);
+        }
+    }
+    None
 }
 
 /// Find the deepest call expression inside a code_expr tree

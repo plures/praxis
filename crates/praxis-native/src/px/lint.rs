@@ -2322,3 +2322,35 @@ mod tests {
         assert!(diags.is_empty(), "L012 should NOT fire when target has empty declared params: {diags:?}");
     }
 }
+
+#[cfg(test)]
+mod l012_code_block_tests {
+    use super::*;
+    use crate::px::parse;
+
+    #[test]
+    fn l012_fires_for_code_block_call_with_extra_param() {
+        let source = r#"
+procedure callee:
+  trigger: on_write
+    pattern: "some:pattern"
+  params: [name, age]
+{
+    greet({ who: name });
+}
+
+procedure caller:
+  trigger: manual
+{
+    callee({ name: "Alice", extra_param: "oops" });
+}
+"#;
+        let doc = parse(source).expect("should parse");
+        let diags = lint(&doc);
+        let l012s: Vec<_> = diags.iter().filter(|d| d.code == "PX-L012").collect();
+        assert!(!l012s.is_empty(), "Expected PX-L012 to fire, got: {:?}", diags.iter().map(|d| &d.code).collect::<Vec<_>>());
+        // Should flag 'extra_param' as unexpected
+        let has_extra = l012s.iter().any(|d| d.message.contains("extra_param"));
+        assert!(has_extra, "Expected L012 about extra_param, got: {:?}", l012s);
+    }
+}
