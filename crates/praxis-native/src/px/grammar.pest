@@ -27,7 +27,7 @@ config_body = { (config_entry ~ NEWLINE?)+ }
 config_entry = { ident ~ ":" ~ (config_nested | config_value) ~ NEWLINE? }
 config_nested = { NEWLINE ~ (config_kv ~ NEWLINE)+ }
 config_kv = { ident ~ ":" ~ (config_nested | config_value) }
-config_value = { float | integer | string | boolean }
+config_value = { list_val | float | integer | string | boolean }
 
 // === Facts ===
 fact_decl = { "fact" ~ ident ~ ":" ~ NEWLINE ~ field_list }
