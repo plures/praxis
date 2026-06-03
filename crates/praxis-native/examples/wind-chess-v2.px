@@ -1,0 +1,298 @@
+# wind-chess.px — Game Physics as Praxis Procedures (v2 syntax)
+#
+# ALL game logic lives here. Not in Svelte. Not in TypeScript.
+# The UI is a thin reactive shell that reads PluresDB and renders.
+#
+# Architecture:
+#   Player input → PluresDB write (thrust vector)
+#   on_write → this .px evaluates physics
+#   .px writes new position/velocity to PluresDB
+#   Svelte reactively re-renders from PluresDB state
+
+# ═══════════════════════════════════════════════════════════════════════
+# ENTITIES (PluresDB node schemas)
+# ═══════════════════════════════════════════════════════════════════════
+
+entity ship:
+  prefix: "game:ship:"
+  fields:
+    id: String
+    class: enum(gnat, dragonfly, beetle)
+    x: f64
+    y: f64
+    vx: f64
+    vy: f64
+    thrust_x: f64
+    thrust_y: f64
+    energy: f64
+    energy_max: f64
+    score: u32
+    alive: bool
+    last_tick: u64
+
+entity arena:
+  prefix: "game:arena:"
+  fields:
+    id: String
+    width: f64
+    height: f64
+    wind_base_angle: f64
+    wind_base_speed: f64
+    wind_gustiness: f64
+    wind_gust_freq: f64
+    wind_change_timer: f64
+    game_time: f64
+    mode: enum(race, koth, tag, survival)
+    state: enum(lobby, running, finished)
+
+entity checkpoint:
+  prefix: "game:checkpoint:"
+  fields:
+    id: String
+    arena_id: String
+    x: f64
+    y: f64
+    radius: f64
+    order: u32
+    reached_by: String
+
+# ═══════════════════════════════════════════════════════════════════════
+# CONFIG (static constants)
+# ═══════════════════════════════════════════════════════════════════════
+
+config ship_classes:
+  gnat:
+    thrust: 600
+    drag: 12.0
+    wind_factor: 1.5
+    energy_max: 100
+    energy_regen: 8
+    thrust_cost: 15
+    radius: 8
+  dragonfly:
+    thrust: 500
+    drag: 10.0
+    wind_factor: 1.0
+    energy_max: 120
+    energy_regen: 7
+    thrust_cost: 14
+    radius: 12
+  beetle:
+    thrust: 350
+    drag: 7.0
+    wind_factor: 0.4
+    energy_max: 150
+    energy_regen: 5
+    thrust_cost: 18
+    radius: 16
+
+# ═══════════════════════════════════════════════════════════════════════
+# CONSTRAINTS
+# ═══════════════════════════════════════════════════════════════════════
+
+constraint energy_never_negative:
+  when: event.type == "ship_update"
+  require: event.ship.energy >= 0
+  severity: error
+  message: "Ship energy cannot go negative."
+
+constraint position_in_bounds:
+  when: event.type == "ship_update"
+  require: event.ship.x >= 0 && event.ship.x <= event.arena.width && event.ship.y >= 0 && event.ship.y <= event.arena.height
+  severity: error
+  message: "Ship position must remain within arena bounds."
+
+constraint speed_capped:
+  when: event.type == "ship_update"
+  require: sqrt(event.ship.vx^2 + event.ship.vy^2) <= 75.0
+  severity: error
+  message: "Ship speed cannot exceed terminal velocity cap."
+
+# ═══════════════════════════════════════════════════════════════════════
+# PROCEDURES — Physics Tick
+# ═══════════════════════════════════════════════════════════════════════
+
+// Main game loop — runs at 30Hz
+procedure physics_tick:
+  trigger: periodic
+    interval: "33ms"
+  given: "Advance physics for all active ships"
+{
+    let arena = read_state("game:arena:current");
+    if arena.state != "running" { return; }
+
+    let dt = 0.033;
+    arena.game_time = arena.game_time + dt;
+
+    // Wind calculation for this tick
+    let wind_angle = arena.wind_base_angle + sin(arena.game_time * 0.1) * 0.2;
+    let wind_speed = arena.wind_base_speed * (1.0 + arena.wind_gustiness * max(0.0, sin(arena.game_time * arena.wind_gust_freq)) * 0.5);
+    let wind = { x: cos(wind_angle) * wind_speed, y: sin(wind_angle) * wind_speed };
+
+    // Wind direction change timer
+    arena.wind_change_timer = arena.wind_change_timer - dt;
+    if arena.wind_change_timer <= 0.0 {
+        arena.wind_base_angle = arena.wind_base_angle + (random() - 0.5) * pi();
+        arena.wind_base_speed = 20.0 + random() * 50.0;
+        arena.wind_change_timer = 30.0;
+        emit("wind_changed", { angle: arena.wind_base_angle, speed: arena.wind_base_speed });
+    }
+
+    write_state("game:arena:current", arena);
+
+    // Tick each ship
+    let ships = query_all("game:ship:");
+    for ship in ships {
+        if ship.alive {
+            tick_ship(ship, wind, dt, arena);
+        }
+    }
+}
+
+// Physics tick for one ship
+procedure tick_ship:
+  params: [ship, wind, dt, arena]
+  given: "Apply thrust, wind, drag, and bounds to one ship"
+{
+    let cfg = config.ship_classes[ship.class];
+    let thrust_mag = sqrt(ship.thrust_x^2 + ship.thrust_y^2);
+
+    // Energy consumption
+    if thrust_mag > 0.0 {
+        let cost = cfg.thrust_cost * thrust_mag * dt;
+        ship.energy = ship.energy - cost;
+        if ship.energy < 0.0 {
+            ship.energy = 0.0;
+            ship.thrust_x = 0.0;
+            ship.thrust_y = 0.0;
+        }
+    }
+
+    // Energy regen
+    let regen_mul = if thrust_mag > 0.0 { 0.3 } else { 1.0 };
+    ship.energy = min(cfg.energy_max, ship.energy + cfg.energy_regen * regen_mul * dt);
+
+    // Target velocity from player input
+    let target_vx = ship.thrust_x * cfg.thrust / cfg.drag;
+    let target_vy = ship.thrust_y * cfg.thrust / cfg.drag;
+
+    // Responsive blend toward target
+    let response_factor = cfg.drag * 2.5;
+    let blend = 1.0 - exp(-response_factor * dt);
+    ship.vx = ship.vx + (target_vx - ship.vx) * blend;
+    ship.vy = ship.vy + (target_vy - ship.vy) * blend;
+
+    // Wind drift (additive)
+    ship.vx = ship.vx + wind.x * cfg.wind_factor * dt;
+    ship.vy = ship.vy + wind.y * cfg.wind_factor * dt;
+
+    // Speed cap
+    let max_speed = (cfg.thrust / cfg.drag) * 1.5;
+    let speed = sqrt(ship.vx^2 + ship.vy^2);
+    if speed > max_speed {
+        ship.vx = (ship.vx / speed) * max_speed;
+        ship.vy = (ship.vy / speed) * max_speed;
+    }
+
+    // Position update
+    ship.x = ship.x + ship.vx * dt;
+    ship.y = ship.y + ship.vy * dt;
+
+    // Bounds (soft bounce)
+    let r = cfg.radius;
+    if ship.x < r { ship.x = r; ship.vx = abs(ship.vx) * 0.3; }
+    if ship.x > arena.width - r { ship.x = arena.width - r; ship.vx = -abs(ship.vx) * 0.3; }
+    if ship.y < r { ship.y = r; ship.vy = abs(ship.vy) * 0.3; }
+    if ship.y > arena.height - r { ship.y = arena.height - r; ship.vy = -abs(ship.vy) * 0.3; }
+
+    // Write updated state
+    write_state("game:ship:" + ship.id, ship);
+}
+
+# ═══════════════════════════════════════════════════════════════════════
+# PROCEDURES — Game Events
+# ═══════════════════════════════════════════════════════════════════════
+
+procedure check_checkpoints:
+  trigger: on_write
+    pattern: "game:ship:*"
+  given: "Check if ship reached next checkpoint"
+{
+    let ship = event.new_value;
+    if !ship.alive { return; }
+
+    let checkpoints = query_all("game:checkpoint:");
+    let next = filter(checkpoints, |cp| cp.reached_by == "" && cp.order == ship.score);
+
+    if len(next) > 0 {
+        let cp = next[0];
+        let dx = ship.x - cp.x;
+        let dy = ship.y - cp.y;
+        let dist = sqrt(dx^2 + dy^2);
+
+        if dist < cp.radius + config.ship_classes[ship.class].radius {
+            // Reached!
+            cp.reached_by = ship.id;
+            ship.score = ship.score + 1;
+            write_state("game:checkpoint:" + cp.id, cp);
+            write_state("game:ship:" + ship.id, ship);
+            emit("checkpoint_reached", { ship: ship.id, checkpoint: cp.id, score: ship.score });
+
+            // Check if all checkpoints reached
+            let total = len(checkpoints);
+            if ship.score >= total {
+                let arena = read_state("game:arena:current");
+                arena.state = "finished";
+                write_state("game:arena:current", arena);
+                emit("race_finished", { winner: ship.id, time: arena.game_time });
+            }
+        }
+    }
+}
+
+procedure handle_input:
+  trigger: on_write
+    pattern: "game:input:*"
+  given: "Player sent input — update ship thrust vector"
+{
+    let input = event.new_value;
+    let ship = read_state("game:ship:" + input.ship_id);
+
+    if ship == null || !ship.alive { return; }
+
+    // Normalize diagonal input
+    let mag = sqrt(input.thrust_x^2 + input.thrust_y^2);
+    if mag > 1.0 {
+        input.thrust_x = input.thrust_x / mag;
+        input.thrust_y = input.thrust_y / mag;
+    }
+
+    ship.thrust_x = input.thrust_x;
+    ship.thrust_y = input.thrust_y;
+    write_state("game:ship:" + ship.id, ship);
+}
+
+procedure start_game:
+  trigger: on_write
+    pattern: "game:arena:current"
+    when: new_value.state == "running"
+  given: "Game just started — initialize checkpoints"
+{
+    let arena = read_state("game:arena:current");
+
+    // Generate checkpoints
+    for i in range(5) {
+        let cp = {
+            id: "cp-" + to_string(i),
+            arena_id: arena.id,
+            x: 60.0 + random() * (arena.width - 120.0),
+            y: 60.0 + random() * (arena.height - 120.0),
+            radius: 25.0,
+            order: i,
+            reached_by: ""
+        };
+        write_state("game:checkpoint:cp-" + to_string(i), cp);
+    }
+
+    emit("game_started", { arena: arena.id, mode: arena.mode });
+}

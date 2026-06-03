@@ -131,6 +131,21 @@ fn lint_step(step: &PxStep, proc_name: &str, idx: usize, diags: &mut Vec<LintDia
                 }
             }
         }
+        PxStep::If { then_steps, else_steps, .. } => {
+            for (sub_idx, sub_step) in then_steps.iter().enumerate() {
+                lint_step(sub_step, proc_name, sub_idx, diags);
+            }
+            for (sub_idx, sub_step) in else_steps.iter().enumerate() {
+                lint_step(sub_step, proc_name, sub_idx, diags);
+            }
+        }
+        PxStep::For { var, iterable, steps, .. } => {
+            // L006: unused loop variable in for-loop
+            lint_unused_for_var(var, iterable, steps, proc_name, idx, diags);
+            for (sub_idx, sub_step) in steps.iter().enumerate() {
+                lint_step(sub_step, proc_name, sub_idx, diags);
+            }
+        }
         _ => {}
     }
 }
@@ -236,6 +251,7 @@ fn step_output_var(step: &PxStep) -> Option<&str> {
         PxStep::Call { output_var, .. } => output_var.as_deref(),
         PxStep::Loop { output_var, .. } => output_var.as_deref(),
         PxStep::Parallel { output_var, .. } => output_var.as_deref(),
+        PxStep::Assign { var, .. } => Some(var.as_str()),
         _ => None,
     }
 }
@@ -455,6 +471,35 @@ fn lint_match_unreachable(
     }
 }
 
+/// PX-L006 for v2 `for` loops: unused iteration variable.
+fn lint_unused_for_var(
+    var: &str,
+    _iterable: &str,
+    steps: &[PxStep],
+    proc_name: &str,
+    idx: usize,
+    diags: &mut Vec<LintDiagnostic>,
+) {
+    let mut refs: std::collections::HashSet<String> = std::collections::HashSet::new();
+    for step in steps {
+        collect_var_references(step, &mut refs);
+    }
+
+    let var_ref = format!("${}", var);
+    if !refs.contains(&var_ref) {
+        diags.push(LintDiagnostic {
+            code: "PX-L006",
+            message: format!(
+                "for-loop variable `${}` is never referenced in loop body",
+                var
+            ),
+            severity: LintSeverity::Warning,
+            procedure: Some(proc_name.to_string()),
+            step_index: Some(idx),
+        });
+    }
+}
+
 /// PX-L008: Shadowed output variables — multiple steps bind to the same output_var name.
 ///
 /// The later binding overwrites the earlier one, making the first call's output
@@ -537,6 +582,13 @@ fn check_steps_for_unreachable(
                 for branch in branches {
                     check_steps_for_unreachable(&branch.steps, proc_name, diags);
                 }
+            }
+            PxStep::If { then_steps, else_steps, .. } => {
+                check_steps_for_unreachable(then_steps, proc_name, diags);
+                check_steps_for_unreachable(else_steps, proc_name, diags);
+            }
+            PxStep::For { steps: inner, .. } => {
+                check_steps_for_unreachable(inner, proc_name, diags);
             }
             _ => {}
         }

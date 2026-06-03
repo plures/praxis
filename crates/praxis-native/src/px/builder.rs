@@ -642,9 +642,8 @@ fn build_procedure(pair: Pair<'_, Rule>) -> PxProcedure {
     for child in body.into_inner() {
         match child.as_rule() {
             Rule::procedure_trigger_clause => {
-                if let Some(kind_pair) = child
-                    .into_inner()
-                    .find(|p| p.as_rule() == Rule::procedure_trigger_kind)
+                let clause_inner: Vec<_> = child.into_inner().collect();
+                if let Some(kind_pair) = clause_inner.iter().find(|p| p.as_rule() == Rule::procedure_trigger_kind).cloned()
                 {
                     let kind_text = kind_pair.as_str().to_string();
                     let ki = kind_pair.into_inner();
@@ -684,6 +683,29 @@ fn build_procedure(pair: Pair<'_, Rule>) -> PxProcedure {
                             _ => {}
                         }
                     }
+
+                    // Handle v2-style trigger sub-keys (indented key: value lines)
+                    if let Some(sub_keys_pair) = clause_inner.iter().find(|p| p.as_rule() == Rule::trigger_sub_keys).cloned() {
+                        let map = params_value.get_or_insert_with(|| serde_json::Value::Object(serde_json::Map::new()));
+                        if let Some(obj) = map.as_object_mut() {
+                            for sub_key in sub_keys_pair.into_inner().filter(|p| p.as_rule() == Rule::trigger_sub_key) {
+                                let mut ski = sub_key.into_inner();
+                                let key = next_str(&mut ski);
+                                let val_str = ski.next().map(|p| p.as_str().trim().to_string()).unwrap_or_default();
+                                // Try to parse as JSON-compatible value, otherwise store as string
+                                let val = if val_str.starts_with('"') || val_str.starts_with('\'') {
+                                    serde_json::Value::String(unquote(&val_str))
+                                } else if let Ok(n) = val_str.parse::<f64>() {
+                                    serde_json::json!(n)
+                                } else if val_str == "true" || val_str == "false" {
+                                    serde_json::Value::Bool(val_str == "true")
+                                } else {
+                                    serde_json::Value::String(val_str)
+                                };
+                                obj.insert(key, val);
+                            }
+                        }
+                    }
                     
                     trigger = Some(PxProcedureTrigger {
                         kind: kind_str,
@@ -698,6 +720,9 @@ fn build_procedure(pair: Pair<'_, Rule>) -> PxProcedure {
                     .filter(|p| p.as_rule() == Rule::step_decl)
                     .map(build_step)
                     .collect();
+            }
+            Rule::code_block => {
+                steps = build_code_block(child);
             }
             _ => {}
         }
@@ -1214,4 +1239,221 @@ fn parse_value(pair: Pair<'_, Rule>) -> serde_json::Value {
             }
         }
     }
+}
+
+// === V2 Code Block Builder ===
+
+/// Build steps from a v2 code_block `{ stmts... }`
+fn build_code_block(pair: Pair<'_, Rule>) -> Vec<PxStep> {
+    pair.into_inner()
+        .filter(|p| p.as_rule() == Rule::code_stmt)
+        .map(build_code_stmt)
+        .collect()
+}
+
+/// Build a single v2 statement into a PxStep
+fn build_code_stmt(pair: Pair<'_, Rule>) -> PxStep {
+    let inner = pair.into_inner().next().unwrap();
+    match inner.as_rule() {
+        Rule::code_let_stmt => {
+            let mut parts = inner.into_inner();
+            let var = next_str(&mut parts);
+            let value = parts.next().map(|p| expr_to_string(p)).unwrap_or_default();
+            PxStep::Assign { var, value }
+        }
+        Rule::code_assign_stmt => {
+            let mut parts = inner.into_inner();
+            let lvalue = next_str(&mut parts); // code_lvalue
+            let _op = next_str(&mut parts); // code_assign_op (=, +=, -=)
+            let expr_pair = parts.next().unwrap();
+            let expr_str = expr_to_string(expr_pair);
+            // For += and -=, expand to full expression
+            let value = match _op.as_str() {
+                "+=" => format!("{} + ({})", lvalue, expr_str),
+                "-=" => format!("{} - ({})", lvalue, expr_str),
+                _ => expr_str,
+            };
+            PxStep::Assign { var: lvalue, value }
+        }
+        Rule::code_if_stmt => build_code_if(inner),
+        Rule::code_for_stmt => {
+            let mut parts = inner.into_inner();
+            let var = next_str(&mut parts);
+            let iterable = parts.next().map(|p| expr_to_string(p)).unwrap_or_default();
+            let steps = parts
+                .find(|p| p.as_rule() == Rule::code_block)
+                .map(build_code_block)
+                .unwrap_or_default();
+            PxStep::For { var, iterable, steps }
+        }
+        Rule::code_return_stmt => {
+            let value = inner.into_inner().next().map(|p| {
+                serde_json::Value::String(expr_to_string(p))
+            });
+            PxStep::Return { value }
+        }
+        Rule::code_emit_stmt => {
+            let mut parts = inner.into_inner();
+            let event_name = parts.next().map(|p| expr_to_string(p)).unwrap_or_default();
+            let event_data = parts.next().map(|p| expr_to_string(p));
+            let mut map = serde_json::Map::new();
+            map.insert("event".to_string(), serde_json::Value::String(event_name));
+            if let Some(data) = event_data {
+                map.insert("data".to_string(), serde_json::Value::String(data));
+            }
+            PxStep::Emit { event: serde_json::Value::Object(map) }
+        }
+        Rule::code_expr_stmt => {
+            // Expression statement — likely a function call like write_state("key", val);
+            let expr_pair = inner.into_inner().next().unwrap();
+            // Check if it's a call expression
+            if expr_pair.as_rule() == Rule::code_expr {
+                let inner_expr = find_deepest_call_or_expr(expr_pair.clone());
+                if let Some(call) = inner_expr {
+                    if call.as_rule() == Rule::code_call_expr {
+                        return build_code_call(call, None);
+                    }
+                }
+            }
+            // Fallback: treat as a call with the text as name
+            let text = expr_pair.as_str().to_string();
+            PxStep::Call {
+                name: text,
+                params: serde_json::Value::Object(serde_json::Map::new()),
+                output_var: None,
+            }
+        }
+        Rule::code_match_stmt => {
+            let mut parts = inner.into_inner();
+            let _subject = parts.next().map(|p| expr_to_string(p)).unwrap_or_default();
+            let mut arms = Vec::new();
+            for arm_pair in parts {
+                if arm_pair.as_rule() == Rule::code_match_arm {
+                    let mut arm_parts = arm_pair.into_inner();
+                    let pattern = arm_parts.next().map(|p| p.as_str().trim().to_string()).unwrap_or_default();
+                    let result = arm_parts.next().map(|p| {
+                        if p.as_rule() == Rule::code_block {
+                            "__block__".to_string()
+                        } else {
+                            expr_to_string(p)
+                        }
+                    }).unwrap_or_default();
+                    arms.push(PxMatchArm {
+                        condition: pattern,
+                        result,
+                    });
+                }
+            }
+            PxStep::Match { arms }
+        }
+        Rule::code_try_stmt => {
+            let mut parts = inner.into_inner();
+            let try_block = parts.next()
+                .filter(|p| p.as_rule() == Rule::code_block)
+                .map(build_code_block)
+                .unwrap_or_default();
+            let _catch_var = parts.next().filter(|p| p.as_rule() == Rule::ident).map(|p| p.as_str().to_string());
+            let catch_block = parts.next()
+                .filter(|p| p.as_rule() == Rule::code_block)
+                .map(build_code_block)
+                .unwrap_or_default();
+            PxStep::Try {
+                steps: try_block,
+                catch: catch_block,
+                retry: None,
+                retry_delay_ms: None,
+                retry_backoff: None,
+                retry_max_delay_ms: None,
+                retry_jitter: None,
+            }
+        }
+        Rule::code_parallel_stmt => {
+            let mut branches = Vec::new();
+            for branch_pair in inner.into_inner() {
+                if branch_pair.as_rule() == Rule::code_parallel_branch {
+                    let mut bp = branch_pair.into_inner();
+                    let branch_name = next_str(&mut bp);
+                    let branch_steps = bp.next()
+                        .filter(|p| p.as_rule() == Rule::code_block)
+                        .map(build_code_block)
+                        .unwrap_or_default();
+                    branches.push(PxParallelBranch {
+                        name: branch_name,
+                        steps: branch_steps,
+                        retry: None,
+                        retry_delay_ms: None,
+                        retry_backoff: None,
+                        retry_max_delay_ms: None,
+                        retry_jitter: None,
+                    });
+                }
+            }
+            PxStep::Parallel { branches, output_var: None }
+        }
+        _ => PxStep::Call {
+            name: format!("__unknown_{:?}", inner.as_rule()),
+            params: serde_json::Value::Object(serde_json::Map::new()),
+            output_var: None,
+        },
+    }
+}
+
+fn build_code_if(pair: Pair<'_, Rule>) -> PxStep {
+    let mut parts = pair.into_inner();
+    let condition = parts.next().map(|p| expr_to_string(p)).unwrap_or_default();
+    let then_block = parts.next();
+    let then_steps = then_block
+        .filter(|p| p.as_rule() == Rule::code_block)
+        .map(build_code_block)
+        .unwrap_or_default();
+    
+    let else_steps = if let Some(else_part) = parts.next() {
+        match else_part.as_rule() {
+            Rule::code_if_stmt => vec![build_code_if(else_part)],
+            Rule::code_block => build_code_block(else_part),
+            _ => vec![],
+        }
+    } else {
+        vec![]
+    };
+
+    PxStep::If { condition, then_steps, else_steps }
+}
+
+fn build_code_call(pair: Pair<'_, Rule>, output_var: Option<String>) -> PxStep {
+    let mut parts = pair.into_inner();
+    let name = next_str(&mut parts);
+    let args: Vec<String> = parts
+        .filter(|p| p.as_rule() == Rule::code_expr)
+        .map(|p| expr_to_string(p))
+        .collect();
+    
+    let params = if args.is_empty() {
+        serde_json::Value::Object(serde_json::Map::new())
+    } else {
+        serde_json::Value::Array(args.into_iter().map(serde_json::Value::String).collect())
+    };
+
+    PxStep::Call { name, params, output_var }
+}
+
+/// Find the deepest call expression inside a code_expr tree
+fn find_deepest_call_or_expr(pair: Pair<'_, Rule>) -> Option<Pair<'_, Rule>> {
+    if pair.as_rule() == Rule::code_call_expr {
+        return Some(pair);
+    }
+    for child in pair.into_inner() {
+        if child.as_rule() == Rule::code_call_expr {
+            return Some(child);
+        }
+        if let Some(found) = find_deepest_call_or_expr(child) {
+            return Some(found);
+        }
+    }
+    None
+}
+
+/// Convert a code_expr parse tree back to a string representation
+fn expr_to_string(pair: Pair<'_, Rule>) -> String {
+    pair.as_str().trim().to_string()
 }
