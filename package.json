@@ -1,6 +1,6 @@
 {
   "name": "@plures/praxis",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "The Full Plures Application Framework - declarative schemas, logic engine, component generation, and local-first data",
   "type": "module",
   "packageManager": "pnpm@9.15.1",
@@ -222,15 +222,8 @@
     "@plures/praxis-core": "workspace:*",
     "commander": "^14.0.2",
     "js-yaml": "^4.1.1",
+    "svelte": "^5.53.5",
     "zod": "^4.3.6"
-  },
-  "peerDependencies": {
-    "svelte": "^5.53.5"
-  },
-  "peerDependenciesMeta": {
-    "svelte": {
-      "optional": true
-    }
   },
   "pnpm": {
     "overrides": {
