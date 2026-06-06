@@ -5,7 +5,12 @@
  * This module defines the core interface and an in-memory implementation.
  */
 
-import type { LocalFirstOptions, PluresDBLocalFirst } from '@plures/pluresdb/local-first';
+// @plures/pluresdb/local-first subpath no longer exists; define types locally
+// These deprecated functions (createPraxisLocalFirst, createPluresDB) are slated for removal.
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface LocalFirstOptions { mode?: string; [key: string]: unknown; }
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface PluresDBLocalFirst { get(key: string): Promise<unknown>; set(key: string, value: unknown): Promise<void>; }
 
 /**
  * Function to unsubscribe from a watch
