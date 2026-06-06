@@ -200,10 +200,9 @@ describe('PluresDBPraxisAdapter', () => {
 });
 
 describe('createPraxisLocalFirst', () => {
-  it('resolves to a PluresDBPraxisAdapter when local-first module is available', async () => {
-    const { createPraxisLocalFirst: cpf, PluresDBPraxisAdapter: Adapter } = await import('../core/pluresdb/adapter.js');
-    const result = await cpf();
-    expect(result).toBeInstanceOf(Adapter);
+  it('throws with deprecation error since @plures/pluresdb/local-first no longer exists', async () => {
+    const { createPraxisLocalFirst: cpf } = await import('../core/pluresdb/adapter.js');
+    await expect(cpf()).rejects.toThrow('createPraxisLocalFirst is deprecated');
   });
 });
 
