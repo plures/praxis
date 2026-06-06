@@ -316,17 +316,9 @@ export interface PraxisLocalFirstOptions extends LocalFirstOptions {
 export async function createPraxisLocalFirst(
   options: PraxisLocalFirstOptions = {}
 ): Promise<PluresDBPraxisAdapter> {
-  const { pollInterval, ...localOptions } = options;
-
-  const mod = await import('@plures/pluresdb/local-first');
-  const LocalFirstCtor =
-    (mod as unknown as { PluresDBLocalFirst?: new (opts?: LocalFirstOptions) => PluresDBLocalFirst }).PluresDBLocalFirst ??
-    (mod as unknown as { default?: new (opts?: LocalFirstOptions) => PluresDBLocalFirst }).default;
-
-  if (!LocalFirstCtor) {
-    throw new Error('Failed to load PluresDBLocalFirst from @plures/pluresdb/local-first');
-  }
-
-  const db = new LocalFirstCtor(localOptions as LocalFirstOptions);
-  return new PluresDBPraxisAdapter({ db, pollInterval });
+  void options;
+  throw new Error(
+    'createPraxisLocalFirst is deprecated and @plures/pluresdb/local-first no longer exists. ' +
+    'Use PluresDBNativeAdapter from @plures/praxis-pluresdb instead.'
+  );
 }
