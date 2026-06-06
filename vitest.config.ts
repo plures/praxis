@@ -28,7 +28,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    exclude: ['**/node_modules/**', '**/dist/**', '**/test/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/test/**', '**/crates/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'json', 'json-summary'],
