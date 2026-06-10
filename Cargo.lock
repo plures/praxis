@@ -701,6 +701,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "px-grammar-gen"
+version = "0.1.0"
+dependencies = [
+ "px-ast",
+]
+
+[[package]]
 name = "px-schema"
 version = "0.1.0"
 dependencies = [

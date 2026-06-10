@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "crates/px-ast",
+    "crates/px-grammar-gen",
     "crates/px-schema",
     "crates/px-schema-derive",
     "crates/praxis-native",

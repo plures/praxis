@@ -1,0 +1,14 @@
+[package]
+name = "px-grammar-gen"
+version = "0.1.0"
+edition = "2021"
+description = "Generates grammar.pest from px-ast canonical types"
+license = "MIT"
+repository = "https://github.com/plures/praxis"
+
+[[bin]]
+name = "px-grammar-gen"
+path = "src/main.rs"
+
+[dependencies]
+px-ast = { path = "../px-ast" }
