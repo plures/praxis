@@ -1,0 +1,11 @@
+C:\Projects\praxis\target\debug\deps\quote-31f8e7e74962c62e.d: C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\lib.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\ext.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\format.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\ident_fragment.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\to_tokens.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\runtime.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\spanned.rs
+
+C:\Projects\praxis\target\debug\deps\libquote-31f8e7e74962c62e.rmeta: C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\lib.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\ext.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\format.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\ident_fragment.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\to_tokens.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\runtime.rs C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\spanned.rs
+
+C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\lib.rs:
+C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\ext.rs:
+C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\format.rs:
+C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\ident_fragment.rs:
+C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\to_tokens.rs:
+C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\runtime.rs:
+C:\Users\kbristol\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\quote-1.0.45\src\spanned.rs:

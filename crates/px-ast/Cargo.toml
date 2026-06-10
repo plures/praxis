@@ -1,0 +1,15 @@
+[package]
+name = "px-ast"
+version = "0.1.0"
+edition = "2021"
+description = "Canonical AST types for the Praxis Intent Language (.px)"
+license = "MIT"
+repository = "https://github.com/plures/praxis"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Schema generation from these types
+px-schema = { path = "../px-schema" }
+px-schema-derive = { path = "../px-schema-derive" }
