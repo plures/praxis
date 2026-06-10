@@ -1025,7 +1025,18 @@ mod v2_grammar_tests {
 
     #[test]
     fn test_tick_ship_parses() {
-        let source = include_str!("/tmp/test_v2_parse.px");
+        // Inline test case (originally from /tmp/test_v2_parse.px)
+        let source = r#"procedure tick_ship:
+  params: [$ship, $dt, $wind]
+  given: "Apply physics forces to a single ship for one timestep"
+{
+    let thrust = ship.thrust;
+    let wind_force = wind.strength * 0.5;
+    let drag = ship.velocity * 0.1;
+    let new_vel = ship.velocity + (thrust + wind_force - drag) * dt;
+    return new_vel;
+}
+"#;
         let result = PxParser::parse(Rule::document, source);
         assert!(result.is_ok(), "Failed: {}", result.err().unwrap());
     }

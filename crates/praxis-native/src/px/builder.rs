@@ -1119,11 +1119,15 @@ fn build_step(pair: Pair<'_, Rule>) -> PxStep {
             }
         }
         Rule::step_return => {
-            let value = inner.into_inner().next().map(|p| parse_value(p));
+            let value = inner.into_inner()
+                .find(|p| p.as_rule() == Rule::value)
+                .map(|p| parse_value(p));
             PxStep::Return { value }
         }
         Rule::step_abort => {
-            let value = inner.into_inner().next().map(|p| parse_value(p));
+            let value = inner.into_inner()
+                .find(|p| p.as_rule() == Rule::value)
+                .map(|p| parse_value(p));
             PxStep::Abort { value }
         }
         _ => PxStep::Call {
@@ -1230,6 +1234,11 @@ fn parse_value(pair: Pair<'_, Rule>) -> serde_json::Value {
             serde_json::Value::Object(map)
         }
         Rule::ident => serde_json::Value::String(pair.as_str().to_string()),
+        Rule::dotted_ident => serde_json::Value::String(pair.as_str().to_string()),
+        Rule::call_expr | Rule::arith_val | Rule::paren_expr => {
+            // Complex expressions — serialize as string representation
+            serde_json::Value::String(pair.as_str().to_string())
+        }
         _ => {
             // Try to parse inner value
             if let Some(inner) = pair.into_inner().next() {
