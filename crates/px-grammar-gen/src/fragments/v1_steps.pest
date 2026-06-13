@@ -4,7 +4,7 @@
 // ══════════════════════════════════════════════════════════════════════════════
 
 step_list = { ((step_decl ~ NEWLINE) | NEWLINE)+ }
-block_step_list = { (!("end" | "catch:") ~ ((step_decl ~ NEWLINE) | NEWLINE))+ }
+block_step_list = { (!(kw_end | "catch:") ~ ((step_decl ~ NEWLINE) | NEWLINE))+ }
 step_decl = {
     step_define
   | step_match
@@ -27,24 +27,24 @@ step_call = { ident ~ (call_args | map_val | param_pair+ | value+)? ~ ("->" ~ "$
 call_args = { "(" ~ (expr ~ ("," ~ expr)*)? ~ ")" }
 step_assign = { var_ref ~ "=" ~ assign_value }
 assign_value = @{ (!"\n" ~ ANY)+ }
-step_if = { "if" ~ expr ~ ":" ~ NEWLINE ~ block_step_list ~ step_else? ~ "end" }
+step_if = { kw_if ~ expr ~ ":" ~ NEWLINE ~ block_step_list ~ step_else? ~ kw_end }
 step_else = { "else:" ~ NEWLINE ~ block_step_list }
-step_match = { "match:" ~ NEWLINE ~ match_arm_list ~ "end" }
-match_arm_list = { (!("end") ~ match_arm ~ NEWLINE)+ }
+step_match = { kw_match ~ ":" ~ NEWLINE ~ match_arm_list ~ kw_end }
+match_arm_list = { (!(kw_end) ~ match_arm ~ NEWLINE)+ }
 match_arm = { expr ~ "->" ~ ident }
-step_when = { kw_when ~ expr ~ ":" ~ NEWLINE ~ block_step_list ~ "end" }
-step_for = { "for" ~ var_ref ~ "in" ~ (call_expr | var_ref | dotted_ident) ~ ":" ~ NEWLINE ~ block_step_list ~ "end" }
-step_loop = { kw_loop ~ loop_source ~ ("as" ~ ident)? ~ key_as_clause? ~ ("->" ~ "$" ~ ident)? ~ ":" ~ NEWLINE ~ block_step_list ~ "end" }
+step_when = { kw_when ~ expr ~ ":" ~ NEWLINE ~ block_step_list ~ kw_end }
+step_for = { kw_for ~ var_ref ~ kw_in ~ (call_expr | var_ref | dotted_ident) ~ ":" ~ NEWLINE ~ block_step_list ~ kw_end }
+step_loop = { kw_loop ~ loop_source ~ ("as" ~ ident)? ~ key_as_clause? ~ ("->" ~ "$" ~ ident)? ~ ":" ~ NEWLINE ~ block_step_list ~ kw_end }
 key_as_clause = { "key_as" ~ ident }
 loop_source = { "over" ~ "$" ~ ident | "times" ~ integer }
 step_emit = { kw_emit ~ (map_val | param_pair+) }
-step_try = { kw_try ~ try_retry_clause? ~ ":" ~ NEWLINE ~ try_step_list ~ catch_clause? ~ "end" }
+step_try = { kw_try ~ try_retry_clause? ~ ":" ~ NEWLINE ~ try_step_list ~ catch_clause? ~ kw_end }
 try_retry_clause = { "retry" ~ integer ~ branch_retry_opt* }
-try_step_list = { (!("catch:" | "end") ~ step_decl ~ NEWLINE)+ }
-catch_clause = { "catch:" ~ NEWLINE ~ (!("end") ~ step_decl ~ NEWLINE)+ }
-step_parallel = { kw_parallel ~ ("-" ~ ">" ~ "$" ~ ident)? ~ ":" ~ NEWLINE ~ parallel_branch_list ~ "end" }
+try_step_list = { (!("catch:" | kw_end) ~ step_decl ~ NEWLINE)+ }
+catch_clause = { "catch:" ~ NEWLINE ~ (!(kw_end) ~ step_decl ~ NEWLINE)+ }
+step_parallel = { kw_parallel ~ ("->" ~ "$" ~ ident)? ~ ":" ~ NEWLINE ~ parallel_branch_list ~ kw_end }
 parallel_branch_list = { (parallel_branch ~ NEWLINE?)+ }
-parallel_branch = { "branch" ~ ident ~ branch_retry_clause? ~ ":" ~ NEWLINE ~ block_step_list ~ "end" }
+parallel_branch = { "branch" ~ ident ~ branch_retry_clause? ~ ":" ~ NEWLINE ~ block_step_list ~ kw_end }
 branch_retry_clause = { "retry" ~ integer ~ branch_retry_opt* }
 branch_retry_opt = { retry_delay_opt | retry_backoff_opt | retry_max_delay_opt | retry_jitter_opt }
 retry_delay_opt = { "delay" ~ integer ~ "ms" }
@@ -62,3 +62,8 @@ kw_loop = @{ "loop" ~ !(ASCII_ALPHANUMERIC | "_") }
 kw_emit = @{ "emit" ~ !(ASCII_ALPHANUMERIC | "_") }
 kw_try = @{ "try" ~ !(ASCII_ALPHANUMERIC | "_") }
 kw_parallel = @{ "parallel" ~ !(ASCII_ALPHANUMERIC | "_") }
+kw_if = @{ "if" ~ !(ASCII_ALPHANUMERIC | "_") }
+kw_for = @{ "for" ~ !(ASCII_ALPHANUMERIC | "_") }
+kw_in = @{ "in" ~ !(ASCII_ALPHANUMERIC | "_") }
+kw_match = @{ "match" ~ !(ASCII_ALPHANUMERIC | "_") }
+kw_end = @{ "end" ~ !(ASCII_ALPHANUMERIC | "_") }
