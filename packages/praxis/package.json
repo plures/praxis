@@ -38,6 +38,11 @@
       "types": "./dist/unified.d.ts",
       "import": "./dist/unified.js",
       "require": "./dist/unified.cjs"
+    },
+    "./native": {
+      "types": "./dist/native.d.ts",
+      "import": "./dist/native.js",
+      "require": "./dist/native.cjs"
     }
   },
   "files": [
@@ -76,6 +81,7 @@
   "dependencies": {
     "@plures/praxis-core": "workspace:*",
     "@plures/praxis-cli": "workspace:*",
+    "@plures/praxis-native": "workspace:*",
     "@plures/praxis-svelte": "workspace:*",
     "@plures/praxis-cloud": "workspace:*",
     "@plures/praxis-db": "workspace:*",

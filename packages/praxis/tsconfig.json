@@ -9,7 +9,8 @@
       "@plures/praxis-core": ["packages/praxis-core/src/index.ts"],
       "@plures/praxis-svelte": ["packages/praxis-svelte/src/index.ts"],
       "@plures/praxis-cloud": ["packages/praxis-cloud/src/index.ts"],
-      "@plures/praxis-cli": ["packages/praxis-cli/src/index.ts"]
+      "@plures/praxis-cli": ["packages/praxis-cli/src/index.ts"],
+      "@plures/praxis-native": ["crates/praxis-native/index.d.ts"]
     }
   },
   "include": ["src/**/*", "../../src/unified/**/*"]

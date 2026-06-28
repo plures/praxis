@@ -8,6 +8,7 @@ export default defineConfig({
     cli: 'src/cli.ts',
     cloud: 'src/cloud.ts',
     unified: '../../src/unified/index.ts',
+    native: 'src/native.ts',
   },
   outDir: 'dist',
   format: ['esm', 'cjs'],

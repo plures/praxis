@@ -118,6 +118,9 @@ importers:
       '@plures/praxis-db':
         specifier: workspace:*
         version: link:../praxis-db
+      '@plures/praxis-native':
+        specifier: workspace:*
+        version: link:../../crates/praxis-native
       '@plures/praxis-svelte':
         specifier: workspace:*
         version: link:../praxis-svelte

@@ -1,5 +1,6 @@
 export * from '@plures/praxis-core';
 export * from '@plures/praxis-cloud';
+export { native, nativeAvailable } from './native.js';
 export {
   ReactiveLogicEngine as SvelteReactiveLogicEngine,
   createReactiveEngine as createSvelteReactiveEngine,
