@@ -4,6 +4,8 @@ export * from './protocol.js';
 export * from './rules.js';
 // Engine
 export * from './engine.js';
+// PluresDB constraint adapter (ADR-0028 — opt-in declarative-constraint delegation)
+export * from './pluresdb-constraint-adapter.js';
 // Rule result
 export * from './rule-result.js';
 // Actors

@@ -16,6 +16,7 @@ import type {
 import { PRAXIS_PROTOCOL_VERSION } from './protocol.js';
 import { PraxisRegistry } from './rules.js';
 import { RuleResult } from './rule-result.js';
+import type { PluresDbConstraintAdapter } from './pluresdb-constraint-adapter.js';
 
 /**
  * Options for creating a Praxis engine
@@ -43,6 +44,19 @@ export interface PraxisEngineOptions<TContext = unknown> {
    * Set to 0 for unlimited (not recommended).
    */
   maxFacts?: number;
+  /**
+   * Opt-in adapter (ADR-0028) that delegates **declarative** constraints to the
+   * canonical Rust constraint engine (`pluresdb-px`) via the `pluresdb-node`
+   * NAPI surface (`pxOnAction`/`pxEvaluate`).
+   *
+   * When omitted (the default), `step()` behaves exactly as before — every
+   * constraint is checked via its TS closure `impl`. When provided, constraints
+   * that the adapter recognizes as declarative (`meta.declarative === true`) are
+   * evaluated by Rust and the adapter translates a Rust block (a `pxOnAction`
+   * throw) into the standard `constraint-violation` diagnostic. TS-closure
+   * constraints and all rules are unaffected.
+   */
+  pluresDbConstraintAdapter?: PluresDbConstraintAdapter;
 }
 
 /**
@@ -84,11 +98,13 @@ export class LogicEngine<TContext = unknown> {
   private readonly registry: PraxisRegistry<TContext>;
   private readonly factDedup: 'none' | 'last-write-wins' | 'append';
   private readonly maxFacts: number;
+  private readonly pluresDbConstraintAdapter?: PluresDbConstraintAdapter;
 
   constructor(options: PraxisEngineOptions<TContext>) {
     this.registry = options.registry;
     this.factDedup = options.factDedup ?? 'last-write-wins';
     this.maxFacts = options.maxFacts ?? 1000;
+    this.pluresDbConstraintAdapter = options.pluresDbConstraintAdapter;
     this.state = {
       context: options.initialContext,
       facts: options.initialFacts ?? [],
@@ -265,6 +281,18 @@ export class LogicEngine<TContext = unknown> {
           message: `Constraint "${constraintId}" not found in registry`,
           data: { constraintId },
         });
+        continue;
+      }
+
+      // ── ADR-0028: opt-in delegation of DECLARATIVE constraints to Rust ──
+      // Default behavior is unchanged: this branch is only taken when an
+      // adapter is configured AND the constraint is marked declarative.
+      // Everything else (TS-closure constraints) falls through to the
+      // original `constraint.impl(newState)` path below.
+      if (this.pluresDbConstraintAdapter?.handles(constraint)) {
+        diagnostics.push(
+          ...this.pluresDbConstraintAdapter.checkDeclarativeConstraint(constraint)
+        );
         continue;
       }
 
