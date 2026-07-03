@@ -34,7 +34,7 @@
     "@plures/praxis-cloud": "workspace:*",
     "@plures/praxis": "workspace:*",
     "@plures/praxis-core": "workspace:*",
-    "commander": "^14.0.2",
+    "commander": "^15.0.0",
     "js-yaml": "^4.1.1"
   },
   "devDependencies": {
