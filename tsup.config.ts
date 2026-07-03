@@ -23,6 +23,15 @@ export default defineConfig([
       'lifecycle/index': 'src/lifecycle/index.ts',
       'cli/index': 'src/cli/index.ts',
       'unified/index': 'src/unified/index.ts',
+      // Subpaths the root `exports` map declares as node targets. These were
+      // previously only built for the browser (expectations/factory/project) or
+      // not at all (mcp/analysis), leaving `import '@plures/praxis/<x>'` to 404
+      // in Node. Emit them so every declared export path actually resolves.
+      'mcp/index': 'src/mcp/index.ts',
+      'expectations/index': 'src/expectations/index.ts',
+      'factory/index': 'src/factory/index.ts',
+      'project/index': 'src/project/index.ts',
+      'analysis/index': 'src/analysis/index.ts',
     },
     outDir: 'dist/node',
     format: ['esm', 'cjs'],
@@ -53,6 +62,8 @@ export default defineConfig([
       'factory/index': 'src/factory/index.ts',
       'project/index': 'src/project/index.ts',
       'unified/index': 'src/unified/index.ts',
+      // `exports['./analysis'].browser` points here; build it for the browser too.
+      'analysis/index': 'src/analysis/index.ts',
     },
     outDir: 'dist/browser',
     format: ['esm'],
