@@ -1,6 +1,14 @@
 import { defineConfig } from 'tsup';
 import { default as sveltePlugin } from 'esbuild-svelte';
 
+// Workspace-only packages that are NOT published to npm (praxis-core, praxis-cloud
+// are internal). They MUST be inlined into @plures/praxis's dist so the published
+// package is self-contained; otherwise external consumers hit
+// `Unsupported URL Type "workspace:"` / 404 on install. praxis-core has zero
+// runtime deps and praxis-cloud only depends on praxis-core, so bundling is clean.
+// See memory/qa-fix-milestones.md (2026-07-03) for the full root-cause analysis.
+const BUNDLE_WORKSPACE_PKGS = [/^@plures\/praxis-core$/, /^@plures\/praxis-cloud$/];
+
 export default defineConfig([
   // Node.js Build (Server-side Svelte compilation)
   {
@@ -21,6 +29,7 @@ export default defineConfig([
     dts: true,
     clean: true,
     platform: 'node',
+    noExternal: BUNDLE_WORKSPACE_PKGS,
     esbuildPlugins: [
       sveltePlugin({
         compilerOptions: {
@@ -50,6 +59,7 @@ export default defineConfig([
     dts: true,
     clean: true,
     platform: 'browser',
+    noExternal: BUNDLE_WORKSPACE_PKGS,
     esbuildPlugins: [
       sveltePlugin({
         compilerOptions: {

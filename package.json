@@ -195,6 +195,8 @@
   "author": "Plures",
   "license": "MIT",
   "devDependencies": {
+    "@plures/praxis-cloud": "workspace:*",
+    "@plures/praxis-core": "workspace:*",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.0.1",
@@ -218,8 +220,6 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
     "@plures/pluresdb": "^3.9.1",
-    "@plures/praxis-cloud": "workspace:*",
-    "@plures/praxis-core": "workspace:*",
     "commander": "^14.0.2",
     "js-yaml": "^4.1.1",
     "svelte": "^5.53.5",
