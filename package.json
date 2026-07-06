@@ -199,7 +199,7 @@
     "@plures/praxis-core": "workspace:*",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^25.0.1",
+    "@types/node": "^26.1.0",
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",

@@ -39,7 +39,7 @@
     "@plures/praxis-core": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^25.0.1",
+    "@types/node": "^26.1.0",
     "@types/ws": "^8.18.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
