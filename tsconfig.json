@@ -20,6 +20,7 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@praxis/core/*": ["./core/*"],
       "@praxis/ui/*": ["./ui/*"],
