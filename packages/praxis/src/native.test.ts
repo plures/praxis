@@ -1,17 +1,47 @@
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
-import { readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const nativeDir = resolve(__dirname, '../../../crates/praxis-native');
+
+// Determine whether the compiled NAPI binary is available.
+// The binary is only present after `cargo build` (or `napi build`) has run for
+// the crates/praxis-native crate — it is never present in a plain Node CI job
+// that does not compile Rust.  `@plures/praxis-native` is a pnpm workspace
+// package so `require.resolve` always succeeds; instead we check for the
+// actual compiled .node files or attempt to fully load the module.
+// When unavailable, the describe block is skipped rather than failing with
+// "Cannot find module".
+const nativeAvailable = (() => {
+  const nodeFiles = [
+    'praxis-native.linux-x64-gnu.node',
+    'praxis-native.linux-x64-musl.node',
+    'praxis-native.linux-arm64-gnu.node',
+    'praxis-native.linux-arm64-musl.node',
+    'praxis-native.darwin-x64.node',
+    'praxis-native.darwin-arm64.node',
+    'praxis-native.win32-x64-msvc.node',
+  ];
+  if (nodeFiles.some((f) => existsSync(join(nativeDir, f)))) return true;
+  try {
+    require('@plures/praxis-native');
+    return true;
+  } catch {
+    return false;
+  }
+})();
+
 const PX_FIXTURE = readFileSync(
-  resolve(__dirname, '../../../crates/praxis-native/examples/wind-chess-v2.px'),
+  resolve(nativeDir, 'examples/wind-chess-v2.px'),
   'utf8'
 );
 
-describe('@plures/praxis native addon integration', () => {
+describe.skipIf(!nativeAvailable)('@plures/praxis native addon integration', () => {
   it('loads the native NAPI binary at runtime', () => {
     const native = require('@plures/praxis-native');
     expect(native).toBeDefined();
