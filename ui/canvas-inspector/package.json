@@ -1,6 +1,6 @@
 {
   "name": "@plures/praxis-canvas",
-  "version": "0.1.0",
+  "version": "2.8.0",
   "description": "Visual canvas and logic inspector for Praxis",
   "main": "dist/server.js",
   "type": "module",

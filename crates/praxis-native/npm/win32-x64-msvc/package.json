@@ -1,11 +1,16 @@
 {
   "name": "@plures/praxis-native-win32-x64-msvc",
-  "version": "0.1.0",
-  "os": ["win32"],
-  "cpu": ["x64"],
-  
+  "version": "2.8.0",
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
   "main": "praxis-native.win32-x64-msvc.node",
-  "files": ["praxis-native.win32-x64-msvc.node"],
+  "files": [
+    "praxis-native.win32-x64-msvc.node"
+  ],
   "description": "praxis-native native binding for Windows 64-bit (MSVC)",
   "license": "MIT",
   "repository": {

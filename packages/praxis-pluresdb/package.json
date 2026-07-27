@@ -1,6 +1,6 @@
 {
   "name": "@plures/praxis-pluresdb",
-  "version": "0.1.0",
+  "version": "2.8.0",
   "description": "PluresDB native backend for the Praxis logic engine — constraint execution via NAPI procedure engine",
   "type": "module",
   "main": "./dist/index.js",
@@ -11,7 +11,12 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "src", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
@@ -29,8 +34,16 @@
     "typescript": "^6.0.3",
     "vitest": "^4.0.15"
   },
-  "keywords": ["praxis", "pluresdb", "napi", "constraint-engine", "logic-engine"],
+  "keywords": [
+    "praxis",
+    "pluresdb",
+    "napi",
+    "constraint-engine",
+    "logic-engine"
+  ],
   "author": "Plures",
   "license": "MIT",
-  "publishConfig": { "access": "public" }
+  "publishConfig": {
+    "access": "public"
+  }
 }

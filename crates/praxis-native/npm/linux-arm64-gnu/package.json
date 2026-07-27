@@ -1,11 +1,19 @@
 {
   "name": "@plures/praxis-native-linux-arm64-gnu",
-  "version": "0.1.0",
-  "os": ["linux"],
-  "cpu": ["arm64"],
-  "libc": ["glibc"],
+  "version": "2.8.0",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "libc": [
+    "glibc"
+  ],
   "main": "praxis-native.linux-arm64-gnu.node",
-  "files": ["praxis-native.linux-arm64-gnu.node"],
+  "files": [
+    "praxis-native.linux-arm64-gnu.node"
+  ],
   "description": "praxis-native native binding for Linux ARM64 (glibc)",
   "license": "MIT",
   "repository": {
