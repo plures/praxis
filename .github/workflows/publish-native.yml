@@ -73,7 +73,7 @@ jobs:
         run: napi build --platform --release --strip --target ${{ matrix.target }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bindings-${{ matrix.target }}
           path: crates/praxis-native/praxis-native.*.node

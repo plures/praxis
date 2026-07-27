@@ -17,6 +17,7 @@
     "noUnusedParameters": false,
     "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": true,
+    "ignoreDeprecations": "6.0",
     "noEmit": true,
     "paths": {
       "@plures/praxis": ["../../src/index.ts"],
