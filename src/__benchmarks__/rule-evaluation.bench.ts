@@ -221,3 +221,89 @@ describe('rule evaluation — repeated steps on same engine', () => {
     }
   });
 });
+
+// ─── Large rulesets ───────────────────────────────────────────────────────────
+
+describe('rule evaluation — large rulesets', () => {
+  bench('100 catch-all rules, all noop', () => {
+    const engine = makeEngine(100, { emit: false });
+    engine.step(singleEvent);
+  });
+
+  bench('100 event-filtered rules (10% match)', () => {
+    const registry = new PraxisRegistry<BenchContext>({ compliance: { enabled: false } });
+    for (let i = 0; i < 10; i++) {
+      registry.registerRule({
+        id: `rule-tick-${i}`,
+        description: `tick rule ${i}`,
+        eventTypes: ['tick'],
+        impl: () => RuleResult.noop(),
+      });
+    }
+    for (let i = 0; i < 90; i++) {
+      registry.registerRule({
+        id: `rule-other-${i}`,
+        description: `other rule ${i}`,
+        eventTypes: ['other'],
+        impl: () => RuleResult.noop(),
+      });
+    }
+    const engine = createPraxisEngine<BenchContext>({
+      initialContext: { value: 0, label: 'bench' },
+      registry,
+    });
+    engine.step(singleEvent);
+  });
+
+  bench('500 catch-all rules, all noop', () => {
+    const engine = makeEngine(500, { emit: false });
+    engine.step(singleEvent);
+  });
+
+  bench('500 event-filtered rules (10% match)', () => {
+    const registry = new PraxisRegistry<BenchContext>({ compliance: { enabled: false } });
+    for (let i = 0; i < 50; i++) {
+      registry.registerRule({
+        id: `rule-tick-${i}`,
+        description: `tick rule ${i}`,
+        eventTypes: ['tick'],
+        impl: () => RuleResult.noop(),
+      });
+    }
+    for (let i = 0; i < 450; i++) {
+      registry.registerRule({
+        id: `rule-other-${i}`,
+        description: `other rule ${i}`,
+        eventTypes: ['other'],
+        impl: () => RuleResult.noop(),
+      });
+    }
+    const engine = createPraxisEngine<BenchContext>({
+      initialContext: { value: 0, label: 'bench' },
+      registry,
+    });
+    engine.step(singleEvent);
+  });
+
+  bench('500 rules, 100 events (mixed tags)', () => {
+    const registry = new PraxisRegistry<BenchContext>({ compliance: { enabled: false } });
+    const tags = ['alpha', 'beta', 'gamma', 'delta', 'epsilon'];
+    for (let i = 0; i < 500; i++) {
+      registry.registerRule({
+        id: `rule-${i}`,
+        description: `rule ${i}`,
+        eventTypes: [tags[i % tags.length]],
+        impl: () => RuleResult.noop(),
+      });
+    }
+    const engine = createPraxisEngine<BenchContext>({
+      initialContext: { value: 0, label: 'bench' },
+      registry,
+    });
+    const events = Array.from({ length: 100 }, (_, i) => ({
+      tag: tags[i % tags.length],
+      payload: { i },
+    }));
+    engine.step(events);
+  });
+});

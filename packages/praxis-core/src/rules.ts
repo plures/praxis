@@ -145,6 +145,14 @@ export class PraxisRegistry<TContext = unknown> {
   private constraints = new Map<ConstraintId, ConstraintDescriptor<TContext>>();
   private readonly compliance: RegistryComplianceOptions;
   private contractGaps: ContractGap[] = [];
+  /** Cached rule ID list — invalidated on registration */
+  private cachedRuleIds: RuleId[] | null = null;
+  /** Cached constraint ID list — invalidated on registration */
+  private cachedConstraintIds: ConstraintId[] | null = null;
+  /** Index: event tag → rule IDs that declare that tag in eventTypes */
+  private eventTypeIndex = new Map<string, RuleId[]>();
+  /** Rule IDs that have no eventTypes filter (catch-all rules) */
+  private catchAllRuleIds: RuleId[] = [];
 
   constructor(options: PraxisRegistryOptions = {}) {
     const defaultEnabled = typeof process !== 'undefined' ? process.env?.NODE_ENV !== 'production' : false;
@@ -164,6 +172,23 @@ export class PraxisRegistry<TContext = unknown> {
       throw new Error(`Rule with id "${descriptor.id}" already registered`);
     }
     this.rules.set(descriptor.id, descriptor);
+    this.cachedRuleIds = null; // invalidate cache
+
+    // Update event-type index
+    if (descriptor.eventTypes) {
+      const tags = Array.isArray(descriptor.eventTypes) ? descriptor.eventTypes : [descriptor.eventTypes];
+      for (const tag of tags) {
+        const existing = this.eventTypeIndex.get(tag);
+        if (existing) {
+          existing.push(descriptor.id);
+        } else {
+          this.eventTypeIndex.set(tag, [descriptor.id]);
+        }
+      }
+    } else {
+      this.catchAllRuleIds.push(descriptor.id);
+    }
+
     this.trackContractCompliance(descriptor.id, descriptor);
   }
 
@@ -175,6 +200,7 @@ export class PraxisRegistry<TContext = unknown> {
       throw new Error(`Constraint with id "${descriptor.id}" already registered`);
     }
     this.constraints.set(descriptor.id, descriptor);
+    this.cachedConstraintIds = null; // invalidate cache
     this.trackContractCompliance(descriptor.id, descriptor);
   }
 
@@ -208,14 +234,20 @@ export class PraxisRegistry<TContext = unknown> {
    * Get all registered rule IDs
    */
   getRuleIds(): RuleId[] {
-    return Array.from(this.rules.keys());
+    if (this.cachedRuleIds === null) {
+      this.cachedRuleIds = Array.from(this.rules.keys());
+    }
+    return this.cachedRuleIds;
   }
 
   /**
    * Get all registered constraint IDs
    */
   getConstraintIds(): ConstraintId[] {
-    return Array.from(this.constraints.keys());
+    if (this.cachedConstraintIds === null) {
+      this.cachedConstraintIds = Array.from(this.constraints.keys());
+    }
+    return this.cachedConstraintIds;
   }
 
   /**
@@ -230,6 +262,32 @@ export class PraxisRegistry<TContext = unknown> {
    */
   getAllConstraints(): ConstraintDescriptor<TContext>[] {
     return Array.from(this.constraints.values());
+  }
+
+  /**
+   * Get rule IDs relevant to a set of event tags using the pre-built index.
+   * Returns catch-all rules plus any rules whose eventTypes overlap the given tags.
+   * This avoids iterating all rules and checking eventTypes at evaluation time.
+   */
+  getRuleIdsForEvents(eventTags: Set<string>): RuleId[] {
+    if (eventTags.size === 0) {
+      return this.catchAllRuleIds;
+    }
+    const result: RuleId[] = [...this.catchAllRuleIds];
+    const seen = new Set<RuleId>();
+    for (const id of this.catchAllRuleIds) seen.add(id);
+    for (const tag of eventTags) {
+      const ids = this.eventTypeIndex.get(tag);
+      if (ids) {
+        for (const id of ids) {
+          if (!seen.has(id)) {
+            seen.add(id);
+            result.push(id);
+          }
+        }
+      }
+    }
+    return result;
   }
 
   /**
