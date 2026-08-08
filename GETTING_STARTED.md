@@ -232,6 +232,7 @@ Browse the full set of examples:
 ## Next Steps
 
 - [README.md](./README.md) — full API reference and feature overview
+- [Generated API Reference](./docs/api/README.md) — complete TypeDoc reference for all public exports
 - [Framework Architecture](./FRAMEWORK.md) — design and module map
 - [Svelte Integration Guide](./docs/guides/svelte-integration.md) — deep Svelte 5 walkthrough
 - [Decision Ledger Guide](./docs/decision-ledger/DOGFOODING.md) — behavior contracts

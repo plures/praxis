@@ -162,6 +162,8 @@
     "build": "pnpm --filter @plures/praxis-core build && tsup && pnpm --filter @plures/praxis build",
     "bench": "vitest bench",
     "bench:run": "vitest bench --run",
+    "bench:json": "vitest bench --run --outputJson=bench-results.json",
+    "bench:check": "node ./scripts/check-benchmarks.mjs --report bench-results.json",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
@@ -172,7 +174,9 @@
     "cli": "node ./dist/src/cli/index.js",
     "scan:rules": "tsx tools/decision-ledger/scan-rules.ts",
     "validate:contracts": "node ./dist/node/cli/index.js validate --output console",
-    "validate:contracts:sarif": "node ./dist/node/cli/index.js validate --output sarif"
+    "validate:contracts:sarif": "node ./dist/node/cli/index.js validate --output sarif",
+    "docs:api": "typedoc",
+    "docs:api:check": "typedoc && git diff --exit-code docs/api/"
   },
   "keywords": [
     "praxis",
@@ -212,6 +216,8 @@
     "svelte-preprocess": "^6.0.3",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.12.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8",
     "vite": "^7.3.2",

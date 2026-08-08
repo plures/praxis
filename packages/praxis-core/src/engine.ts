@@ -147,11 +147,13 @@ export class LogicEngine<TContext = unknown> {
    * @returns Result with new state and diagnostics
    */
   step(events: PraxisEvent[]): PraxisStepResult {
+    // Use the event-type index for O(matched) instead of O(all_rules) filtering
+    const eventTags = new Set(events.map(e => e.tag));
     const config: PraxisStepConfig = {
-      ruleIds: this.registry.getRuleIds(),
+      ruleIds: this.registry.getRuleIdsForEvents(eventTags),
       constraintIds: this.registry.getConstraintIds(),
     };
-    return this.stepWithConfig(events, config);
+    return this.stepInternal(events, config, eventTags);
   }
 
   /**
@@ -162,6 +164,10 @@ export class LogicEngine<TContext = unknown> {
    * @returns Result with new state and diagnostics
    */
   stepWithConfig(events: PraxisEvent[], config: PraxisStepConfig): PraxisStepResult {
+    return this.stepInternal(events, config);
+  }
+
+  private stepInternal(events: PraxisEvent[], config: PraxisStepConfig, precomputedEventTags?: Set<string>): PraxisStepResult {
     const diagnostics: PraxisDiagnostics[] = [];
     let newState = { ...this.state };
 
@@ -174,7 +180,11 @@ export class LogicEngine<TContext = unknown> {
     // Apply rules
     const newFacts: PraxisFact[] = [];
     const retractions: string[] = [];
-    const eventTags = new Set(events.map(e => e.tag));
+    // Only compute eventTags if not provided (backward-compat path via stepWithConfig directly)
+    const eventTags = precomputedEventTags ?? new Set(events.map(e => e.tag));
+    // When called from step(), rules are already pre-filtered by the index.
+    // When called directly (stepWithConfig public API), we still need to filter.
+    const rulesPreFiltered = precomputedEventTags !== undefined;
     for (const ruleId of config.ruleIds) {
       const rule = this.registry.getRule(ruleId);
       if (!rule) {
@@ -188,7 +198,9 @@ export class LogicEngine<TContext = unknown> {
 
       // Event type filtering: if rule declares eventTypes, skip unless
       // at least one event in the batch matches.
-      if (rule.eventTypes) {
+      // When called from step() with pre-filtered rules, this check is redundant
+      // but kept for the direct stepWithConfig() call path.
+      if (!rulesPreFiltered && rule.eventTypes) {
         const filterTags = Array.isArray(rule.eventTypes) ? rule.eventTypes : [rule.eventTypes];
         if (!filterTags.some(t => eventTags.has(t))) {
           continue; // No matching events — skip this rule
