@@ -106,13 +106,16 @@ const app = createApp({
   constraints: [titleRequired],
 });
 
+const remainingCount = () =>
+  (app.facts().find((f) => f.tag === 'remaining.updated')?.payload as { count: number } | undefined)?.count;
+
 // Add tasks
 app.mutate('tasks', [
   { id: '1', title: 'Read Praxis docs', done: false },
   { id: '2', title: 'Build first app', done: false },
 ]);
 
-console.log((app.facts().find((f) => f.tag === 'remaining.updated')?.payload as { count: number } | undefined)?.count);
+console.log(remainingCount());
 // Expected output: 2
 
 // Mark one task done
@@ -121,7 +124,7 @@ app.mutate('tasks', [
   { id: '2', title: 'Build first app', done: false },
 ]);
 
-console.log((app.facts().find((f) => f.tag === 'remaining.updated')?.payload as { count: number } | undefined)?.count);
+console.log(remainingCount());
 // Expected output: 1
 
 // Try adding a task with empty title — rejected
@@ -181,17 +184,20 @@ const app = createApp({
   constraints: [titleRequired],
 });
 
+const remainingCount = () =>
+  (app.facts().find((f) => f.tag === 'remaining.updated')?.payload as { count: number } | undefined)?.count;
+
 app.mutate('tasks', [
   { id: '1', title: 'Read Praxis docs', done: false },
   { id: '2', title: 'Build first app', done: false },
 ]);
-console.log((app.facts().find((f) => f.tag === 'remaining.updated')?.payload as { count: number } | undefined)?.count); // 2
+console.log(remainingCount()); // 2
 
 app.mutate('tasks', [
   { id: '1', title: 'Read Praxis docs', done: true },
   { id: '2', title: 'Build first app', done: false },
 ]);
-console.log((app.facts().find((f) => f.tag === 'remaining.updated')?.payload as { count: number } | undefined)?.count); // 1
+console.log(remainingCount()); // 1
 
 const result = app.mutate('tasks', [
   { id: '1', title: 'Read Praxis docs', done: true },

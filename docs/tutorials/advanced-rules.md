@@ -196,8 +196,8 @@ const maxOrderTotal = defineConstraint({
   description: 'Orders over $1000 need manager approval',
   watch: ['order'],
   validate: (values) => {
-    const order = values['order'] as { items: { qty: number; price: number }[] };
-    const total = order.items.reduce((sum, item) => sum + item.qty * item.price, 0);
+    const order = values['order'] as { items: OrderItem[] };
+    const total = calculateTotal(order.items);
     return total <= 1000 || 'Manager approval required for orders over $1000';
   },
 });
