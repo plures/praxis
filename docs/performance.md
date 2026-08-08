@@ -32,6 +32,13 @@ When `step()` uses the indexed path, the per-rule `eventTypes` check is bypassed
 
 Benchmarks run on every PR and push to `main` via `.github/workflows/benchmarks.yml`.
 
+The workflow writes a machine-readable report (`pnpm bench:json`) and then enforces
+baseline thresholds (`pnpm bench:check`). `scripts/check-benchmarks.mjs` compares each
+scenario listed in `benchmarks/baseline.json` against its recorded ops/sec and fails the
+job when throughput drops below `baseline × (1 - tolerance)` (default tolerance: 50%, to
+absorb shared-runner variance) or when a tracked scenario disappears from the report.
+Update `benchmarks/baseline.json` when an intentional performance change lands.
+
 ### Recommendations for Maximum Performance
 
 1. **Use `eventTypes` on rules** — rules with event-type filters benefit from indexed lookup

@@ -48,3 +48,6 @@ csharp/*/TestResults/
 coverage-v8/
 target/
 target/
+
+# Benchmark report output
+bench-results.json

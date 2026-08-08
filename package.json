@@ -162,6 +162,8 @@
     "build": "pnpm --filter @plures/praxis-core build && tsup && pnpm --filter @plures/praxis build",
     "bench": "vitest bench",
     "bench:run": "vitest bench --run",
+    "bench:json": "vitest bench --run --outputJson=bench-results.json",
+    "bench:check": "node ./scripts/check-benchmarks.mjs --report bench-results.json",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",

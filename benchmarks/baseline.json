@@ -1,0 +1,16 @@
+{
+  "$comment": "Baseline throughput (ops/sec) per benchmark scenario. `tolerance` is the fraction below baseline that is still accepted, absorbing CI runner variance. Update the numbers whenever an intentional performance change lands.",
+  "tolerance": 0.5,
+  "scenarios": {
+    "rule evaluation — single rule > catch-all rule returning noop": 610000,
+    "rule evaluation — single rule > event-filtered rule (matching event)": 500000,
+    "rule evaluation — single rule > event-filtered rule (no matching event)": 578000,
+    "rule evaluation — many rules > 50 catch-all rules, all noop": 49000,
+    "rule evaluation — many rules > 50 event-filtered rules (half match)": 91000,
+    "rule evaluation — large rulesets > 100 catch-all rules, all noop": 25000,
+    "rule evaluation — large rulesets > 100 event-filtered rules (10% match)": 563000,
+    "rule evaluation — large rulesets > 500 catch-all rules, all noop": 5300,
+    "rule evaluation — large rulesets > 500 event-filtered rules (10% match)": 11600,
+    "rule evaluation — large rulesets > 500 rules, 100 events (mixed tags)": 7100
+  }
+}

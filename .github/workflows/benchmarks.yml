@@ -18,4 +18,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Run benchmarks
-        run: pnpm bench:run
+        run: pnpm bench:json
+      - name: Check benchmark thresholds
+        run: pnpm bench:check
