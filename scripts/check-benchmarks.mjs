@@ -55,7 +55,12 @@ function main() {
   const baseline = readJson(args.baseline);
   const results = collectResults(readJson(args.report));
 
-  const tolerance = typeof baseline.tolerance === 'number' ? baseline.tolerance : 0.5;
+  const tolerance = baseline.tolerance;
+  if (typeof tolerance !== 'number' || tolerance < 0 || tolerance >= 1) {
+    process.stderr.write(`Baseline ${args.baseline} must define a numeric "tolerance" in [0, 1).\n`);
+    process.exit(1);
+  }
+
   const failures = [];
   const rows = [];
 
