@@ -144,16 +144,16 @@ console.log(total?.total); // demo only — use OpenTelemetry in production
 // Expected output: 150
 
 const discount = orderResult.facts.find((f) => f.tag === 'order.discountApplied')?.payload as { discount: number } | undefined;
-console.log(discount?.discount);
+console.log(discount?.discount); // demo only — use OpenTelemetry in production
 // Expected output: 0.1
 
 const finalTotal = (total?.total ?? 0) * (1 - (discount?.discount ?? 0));
-console.log(finalTotal);
+console.log(finalTotal); // demo only — use OpenTelemetry in production
 // Expected output: 135
 
 // Try submitting an empty order — constraint fails
 const emptyResult = app.mutate('order', { items: [], status: 'submitted' });
-console.log(emptyResult.accepted);
+console.log(emptyResult.accepted); // demo only — use OpenTelemetry in production
 // Expected output: false
 ```
 
@@ -272,7 +272,7 @@ const totalNonNegative = defineConstraint({
   validate: (values) => {
     const order = values['order'] as { items: OrderItem[] };
     const total = calculateTotal(order.items);
-    return total >= 0 || 'Final total is negative';
+    return total >= 0 || `Final total is negative: ${total}`;
   },
 });
 
@@ -305,7 +305,7 @@ const orderResult = app.mutate('order', {
 const total = orderResult.facts.find((f) => f.tag === 'order.totalComputed')?.payload as { total: number } | undefined;
 const discount = orderResult.facts.find((f) => f.tag === 'order.discountApplied')?.payload as { discount: number } | undefined;
 console.log(total?.total);       // 150; demo only — use OpenTelemetry in production
-console.log(discount?.discount); // 0.1
+console.log(discount?.discount); // 0.1; demo only — use OpenTelemetry in production
 ```
 
 </details>

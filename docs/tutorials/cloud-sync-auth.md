@@ -152,7 +152,7 @@ app.mutate('auth', {
   error: null,
 });
 
-console.log(app.query('auth').current.status);
+console.log(app.query('auth').current.status); // demo only — use OpenTelemetry in production
 // Expected output: authenticated
 
 // 4. Connect sync with the authenticated token
@@ -162,11 +162,11 @@ const relay = await connectNotesRelay();
 const accepted = app.mutate('notes', [
   { id: '1', text: 'My first synced note', updatedAt: Date.now() },
 ]);
-console.log(accepted.accepted);
+console.log(accepted.accepted); // demo only — use OpenTelemetry in production
 // Expected output: true
 
 // 6. Check sync status
-console.log(app.query('syncStatus').current);
+console.log(app.query('syncStatus').current); // demo only — use OpenTelemetry in production
 // Expected output: idle
 ```
 
@@ -305,11 +305,11 @@ app.mutate('auth', { status: 'authenticating', userId: 'user-123', token: null, 
 
 // Authenticate
 app.mutate('auth', { status: 'authenticated', userId: 'user-123', token: 'jwt-token-here', error: null });
-console.log(app.query('auth').current.status); // authenticated
+console.log(app.query('auth').current.status); // authenticated; demo only — use OpenTelemetry in production
 const relay = await connectNotesRelay();
 
 // Accepted
-console.log(app.mutate('notes', [{ id: '1', text: 'Synced note', updatedAt: Date.now() }]).accepted);
+console.log(app.mutate('notes', [{ id: '1', text: 'Synced note', updatedAt: Date.now() }]).accepted); // demo only — use OpenTelemetry in production
 // true
 ```
 

@@ -124,7 +124,7 @@ app.mutate('tasks', [
   { id: '2', title: 'Build first app', done: false },
 ]);
 
-console.log(remainingCount());
+console.log(remainingCount()); // demo only — use OpenTelemetry in production
 // Expected output: 1
 
 // Try adding a task with empty title — rejected
@@ -134,7 +134,7 @@ const result = app.mutate('tasks', [
   { id: '3', title: '', done: false },
 ]);
 
-console.log(result.accepted);
+console.log(result.accepted); // demo only — use OpenTelemetry in production
 // Expected output: false
 ```
 
@@ -197,14 +197,14 @@ app.mutate('tasks', [
   { id: '1', title: 'Read Praxis docs', done: true },
   { id: '2', title: 'Build first app', done: false },
 ]);
-console.log(remainingCount()); // 1
+console.log(remainingCount()); // 1; demo only — use OpenTelemetry in production
 
 const result = app.mutate('tasks', [
   { id: '1', title: 'Read Praxis docs', done: true },
   { id: '2', title: 'Build first app', done: false },
   { id: '3', title: '', done: false },
 ]);
-console.log(result.accepted); // false
+console.log(result.accepted); // false; demo only — use OpenTelemetry in production
 ```
 
 </details>
