@@ -237,7 +237,7 @@ export class PraxisRegistry<TContext = unknown> {
     if (this.cachedRuleIds === null) {
       this.cachedRuleIds = Array.from(this.rules.keys());
     }
-    return this.cachedRuleIds;
+    return [...this.cachedRuleIds];
   }
 
   /**
@@ -247,7 +247,7 @@ export class PraxisRegistry<TContext = unknown> {
     if (this.cachedConstraintIds === null) {
       this.cachedConstraintIds = Array.from(this.constraints.keys());
     }
-    return this.cachedConstraintIds;
+    return [...this.cachedConstraintIds];
   }
 
   /**
@@ -271,7 +271,7 @@ export class PraxisRegistry<TContext = unknown> {
    */
   getRuleIdsForEvents(eventTags: Set<string>): RuleId[] {
     if (eventTags.size === 0) {
-      return this.catchAllRuleIds;
+      return [...this.catchAllRuleIds];
     }
     const result: RuleId[] = [...this.catchAllRuleIds];
     const seen = new Set<RuleId>();

@@ -153,7 +153,7 @@ export class LogicEngine<TContext = unknown> {
       ruleIds: this.registry.getRuleIdsForEvents(eventTags),
       constraintIds: this.registry.getConstraintIds(),
     };
-    return this.stepWithConfig(events, config, eventTags);
+    return this.stepInternal(events, config, eventTags);
   }
 
   /**
@@ -163,7 +163,11 @@ export class LogicEngine<TContext = unknown> {
    * @param config Step configuration
    * @returns Result with new state and diagnostics
    */
-  stepWithConfig(events: PraxisEvent[], config: PraxisStepConfig, precomputedEventTags?: Set<string>): PraxisStepResult {
+  stepWithConfig(events: PraxisEvent[], config: PraxisStepConfig): PraxisStepResult {
+    return this.stepInternal(events, config);
+  }
+
+  private stepInternal(events: PraxisEvent[], config: PraxisStepConfig, precomputedEventTags?: Set<string>): PraxisStepResult {
     const diagnostics: PraxisDiagnostics[] = [];
     let newState = { ...this.state };
 
