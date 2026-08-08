@@ -306,7 +306,7 @@ app.mutate('auth', { status: 'authenticating', userId: 'user-123', token: null, 
 // Authenticate
 app.mutate('auth', { status: 'authenticated', userId: 'user-123', token: 'jwt-token-here', error: null });
 console.log(app.query('auth').current.status); // authenticated
-await connectNotesRelay();
+const relay = await connectNotesRelay();
 
 // Accepted
 console.log(app.mutate('notes', [{ id: '1', text: 'Synced note', updatedAt: Date.now() }]).accepted);

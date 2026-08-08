@@ -2,6 +2,8 @@
 
 Hands-on tutorials for learning Praxis from scratch.
 
+Tutorial snippets use `console.log` to show expected output. Replace these demonstration logs with structured tracing, such as OpenTelemetry, in production applications.
+
 ## Focused Tutorial Series
 
 ### [Getting Started](./getting-started.md)
