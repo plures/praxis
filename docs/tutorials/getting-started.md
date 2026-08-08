@@ -115,7 +115,7 @@ app.mutate('tasks', [
   { id: '2', title: 'Build first app', done: false },
 ]);
 
-console.log(remainingCount());
+console.log(remainingCount()); // demo only — use OpenTelemetry in production
 // Expected output: 2
 
 // Mark one task done
@@ -191,7 +191,7 @@ app.mutate('tasks', [
   { id: '1', title: 'Read Praxis docs', done: false },
   { id: '2', title: 'Build first app', done: false },
 ]);
-console.log(remainingCount()); // 2
+console.log(remainingCount()); // 2; demo only — use OpenTelemetry in production
 
 app.mutate('tasks', [
   { id: '1', title: 'Read Praxis docs', done: true },

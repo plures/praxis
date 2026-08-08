@@ -133,7 +133,7 @@ async function connectNotesRelay() {
 ```ts
 // 1. Start anonymous — notes mutation is rejected
 const rejected = app.mutate('notes', [{ id: '1', text: 'Hello', updatedAt: Date.now() }]);
-console.log(rejected.accepted);
+console.log(rejected.accepted); // demo only — use OpenTelemetry in production
 // Expected output: false
 
 // 2. Trigger login
@@ -297,7 +297,7 @@ async function connectNotesRelay() {
 }
 
 // Rejected — not authenticated
-console.log(app.mutate('notes', [{ id: '1', text: 'Hello', updatedAt: Date.now() }]).accepted);
+console.log(app.mutate('notes', [{ id: '1', text: 'Hello', updatedAt: Date.now() }]).accepted); // demo only — use OpenTelemetry in production
 // false
 
 // Start authentication

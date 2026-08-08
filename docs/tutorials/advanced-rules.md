@@ -140,7 +140,7 @@ const orderResult = app.mutate('order', {
 });
 
 const total = orderResult.facts.find((f) => f.tag === 'order.totalComputed')?.payload as { total: number } | undefined;
-console.log(total?.total);
+console.log(total?.total); // demo only — use OpenTelemetry in production
 // Expected output: 150
 
 const discount = orderResult.facts.find((f) => f.tag === 'order.discountApplied')?.payload as { discount: number } | undefined;
@@ -304,7 +304,7 @@ const orderResult = app.mutate('order', {
 
 const total = orderResult.facts.find((f) => f.tag === 'order.totalComputed')?.payload as { total: number } | undefined;
 const discount = orderResult.facts.find((f) => f.tag === 'order.discountApplied')?.payload as { discount: number } | undefined;
-console.log(total?.total);       // 150
+console.log(total?.total);       // 150; demo only — use OpenTelemetry in production
 console.log(discount?.discount); // 0.1
 ```
 
