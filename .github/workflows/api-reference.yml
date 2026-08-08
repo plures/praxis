@@ -1,0 +1,34 @@
+name: API Reference
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'typedoc.json'
+      - 'tsconfig.json'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'typedoc.json'
+      - 'tsconfig.json'
+permissions:
+  contents: read
+jobs:
+  check-api-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm docs:api
+      - name: Check docs are up to date
+        run: |
+          if [ -n "$(git status --porcelain docs/api/)" ]; then
+            echo "::error::API reference is out of date. Run 'pnpm docs:api' and commit the changes."
+            git diff --stat docs/api/
+            exit 1
+          fi
