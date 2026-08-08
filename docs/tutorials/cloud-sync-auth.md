@@ -146,7 +146,7 @@ app.mutate('auth', {
   error: null,
 });
 
-// 3. After rule processes login, state transitions to authenticated
+// 3. Simulate the token handler applying the rule-emitted auth token
 app.mutate('auth', {
   status: 'authenticated',
   userId: 'user-123',
