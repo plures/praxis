@@ -19,7 +19,9 @@ npm install @plures/praxis   # or: pnpm add @plures/praxis
 
 ## API Reference
 
-See [`docs/API.md`](./docs/API.md) for the exported public API surface.
+Full generated API documentation is available in [`docs/api/`](./docs/api/README.md).
+
+For a high-level overview, see [`docs/API.md`](./docs/API.md).
 
 ## Quick Start — Unified App (v2.0)
 
