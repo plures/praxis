@@ -230,7 +230,7 @@ describe('rule evaluation — large rulesets', () => {
     engine.step(singleEvent);
   });
 
-  bench('100 event-filtered rules (10% match)', () => {
+  const engine100EventFiltered = (() => {
     const registry = new PraxisRegistry<BenchContext>({ compliance: { enabled: false } });
     for (let i = 0; i < 10; i++) {
       registry.registerRule({
@@ -248,11 +248,14 @@ describe('rule evaluation — large rulesets', () => {
         impl: () => RuleResult.noop(),
       });
     }
-    const engine = createPraxisEngine<BenchContext>({
+    return createPraxisEngine<BenchContext>({
       initialContext: { value: 0, label: 'bench' },
       registry,
     });
-    engine.step(singleEvent);
+  })();
+
+  bench('100 event-filtered rules (10% match)', () => {
+    engine100EventFiltered.step(singleEvent);
   });
 
   bench('500 catch-all rules, all noop', () => {
