@@ -122,7 +122,7 @@ async function connectNotesRelay() {
   if (!auth.token) throw new Error('Authenticate before connecting sync');
   return connectRelay('https://relay.praxis.plures.dev', {
     appId: 'cloud-notes',
-    authToken: auth.token ?? undefined,
+    authToken: auth.token,
     autoSync: true,
   });
 }
@@ -291,7 +291,7 @@ async function connectNotesRelay() {
   if (!auth.token) throw new Error('Authenticate before connecting sync');
   return connectRelay('https://relay.praxis.plures.dev', {
     appId: 'cloud-notes',
-    authToken: auth.token ?? undefined,
+    authToken: auth.token,
     autoSync: true,
   });
 }

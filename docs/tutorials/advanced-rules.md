@@ -28,8 +28,13 @@ import {
 } from '@plures/praxis/unified';
 
 // Domain state
+type OrderItem = { sku: string; qty: number; price: number };
+
+const calculateTotal = (items: OrderItem[]) =>
+  items.reduce((sum, item) => sum + item.qty * item.price, 0);
+
 const Order = definePath<{
-  items: { sku: string; qty: number; price: number }[];
+  items: OrderItem[];
   status: 'draft' | 'validated' | 'priced' | 'submitted';
 }>('order', { items: [], status: 'draft' });
 ```
@@ -60,8 +65,8 @@ const computeTotal = defineRule({
   id: 'order.computeTotal',
   watch: ['order'],
   evaluate: (values) => {
-    const order = values['order'] as { items: { qty: number; price: number }[] };
-    const total = order.items.reduce((sum, item) => sum + item.qty * item.price, 0);
+    const order = values['order'] as { items: OrderItem[] };
+    const total = calculateTotal(order.items);
     return RuleResult.emit([fact('order.totalComputed', { total })]);
   },
 });
@@ -71,8 +76,8 @@ const applyDiscount = defineRule({
   id: 'order.applyDiscount',
   watch: ['order'],
   evaluate: (values) => {
-    const order = values['order'] as { items: { qty: number; price: number }[] };
-    const total = order.items.reduce((sum, item) => sum + item.qty * item.price, 0);
+    const order = values['order'] as { items: OrderItem[] };
+    const total = calculateTotal(order.items);
     let discount = 0;
     if (total >= 200) discount = 0.15;
     else if (total >= 100) discount = 0.1;
@@ -83,7 +88,7 @@ const applyDiscount = defineRule({
 });
 ```
 
-Unified rules watch graph paths, not emitted facts, so `applyDiscount` reads the same `order` source as `computeTotal`. Keep shared calculations factored consistently when promoting this pattern into production code.
+Tutorial simplification: unified rules currently watch graph paths, not emitted facts, so `applyDiscount` reads the same `order` source as `computeTotal`. In production, keep shared calculations in one helper or write the total to a graph path before discounting.
 
 ## Step 3: Define Constraints
 
@@ -96,8 +101,8 @@ const totalNonNegative = defineConstraint({
   description: 'Order total after discount must be non-negative',
   watch: ['order'],
   validate: (values) => {
-    const order = values['order'] as { items: { qty: number; price: number }[] };
-    const total = order.items.reduce((sum, item) => sum + item.qty * item.price, 0);
+    const order = values['order'] as { items: OrderItem[] };
+    const total = calculateTotal(order.items);
     return total >= 0 || `Final total is negative: ${total}`;
   },
 });
@@ -213,8 +218,13 @@ import {
   fact,
 } from '@plures/praxis/unified';
 
+type OrderItem = { sku: string; qty: number; price: number };
+
+const calculateTotal = (items: OrderItem[]) =>
+  items.reduce((sum, item) => sum + item.qty * item.price, 0);
+
 const Order = definePath<{
-  items: { sku: string; qty: number; price: number }[];
+  items: OrderItem[];
   status: 'draft' | 'validated' | 'priced' | 'submitted';
 }>('order', { items: [], status: 'draft' });
 
@@ -235,8 +245,8 @@ const computeTotal = defineRule({
   id: 'order.computeTotal',
   watch: ['order'],
   evaluate: (values) => {
-    const order = values['order'] as { items: { qty: number; price: number }[] };
-    const total = order.items.reduce((sum, i) => sum + i.qty * i.price, 0);
+    const order = values['order'] as { items: OrderItem[] };
+    const total = calculateTotal(order.items);
     return RuleResult.emit([fact('order.totalComputed', { total })]);
   },
 });
@@ -245,8 +255,8 @@ const applyDiscount = defineRule({
   id: 'order.applyDiscount',
   watch: ['order'],
   evaluate: (values) => {
-    const order = values['order'] as { items: { qty: number; price: number }[] };
-    const total = order.items.reduce((sum, i) => sum + i.qty * i.price, 0);
+    const order = values['order'] as { items: OrderItem[] };
+    const total = calculateTotal(order.items);
     let discount = 0;
     if (total >= 200) discount = 0.15;
     else if (total >= 100) discount = 0.1;
@@ -260,8 +270,8 @@ const totalNonNegative = defineConstraint({
   description: 'Order total after discount must be non-negative',
   watch: ['order'],
   validate: (values) => {
-    const order = values['order'] as { items: { qty: number; price: number }[] };
-    const total = order.items.reduce((sum, i) => sum + i.qty * i.price, 0);
+    const order = values['order'] as { items: OrderItem[] };
+    const total = calculateTotal(order.items);
     return total >= 0 || 'Final total is negative';
   },
 });
