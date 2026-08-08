@@ -1,6 +1,6 @@
 # Performance Optimizations
 
-## Rule Execution Engine (v2.9.0)
+## Rule Execution Engine
 
 ### Optimizations Implemented
 
