@@ -1,3 +1,13 @@
+## [2.8.1] — 2026-08-08
+
+- perf: add rule execution benchmarks + optimize hotspots (#412) (91ac123)
+- docs: create 3 focused tutorials (getting started, rules, cloud sync) (#411) (6709c31)
+- docs: generate API reference from TypeScript sources (#410) (bd8a650)
+- chore: add CODEOWNERS and SHA-pin third-party GitHub Actions (#409) (520ce34)
+- chore(deps)(deps-dev): bump @types/node (#408) (0ddd3a8)
+- chore(deps)(deps): bump the npm-production group with 2 updates (#407) (0d7b668)
+- chore: delegate dependabot-auto-merge.yml to org reusable template (#404) (624ff43)
+
 ## [2.8.0] — 2026-07-27
 
 - ci(release): trigger release on merge to main (#403) (714a53b)
