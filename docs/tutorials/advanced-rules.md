@@ -83,6 +83,8 @@ const applyDiscount = defineRule({
 });
 ```
 
+Unified rules watch graph paths, not emitted facts, so `applyDiscount` reads the same `order` source as `computeTotal`. Keep shared calculations factored consistently when promoting this pattern into production code.
+
 ## Step 3: Define Constraints
 
 Unified constraints are invariants that guard mutations before state is committed. Use them for requirements that must block invalid state.

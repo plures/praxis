@@ -119,6 +119,7 @@ const app = createApp({
 // Connect to Praxis Cloud relay after authentication
 async function connectNotesRelay() {
   const auth = app.query<{ token: string | null }>('auth').current;
+  if (!auth.token) throw new Error('Authenticate before connecting sync');
   return connectRelay('https://relay.praxis.plures.dev', {
     appId: 'cloud-notes',
     authToken: auth.token ?? undefined,
@@ -287,6 +288,7 @@ const app = createApp({
 
 async function connectNotesRelay() {
   const auth = app.query<{ token: string | null }>('auth').current;
+  if (!auth.token) throw new Error('Authenticate before connecting sync');
   return connectRelay('https://relay.praxis.plures.dev', {
     appId: 'cloud-notes',
     authToken: auth.token ?? undefined,
@@ -297,6 +299,9 @@ async function connectNotesRelay() {
 // Rejected — not authenticated
 console.log(app.mutate('notes', [{ id: '1', text: 'Hello', updatedAt: Date.now() }]).accepted);
 // false
+
+// Start authentication
+app.mutate('auth', { status: 'authenticating', userId: 'user-123', token: null, error: null });
 
 // Authenticate
 app.mutate('auth', { status: 'authenticated', userId: 'user-123', token: 'jwt-token-here', error: null });
