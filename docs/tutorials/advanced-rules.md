@@ -1,6 +1,6 @@
 # Advanced Rules + Expectations
 
-Build on the basics by composing multiple rules, controlling evaluation order with priorities, and using expectations to enforce system-wide invariants.
+Build on the basics by composing multiple rules, controlling evaluation order with rule arrays, and using constraints to enforce system-wide invariants.
 
 **Time:** 15–20 minutes  
 **Level:** Intermediate  
@@ -11,9 +11,9 @@ Build on the basics by composing multiple rules, controlling evaluation order wi
 An order processing pipeline that:
 
 - Validates an order with multiple rules
-- Uses expectations to enforce business invariants
-- Demonstrates rule priority ordering
-- Shows fact-chaining across rules
+- Uses constraints to enforce business invariants
+- Demonstrates rule ordering
+- Shows how rules emit facts for downstream reads
 
 ## Step 1: Define the Domain Schema
 
@@ -23,7 +23,6 @@ import {
   definePath,
   defineRule,
   defineConstraint,
-  defineExpectation,
   RuleResult,
   fact,
 } from '@plures/praxis/unified';
@@ -33,20 +32,16 @@ const Order = definePath<{
   items: { sku: string; qty: number; price: number }[];
   status: 'draft' | 'validated' | 'priced' | 'submitted';
 }>('order', { items: [], status: 'draft' });
-
-const OrderTotal = definePath<number>('orderTotal', 0);
-const Discount = definePath<number>('discount', 0);
 ```
 
-## Step 2: Compose Rules with Priorities
+## Step 2: Compose Ordered Rules
 
-Rules evaluate in priority order (lower number = higher priority). This lets you build pipelines where one rule's output feeds the next.
+Unified rules evaluate in the order they are passed to `createApp()`. Place rules that derive prerequisite facts earlier in the array so later reads see a predictable pipeline.
 
 ```ts
-// Priority 1 — validate stock before pricing
+// First — validate stock before pricing
 const validateStock = defineRule({
   id: 'order.validateStock',
-  priority: 1,
   watch: ['order'],
   evaluate: (values) => {
     const order = values['order'] as { items: { qty: number }[]; status: string };
@@ -60,10 +55,9 @@ const validateStock = defineRule({
   },
 });
 
-// Priority 2 — compute total after validation
+// Second — compute total after validation
 const computeTotal = defineRule({
   id: 'order.computeTotal',
-  priority: 2,
   watch: ['order'],
   evaluate: (values) => {
     const order = values['order'] as { items: { qty: number; price: number }[] };
@@ -72,13 +66,13 @@ const computeTotal = defineRule({
   },
 });
 
-// Priority 3 — apply discount tiers after total is known
+// Third — apply discount tiers from the same order data
 const applyDiscount = defineRule({
   id: 'order.applyDiscount',
-  priority: 3,
-  watch: ['orderTotal'],
+  watch: ['order'],
   evaluate: (values) => {
-    const total = values['orderTotal'] as number;
+    const order = values['order'] as { items: { qty: number; price: number }[] };
+    const total = order.items.reduce((sum, item) => sum + item.qty * item.price, 0);
     let discount = 0;
     if (total >= 200) discount = 0.15;
     else if (total >= 100) discount = 0.1;
@@ -89,31 +83,30 @@ const applyDiscount = defineRule({
 });
 ```
 
-## Step 3: Define Expectations
+## Step 3: Define Constraints
 
-Expectations are system-wide invariants that must always hold true. Unlike constraints (which guard individual mutations), expectations are checked after the full rule pipeline completes.
+Unified constraints are invariants that guard mutations before state is committed. Use them for expectations that must block invalid state.
 
 ```ts
-// Expectation — final total must never be negative
-const totalNonNegative = defineExpectation({
+// Constraint — final total must never be negative
+const totalNonNegative = defineConstraint({
   id: 'order.totalNonNegative',
   description: 'Order total after discount must be non-negative',
-  severity: 'error',
-  check: (state) => {
-    const total = state.get('orderTotal') as number;
-    const discount = state.get('discount') as number;
-    const finalTotal = total * (1 - discount);
-    return finalTotal >= 0 || `Final total is negative: ${finalTotal}`;
+  watch: ['order'],
+  validate: (values) => {
+    const order = values['order'] as { items: { qty: number; price: number }[] };
+    const total = order.items.reduce((sum, item) => sum + item.qty * item.price, 0);
+    return total >= 0 || `Final total is negative: ${total}`;
   },
 });
 
-// Expectation — order must have at least one item to leave draft
-const hasItems = defineExpectation({
+// Constraint — order must have at least one item to leave draft
+const hasItems = defineConstraint({
   id: 'order.hasItems',
   description: 'Order must contain at least one item before submission',
-  severity: 'error',
-  check: (state) => {
-    const order = state.get('order') as { items: unknown[]; status: string };
+  watch: ['order'],
+  validate: (values) => {
+    const order = values['order'] as { items: unknown[]; status: string };
     if (order.status === 'draft') return true;
     return order.items.length > 0 || 'Cannot submit an empty order';
   },
@@ -125,14 +118,13 @@ const hasItems = defineExpectation({
 ```ts
 const app = createApp({
   name: 'order-processing',
-  schema: [Order, OrderTotal, Discount],
+  schema: [Order],
   rules: [validateStock, computeTotal, applyDiscount],
-  constraints: [],
-  expectations: [totalNonNegative, hasItems],
+  constraints: [totalNonNegative, hasItems],
 });
 
 // Add items to the order
-app.mutate('order', {
+const orderResult = app.mutate('order', {
   items: [
     { sku: 'WIDGET-A', qty: 3, price: 25.0 },
     { sku: 'GADGET-B', qty: 1, price: 75.0 },
@@ -140,17 +132,19 @@ app.mutate('order', {
   status: 'draft',
 });
 
-console.log(app.query('orderTotal').current);
+const total = orderResult.facts.find((f) => f.tag === 'order.totalComputed')?.payload as { total: number } | undefined;
+console.log(total?.total);
 // Expected output: 150
 
-console.log(app.query('discount').current);
+const discount = orderResult.facts.find((f) => f.tag === 'order.discountApplied')?.payload as { discount: number } | undefined;
+console.log(discount?.discount);
 // Expected output: 0.1
 
-const finalTotal = 150 * (1 - 0.1);
+const finalTotal = (total?.total ?? 0) * (1 - (discount?.discount ?? 0));
 console.log(finalTotal);
 // Expected output: 135
 
-// Try submitting an empty order — expectation fails
+// Try submitting an empty order — constraint fails
 const emptyResult = app.mutate('order', { items: [], status: 'submitted' });
 console.log(emptyResult.accepted);
 // Expected output: false
@@ -158,14 +152,14 @@ console.log(emptyResult.accepted);
 
 ## Rule Composition Patterns
 
-### Fact Chaining
+### Fact Reads
 
-Rules can emit facts that trigger other rules. This creates a declarative pipeline:
+Rules can emit facts for the app to inspect after a mutation. In the unified API, rules watch graph paths, so dependent computations should either watch the same paths or run after the prerequisite mutation.
 
 ```ts
 // Rule A emits "order.stockValidated"
-// Rule B watches for that fact and proceeds to pricing
-// Rule C watches "orderTotal" and applies discounts
+// Rule B computes pricing from the same order path
+// Application code reads "order.totalComputed" from the mutation result
 ```
 
 ### Conditional Rule Activation
@@ -185,21 +179,19 @@ const onlyWhenValidated = defineRule({
 });
 ```
 
-### Expectation Severity Levels
+### Constraint Behavior
 
-| Severity | Behavior |
-|----------|----------|
-| `error`  | Blocks the mutation — state is not committed |
-| `warning`| Mutation succeeds but violation is reported |
+Constraints block invalid mutations and return a diagnostic message:
 
 ```ts
-const softLimit = defineExpectation({
-  id: 'order.softLimit',
+const maxOrderTotal = defineConstraint({
+  id: 'order.maxTotal',
   description: 'Orders over $1000 need manager approval',
-  severity: 'warning',
-  check: (state) => {
-    const total = state.get('orderTotal') as number;
-    return total <= 1000 || 'Large order — consider manager approval';
+  watch: ['order'],
+  validate: (values) => {
+    const order = values['order'] as { items: { qty: number; price: number }[] };
+    const total = order.items.reduce((sum, item) => sum + item.qty * item.price, 0);
+    return total <= 1000 || 'Manager approval required for orders over $1000';
   },
 });
 ```
@@ -214,7 +206,7 @@ import {
   createApp,
   definePath,
   defineRule,
-  defineExpectation,
+  defineConstraint,
   RuleResult,
   fact,
 } from '@plures/praxis/unified';
@@ -223,12 +215,9 @@ const Order = definePath<{
   items: { sku: string; qty: number; price: number }[];
   status: 'draft' | 'validated' | 'priced' | 'submitted';
 }>('order', { items: [], status: 'draft' });
-const OrderTotal = definePath<number>('orderTotal', 0);
-const Discount = definePath<number>('discount', 0);
 
 const validateStock = defineRule({
   id: 'order.validateStock',
-  priority: 1,
   watch: ['order'],
   evaluate: (values) => {
     const order = values['order'] as { items: { qty: number }[]; status: string };
@@ -242,7 +231,6 @@ const validateStock = defineRule({
 
 const computeTotal = defineRule({
   id: 'order.computeTotal',
-  priority: 2,
   watch: ['order'],
   evaluate: (values) => {
     const order = values['order'] as { items: { qty: number; price: number }[] };
@@ -253,10 +241,10 @@ const computeTotal = defineRule({
 
 const applyDiscount = defineRule({
   id: 'order.applyDiscount',
-  priority: 3,
-  watch: ['orderTotal'],
+  watch: ['order'],
   evaluate: (values) => {
-    const total = values['orderTotal'] as number;
+    const order = values['order'] as { items: { qty: number; price: number }[] };
+    const total = order.items.reduce((sum, i) => sum + i.qty * i.price, 0);
     let discount = 0;
     if (total >= 200) discount = 0.15;
     else if (total >= 100) discount = 0.1;
@@ -265,23 +253,23 @@ const applyDiscount = defineRule({
   },
 });
 
-const totalNonNegative = defineExpectation({
+const totalNonNegative = defineConstraint({
   id: 'order.totalNonNegative',
   description: 'Order total after discount must be non-negative',
-  severity: 'error',
-  check: (state) => {
-    const total = state.get('orderTotal') as number;
-    const discount = state.get('discount') as number;
-    return total * (1 - discount) >= 0 || 'Final total is negative';
+  watch: ['order'],
+  validate: (values) => {
+    const order = values['order'] as { items: { qty: number; price: number }[] };
+    const total = order.items.reduce((sum, i) => sum + i.qty * i.price, 0);
+    return total >= 0 || 'Final total is negative';
   },
 });
 
-const hasItems = defineExpectation({
+const hasItems = defineConstraint({
   id: 'order.hasItems',
   description: 'Order must contain at least one item before submission',
-  severity: 'error',
-  check: (state) => {
-    const order = state.get('order') as { items: unknown[]; status: string };
+  watch: ['order'],
+  validate: (values) => {
+    const order = values['order'] as { items: unknown[]; status: string };
     if (order.status === 'draft') return true;
     return order.items.length > 0 || 'Cannot submit an empty order';
   },
@@ -289,13 +277,12 @@ const hasItems = defineExpectation({
 
 const app = createApp({
   name: 'order-processing',
-  schema: [Order, OrderTotal, Discount],
+  schema: [Order],
   rules: [validateStock, computeTotal, applyDiscount],
-  constraints: [],
-  expectations: [totalNonNegative, hasItems],
+  constraints: [totalNonNegative, hasItems],
 });
 
-app.mutate('order', {
+const orderResult = app.mutate('order', {
   items: [
     { sku: 'WIDGET-A', qty: 3, price: 25.0 },
     { sku: 'GADGET-B', qty: 1, price: 75.0 },
@@ -303,8 +290,10 @@ app.mutate('order', {
   status: 'draft',
 });
 
-console.log(app.query('orderTotal').current); // 150
-console.log(app.query('discount').current);   // 0.1
+const total = orderResult.facts.find((f) => f.tag === 'order.totalComputed')?.payload as { total: number } | undefined;
+const discount = orderResult.facts.find((f) => f.tag === 'order.discountApplied')?.payload as { discount: number } | undefined;
+console.log(total?.total);       // 150
+console.log(discount?.discount); // 0.1
 ```
 
 </details>

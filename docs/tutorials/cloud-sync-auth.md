@@ -106,7 +106,7 @@ const requireAuth = defineConstraint({
 ## Step 5: Cloud Sync with PluresDB
 
 ```ts
-import { createInMemoryDB, createPluresDBAdapter } from '@plures/praxis';
+import { connectRelay } from '@plures/praxis/cloud';
 
 // Create the app
 const app = createApp({
@@ -116,16 +116,11 @@ const app = createApp({
   constraints: [requireAuth],
 });
 
-// Attach PluresDB for persistence + sync
-const db = createInMemoryDB();
-const adapter = createPluresDBAdapter({ db });
-adapter.attachApp(app);
-
-// Configure cloud relay (connects to Praxis Cloud)
-adapter.enableCloudSync({
-  relay: 'wss://relay.praxis.plures.dev',
-  room: 'user-notes-room',
-  auth: () => app.query('auth').current.token,
+// Connect to Praxis Cloud relay
+const relay = await connectRelay('https://relay.praxis.plures.dev', {
+  appId: 'cloud-notes',
+  authToken: app.query('auth').current.token ?? undefined,
+  autoSync: true,
 });
 ```
 
@@ -186,17 +181,23 @@ app.mutate('notes', [
 // Result: 'Edited on phone' wins because updatedAt is higher
 ```
 
-For custom merge strategies, configure the adapter:
+For custom merge strategies, resolve conflicts before sending the next delta:
 
 ```ts
-adapter.enableCloudSync({
-  relay: 'wss://relay.praxis.plures.dev',
-  room: 'user-notes-room',
-  auth: () => app.query('auth').current.token,
-  merge: (local, remote) => {
-    // Custom merge — combine both edits
-    return remote.updatedAt > local.updatedAt ? remote : local;
-  },
+const localNote = { text: 'Edited on laptop', updatedAt: 1000 };
+const remoteNote = { text: 'Edited on phone', updatedAt: 1001 };
+
+const resolveNote = (
+  local: { text: string; updatedAt: number },
+  remote: { text: string; updatedAt: number },
+) => (remote.updatedAt > local.updatedAt ? remote : local);
+
+await relay.sync({
+  type: 'delta',
+  appId: 'cloud-notes',
+  clock: {},
+  events: [{ tag: 'notes.resolved', payload: resolveNote(localNote, remoteNote) }],
+  timestamp: Date.now(),
 });
 ```
 
@@ -225,7 +226,7 @@ import {
   RuleResult,
   fact,
 } from '@plures/praxis/unified';
-import { createInMemoryDB, createPluresDBAdapter } from '@plures/praxis';
+import { connectRelay } from '@plures/praxis/cloud';
 
 const AuthState = definePath<{
   status: 'anonymous' | 'authenticating' | 'authenticated' | 'error';
@@ -278,13 +279,10 @@ const app = createApp({
   constraints: [requireAuth],
 });
 
-const db = createInMemoryDB();
-const adapter = createPluresDBAdapter({ db });
-adapter.attachApp(app);
-adapter.enableCloudSync({
-  relay: 'wss://relay.praxis.plures.dev',
-  room: 'user-notes-room',
-  auth: () => app.query('auth').current.token,
+const relay = await connectRelay('https://relay.praxis.plures.dev', {
+  appId: 'cloud-notes',
+  authToken: app.query('auth').current.token ?? undefined,
+  autoSync: true,
 });
 
 // Rejected — not authenticated
