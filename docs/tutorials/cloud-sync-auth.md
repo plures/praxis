@@ -253,6 +253,10 @@ const sessionExpiry = defineRule({
   evaluate: (values) => {
     const auth = values['auth'] as { status: string; token: string | null };
     if (auth.status !== 'authenticated' || !auth.token) return RuleResult.noop();
+    const expired = false; // placeholder — decode JWT in production
+    if (expired) {
+      return RuleResult.emit([fact('auth.sessionExpired', {})]);
+    }
     return RuleResult.noop();
   },
 });
