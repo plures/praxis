@@ -267,6 +267,9 @@ Browse all examples in [`examples/`](./examples/) and [`src/examples/`](./src/ex
 | CodeCanvas Guide | [docs/guides/canvas.md](./docs/guides/canvas.md) |
 | Decision Ledger | [docs/decision-ledger/DOGFOODING.md](./docs/decision-ledger/DOGFOODING.md) |
 | Tutorials | [docs/tutorials/](./docs/tutorials/) |
+| ↳ Getting Started | [docs/tutorials/getting-started.md](./docs/tutorials/getting-started.md) |
+| ↳ Advanced Rules | [docs/tutorials/advanced-rules.md](./docs/tutorials/advanced-rules.md) |
+| ↳ Cloud Sync + Auth | [docs/tutorials/cloud-sync-auth.md](./docs/tutorials/cloud-sync-auth.md) |
 | Migration from 1.x | [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) |
 | Roadmap | [ROADMAP.md](./ROADMAP.md) |
 | 1.x Archive | [docs/archive/1.x/](./docs/archive/1.x/) |

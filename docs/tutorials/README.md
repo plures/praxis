@@ -2,6 +2,39 @@
 
 Hands-on tutorials for learning Praxis from scratch.
 
+Tutorial snippets use `console.log` to show expected output. Replace these demonstration logs with structured tracing, such as OpenTelemetry, in production applications.
+
+## Focused Tutorial Series
+
+### [Getting Started](./getting-started.md)
+
+Build a reactive task tracker using `createApp`, schema paths, rules, and constraints.
+
+- `createApp` setup
+- `definePath` schema
+- Rules and constraints
+- Runnable snippets with expected output
+
+### [Advanced Rules + Constraints](./advanced-rules.md)
+
+Compose multi-rule pipelines with ordered evaluation and system-wide constraints.
+
+- Rule array evaluation order
+- Fact reads from mutation results
+- `defineConstraint` invariants
+- Constraint diagnostics
+
+### [Cloud Sync + Auth Workflow](./cloud-sync-auth.md)
+
+Synchronize state across devices with authentication gating and conflict resolution.
+
+- Auth state machine
+- PluresDB cloud relay
+- Offline-first with reconciliation
+- CRDT conflict resolution
+
+---
+
 ## Beginner Tutorials
 
 ### [Build Your First App](./first-app.md)
