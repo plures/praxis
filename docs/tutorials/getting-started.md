@@ -106,6 +106,7 @@ const app = createApp({
   constraints: [titleRequired],
 });
 
+// app.facts() keeps the latest fact per tag, so this reads the current count.
 const remainingCount = () =>
   (app.facts().find((f) => f.tag === 'remaining.updated')?.payload as { count: number } | undefined)?.count;
 
@@ -184,6 +185,7 @@ const app = createApp({
   constraints: [titleRequired],
 });
 
+// app.facts() keeps the latest fact per tag, so this reads the current count.
 const remainingCount = () =>
   (app.facts().find((f) => f.tag === 'remaining.updated')?.payload as { count: number } | undefined)?.count;
 

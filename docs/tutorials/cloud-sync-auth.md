@@ -88,6 +88,8 @@ const sessionExpiry = defineRule({
 });
 ```
 
+The expiry branch is intentionally inert in this runnable snippet. A production rule should decode the token expiry, emit `auth.sessionExpired`, and pair that fact with a rule or mutation that returns `auth` to the anonymous state.
+
 ## Step 4: Constraint — Gate Data Access
 
 ```ts
@@ -202,7 +204,7 @@ const resolveNote = (
 await relay.sync({
   type: 'delta',
   appId: 'cloud-notes',
-  clock: {},
+  clock: {}, // tutorial placeholder — use your current vector clock in production
   events: [{ tag: 'notes.resolved', payload: resolveNote(localNote, remoteNote) }],
   timestamp: Date.now(),
 });
