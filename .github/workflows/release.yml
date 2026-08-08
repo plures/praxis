@@ -45,6 +45,7 @@ jobs:
 
       - name: Verify published package has no workspace references
         run: |
+          set -euo pipefail
           PKG_NAME=$(node -e "console.log(require('./package.json').name)")
           PKG_VERSION=$(node -e "console.log(require('./package.json').version)")
           echo "Checking ${PKG_NAME}@${PKG_VERSION} on npm registry..."
@@ -56,7 +57,7 @@ jobs:
           }
 
           # Check for workspace: protocol in any dependency field
-          WORKSPACE_REFS=$(echo "$MANIFEST" | node -e "
+          echo "$MANIFEST" | node -e "
             const fs = require('fs');
             const manifest = JSON.parse(fs.readFileSync(0, 'utf8'));
             const sections = ['dependencies','devDependencies','peerDependencies','optionalDependencies'];
@@ -75,5 +76,5 @@ jobs:
               process.exit(1);
             }
             console.log('✓ Published package has no workspace: references');
-          ")
+          "
 
