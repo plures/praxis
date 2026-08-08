@@ -112,7 +112,7 @@ app.mutate('tasks', [
   { id: '2', title: 'Build first app', done: false },
 ]);
 
-console.log(app.query('remaining').current);
+console.log((app.facts().find((f) => f.tag === 'remaining.updated')?.payload as any)?.count);
 // Expected output: 2
 
 // Mark one task done
