@@ -13,14 +13,14 @@ Build a reactive task tracker using `createApp`, schema paths, rules, and constr
 - Rules and constraints
 - Runnable snippets with expected output
 
-### [Advanced Rules + Expectations](./advanced-rules.md)
+### [Advanced Rules + Constraints](./advanced-rules.md)
 
-Compose multi-rule pipelines with priority ordering and system-wide expectations.
+Compose multi-rule pipelines with ordered evaluation and system-wide constraints.
 
-- Rule priority and evaluation order
-- Fact chaining
-- `defineExpectation` invariants
-- Severity levels (error vs warning)
+- Rule array evaluation order
+- Fact reads from mutation results
+- `defineConstraint` invariants
+- Constraint diagnostics
 
 ### [Cloud Sync + Auth Workflow](./cloud-sync-auth.md)
 

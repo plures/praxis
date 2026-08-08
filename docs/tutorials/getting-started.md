@@ -205,6 +205,6 @@ console.log(result.accepted); // false
 
 ## What's Next
 
-- [Advanced Rules + Expectations](./advanced-rules.md) — composing rules, expectations, and priority ordering
+- [Advanced Rules + Constraints](./advanced-rules.md) — composing rules, constraints, and ordered evaluation
 - [Cloud Sync + Auth Workflow](./cloud-sync-auth.md) — sync state across devices with authentication
 - [API Reference](../API.md)

@@ -116,12 +116,15 @@ const app = createApp({
   constraints: [requireAuth],
 });
 
-// Connect to Praxis Cloud relay
-const relay = await connectRelay('https://relay.praxis.plures.dev', {
-  appId: 'cloud-notes',
-  authToken: app.query('auth').current.token ?? undefined,
-  autoSync: true,
-});
+// Connect to Praxis Cloud relay after authentication
+async function connectNotesRelay() {
+  const auth = app.query<{ token: string | null }>('auth').current;
+  return connectRelay('https://relay.praxis.plures.dev', {
+    appId: 'cloud-notes',
+    authToken: auth.token ?? undefined,
+    autoSync: true,
+  });
+}
 ```
 
 ## Step 6: Run the Auth + Sync Flow
@@ -151,14 +154,17 @@ app.mutate('auth', {
 console.log(app.query('auth').current.status);
 // Expected output: authenticated
 
-// 4. Now notes mutation succeeds
+// 4. Connect sync with the authenticated token
+const relay = await connectNotesRelay();
+
+// 5. Now notes mutation succeeds
 const accepted = app.mutate('notes', [
   { id: '1', text: 'My first synced note', updatedAt: Date.now() },
 ]);
 console.log(accepted.accepted);
 // Expected output: true
 
-// 5. Check sync status
+// 6. Check sync status
 console.log(app.query('syncStatus').current);
 // Expected output: idle
 ```
@@ -279,11 +285,14 @@ const app = createApp({
   constraints: [requireAuth],
 });
 
-const relay = await connectRelay('https://relay.praxis.plures.dev', {
-  appId: 'cloud-notes',
-  authToken: app.query('auth').current.token ?? undefined,
-  autoSync: true,
-});
+async function connectNotesRelay() {
+  const auth = app.query<{ token: string | null }>('auth').current;
+  return connectRelay('https://relay.praxis.plures.dev', {
+    appId: 'cloud-notes',
+    authToken: auth.token ?? undefined,
+    autoSync: true,
+  });
+}
 
 // Rejected — not authenticated
 console.log(app.mutate('notes', [{ id: '1', text: 'Hello', updatedAt: Date.now() }]).accepted);
@@ -292,6 +301,7 @@ console.log(app.mutate('notes', [{ id: '1', text: 'Hello', updatedAt: Date.now()
 // Authenticate
 app.mutate('auth', { status: 'authenticated', userId: 'user-123', token: 'jwt-token-here', error: null });
 console.log(app.query('auth').current.status); // authenticated
+await connectNotesRelay();
 
 // Accepted
 console.log(app.mutate('notes', [{ id: '1', text: 'Synced note', updatedAt: Date.now() }]).accepted);

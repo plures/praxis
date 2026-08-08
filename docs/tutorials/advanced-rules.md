@@ -1,4 +1,4 @@
-# Advanced Rules + Expectations
+# Advanced Rules + Constraints
 
 Build on the basics by composing multiple rules, controlling evaluation order with rule arrays, and using constraints to enforce system-wide invariants.
 
@@ -85,7 +85,7 @@ const applyDiscount = defineRule({
 
 ## Step 3: Define Constraints
 
-Unified constraints are invariants that guard mutations before state is committed. Use them for expectations that must block invalid state.
+Unified constraints are invariants that guard mutations before state is committed. Use them for requirements that must block invalid state.
 
 ```ts
 // Constraint — final total must never be negative
