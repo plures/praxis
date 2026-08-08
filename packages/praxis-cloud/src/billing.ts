@@ -105,6 +105,11 @@ export interface TierLimits {
 }
 
 /**
+ * Account type for billing context
+ */
+export type BillingAccountType = 'User' | 'Organization';
+
+/**
  * Subscription information
  */
 export interface Subscription {
@@ -132,6 +137,21 @@ export interface Subscription {
    * GitHub Marketplace plan ID (if applicable)
    */
   marketplacePlanId?: number;
+
+  /**
+   * Account type (User or Organization)
+   */
+  accountType?: BillingAccountType;
+
+  /**
+   * GitHub organization ID (for org-level subscriptions)
+   */
+  organizationId?: number;
+
+  /**
+   * GitHub organization login (for org-level subscriptions)
+   */
+  organizationLogin?: string;
 
   /**
    * Subscription start date
@@ -172,6 +192,21 @@ export interface BillingEvent {
    * User/organization ID
    */
   userId: number;
+
+  /**
+   * Account type (User or Organization)
+   */
+  accountType?: BillingAccountType;
+
+  /**
+   * Organization ID (when event is for an org subscription)
+   */
+  organizationId?: number;
+
+  /**
+   * Organization login (when event is for an org subscription)
+   */
+  organizationLogin?: string;
 
   /**
    * Old subscription (for changes)
@@ -336,4 +371,75 @@ export function createSponsorSubscription(
     autoRenew: true,
     limits: TIER_LIMITS[tier],
   };
+}
+
+/**
+ * Create an org-level subscription from a GitHub Marketplace enterprise plan.
+ *
+ * This binds the subscription to the purchasing organization so that all org
+ * members can inherit the enterprise tier.
+ *
+ * @param organizationId - The GitHub numeric organization ID
+ * @param organizationLogin - The GitHub organization login name
+ * @param planId - The GitHub Marketplace plan ID
+ * @param options - Optional overrides (periodEnd, startDate)
+ * @returns A new {@link Subscription} bound to the organization
+ */
+export function createOrgSubscription(
+  organizationId: number,
+  organizationLogin: string,
+  planId: number,
+  options?: { periodEnd?: number; startDate?: number }
+): Subscription {
+  return {
+    tier: SubscriptionTier.ENTERPRISE,
+    status: SubscriptionStatus.ACTIVE,
+    provider: BillingProvider.MARKETPLACE,
+    marketplacePlanId: planId,
+    accountType: 'Organization',
+    organizationId,
+    organizationLogin,
+    startDate: options?.startDate ?? Date.now(),
+    periodEnd: options?.periodEnd,
+    autoRenew: true,
+    limits: TIER_LIMITS[SubscriptionTier.ENTERPRISE],
+  };
+}
+
+/**
+ * Resolve the effective subscription for a user by checking org-level billing.
+ *
+ * If the user's personal subscription is less capable than their organization's
+ * subscription, the org subscription is returned instead.
+ *
+ * @param userSubscription - The user's personal subscription
+ * @param orgSubscriptions - Array of org subscriptions the user is a member of
+ * @returns The most permissive subscription available to the user
+ */
+export function resolveEffectiveSubscription(
+  userSubscription: Subscription,
+  orgSubscriptions: Subscription[]
+): Subscription {
+  const tierOrder = [
+    SubscriptionTier.FREE,
+    SubscriptionTier.SOLO,
+    SubscriptionTier.TEAM,
+    SubscriptionTier.ENTERPRISE,
+  ];
+
+  let best = userSubscription;
+  let bestIndex = tierOrder.indexOf(best.tier);
+
+  for (const orgSub of orgSubscriptions) {
+    if (orgSub.status !== SubscriptionStatus.ACTIVE) {
+      continue;
+    }
+    const orgIndex = tierOrder.indexOf(orgSub.tier);
+    if (orgIndex > bestIndex) {
+      best = orgSub;
+      bestIndex = orgIndex;
+    }
+  }
+
+  return best;
 }

@@ -88,9 +88,14 @@ export function generateTenantId(githubUser: GitHubUser): string {
  *
  * @param githubUser - The authenticated GitHub user whose tenant is being created
  * @param subscription - The subscription tier to associate with this tenant
+ * @param tenantType - The tenant type ('user' or 'organization'), defaults to 'user'
  * @returns A new {@link Tenant} object with storage namespace and timestamps set
  */
-export function createTenant(githubUser: GitHubUser, subscription: Subscription): Tenant {
+export function createTenant(
+  githubUser: GitHubUser,
+  subscription: Subscription,
+  tenantType?: 'user' | 'organization'
+): Tenant {
   const tenantId = generateTenantId(githubUser);
   const storageNamespace = generateStorageNamespace(githubUser.login, githubUser.id);
 
@@ -98,7 +103,7 @@ export function createTenant(githubUser: GitHubUser, subscription: Subscription)
     id: tenantId,
     githubUserId: githubUser.id,
     githubLogin: githubUser.login,
-    type: 'user', // Could be "organization" if checking org membership
+    type: tenantType ?? 'user',
     subscription,
     storageNamespace,
     createdAt: Date.now(),

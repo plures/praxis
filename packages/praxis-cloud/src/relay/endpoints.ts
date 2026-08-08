@@ -154,7 +154,8 @@ function buildMarketplaceSubscription(
     throw new Error('Cannot build subscription from invalid event');
   }
 
-  const tier = mapMarketplacePlanToTier(event.marketplacePurchase.account.plan);
+  const account = event.marketplacePurchase.account;
+  const tier = mapMarketplacePlanToTier(account.plan);
   const fallbackPeriodEnd = event.marketplacePurchase.nextBillingDate
     ? new Date(event.marketplacePurchase.nextBillingDate).getTime()
     : undefined;
@@ -165,7 +166,10 @@ function buildMarketplaceSubscription(
     tier,
     status: event.action === 'cancelled' ? SubscriptionStatus.CANCELLED : SubscriptionStatus.ACTIVE,
     provider: BillingProvider.MARKETPLACE,
-    marketplacePlanId: event.marketplacePurchase.account.plan.id,
+    marketplacePlanId: account.plan.id,
+    accountType: account.type,
+    organizationId: account.type === 'Organization' ? account.id : undefined,
+    organizationLogin: account.type === 'Organization' ? account.login : undefined,
     startDate: existingStartDate ?? effectiveStartDate,
     periodEnd: event.action === 'cancelled' ? cancelledAt : fallbackPeriodEnd,
     autoRenew: event.action !== 'cancelled',
@@ -493,7 +497,8 @@ export async function marketplaceWebhookEndpoint(
         id: account.id,
         login: account.login,
       },
-      subscription
+      subscription,
+      account.type === 'Organization' ? 'organization' : 'user'
     );
     storage.tenants.set(tenant.id, tenant);
   }
@@ -507,6 +512,7 @@ export async function marketplaceWebhookEndpoint(
       success: true,
       action: event.action,
       tenantId,
+      accountType: account.type,
       subscription: {
         tier: subscription.tier,
         status: subscription.status,
