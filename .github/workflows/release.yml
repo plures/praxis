@@ -28,3 +28,52 @@ jobs:
       bump: ${{ inputs.bump || '' }}
       target_version: ${{ inputs.target_version || '' }}
     secrets: inherit
+
+  verify-publish:
+    needs: release
+    runs-on: ubuntu-latest
+    if: always() && needs.release.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Wait for registry propagation
+        run: sleep 30
+
+      - name: Verify published package has no workspace references
+        run: |
+          PKG_NAME=$(node -e "console.log(require('./package.json').name)")
+          PKG_VERSION=$(node -e "console.log(require('./package.json').version)")
+          echo "Checking ${PKG_NAME}@${PKG_VERSION} on npm registry..."
+
+          # Fetch the published manifest
+          MANIFEST=$(npm view "${PKG_NAME}@${PKG_VERSION}" --json 2>&1) || {
+            echo "⚠️  Version ${PKG_VERSION} not found on registry (may not have been published this run)"
+            exit 0
+          }
+
+          # Check for workspace: protocol in any dependency field
+          WORKSPACE_REFS=$(echo "$MANIFEST" | node -e "
+            const fs = require('fs');
+            const manifest = JSON.parse(fs.readFileSync(0, 'utf8'));
+            const sections = ['dependencies','devDependencies','peerDependencies','optionalDependencies'];
+            const violations = [];
+            for (const s of sections) {
+              if (!manifest[s]) continue;
+              for (const [name, ver] of Object.entries(manifest[s])) {
+                if (typeof ver === 'string' && ver.startsWith('workspace:')) {
+                  violations.push(s + ' > ' + name + ': ' + ver);
+                }
+              }
+            }
+            if (violations.length > 0) {
+              console.error('❌ Published package contains workspace: references:');
+              violations.forEach(v => console.error('  ' + v));
+              process.exit(1);
+            }
+            console.log('✓ Published package has no workspace: references');
+          ")
+
