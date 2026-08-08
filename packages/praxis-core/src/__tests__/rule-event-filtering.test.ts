@@ -124,6 +124,8 @@ describe('LogicEngine.step() rule event filtering', () => {
       constraintIds: registry.getConstraintIds(),
     });
 
+    // Order differs from step(): stepWithConfig() iterates the supplied ruleIds
+    // (registration order), whereas step() lists catch-all rules first.
     expect(executed).toEqual(['catch-all-a', 'single-tag', 'multi-tag', 'catch-all-b']);
   });
 });
