@@ -254,6 +254,21 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
 };
 
 /**
+ * Tier ordering from lowest to highest (used for comparisons)
+ */
+const TIER_ORDER: readonly SubscriptionTier[] = [
+  SubscriptionTier.FREE,
+  SubscriptionTier.SOLO,
+  SubscriptionTier.TEAM,
+  SubscriptionTier.ENTERPRISE,
+];
+
+function getTierIndex(tier: SubscriptionTier): number {
+  const index = TIER_ORDER.indexOf(tier);
+  return index === -1 ? 0 : index;
+}
+
+/**
  * Check if a user has access to a specific tier
  */
 export function hasAccessToTier(
@@ -264,17 +279,7 @@ export function hasAccessToTier(
     return false;
   }
 
-  const tierOrder = [
-    SubscriptionTier.FREE,
-    SubscriptionTier.SOLO,
-    SubscriptionTier.TEAM,
-    SubscriptionTier.ENTERPRISE,
-  ];
-
-  const currentTierIndex = tierOrder.indexOf(subscription.tier);
-  const requiredTierIndex = tierOrder.indexOf(requiredTier);
-
-  return currentTierIndex >= requiredTierIndex;
+  return getTierIndex(subscription.tier) >= getTierIndex(requiredTier);
 }
 
 /**
@@ -420,21 +425,14 @@ export function resolveEffectiveSubscription(
   userSubscription: Subscription,
   orgSubscriptions: Subscription[]
 ): Subscription {
-  const tierOrder = [
-    SubscriptionTier.FREE,
-    SubscriptionTier.SOLO,
-    SubscriptionTier.TEAM,
-    SubscriptionTier.ENTERPRISE,
-  ];
-
   let best = userSubscription;
-  let bestIndex = tierOrder.indexOf(best.tier);
+  let bestIndex = getTierIndex(best.tier);
 
   for (const orgSub of orgSubscriptions) {
     if (orgSub.status !== SubscriptionStatus.ACTIVE) {
       continue;
     }
-    const orgIndex = tierOrder.indexOf(orgSub.tier);
+    const orgIndex = getTierIndex(orgSub.tier);
     if (orgIndex > bestIndex) {
       best = orgSub;
       bestIndex = orgIndex;
