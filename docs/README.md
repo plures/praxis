@@ -45,6 +45,9 @@ npx praxis create app my-app
 
 | Tutorial | Description |
 |----------|-------------|
+| [Getting Started](./tutorials/getting-started.md) | createApp, schema, rules, constraints |
+| [Advanced Rules + Expectations](./tutorials/advanced-rules.md) | Rule pipelines, priorities, expectations |
+| [Cloud Sync + Auth Workflow](./tutorials/cloud-sync-auth.md) | Auth gating, PluresDB cloud relay, offline sync |
 | [Build Your First App](./tutorials/first-app.md) | Step-by-step beginner tutorial |
 | [Todo with PluresDB](./tutorials/todo-pluresdb.md) | Local-first todo application |
 | [Form Builder](./tutorials/form-builder.md) | Dynamic form creation |

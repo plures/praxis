@@ -2,6 +2,37 @@
 
 Hands-on tutorials for learning Praxis from scratch.
 
+## Focused Tutorial Series
+
+### [Getting Started](./getting-started.md)
+
+Build a reactive task tracker using `createApp`, schema paths, rules, and constraints.
+
+- `createApp` setup
+- `definePath` schema
+- Rules and constraints
+- Runnable snippets with expected output
+
+### [Advanced Rules + Expectations](./advanced-rules.md)
+
+Compose multi-rule pipelines with priority ordering and system-wide expectations.
+
+- Rule priority and evaluation order
+- Fact chaining
+- `defineExpectation` invariants
+- Severity levels (error vs warning)
+
+### [Cloud Sync + Auth Workflow](./cloud-sync-auth.md)
+
+Synchronize state across devices with authentication gating and conflict resolution.
+
+- Auth state machine
+- PluresDB cloud relay
+- Offline-first with reconciliation
+- CRDT conflict resolution
+
+---
+
 ## Beginner Tutorials
 
 ### [Build Your First App](./first-app.md)
