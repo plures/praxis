@@ -442,12 +442,6 @@ export function resolveEffectiveSubscription(
     if (isBetter) {
       best = orgSub;
       bestIndex = orgIndex;
-    } else if (
-      orgIndex === bestIndex &&
-      best !== userSubscription &&
-      orgSub.startDate > best.startDate
-    ) {
-      best = orgSub;
     }
   }
 
