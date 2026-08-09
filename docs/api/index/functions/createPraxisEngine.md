@@ -8,7 +8,7 @@
 
 > **createPraxisEngine**\<`TContext`\>(`options`): [`LogicEngine`](../classes/LogicEngine.md)\<`TContext`\>
 
-Defined in: packages/praxis-core/src/engine.ts:432
+Defined in: packages/praxis-core/src/engine.ts:444
 
 Create a new Praxis logic engine.
 
