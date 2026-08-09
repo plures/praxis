@@ -239,5 +239,13 @@ describe('Billing', () => {
       expect(effective.tier).toBe(SubscriptionTier.ENTERPRISE);
       expect(effective.organizationLogin).toBe('org2');
     });
+
+    it('should deterministically prefer the most recent org subscription on tier ties', () => {
+      const userSub = createFreeSubscription();
+      const older = createOrgSubscription(1, 'org1', 1, { startDate: 1000 });
+      const newer = createOrgSubscription(2, 'org2', 2, { startDate: 2000 });
+      expect(resolveEffectiveSubscription(userSub, [older, newer]).organizationLogin).toBe('org2');
+      expect(resolveEffectiveSubscription(userSub, [newer, older]).organizationLogin).toBe('org2');
+    });
   });
 });

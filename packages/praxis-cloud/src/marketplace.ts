@@ -447,6 +447,8 @@ export class GitHubMarketplaceClient {
     return {
       userId: account.id,
       userLogin: account.login,
+      accountId: account.id,
+      accountLogin: account.login,
       accountType: account.type,
       subscription,
     };

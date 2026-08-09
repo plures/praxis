@@ -415,7 +415,9 @@ export function createOrgSubscription(
  * Resolve the effective subscription for a user by checking org-level billing.
  *
  * If the user's personal subscription is less capable than their organization's
- * subscription, the org subscription is returned instead.
+ * subscription, the org subscription is returned instead. When multiple org
+ * subscriptions share the same highest tier, the one with the most recent
+ * `startDate` wins so results are deterministic regardless of input ordering.
  *
  * @param userSubscription - The user's personal subscription
  * @param orgSubscriptions - Array of org subscriptions the user is a member of
@@ -440,6 +442,12 @@ export function resolveEffectiveSubscription(
     if (isBetter) {
       best = orgSub;
       bestIndex = orgIndex;
+    } else if (
+      orgIndex === bestIndex &&
+      best !== userSubscription &&
+      orgSub.startDate > best.startDate
+    ) {
+      best = orgSub;
     }
   }
 
