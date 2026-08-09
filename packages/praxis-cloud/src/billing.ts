@@ -433,7 +433,11 @@ export function resolveEffectiveSubscription(
       continue;
     }
     const orgIndex = getTierIndex(orgSub.tier);
-    if (orgIndex > bestIndex) {
+    const isBetter =
+      orgIndex > bestIndex ||
+      (orgIndex === bestIndex && best !== userSubscription && orgSub.startDate > best.startDate);
+
+    if (isBetter) {
       best = orgSub;
       bestIndex = orgIndex;
     }
