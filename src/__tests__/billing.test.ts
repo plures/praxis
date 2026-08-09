@@ -14,6 +14,8 @@ import {
   checkUsageLimits,
   createFreeSubscription,
   createSponsorSubscription,
+  createOrgSubscription,
+  resolveEffectiveSubscription,
 } from '@plures/praxis-cloud';
 
 describe('Billing', () => {
@@ -170,6 +172,80 @@ describe('Billing', () => {
     it('should default to free tier for low amounts', () => {
       const subscription = createSponsorSubscription('Supporter', 100);
       expect(subscription.tier).toBe(SubscriptionTier.FREE);
+    });
+  });
+
+  describe('createOrgSubscription', () => {
+    it('should create an enterprise subscription bound to an organization', () => {
+      const subscription = createOrgSubscription(12345, 'octo-org', 9002);
+      expect(subscription.tier).toBe(SubscriptionTier.ENTERPRISE);
+      expect(subscription.status).toBe(SubscriptionStatus.ACTIVE);
+      expect(subscription.provider).toBe(BillingProvider.MARKETPLACE);
+      expect(subscription.accountType).toBe('Organization');
+      expect(subscription.organizationId).toBe(12345);
+      expect(subscription.organizationLogin).toBe('octo-org');
+      expect(subscription.marketplacePlanId).toBe(9002);
+      expect(subscription.autoRenew).toBe(true);
+    });
+
+    it('should accept optional periodEnd and startDate', () => {
+      const subscription = createOrgSubscription(12345, 'octo-org', 9002, {
+        periodEnd: 2000000000000,
+        startDate: 1000000000000,
+      });
+      expect(subscription.periodEnd).toBe(2000000000000);
+      expect(subscription.startDate).toBe(1000000000000);
+    });
+  });
+
+  describe('resolveEffectiveSubscription', () => {
+    it('should return org subscription when it is higher tier', () => {
+      const userSub = createFreeSubscription();
+      const orgSub = createOrgSubscription(1, 'org', 1);
+      const effective = resolveEffectiveSubscription(userSub, [orgSub]);
+      expect(effective.tier).toBe(SubscriptionTier.ENTERPRISE);
+      expect(effective.organizationId).toBe(1);
+    });
+
+    it('should return user subscription when it is higher tier', () => {
+      const userSub = {
+        ...createFreeSubscription(),
+        tier: SubscriptionTier.ENTERPRISE,
+        limits: TIER_LIMITS[SubscriptionTier.ENTERPRISE],
+      };
+      const orgSub = createOrgSubscription(1, 'org', 1);
+      orgSub.tier = SubscriptionTier.TEAM;
+      orgSub.limits = TIER_LIMITS[SubscriptionTier.TEAM];
+      const effective = resolveEffectiveSubscription(userSub, [orgSub]);
+      expect(effective.tier).toBe(SubscriptionTier.ENTERPRISE);
+      expect(effective.organizationId).toBeUndefined();
+    });
+
+    it('should skip inactive org subscriptions', () => {
+      const userSub = createFreeSubscription();
+      const orgSub = createOrgSubscription(1, 'org', 1);
+      orgSub.status = SubscriptionStatus.CANCELLED;
+      const effective = resolveEffectiveSubscription(userSub, [orgSub]);
+      expect(effective.tier).toBe(SubscriptionTier.FREE);
+    });
+
+    it('should pick the best among multiple org subscriptions', () => {
+      const userSub = createFreeSubscription();
+      const orgSub1 = createOrgSubscription(1, 'org1', 1);
+      orgSub1.tier = SubscriptionTier.TEAM;
+      orgSub1.limits = TIER_LIMITS[SubscriptionTier.TEAM];
+      const orgSub2 = createOrgSubscription(2, 'org2', 2);
+      const effective = resolveEffectiveSubscription(userSub, [orgSub1, orgSub2]);
+      expect(effective.tier).toBe(SubscriptionTier.ENTERPRISE);
+      expect(effective.organizationLogin).toBe('org2');
+    });
+
+    it('should deterministically prefer the most recent org subscription on tier ties', () => {
+      const userSub = createFreeSubscription();
+      const older = createOrgSubscription(1, 'org1', 1, { startDate: 1000 });
+      const newer = createOrgSubscription(2, 'org2', 2, { startDate: 2000 });
+      expect(resolveEffectiveSubscription(userSub, [older, newer]).organizationLogin).toBe('org2');
+      expect(resolveEffectiveSubscription(userSub, [newer, older]).organizationLogin).toBe('org2');
     });
   });
 });

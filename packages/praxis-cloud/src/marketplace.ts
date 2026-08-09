@@ -414,6 +414,9 @@ export class GitHubMarketplaceClient {
   handleWebhookEvent(event: MarketplaceWebhookEvent): {
     userId: number;
     userLogin: string;
+    accountId: number;
+    accountLogin: string;
+    accountType: 'User' | 'Organization';
     subscription: Subscription;
   } | null {
     const account = event.marketplacePurchase.account;
@@ -425,21 +428,29 @@ export class GitHubMarketplaceClient {
 
     const tier = mapMarketplacePlanToTier(account.plan);
 
+    const subscription: Subscription = {
+      tier,
+      status: SubscriptionStatus.ACTIVE,
+      provider: BillingProvider.MARKETPLACE,
+      marketplacePlanId: account.plan.id,
+      accountType: account.type,
+      organizationId: account.type === 'Organization' ? account.id : undefined,
+      organizationLogin: account.type === 'Organization' ? account.login : undefined,
+      startDate: Date.now(),
+      periodEnd: event.marketplacePurchase.nextBillingDate
+        ? new Date(event.marketplacePurchase.nextBillingDate).getTime()
+        : undefined,
+      autoRenew: true,
+      limits: TIER_LIMITS[tier],
+    };
+
     return {
       userId: account.id,
       userLogin: account.login,
-      subscription: {
-        tier,
-        status: SubscriptionStatus.ACTIVE,
-        provider: BillingProvider.MARKETPLACE,
-        marketplacePlanId: account.plan.id,
-        startDate: Date.now(),
-        periodEnd: event.marketplacePurchase.nextBillingDate
-          ? new Date(event.marketplacePurchase.nextBillingDate).getTime()
-          : undefined,
-        autoRenew: true,
-        limits: TIER_LIMITS[tier],
-      },
+      accountId: account.id,
+      accountLogin: account.login,
+      accountType: account.type,
+      subscription,
     };
   }
 }

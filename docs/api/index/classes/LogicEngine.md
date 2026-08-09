@@ -43,7 +43,7 @@ Defined in: packages/praxis-core/src/engine.ts:103
 
 > **addFacts**(`facts`): `void`
 
-Defined in: packages/praxis-core/src/engine.ts:380
+Defined in: packages/praxis-core/src/engine.ts:392
 
 Add facts directly (for exceptional cases).
 Generally, facts should be added through rules.
@@ -66,7 +66,7 @@ Facts to add
 
 > **checkConstraints**(): [`PraxisDiagnostics`](../interfaces/PraxisDiagnostics.md)[]
 
-Defined in: packages/praxis-core/src/engine.ts:396
+Defined in: packages/praxis-core/src/engine.ts:408
 
 Check all constraints without processing any events.
 
@@ -86,7 +86,7 @@ Array of constraint violation diagnostics (empty = all passing)
 
 > **clearFacts**(): `void`
 
-Defined in: packages/praxis-core/src/engine.ts:406
+Defined in: packages/praxis-core/src/engine.ts:418
 
 Clear all facts
 
@@ -142,7 +142,7 @@ Get the current state (immutable copy)
 
 > **reset**(`options`): `void`
 
-Defined in: packages/praxis-core/src/engine.ts:416
+Defined in: packages/praxis-core/src/engine.ts:428
 
 Reset the engine to initial state
 
@@ -187,7 +187,7 @@ Result with new state and diagnostics
 
 > **stepWithConfig**(`events`, `config`): [`PraxisStepResult`](../interfaces/PraxisStepResult.md)
 
-Defined in: packages/praxis-core/src/engine.ts:164
+Defined in: packages/praxis-core/src/engine.ts:166
 
 Process events with specific rule and constraint configuration.
 
@@ -217,7 +217,7 @@ Result with new state and diagnostics
 
 > **stepWithContext**(`updater`, `events`): [`PraxisStepResult`](../interfaces/PraxisStepResult.md)
 
-Defined in: packages/praxis-core/src/engine.ts:361
+Defined in: packages/praxis-core/src/engine.ts:373
 
 Atomically update context AND process events in a single call.
 
@@ -259,7 +259,7 @@ engine.stepWithContext(
 
 > **updateContext**(`updater`): `void`
 
-Defined in: packages/praxis-core/src/engine.ts:338
+Defined in: packages/praxis-core/src/engine.ts:350
 
 Update the context directly (for exceptional cases).
 Generally, context should be updated through rules.

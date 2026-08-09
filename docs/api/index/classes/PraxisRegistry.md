@@ -23,7 +23,7 @@ Maps IDs to their descriptors.
 
 > **new PraxisRegistry**\<`TContext`\>(`options?`): `PraxisRegistry`\<`TContext`\>
 
-Defined in: packages/praxis-core/src/rules.ts:149
+Defined in: packages/praxis-core/src/rules.ts:157
 
 #### Parameters
 
@@ -41,7 +41,7 @@ Defined in: packages/praxis-core/src/rules.ts:149
 
 > **clearContractGaps**(): `void`
 
-Defined in: packages/praxis-core/src/rules.ts:245
+Defined in: packages/praxis-core/src/rules.ts:303
 
 Clear collected contract gaps.
 
@@ -55,7 +55,7 @@ Clear collected contract gaps.
 
 > **getAllConstraints**(): [`ConstraintDescriptor`](../interfaces/ConstraintDescriptor.md)\<`TContext`\>[]
 
-Defined in: packages/praxis-core/src/rules.ts:231
+Defined in: packages/praxis-core/src/rules.ts:263
 
 Get all constraints
 
@@ -69,7 +69,7 @@ Get all constraints
 
 > **getAllRules**(): [`RuleDescriptor`](../interfaces/RuleDescriptor.md)\<`TContext`\>[]
 
-Defined in: packages/praxis-core/src/rules.ts:224
+Defined in: packages/praxis-core/src/rules.ts:256
 
 Get all rules
 
@@ -83,7 +83,7 @@ Get all rules
 
 > **getConstraint**(`id`): [`ConstraintDescriptor`](../interfaces/ConstraintDescriptor.md)\<`TContext`\> \| `undefined`
 
-Defined in: packages/praxis-core/src/rules.ts:203
+Defined in: packages/praxis-core/src/rules.ts:229
 
 Get a constraint by ID
 
@@ -103,7 +103,7 @@ Get a constraint by ID
 
 > **getConstraintIds**(): `string`[]
 
-Defined in: packages/praxis-core/src/rules.ts:217
+Defined in: packages/praxis-core/src/rules.ts:246
 
 Get all registered constraint IDs
 
@@ -117,7 +117,7 @@ Get all registered constraint IDs
 
 > **getContractGaps**(): [`ContractGap`](../interfaces/ContractGap.md)[]
 
-Defined in: packages/praxis-core/src/rules.ts:238
+Defined in: packages/praxis-core/src/rules.ts:296
 
 Get collected contract gaps from registration-time validation.
 
@@ -131,7 +131,7 @@ Get collected contract gaps from registration-time validation.
 
 > **getRule**(`id`): [`RuleDescriptor`](../interfaces/RuleDescriptor.md)\<`TContext`\> \| `undefined`
 
-Defined in: packages/praxis-core/src/rules.ts:196
+Defined in: packages/praxis-core/src/rules.ts:222
 
 Get a rule by ID
 
@@ -151,9 +151,31 @@ Get a rule by ID
 
 > **getRuleIds**(): `string`[]
 
-Defined in: packages/praxis-core/src/rules.ts:210
+Defined in: packages/praxis-core/src/rules.ts:236
 
 Get all registered rule IDs
+
+#### Returns
+
+`string`[]
+
+***
+
+### getRuleIdsForEvents()
+
+> **getRuleIdsForEvents**(`eventTags`): `string`[]
+
+Defined in: packages/praxis-core/src/rules.ts:272
+
+Get rule IDs relevant to a set of event tags using the pre-built index.
+Returns catch-all rules plus any rules whose eventTypes overlap the given tags.
+This avoids iterating all rules and checking eventTypes at evaluation time.
+
+#### Parameters
+
+##### eventTags
+
+`Set`\<`string`\>
 
 #### Returns
 
@@ -165,7 +187,7 @@ Get all registered rule IDs
 
 > **registerConstraint**(`descriptor`): `void`
 
-Defined in: packages/praxis-core/src/rules.ts:173
+Defined in: packages/praxis-core/src/rules.ts:198
 
 Register a constraint
 
@@ -185,7 +207,7 @@ Register a constraint
 
 > **registerModule**(`module`): `void`
 
-Defined in: packages/praxis-core/src/rules.ts:184
+Defined in: packages/praxis-core/src/rules.ts:210
 
 Register a module (all its rules and constraints)
 
@@ -205,7 +227,7 @@ Register a module (all its rules and constraints)
 
 > **registerRule**(`descriptor`): `void`
 
-Defined in: packages/praxis-core/src/rules.ts:162
+Defined in: packages/praxis-core/src/rules.ts:170
 
 Register a rule
 

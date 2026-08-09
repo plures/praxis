@@ -63,8 +63,10 @@ export {
   checkUsageLimits,
   createFreeSubscription,
   createSponsorSubscription,
+  createOrgSubscription,
+  resolveEffectiveSubscription,
 } from './billing.js';
-export type { TierLimits, Subscription, BillingEvent } from './billing.js';
+export type { TierLimits, Subscription, BillingEvent, BillingAccountType } from './billing.js';
 
 // GitHub Sponsors
 export { GitHubSponsorsClient, createSponsorsClient } from './sponsors.js';
