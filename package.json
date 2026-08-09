@@ -176,7 +176,8 @@
     "validate:contracts": "node ./dist/node/cli/index.js validate --output console",
     "validate:contracts:sarif": "node ./dist/node/cli/index.js validate --output sarif",
     "docs:api": "typedoc",
-    "docs:api:check": "typedoc && git diff --exit-code docs/api/"
+    "docs:api:check": "typedoc && git diff --exit-code docs/api/",
+    "prepack": "node scripts/verify-no-workspace-refs.js"
   },
   "keywords": [
     "praxis",
