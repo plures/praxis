@@ -414,6 +414,8 @@ export class GitHubMarketplaceClient {
   handleWebhookEvent(event: MarketplaceWebhookEvent): {
     userId: number;
     userLogin: string;
+    accountId: number;
+    accountLogin: string;
     accountType: 'User' | 'Organization';
     subscription: Subscription;
   } | null {
